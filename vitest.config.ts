@@ -25,6 +25,8 @@ export default defineConfig({
         '__tests__/**',
         'e2e/**',
         'src/components/ui/**',
+        'migrations/**',
+        'src/lib/db/__tests__/**',
       ],
     },
   },
