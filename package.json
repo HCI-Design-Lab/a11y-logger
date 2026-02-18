@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --grep-invert @a11y",
+    "test:a11y": "playwright test --grep @a11y",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -36,6 +37,7 @@
     ]
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
