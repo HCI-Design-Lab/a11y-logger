@@ -43,4 +43,16 @@ describe('database connection', () => {
     closeDb();
     expect(db.open).toBe(false);
   });
+
+  it('creates the parent directory if it does not exist', () => {
+    const tmpDir = path.join(os.tmpdir(), `a11y-test-${Date.now()}`);
+    const dbPath = path.join(tmpDir, 'test.db');
+
+    const testDb = getDb(dbPath);
+    expect(testDb.open).toBe(true);
+    expect(fs.existsSync(tmpDir)).toBe(true);
+
+    closeDb();
+    fs.rmSync(tmpDir, { recursive: true });
+  });
 });
