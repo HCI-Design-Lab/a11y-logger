@@ -19,3 +19,9 @@ test('theme toggle button is present', async ({ page }) => {
   await page.goto('/dashboard');
   await expect(page.getByRole('button', { name: 'Toggle theme' })).toBeVisible();
 });
+
+test('clicking Projects link navigates to /projects', async ({ page }) => {
+  await page.goto('/dashboard');
+  await page.getByRole('link', { name: 'Projects' }).click();
+  await page.waitForURL(/\/projects/);
+});
