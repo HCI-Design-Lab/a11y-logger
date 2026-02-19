@@ -16,6 +16,12 @@ export async function POST(_request: Request, { params }: RouteContext) {
     }
 
     const published = publishReport(id);
+    if (!published) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to publish report', code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ success: true, data: published });
   } catch {
     return NextResponse.json(
