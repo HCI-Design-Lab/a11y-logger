@@ -15,6 +15,12 @@ export async function POST(_request: Request, { params }: RouteContext) {
     }
 
     const published = publishVpat(id);
+    if (!published) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to publish VPAT', code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ success: true, data: published });
   } catch {
     return NextResponse.json(
