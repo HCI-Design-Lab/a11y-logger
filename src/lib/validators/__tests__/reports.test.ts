@@ -80,9 +80,12 @@ describe('UpdateReportSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('does not accept project_id (not updatable)', () => {
-    // project_id should not be present in UpdateReportSchema
-    const schema = UpdateReportSchema;
-    expect((schema as { shape?: unknown }).shape).not.toHaveProperty('project_id');
+  it('does not include project_id in parsed output (not updatable)', () => {
+    const result = UpdateReportSchema.safeParse({
+      title: 'Updated Title',
+      project_id: 'proj-should-be-ignored',
+    });
+    expect(result.success).toBe(true);
+    expect((result.data as Record<string, unknown>).project_id).toBeUndefined();
   });
 });
