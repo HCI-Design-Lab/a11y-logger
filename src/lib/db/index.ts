@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { runMigrations } from './migrate';
 import { loadMigrations } from './load-migrations';
+import { seedDefaultSettings } from './settings';
 
 let db: Database.Database | null = null;
 
@@ -35,6 +36,7 @@ export function initDb(dbPath?: string): Database.Database {
   const database = getDb(dbPath);
   const migrations = loadMigrations(MIGRATIONS_DIR);
   runMigrations(database, migrations);
+  seedDefaultSettings();
   return database;
 }
 
