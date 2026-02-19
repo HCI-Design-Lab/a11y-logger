@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { getProject, updateProject, deleteProject } from '@/lib/db/projects';
 import { UpdateProjectSchema } from '@/lib/validators/projects';
 
-type RouteContext = { params: Promise<{ id: string }> };
+type RouteContext = { params: Promise<{ projectId: string }> };
 
 export async function GET(_request: Request, { params }: RouteContext) {
-  const { id } = await params;
-  const project = getProject(id);
+  const { projectId } = await params;
+  const project = getProject(projectId);
 
   if (!project) {
     return NextResponse.json(
@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const { id } = await params;
+  const { projectId } = await params;
 
   const body = await request.json();
   const result = UpdateProjectSchema.safeParse(body);
@@ -31,7 +31,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
     );
   }
 
-  const project = updateProject(id, result.data);
+  const project = updateProject(projectId, result.data);
 
   if (!project) {
     return NextResponse.json(
@@ -44,8 +44,8 @@ export async function PUT(request: Request, { params }: RouteContext) {
 }
 
 export async function DELETE(_request: Request, { params }: RouteContext) {
-  const { id } = await params;
-  const deleted = deleteProject(id);
+  const { projectId } = await params;
+  const deleted = deleteProject(projectId);
 
   if (!deleted) {
     return NextResponse.json(
