@@ -6,8 +6,8 @@ import { UpdateSettingSchema } from '@/lib/validators/settings';
 type RouteContext = { params: Promise<{ key: string }> };
 
 export async function GET(_request: Request, { params }: RouteContext) {
+  const { key } = await params;
   try {
-    const { key } = await params;
     const value = getSetting(key);
 
     if (value === null) {
@@ -28,8 +28,8 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
+  const { key } = await params;
   try {
-    const { key } = await params;
     const body = await request.json();
     const result = UpdateSettingSchema.safeParse(body);
 
