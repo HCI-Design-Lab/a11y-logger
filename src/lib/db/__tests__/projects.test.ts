@@ -94,7 +94,7 @@ describe('getProjects', () => {
     const names = projects.map((p) => p.name);
     expect(names).toContain('First');
     expect(names).toContain('Second');
-    expect(projects[0].id === p1.id || projects[0].id === p2.id).toBe(true);
+    expect(projects[0]!.id === p1.id || projects[0]!.id === p2.id).toBe(true);
   });
 
   it('counts zero assessments and issues for new projects', () => {
