@@ -1,0 +1,127 @@
+// @vitest-environment node
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { initDb, closeDb, getDb } from '@/lib/db/index';
+import { createProject } from '@/lib/db/projects';
+import { createReport, publishReport } from '@/lib/db/reports';
+import { GET, PUT, DELETE } from '../route';
+
+let projectId: string;
+let reportId: string;
+
+beforeAll(() => {
+  initDb(':memory:');
+});
+
+afterAll(() => {
+  closeDb();
+});
+
+beforeEach(() => {
+  getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM projects').run();
+  const project = createProject({ name: 'Test Project' });
+  projectId = project.id;
+  const report = createReport({ title: 'Test Report', project_id: projectId });
+  reportId = report.id;
+});
+
+function makeContext(id: string) {
+  return { params: Promise.resolve({ id }) };
+}
+
+describe('GET /api/reports/[id]', () => {
+  it('returns the report', async () => {
+    const response = await GET(
+      new Request(`http://localhost/api/reports/${reportId}`),
+      makeContext(reportId)
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.id).toBe(reportId);
+    expect(body.data.title).toBe('Test Report');
+  });
+
+  it('returns 404 when report does not exist', async () => {
+    const response = await GET(
+      new Request('http://localhost/api/reports/no-report'),
+      makeContext('no-report')
+    );
+    expect(response.status).toBe(404);
+    const body = await response.json();
+    expect(body.code).toBe('NOT_FOUND');
+  });
+});
+
+describe('PUT /api/reports/[id]', () => {
+  it('updates the report and returns it', async () => {
+    const request = new Request(`http://localhost/api/reports/${reportId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Updated Title', type: 'executive' }),
+    });
+    const response = await PUT(request, makeContext(reportId));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.title).toBe('Updated Title');
+    expect(body.data.type).toBe('executive');
+  });
+
+  it('returns 400 for invalid update data', async () => {
+    const request = new Request(`http://localhost/api/reports/${reportId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: '' }),
+    });
+    const response = await PUT(request, makeContext(reportId));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 404 when report does not exist', async () => {
+    const request = new Request('http://localhost/api/reports/no-report', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'X' }),
+    });
+    const response = await PUT(request, makeContext('no-report'));
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 409 when report is published (immutable)', async () => {
+    publishReport(reportId);
+    const request = new Request(`http://localhost/api/reports/${reportId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Attempt Edit' }),
+    });
+    const response = await PUT(request, makeContext(reportId));
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.code).toBe('CONFLICT');
+  });
+});
+
+describe('DELETE /api/reports/[id]', () => {
+  it('deletes the report and returns success', async () => {
+    const response = await DELETE(
+      new Request(`http://localhost/api/reports/${reportId}`),
+      makeContext(reportId)
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({ success: true, data: null });
+  });
+
+  it('returns 404 when report does not exist', async () => {
+    const response = await DELETE(
+      new Request('http://localhost/api/reports/no-report'),
+      makeContext('no-report')
+    );
+    expect(response.status).toBe(404);
+    const body = await response.json();
+    expect(body.code).toBe('NOT_FOUND');
+  });
+});
