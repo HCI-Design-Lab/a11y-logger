@@ -16,13 +16,13 @@ beforeEach(() => {
   getDb().prepare('DELETE FROM projects').run();
 });
 
-type RouteParams = { params: Promise<{ id: string }> };
+type RouteParams = { params: Promise<{ projectId: string }> };
 
-function makeParams(id: string): RouteParams {
-  return { params: Promise.resolve({ id }) };
+function makeParams(projectId: string): RouteParams {
+  return { params: Promise.resolve({ projectId }) };
 }
 
-describe('GET /api/projects/[id]', () => {
+describe('GET /api/projects/[projectId]', () => {
   it('returns the project', async () => {
     const project = createProject({ name: 'Find Me' });
     const response = await GET(new Request('http://localhost'), makeParams(project.id));
@@ -41,7 +41,7 @@ describe('GET /api/projects/[id]', () => {
   });
 });
 
-describe('PUT /api/projects/[id]', () => {
+describe('PUT /api/projects/[projectId]', () => {
   it('updates and returns the project', async () => {
     const project = createProject({ name: 'Old Name' });
     const request = new Request('http://localhost', {
@@ -82,7 +82,7 @@ describe('PUT /api/projects/[id]', () => {
   });
 });
 
-describe('DELETE /api/projects/[id]', () => {
+describe('DELETE /api/projects/[projectId]', () => {
   it('deletes the project and returns 200', async () => {
     const project = createProject({ name: 'Doomed' });
     const response = await DELETE(new Request('http://localhost'), makeParams(project.id));
