@@ -1,0 +1,100 @@
+import { NextResponse } from 'next/server';
+import { getProject } from '@/lib/db/projects';
+import { getAssessment, updateAssessment, deleteAssessment } from '@/lib/db/assessments';
+import { UpdateAssessmentSchema } from '@/lib/validators/assessments';
+
+type RouteContext = { params: Promise<{ projectId: string; id: string }> };
+
+async function resolveAssessment(projectId: string, id: string) {
+  const project = getProject(projectId);
+  if (!project) {
+    return {
+      error: NextResponse.json(
+        { success: false, error: 'Project not found', code: 'NOT_FOUND' },
+        { status: 404 }
+      ),
+    };
+  }
+
+  const assessment = getAssessment(id);
+  if (!assessment || assessment.project_id !== projectId) {
+    return {
+      error: NextResponse.json(
+        { success: false, error: 'Assessment not found', code: 'NOT_FOUND' },
+        { status: 404 }
+      ),
+    };
+  }
+
+  return { assessment };
+}
+
+export async function GET(_request: Request, { params }: RouteContext) {
+  const { projectId, id } = await params;
+
+  try {
+    const resolved = await resolveAssessment(projectId, id);
+    if (resolved.error) return resolved.error;
+    return NextResponse.json({ success: true, data: resolved.assessment });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch assessment', code: 'INTERNAL_ERROR' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request, { params }: RouteContext) {
+  const { projectId, id } = await params;
+
+  try {
+    const resolved = await resolveAssessment(projectId, id);
+    if (resolved.error) return resolved.error;
+
+    const body = await request.json();
+    const result = UpdateAssessmentSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error.issues.map((i) => i.message).join('; '),
+          code: 'VALIDATION_ERROR',
+        },
+        { status: 400 }
+      );
+    }
+
+    const updated = updateAssessment(id, result.data);
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, error: 'Assessment not found', code: 'NOT_FOUND' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: updated });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Failed to update assessment', code: 'INTERNAL_ERROR' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(_request: Request, { params }: RouteContext) {
+  const { projectId, id } = await params;
+
+  try {
+    const resolved = await resolveAssessment(projectId, id);
+    if (resolved.error) return resolved.error;
+
+    deleteAssessment(id);
+    return NextResponse.json({ success: true, data: null });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete assessment', code: 'INTERNAL_ERROR' },
+      { status: 500 }
+    );
+  }
+}
