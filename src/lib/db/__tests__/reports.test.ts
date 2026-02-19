@@ -194,10 +194,11 @@ describe('publishReport', () => {
     expect(publishReport('ghost-id')).toBeNull();
   });
 
-  it('is idempotent — publishing an already-published report succeeds', () => {
+  it('is idempotent — publishing an already-published report preserves original published_at', () => {
     const created = createReport({ title: 'Already Published', project_id: projectId });
-    publishReport(created.id);
-    const again = publishReport(created.id);
-    expect(again?.status).toBe('published');
+    const first = publishReport(created.id);
+    const second = publishReport(created.id);
+    expect(second?.status).toBe('published');
+    expect(second?.published_at).toBe(first?.published_at);
   });
 });

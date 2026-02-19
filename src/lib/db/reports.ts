@@ -101,6 +101,9 @@ export function publishReport(id: string): Report | null {
   const existing = getReport(id);
   if (!existing) return null;
 
+  // Already published — return as-is to preserve original published_at
+  if (existing.status === 'published') return existing;
+
   getDb()
     .prepare(
       `UPDATE reports SET status = 'published', published_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
