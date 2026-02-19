@@ -83,6 +83,20 @@ describe('PUT /api/users/[id]', () => {
     const response = await PUT(request, makeContext('nonexistent'));
     expect(response.status).toBe(404);
   });
+
+  it('returns 409 when updating to an already taken username', async () => {
+    await createUser({ username: 'alice', password: 'pass12345' });
+    const bob = await createUser({ username: 'bob', password: 'pass12345' });
+    const request = new Request('http://localhost', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'alice' }), // already taken
+    });
+    const response = await PUT(request, makeContext(bob.id));
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.code).toBe('CONFLICT');
+  });
 });
 
 describe('DELETE /api/users/[id]', () => {

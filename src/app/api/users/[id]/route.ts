@@ -1,24 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getUser, updateUser, deleteUser } from '@/lib/db/users';
-import { getSetting } from '@/lib/db/settings';
 import { UpdateUserSchema } from '@/lib/validators/users';
+import { requireAuth } from '@/lib/auth-guard';
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-function requireAuth(): NextResponse | null {
-  const enabled = getSetting('auth_enabled');
-  if (!enabled) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'User management requires auth to be enabled',
-        code: 'AUTH_NOT_ENABLED',
-      },
-      { status: 403 }
-    );
-  }
-  return null;
-}
 
 export async function GET(_request: Request, { params }: RouteContext) {
   const { id } = await params;
@@ -74,7 +59,14 @@ export async function PUT(request: Request, { params }: RouteContext) {
     }
 
     return NextResponse.json({ success: true, data: updated });
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '';
+    if (message.includes('UNIQUE constraint failed')) {
+      return NextResponse.json(
+        { success: false, error: 'Username already exists', code: 'CONFLICT' },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: 'Failed to update user', code: 'INTERNAL_ERROR' },
       { status: 500 }
