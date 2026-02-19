@@ -28,7 +28,12 @@ export function getSetting(key: string): SettingValue {
 
   if (!row) return null;
 
-  const parsed = JSON.parse(row.value) as SettingValue;
+  let parsed: SettingValue;
+  try {
+    parsed = JSON.parse(row.value) as SettingValue;
+  } catch {
+    return null;
+  }
 
   if (isSensitiveKey(key) && typeof parsed === 'string' && isEncrypted(parsed)) {
     return decrypt(parsed);
@@ -54,7 +59,12 @@ export function getSettings(): Record<string, SettingValue> {
   const result: Record<string, SettingValue> = {};
 
   for (const row of rows) {
-    const parsed = JSON.parse(row.value) as SettingValue;
+    let parsed: SettingValue;
+    try {
+      parsed = JSON.parse(row.value) as SettingValue;
+    } catch {
+      continue;
+    }
 
     if (isSensitiveKey(row.key)) {
       result[row.key] = '[REDACTED]';
