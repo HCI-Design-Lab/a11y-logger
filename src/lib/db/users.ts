@@ -87,6 +87,7 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   return getUser(id);
 }
 
-export function deleteUser(id: string): void {
-  getDb().prepare('DELETE FROM users WHERE id = ?').run(id);
+export function deleteUser(id: string): boolean {
+  const result = getDb().prepare('DELETE FROM users WHERE id = ?').run(id);
+  return result.changes > 0;
 }

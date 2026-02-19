@@ -125,4 +125,13 @@ describe('deleteUser', () => {
   it('does not throw for non-existent id', () => {
     expect(() => deleteUser('nonexistent')).not.toThrow();
   });
+
+  it('returns true when the user was deleted', async () => {
+    const created = await createUser({ username: 'alice', password: 'pass' });
+    expect(deleteUser(created.id)).toBe(true);
+  });
+
+  it('returns false when user does not exist', () => {
+    expect(deleteUser('nonexistent-id')).toBe(false);
+  });
 });
