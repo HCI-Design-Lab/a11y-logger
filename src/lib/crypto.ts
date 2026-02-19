@@ -50,7 +50,11 @@ export function encrypt(plaintext: string, keyHex?: string): string {
  */
 export function decrypt(ciphertext: string, keyHex?: string): string {
   const key = Buffer.from(keyHex ?? getEncryptionKey(), 'hex');
-  const [ivHex, authTagHex, encryptedHex] = ciphertext.split(':');
+  const parts = ciphertext.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid ciphertext format — expected iv:authTag:ciphertext');
+  }
+  const [ivHex, authTagHex, encryptedHex] = parts as [string, string, string];
   const iv = Buffer.from(ivHex, 'hex');
   const authTag = Buffer.from(authTagHex, 'hex');
   const encrypted = Buffer.from(encryptedHex, 'hex');
@@ -64,5 +68,7 @@ export function decrypt(ciphertext: string, keyHex?: string): string {
  */
 export function isEncrypted(value: string): boolean {
   const parts = value.split(':');
-  return parts.length === 3 && parts[0].length === 24 && parts[1].length === 32;
+  if (parts.length !== 3) return false;
+  const [iv, authTag] = parts as [string, string, string];
+  return iv.length === 24 && authTag.length === 32;
 }
