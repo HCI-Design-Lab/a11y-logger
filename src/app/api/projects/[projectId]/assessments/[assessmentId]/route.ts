@@ -3,9 +3,9 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment, updateAssessment, deleteAssessment } from '@/lib/db/assessments';
 import { UpdateAssessmentSchema } from '@/lib/validators/assessments';
 
-type RouteContext = { params: Promise<{ projectId: string; id: string }> };
+type RouteContext = { params: Promise<{ projectId: string; assessmentId: string }> };
 
-async function resolveAssessment(projectId: string, id: string) {
+async function resolveAssessment(projectId: string, assessmentId: string) {
   const project = getProject(projectId);
   if (!project) {
     return {
@@ -16,7 +16,7 @@ async function resolveAssessment(projectId: string, id: string) {
     };
   }
 
-  const assessment = getAssessment(id);
+  const assessment = getAssessment(assessmentId);
   if (!assessment || assessment.project_id !== projectId) {
     return {
       error: NextResponse.json(
@@ -30,10 +30,10 @@ async function resolveAssessment(projectId: string, id: string) {
 }
 
 export async function GET(_request: Request, { params }: RouteContext) {
-  const { projectId, id } = await params;
+  const { projectId, assessmentId } = await params;
 
   try {
-    const resolved = await resolveAssessment(projectId, id);
+    const resolved = await resolveAssessment(projectId, assessmentId);
     if (resolved.error) return resolved.error;
     return NextResponse.json({ success: true, data: resolved.assessment });
   } catch {
@@ -45,10 +45,10 @@ export async function GET(_request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const { projectId, id } = await params;
+  const { projectId, assessmentId } = await params;
 
   try {
-    const resolved = await resolveAssessment(projectId, id);
+    const resolved = await resolveAssessment(projectId, assessmentId);
     if (resolved.error) return resolved.error;
 
     const body = await request.json();
@@ -65,7 +65,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const updated = updateAssessment(id, result.data);
+    const updated = updateAssessment(assessmentId, result.data);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Assessment not found', code: 'NOT_FOUND' },
@@ -83,13 +83,13 @@ export async function PUT(request: Request, { params }: RouteContext) {
 }
 
 export async function DELETE(_request: Request, { params }: RouteContext) {
-  const { projectId, id } = await params;
+  const { projectId, assessmentId } = await params;
 
   try {
-    const resolved = await resolveAssessment(projectId, id);
+    const resolved = await resolveAssessment(projectId, assessmentId);
     if (resolved.error) return resolved.error;
 
-    deleteAssessment(id);
+    deleteAssessment(assessmentId);
     return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(

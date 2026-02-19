@@ -26,7 +26,7 @@ beforeEach(() => {
 });
 
 function makeContext(pid: string, id: string) {
-  return { params: Promise.resolve({ projectId: pid, id }) };
+  return { params: Promise.resolve({ projectId: pid, assessmentId: id }) };
 }
 
 describe('GET /api/projects/[projectId]/assessments/[id]', () => {
