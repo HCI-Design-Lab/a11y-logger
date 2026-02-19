@@ -135,9 +135,10 @@ export function publishVpat(id: string): Vpat | null {
  */
 export function getInvalidIssueIds(ids: string[]): string[] {
   if (ids.length === 0) return [];
-  const db = getDb();
-  return ids.filter((id) => {
-    const row = db.prepare('SELECT id FROM issues WHERE id = ?').get(id);
-    return !row;
-  });
+  const placeholders = ids.map(() => '?').join(', ');
+  const found = getDb()
+    .prepare(`SELECT id FROM issues WHERE id IN (${placeholders})`)
+    .all(...ids) as { id: string }[];
+  const foundSet = new Set(found.map((r) => r.id));
+  return ids.filter((id) => !foundSet.has(id));
 }
