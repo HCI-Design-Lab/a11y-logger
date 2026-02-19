@@ -27,9 +27,10 @@ export function Sidebar() {
           key={href}
           href={href}
           aria-label={label}
+          aria-current={pathname === href || pathname.startsWith(href + '/') ? 'page' : undefined}
           className={cn(
             'flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-sidebar-accent',
-            pathname.startsWith(href) && 'bg-sidebar-accent'
+            (pathname === href || pathname.startsWith(href + '/')) && 'bg-sidebar-accent'
           )}
         >
           <Icon className="h-5 w-5" aria-hidden="true" />

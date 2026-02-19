@@ -24,3 +24,15 @@ test('active route gets highlighted class', () => {
   const dashLink = screen.getByRole('link', { name: /dashboard/i });
   expect(dashLink).toHaveClass('bg-sidebar-accent');
 });
+
+test('active link has aria-current="page"', () => {
+  render(<Sidebar />);
+  const dashLink = screen.getByRole('link', { name: /dashboard/i });
+  expect(dashLink).toHaveAttribute('aria-current', 'page');
+});
+
+test('inactive links do not have aria-current', () => {
+  render(<Sidebar />);
+  const projectsLink = screen.getByRole('link', { name: /projects/i });
+  expect(projectsLink).not.toHaveAttribute('aria-current');
+});

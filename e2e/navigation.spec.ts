@@ -17,7 +17,7 @@ test('sidebar navigation is present and accessible', async ({ page }) => {
 
 test('theme toggle button is present', async ({ page }) => {
   await page.goto('/dashboard');
-  await expect(page.getByRole('button', { name: 'Toggle theme' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /switch to/i })).toBeVisible();
 });
 
 test('clicking Projects link navigates to /projects', async ({ page }) => {
