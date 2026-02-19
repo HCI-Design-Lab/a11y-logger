@@ -36,6 +36,6 @@ export const UpdateVpatSchema = z
   })
   .partial();
 
-export type CreateVpatInput = z.infer<typeof CreateVpatSchema>;
+export type CreateVpatInput = z.input<typeof CreateVpatSchema>;
 export type UpdateVpatInput = z.infer<typeof UpdateVpatSchema>;
 export type CriterionRow = z.infer<typeof CriterionRowSchema>;
