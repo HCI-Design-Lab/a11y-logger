@@ -1,9 +1,7 @@
-import { initDb } from '@/lib/db';
 import { getSetting } from '@/lib/db/settings';
 import { SettingsClient } from '@/components/settings/settings-client';
 
 export default function SettingsPage() {
-  initDb();
   const aiProvider = (getSetting('ai_provider') as string) ?? '';
   // The API key is encrypted at rest — pass a masked placeholder if one exists
   const rawApiKey = getSetting('ai_api_key');

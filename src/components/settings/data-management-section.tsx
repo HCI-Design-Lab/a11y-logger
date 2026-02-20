@@ -34,12 +34,17 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>Database Path</Label>
-            <Input value={dbPath} readOnly className="font-mono text-sm bg-muted" />
+            <Label htmlFor="db-path">Database Path</Label>
+            <Input id="db-path" value={dbPath} readOnly className="font-mono text-sm bg-muted" />
           </div>
           <div className="space-y-1.5">
-            <Label>Media Path</Label>
-            <Input value={mediaPath} readOnly className="font-mono text-sm bg-muted" />
+            <Label htmlFor="media-path">Media Path</Label>
+            <Input
+              id="media-path"
+              value={mediaPath}
+              readOnly
+              className="font-mono text-sm bg-muted"
+            />
           </div>
         </div>
 
@@ -69,11 +74,15 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
                   This will permanently delete ALL data. Type <strong>RESET</strong> to confirm.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <Input
-                value={resetConfirm}
-                onChange={(e) => setResetConfirm(e.target.value)}
-                placeholder="Type RESET to confirm"
-              />
+              <div className="space-y-1.5">
+                <Label htmlFor="reset-confirm">Type RESET to confirm</Label>
+                <Input
+                  id="reset-confirm"
+                  value={resetConfirm}
+                  onChange={(e) => setResetConfirm(e.target.value)}
+                  placeholder="RESET"
+                />
+              </div>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setResetConfirm('')}>Cancel</AlertDialogCancel>
                 <AlertDialogAction

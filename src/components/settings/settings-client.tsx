@@ -22,16 +22,25 @@ export function SettingsClient({
 }: SettingsClientProps) {
   const handleSaveAI = async (data: { provider: string; apiKey: string }) => {
     try {
-      await fetch('/api/settings/ai_provider', {
+      const providerRes = await fetch('/api/settings/ai_provider', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: data.provider }),
       });
-      await fetch('/api/settings/ai_api_key', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: data.apiKey }),
-      });
+      const providerJson = await providerRes.json();
+      if (!providerJson.success) throw new Error(providerJson.error);
+
+      // Only update API key if it's not the redacted placeholder
+      if (data.apiKey !== '[REDACTED]') {
+        const keyRes = await fetch('/api/settings/ai_api_key', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.apiKey }),
+        });
+        const keyJson = await keyRes.json();
+        if (!keyJson.success) throw new Error(keyJson.error);
+      }
+
       toast.success('AI configuration saved');
     } catch {
       toast.error('Failed to save AI configuration');
