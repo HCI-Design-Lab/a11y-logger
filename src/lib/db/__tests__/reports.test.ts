@@ -9,6 +9,7 @@ import {
   updateReport,
   deleteReport,
   publishReport,
+  unpublishReport,
 } from '../reports';
 
 let projectId: string;
@@ -200,5 +201,27 @@ describe('publishReport', () => {
     const second = publishReport(created.id);
     expect(second?.status).toBe('published');
     expect(second?.published_at).toBe(first?.published_at);
+  });
+});
+
+describe('unpublishReport', () => {
+  it('reverts a published report back to draft and clears published_at', () => {
+    const created = createReport({ title: 'To Unpublish', project_id: projectId });
+    publishReport(created.id);
+    const unpublished = unpublishReport(created.id);
+    expect(unpublished).not.toBeNull();
+    expect(unpublished!.status).toBe('draft');
+    expect(unpublished!.published_at).toBeNull();
+  });
+
+  it('is idempotent — unpublishing a draft report returns it unchanged', () => {
+    const created = createReport({ title: 'Already Draft', project_id: projectId });
+    const result = unpublishReport(created.id);
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe('draft');
+  });
+
+  it('returns null for nonexistent id', () => {
+    expect(unpublishReport('ghost-id')).toBeNull();
   });
 });

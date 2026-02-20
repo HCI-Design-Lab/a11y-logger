@@ -112,3 +112,19 @@ export function publishReport(id: string): Report | null {
 
   return getReport(id);
 }
+
+export function unpublishReport(id: string): Report | null {
+  const existing = getReport(id);
+  if (!existing) return null;
+
+  // Already draft — return as-is
+  if (existing.status === 'draft') return existing;
+
+  getDb()
+    .prepare(
+      `UPDATE reports SET status = 'draft', published_at = NULL, updated_at = datetime('now') WHERE id = ?`
+    )
+    .run(id);
+
+  return getReport(id);
+}
