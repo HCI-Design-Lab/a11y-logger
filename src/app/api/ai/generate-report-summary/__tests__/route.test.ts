@@ -122,6 +122,36 @@ describe('POST /api/ai/generate-report-summary', () => {
     expect(mockGenerate).toHaveBeenCalledWith(expect.any(String), 'Executive Summary');
   });
 
+  it('returns 404 when report belongs to a different project', async () => {
+    mockGetAIProvider.mockReturnValue({
+      analyzeIssue: vi.fn(),
+      generateReportSection: vi.fn(),
+      generateVpatRemarks: vi.fn(),
+      testConnection: vi.fn(),
+    });
+
+    const project1 = createProject({ name: 'Project 1' });
+    const project2 = createProject({ name: 'Project 2' });
+    const reportForProject2 = createReport({
+      project_id: project2.id,
+      title: 'Report for Project 2',
+      type: 'detailed',
+      content: [],
+    });
+
+    const req = new Request('http://localhost/api/ai/generate-report-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId: project1.id, reportId: reportForProject2.id }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('NOT_FOUND');
+  });
+
   it('returns 500 when AI provider throws an error', async () => {
     const mockGenerate = vi.fn().mockRejectedValue(new Error('Rate limit exceeded'));
     mockGetAIProvider.mockReturnValue({

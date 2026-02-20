@@ -28,6 +28,11 @@ describe('ReportForm AI Generate Summary', () => {
     vi.clearAllMocks();
   });
 
+  it('does not render Generate with AI button in create mode', () => {
+    render(<ReportForm projects={[{ id: 'p1', name: 'Test Project' }]} />);
+    expect(screen.queryByRole('button', { name: /generate with ai/i })).not.toBeInTheDocument();
+  });
+
   it('renders the Generate with AI button when editing a report', () => {
     render(<ReportForm report={mockReport} />);
     expect(screen.getByRole('button', { name: /generate with ai/i })).toBeInTheDocument();

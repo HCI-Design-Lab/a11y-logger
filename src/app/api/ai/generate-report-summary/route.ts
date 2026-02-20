@@ -55,6 +55,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (report.project_id !== projectId) {
+    return NextResponse.json(
+      { success: false, error: 'Report not found', code: 'NOT_FOUND' },
+      { status: 404 }
+    );
+  }
+
   // Gather context: assessments and all issues for this project
   const assessments = getAssessments(projectId);
   const allIssues = assessments.flatMap((a) => getIssues(a.id));
