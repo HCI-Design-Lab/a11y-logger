@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import JSZip from 'jszip';
+import { getDb } from '@/lib/db';
 import { createProject, getProjects } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
 import { createIssue } from '@/lib/db/issues';
@@ -18,12 +19,25 @@ export async function POST(req: NextRequest) {
   try {
     formData = await req.formData();
   } catch {
-    return NextResponse.json({ success: false, error: 'Invalid form data' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: 'Invalid form data', code: 'VALIDATION_ERROR' },
+      { status: 400 }
+    );
   }
 
   const file = formData.get('file') as File | null;
   if (!file) {
-    return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: 'No file provided', code: 'VALIDATION_ERROR' },
+      { status: 400 }
+    );
+  }
+
+  if (file.size > 50 * 1024 * 1024) {
+    return NextResponse.json(
+      { success: false, error: 'File too large (max 50MB)', code: 'FILE_TOO_LARGE' },
+      { status: 400 }
+    );
   }
 
   try {
@@ -33,7 +47,7 @@ export async function POST(req: NextRequest) {
     // Validate manifest
     if (!zip.files['manifest.json']) {
       return NextResponse.json(
-        { success: false, error: 'Invalid export: missing manifest.json' },
+        { success: false, error: 'Invalid export: missing manifest.json', code: 'VALIDATION_ERROR' },
         { status: 400 }
       );
     }
@@ -41,7 +55,7 @@ export async function POST(req: NextRequest) {
     // Validate project data
     if (!zip.files['project.json']) {
       return NextResponse.json(
-        { success: false, error: 'Invalid export: missing project.json' },
+        { success: false, error: 'Invalid export: missing project.json', code: 'VALIDATION_ERROR' },
         { status: 400 }
       );
     }
@@ -59,53 +73,57 @@ export async function POST(req: NextRequest) {
       projectName = `${projectName} (imported)`;
     }
 
-    // Create the new project
-    const newProject = createProject({
-      name: projectName,
-      description: originalProject.description ?? undefined,
-      product_url: originalProject.product_url ?? undefined,
-      status: originalProject.status,
-    });
-
-    // Map old assessment IDs to new ones
-    const assessmentIdMap = new Map<string, string>();
-
-    for (const assessment of assessments) {
-      const newAssessment = createAssessment(newProject.id, {
-        name: assessment.name,
-        description: assessment.description ?? undefined,
-        test_date_start: assessment.test_date_start ?? undefined,
-        test_date_end: assessment.test_date_end ?? undefined,
-        status: assessment.status,
-        assigned_to: assessment.assigned_to ?? undefined,
+    // Create project, assessments, and issues atomically
+    let newProjectId: string;
+    getDb().transaction(() => {
+      const newProject = createProject({
+        name: projectName,
+        description: originalProject.description ?? undefined,
+        product_url: originalProject.product_url ?? undefined,
+        status: originalProject.status,
       });
-      assessmentIdMap.set(assessment.id, newAssessment.id);
-    }
+      newProjectId = newProject.id;
 
-    // Import issues linked to new assessment IDs
-    for (const issue of issues) {
-      const newAssessmentId = assessmentIdMap.get(issue.assessment_id);
-      if (!newAssessmentId) continue;
+      // Map old assessment IDs to new ones
+      const assessmentIdMap = new Map<string, string>();
 
-      createIssue(newAssessmentId, {
-        title: issue.title,
-        description: issue.description ?? undefined,
-        url: issue.url ?? undefined,
-        severity: issue.severity,
-        status: issue.status,
-        wcag_codes: issue.wcag_codes,
-        device_type: issue.device_type ?? undefined,
-        browser: issue.browser ?? undefined,
-        operating_system: issue.operating_system ?? undefined,
-        assistive_technology: issue.assistive_technology ?? undefined,
-        evidence_media: issue.evidence_media,
-        tags: issue.tags,
-      });
-    }
+      for (const assessment of assessments) {
+        const newAssessment = createAssessment(newProject.id, {
+          name: assessment.name,
+          description: assessment.description ?? undefined,
+          test_date_start: assessment.test_date_start ?? undefined,
+          test_date_end: assessment.test_date_end ?? undefined,
+          status: assessment.status,
+          assigned_to: assessment.assigned_to ?? undefined,
+        });
+        assessmentIdMap.set(assessment.id, newAssessment.id);
+      }
 
-    return NextResponse.json({ success: true, data: { projectId: newProject.id } });
+      // Import issues linked to new assessment IDs
+      for (const issue of issues) {
+        const newAssessmentId = assessmentIdMap.get(issue.assessment_id);
+        if (!newAssessmentId) continue;
+
+        createIssue(newAssessmentId, {
+          title: issue.title,
+          description: issue.description ?? undefined,
+          url: issue.url ?? undefined,
+          severity: issue.severity,
+          status: issue.status,
+          wcag_codes: issue.wcag_codes,
+          device_type: issue.device_type ?? undefined,
+          browser: issue.browser ?? undefined,
+          operating_system: issue.operating_system ?? undefined,
+          assistive_technology: issue.assistive_technology ?? undefined,
+          evidence_media: issue.evidence_media,
+          tags: issue.tags,
+        });
+      }
+    })();
+
+    return NextResponse.json({ success: true, data: { projectId: newProjectId! } });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to import';
-    return NextResponse.json({ success: false, error: message }, { status: 400 });
+    return NextResponse.json({ success: false, error: message, code: 'INTERNAL_ERROR' }, { status: 400 });
   }
 }

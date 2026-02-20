@@ -99,6 +99,31 @@ describe('POST /api/import', () => {
     expect(body.error).toContain('No file');
   });
 
+  it('returns 400 if file exceeds 50MB size limit', async () => {
+    // Use a plain object to simulate a File with size > 50MB (Blob.size is read-only)
+    const fakeFile = {
+      size: 51 * 1024 * 1024,
+      name: 'big.zip',
+      type: 'application/zip',
+      arrayBuffer: async () => new ArrayBuffer(0),
+    };
+
+    const mockRequest = {
+      formData: async () => {
+        return {
+          get: (key: string) => (key === 'file' ? fakeFile : null),
+        };
+      },
+    } as unknown as Request;
+
+    const response = await POST(mockRequest as never);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('FILE_TOO_LARGE');
+    expect(body.error).toContain('50MB');
+  });
+
   it('returns 400 if zip has no manifest.json', async () => {
     const file = await makeZipFile({
       'project.json': JSON.stringify({ project: {}, assessments: [], issues: [] }),

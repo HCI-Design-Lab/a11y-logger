@@ -11,7 +11,7 @@ export async function GET(
   const { projectId } = await params;
   const project = getProject(projectId);
   if (!project) {
-    return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Not found', code: 'NOT_FOUND' }, { status: 404 });
   }
 
   const issues = getIssuesByProject(projectId);
@@ -33,10 +33,11 @@ export async function GET(
   ];
 
   const csv = csvRows.join('\n');
+  const safeName = project.name.replace(/["\r\n]/g, '_');
   return new NextResponse(csv, {
     headers: {
       'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="${project.name}-issues.csv"`,
+      'Content-Disposition': `attachment; filename="${safeName}-issues.csv"`,
     },
   });
 }

@@ -13,7 +13,7 @@ export async function GET(
   const { projectId } = await params;
   const project = getProject(projectId);
   if (!project) {
-    return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Not found', code: 'NOT_FOUND' }, { status: 404 });
   }
 
   const assessments = getAssessments(projectId);
@@ -38,7 +38,7 @@ export async function GET(
         new NextResponse(buffer, {
           headers: {
             'Content-Type': 'application/zip',
-            'Content-Disposition': `attachment; filename="${project.name}-export.zip"`,
+            'Content-Disposition': `attachment; filename="${project.name.replace(/["\r\n]/g, '_')}-export.zip"`,
           },
         })
       );
