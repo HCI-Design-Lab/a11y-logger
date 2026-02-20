@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/projects/project-card';
 import { getProjects } from '@/lib/db/projects';
 
+export const dynamic = 'force-dynamic';
+
 export default function ProjectsPage() {
   const projects = getProjects();
   return (
