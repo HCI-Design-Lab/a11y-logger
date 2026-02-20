@@ -9,8 +9,10 @@ export function StatsCard({ label, count }: StatsCardProps) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <p className="text-sm text-muted-foreground">Total {label}</p>
-        <p className="text-4xl font-bold">{count}</p>
+        <dl>
+          <dt className="text-sm text-muted-foreground">Total {label}</dt>
+          <dd className="text-4xl font-bold m-0">{count}</dd>
+        </dl>
       </CardContent>
     </Card>
   );

@@ -1,10 +1,8 @@
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { initDb } from '@/lib/db';
 import { getDashboardStats, getRecentActivity } from '@/lib/db/dashboard';
 
 export default function DashboardPage() {
-  initDb();
   const stats = getDashboardStats();
   const activity = getRecentActivity();
 
@@ -32,17 +30,19 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Issue Severity</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {severityConfig.map(({ key, label, color }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${color}`}>{label}</span>
-                <span className="font-bold">{stats.severity_breakdown[key]}</span>
+          <CardContent>
+            <dl className="space-y-3">
+              {severityConfig.map(({ key, label, color }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <dt className={`text-sm font-medium ${color}`}>{label}</dt>
+                  <dd className="font-bold m-0">{stats.severity_breakdown[key]}</dd>
+                </div>
+              ))}
+              <div className="border-t pt-2 flex items-center justify-between">
+                <dt className="text-sm text-muted-foreground">Total</dt>
+                <dd className="font-bold m-0">{stats.total_issues}</dd>
               </div>
-            ))}
-            <div className="flex items-center justify-between border-t pt-2">
-              <span className="text-sm text-muted-foreground">Total</span>
-              <span className="font-bold">{stats.total_issues}</span>
-            </div>
+            </dl>
           </CardContent>
         </Card>
 
