@@ -63,7 +63,11 @@ export default async function VpatDetailPage({ params }: PageProps) {
             <h1 className="text-2xl font-bold">{vpat.title}</h1>
             <div className="flex items-center gap-2 shrink-0">
               <Button asChild variant="outline" size="sm">
-                <a href={`/api/vpats/${vpat.id}/export?format=html`} target="_blank">
+                <a
+                  href={`/api/vpats/${vpat.id}/export?format=html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Download className="mr-2 h-4 w-4" />
                   Export HTML
                 </a>

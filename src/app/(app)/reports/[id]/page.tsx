@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Download, Pencil } from 'lucide-react';
 import { getReport } from '@/lib/db/reports';
 import type { ReportSection } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +56,16 @@ export default async function ReportDetailPage({ params }: PageProps) {
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-2xl font-bold">{report.title}</h1>
             <div className="flex items-center gap-2 shrink-0">
+              <Button asChild variant="outline" size="sm">
+                <a
+                  href={`/api/reports/${report.id}/export?format=html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Export HTML
+                </a>
+              </Button>
               {!isPublished && (
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/reports/${report.id}/edit`}>

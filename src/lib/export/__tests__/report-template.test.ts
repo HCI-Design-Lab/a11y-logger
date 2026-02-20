@@ -112,4 +112,11 @@ describe('generateReportHtml', () => {
     const result = generateReportHtml(mockReport, mockProject);
     expect(result).toContain('detailed');
   });
+
+  it('escapes HTML-special characters in the report title', () => {
+    const xssReport = { ...mockReport, title: '<script>alert("xss")</script>' };
+    const result = generateReportHtml(xssReport, mockProject);
+    expect(result).not.toContain('<script>');
+    expect(result).toContain('&lt;script&gt;');
+  });
 });

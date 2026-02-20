@@ -141,4 +141,11 @@ describe('generateVpatHtml', () => {
     // Conformance column header
     expect(result.toLowerCase()).toContain('conformance');
   });
+
+  it('escapes HTML-special characters in the VPAT title', () => {
+    const xssVpat = { ...mockVpat, title: '<script>alert("xss")</script>' };
+    const result = generateVpatHtml(xssVpat, mockProject);
+    expect(result).not.toContain('<script>');
+    expect(result).toContain('&lt;script&gt;');
+  });
 });
