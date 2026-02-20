@@ -8,15 +8,10 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssue } from '@/lib/db/issues';
 import { SeverityBadge } from '@/components/issues/severity-badge';
+import { StatusBadge } from '@/components/issues/status-badge';
 import { DeleteIssueButton } from '@/components/issues/delete-issue-button';
 
 export const dynamic = 'force-dynamic';
-
-const statusConfig: Record<string, { label: string; className: string }> = {
-  open: { label: 'Open', className: 'bg-blue-100 text-blue-700' },
-  resolved: { label: 'Resolved', className: 'bg-green-100 text-green-700' },
-  wont_fix: { label: "Won't Fix", className: 'bg-gray-100 text-gray-700' },
-};
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -44,8 +39,6 @@ export default async function IssueDetailPage({
 
   const issue = getIssue(issueId);
   if (!issue) notFound();
-
-  const statusConf = statusConfig[issue.status] ?? { label: issue.status, className: '' };
 
   return (
     <div className="space-y-6">
@@ -86,7 +79,7 @@ export default async function IssueDetailPage({
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold">{issue.title}</h1>
             <SeverityBadge severity={issue.severity} />
-            <Badge className={statusConf.className}>{statusConf.label}</Badge>
+            <StatusBadge status={issue.status} />
           </div>
           {issue.url && (
             <a

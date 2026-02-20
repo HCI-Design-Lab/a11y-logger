@@ -30,7 +30,7 @@ export function IssueForm({ issue, onSubmit, loading }: IssueFormProps) {
   const [status, setStatus] = useState<Issue['status']>(issue?.status ?? 'open');
   const [wcagCodes, setWcagCodes] = useState<string[]>(issue?.wcag_codes ?? []);
   const [tags, setTags] = useState<string[]>(issue?.tags ?? []);
-  const [deviceType, setDeviceType] = useState(issue?.device_type ?? '');
+  const [deviceType, setDeviceType] = useState<Issue['device_type'] | ''>(issue?.device_type ?? '');
   const [browser, setBrowser] = useState(issue?.browser ?? '');
   const [os, setOs] = useState(issue?.operating_system ?? '');
   const [assistiveTech, setAssistiveTech] = useState(issue?.assistive_technology ?? '');
@@ -141,12 +141,20 @@ export function IssueForm({ issue, onSubmit, loading }: IssueFormProps) {
 
           <div className="space-y-1.5">
             <Label htmlFor="device_type">Device Type</Label>
-            <Input
-              id="device_type"
-              value={deviceType}
-              onChange={(e) => setDeviceType(e.target.value)}
-              placeholder="desktop / mobile / tablet"
-            />
+            <Select
+              value={deviceType || 'none'}
+              onValueChange={(v) => setDeviceType(v === 'none' ? '' : (v as Issue['device_type']))}
+            >
+              <SelectTrigger id="device_type">
+                <SelectValue placeholder="Select device type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="desktop">Desktop</SelectItem>
+                <SelectItem value="mobile">Mobile</SelectItem>
+                <SelectItem value="tablet">Tablet</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

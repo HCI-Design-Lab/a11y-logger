@@ -1,19 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-
-const WCAG_CODES = [
-  { code: '1.1.1', name: 'Non-text Content', level: 'A' },
-  { code: '1.3.1', name: 'Info and Relationships', level: 'A' },
-  { code: '1.4.3', name: 'Contrast (Minimum)', level: 'AA' },
-  { code: '1.4.11', name: 'Non-text Contrast', level: 'AA' },
-  { code: '2.1.1', name: 'Keyboard', level: 'A' },
-  { code: '2.1.2', name: 'No Keyboard Trap', level: 'A' },
-  { code: '2.4.3', name: 'Focus Order', level: 'A' },
-  { code: '2.4.7', name: 'Focus Visible', level: 'AA' },
-  { code: '3.3.1', name: 'Error Identification', level: 'A' },
-  { code: '3.3.3', name: 'Error Suggestion', level: 'AA' },
-  { code: '4.1.2', name: 'Name, Role, Value', level: 'A' },
-];
+import { WCAG_CRITERION_CODES } from '@/lib/constants/wcag';
 
 interface WcagSelectorProps {
   selected: string[];
@@ -51,8 +38,8 @@ export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
           ))}
         </div>
       )}
-      <div className="max-h-48 overflow-y-auto rounded-md border p-2 space-y-1">
-        {WCAG_CODES.map(({ code, name, level }) => {
+      <div className="max-h-64 overflow-y-auto rounded-md border p-2 space-y-1">
+        {WCAG_CRITERION_CODES.map((code) => {
           const id = `wcag-${code}`;
           return (
             <label
@@ -65,11 +52,9 @@ export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
                 type="checkbox"
                 checked={selected.includes(code)}
                 onChange={() => toggle(code)}
-                aria-label={`${code} ${name}`}
+                aria-label={code}
               />
               <span className="font-mono">{code}</span>
-              <span className="text-muted-foreground">{name}</span>
-              <span className="ml-auto text-xs text-muted-foreground">{level}</span>
             </label>
           );
         })}

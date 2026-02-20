@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -15,15 +14,10 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssues } from '@/lib/db/issues';
 import { SeverityBadge } from '@/components/issues/severity-badge';
+import { StatusBadge } from '@/components/issues/status-badge';
 import type { IssueFilters } from '@/lib/db/issues';
 
 export const dynamic = 'force-dynamic';
-
-const statusConfig: Record<string, { label: string; className: string }> = {
-  open: { label: 'Open', className: 'bg-blue-100 text-blue-700' },
-  resolved: { label: 'Resolved', className: 'bg-green-100 text-green-700' },
-  wont_fix: { label: "Won't Fix", className: 'bg-gray-100 text-gray-700' },
-};
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -139,33 +133,27 @@ export default async function IssuesPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {issues.map((issue) => {
-                const statusConf = statusConfig[issue.status] ?? {
-                  label: issue.status,
-                  className: '',
-                };
-                return (
-                  <TableRow key={issue.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issue.id}`}
-                        className="hover:underline"
-                      >
-                        {issue.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <SeverityBadge severity={issue.severity} />
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusConf.className}>{statusConf.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(issue.created_at)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {issues.map((issue) => (
+                <TableRow key={issue.id}>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issue.id}`}
+                      className="hover:underline"
+                    >
+                      {issue.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <SeverityBadge severity={issue.severity} />
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={issue.status} />
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(issue.created_at)}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
