@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AIConfigSection } from './ai-config-section';
 import { DataManagementSection } from './data-management-section';
+import { AuthToggleSection } from './auth-toggle-section';
 
 interface SettingsClientProps {
   aiProvider: string;
@@ -11,6 +12,7 @@ interface SettingsClientProps {
   dbPath: string;
   mediaPath: string;
   version: string;
+  authEnabled: boolean;
 }
 
 export function SettingsClient({
@@ -19,6 +21,7 @@ export function SettingsClient({
   dbPath,
   mediaPath,
   version,
+  authEnabled,
 }: SettingsClientProps) {
   const handleSaveAI = async (data: { provider: string; apiKey: string }) => {
     try {
@@ -52,6 +55,7 @@ export function SettingsClient({
       <TabsList>
         <TabsTrigger value="ai">AI Configuration</TabsTrigger>
         <TabsTrigger value="data">Data Management</TabsTrigger>
+        <TabsTrigger value="security">Security</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
       </TabsList>
       <TabsContent value="ai" className="mt-6">
@@ -59,6 +63,9 @@ export function SettingsClient({
       </TabsContent>
       <TabsContent value="data" className="mt-6">
         <DataManagementSection dbPath={dbPath} mediaPath={mediaPath} />
+      </TabsContent>
+      <TabsContent value="security" className="mt-6">
+        <AuthToggleSection authEnabled={authEnabled} />
       </TabsContent>
       <TabsContent value="about" className="mt-6">
         <Card>
