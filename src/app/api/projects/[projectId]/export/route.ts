@@ -45,7 +45,7 @@ export async function GET(
     });
     archive.on('error', (err: Error) => {
       resolve(
-        NextResponse.json({ success: false, error: err.message }, { status: 500 })
+        NextResponse.json({ success: false, error: err.message, code: 'INTERNAL_ERROR' }, { status: 500 })
       );
     });
 
