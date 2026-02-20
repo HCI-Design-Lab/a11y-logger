@@ -35,3 +35,14 @@ test('links to report detail page', () => {
   render(<ReportCard report={mockReport} />);
   expect(screen.getByRole('link')).toHaveAttribute('href', '/reports/1');
 });
+
+test('renders updated_at date formatted as locale string', () => {
+  render(<ReportCard report={mockReport} />);
+  const expectedDate = new Date('2026-01-15T00:00:00').toLocaleDateString();
+  expect(screen.getByText(`Updated ${expectedDate}`)).toBeInTheDocument();
+});
+
+test('renders "Unknown" for invalid updated_at date', () => {
+  render(<ReportCard report={{ ...mockReport, updated_at: 'not-a-date' }} />);
+  expect(screen.getByText('Updated Unknown')).toBeInTheDocument();
+});

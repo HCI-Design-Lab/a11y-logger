@@ -1,6 +1,12 @@
 import { getDb } from './index';
 import type { CreateReportInput, UpdateReportInput } from '../validators/reports';
 
+/** Shape of a section as stored in the DB/API (content JSON: [{title, body}]) */
+export interface ReportSection {
+  title: string;
+  body: string;
+}
+
 export interface Report {
   id: string;
   project_id: string;

@@ -13,23 +13,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { SectionEditor } from './section-editor';
-import type { Report } from '@/lib/db/reports';
-
-// SectionEditor uses {title, content}; API uses {title, body}
-interface EditorSection {
-  title: string;
-  content: string;
-}
+import type { EditorSection } from './section-editor';
+import type { Report, ReportSection } from '@/lib/db/reports';
 
 interface ReportFormProps {
   /** When provided, the form is in edit mode */
   report?: Report;
-  /** project_id is required when creating */
-  projectId?: string;
-  projects: { id: string; name: string }[];
+  projects?: { id: string; name: string }[];
 }
 
-export function ReportForm({ report, projects }: ReportFormProps) {
+export function ReportForm({ report, projects = [] }: ReportFormProps) {
   const router = useRouter();
   const isEdit = !!report;
 
@@ -37,7 +30,7 @@ export function ReportForm({ report, projects }: ReportFormProps) {
   const initialSections: EditorSection[] = (() => {
     if (!report) return [];
     try {
-      const raw = JSON.parse(report.content) as { title: string; body: string }[];
+      const raw = JSON.parse(report.content) as ReportSection[];
       return raw.map((s) => ({ title: s.title, content: s.body }));
     } catch {
       return [];
@@ -58,7 +51,7 @@ export function ReportForm({ report, projects }: ReportFormProps) {
     }
 
     // Map editor sections back to API format
-    const content = sections.map((s) => ({ title: s.title, body: s.content }));
+    const content: ReportSection[] = sections.map((s) => ({ title: s.title, body: s.content }));
 
     setIsSubmitting(true);
     try {

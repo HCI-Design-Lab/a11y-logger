@@ -4,29 +4,14 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Pencil } from 'lucide-react';
 import { getReport } from '@/lib/db/reports';
+import type { ReportSection } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { DeleteReportButton } from '@/components/reports/delete-report-button';
 import { PublishReportButton } from '@/components/reports/publish-report-button';
-
-function getTypeBadgeClass(type: string): string {
-  switch (type) {
-    case 'executive':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'detailed':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-}
-
-function getStatusBadgeClass(status: string): string {
-  return status === 'published'
-    ? 'bg-green-100 text-green-800 border-green-200'
-    : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-}
+import { getTypeBadgeClass, getStatusBadgeClass } from '@/components/reports/report-badge-utils';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -39,9 +24,15 @@ export default async function ReportDetailPage({ params }: PageProps) {
   }
 
   // content is stored as JSON: [{title, body}]
-  let sections: { title: string; body: string }[] = [];
+  // Filter out any entries missing required fields to avoid silent empty renders
+  let sections: ReportSection[] = [];
   try {
-    sections = JSON.parse(report.content) as { title: string; body: string }[];
+    const raw = JSON.parse(report.content);
+    sections = Array.isArray(raw)
+      ? raw.filter(
+          (s): s is ReportSection => typeof s?.title === 'string' && typeof s?.body === 'string'
+        )
+      : [];
   } catch {
     sections = [];
   }

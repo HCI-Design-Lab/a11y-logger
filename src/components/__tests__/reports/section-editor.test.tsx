@@ -26,3 +26,10 @@ test('removing a section calls onChange without it', () => {
   fireEvent.click(screen.getAllByRole('button', { name: /remove/i })[0]);
   expect(onChange).toHaveBeenCalledWith([{ title: 'Section 2', content: 'Content 2' }]);
 });
+
+test('updating section title calls onChange with new value', () => {
+  const onChange = vi.fn();
+  render(<SectionEditor sections={[{ title: 'Old', content: '' }]} onChange={onChange} />);
+  fireEvent.change(screen.getByDisplayValue('Old'), { target: { value: 'New' } });
+  expect(onChange).toHaveBeenCalledWith([{ title: 'New', content: '' }]);
+});

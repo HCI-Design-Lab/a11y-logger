@@ -32,7 +32,7 @@ export default async function EditReportPage({ params }: PageProps) {
 
       <h1 className="text-2xl font-bold mb-6">Edit Report</h1>
 
-      <ReportForm report={report} projects={[]} />
+      <ReportForm report={report} />
     </div>
   );
 }

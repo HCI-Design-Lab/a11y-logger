@@ -5,14 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { X, Plus } from 'lucide-react';
 
-interface Section {
+/** Shape used by the editor UI (content field maps to body in the DB/API) */
+export interface EditorSection {
   title: string;
   content: string;
 }
 
 interface SectionEditorProps {
-  sections: Section[];
-  onChange: (sections: Section[]) => void;
+  sections: EditorSection[];
+  onChange: (sections: EditorSection[]) => void;
 }
 
 export function SectionEditor({ sections, onChange }: SectionEditorProps) {
@@ -20,7 +21,7 @@ export function SectionEditor({ sections, onChange }: SectionEditorProps) {
 
   const removeSection = (index: number) => onChange(sections.filter((_, i) => i !== index));
 
-  const updateSection = (index: number, field: keyof Section, value: string) => {
+  const updateSection = (index: number, field: keyof EditorSection, value: string) => {
     const updated = sections.map((s, i) => (i === index ? { ...s, [field]: value } : s));
     onChange(updated);
   };
@@ -28,7 +29,7 @@ export function SectionEditor({ sections, onChange }: SectionEditorProps) {
   return (
     <div className="space-y-4">
       {sections.map((section, index) => (
-        <div key={index} className="rounded-lg border p-4 space-y-3">
+        <div key={`section-${index}`} className="rounded-lg border p-4 space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor={`section-title-${index}`}>Section Title</Label>
             <Button

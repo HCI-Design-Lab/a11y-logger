@@ -4,6 +4,17 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Send, SendHorizonal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface PublishReportButtonProps {
   reportId: string;
@@ -12,6 +23,7 @@ interface PublishReportButtonProps {
 
 export function PublishReportButton({ reportId, isPublished }: PublishReportButtonProps) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   async function handlePublish() {
@@ -29,6 +41,7 @@ export function PublishReportButton({ reportId, isPublished }: PublishReportButt
       toast.error('Failed to publish report');
     } finally {
       setIsLoading(false);
+      setOpen(false);
     }
   }
 
@@ -60,9 +73,27 @@ export function PublishReportButton({ reportId, isPublished }: PublishReportButt
   }
 
   return (
-    <Button variant="default" size="sm" onClick={handlePublish} disabled={isLoading}>
-      <Send className="mr-2 h-4 w-4" />
-      {isLoading ? 'Publishing…' : 'Publish'}
-    </Button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="default" size="sm" disabled={isLoading}>
+          <Send className="mr-2 h-4 w-4" />
+          Publish
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Publish Report</AlertDialogTitle>
+          <AlertDialogDescription>
+            Once published, this report cannot be edited. Are you sure you want to publish?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handlePublish} disabled={isLoading}>
+            {isLoading ? 'Publishing…' : 'Publish'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
