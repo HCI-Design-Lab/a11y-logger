@@ -1,6 +1,10 @@
 import type { AIProvider, AIAnalysisResult } from './types';
 
+const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
+
 export class OpenAIProvider implements AIProvider {
+  private readonly model = 'gpt-4o-mini';
+
   constructor(private apiKey: string) {}
 
   async testConnection(): Promise<{ ok: boolean; error?: string }> {
@@ -25,7 +29,7 @@ export class OpenAIProvider implements AIProvider {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -37,8 +41,28 @@ export class OpenAIProvider implements AIProvider {
         response_format: { type: 'json_object' },
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
-    return JSON.parse(data.choices[0].message.content) as AIAnalysisResult;
+    const content = data.choices[0].message.content;
+    let result: Record<string, unknown>;
+    try {
+      result = JSON.parse(content) as Record<string, unknown>;
+    } catch {
+      throw new Error('Invalid response from AI provider');
+    }
+    if (
+      typeof result.title !== 'string' ||
+      typeof result.description !== 'string' ||
+      !VALID_SEVERITIES.includes(result.severity as (typeof VALID_SEVERITIES)[number]) ||
+      !Array.isArray(result.wcag_codes) ||
+      typeof result.confidence !== 'number'
+    ) {
+      throw new Error('AI response missing required fields');
+    }
+    return result as unknown as AIAnalysisResult;
   }
 
   async generateReportSection(context: string, sectionTitle: string): Promise<string> {
@@ -47,7 +71,7 @@ export class OpenAIProvider implements AIProvider {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -61,6 +85,10 @@ export class OpenAIProvider implements AIProvider {
         ],
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
     return data.choices[0].message.content as string;
   }
@@ -71,7 +99,7 @@ export class OpenAIProvider implements AIProvider {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: this.model,
         messages: [
           {
             role: 'system',
@@ -85,6 +113,10 @@ export class OpenAIProvider implements AIProvider {
         ],
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
     return data.choices[0].message.content as string;
   }

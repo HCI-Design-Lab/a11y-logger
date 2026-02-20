@@ -1,6 +1,10 @@
 import type { AIProvider, AIAnalysisResult } from './types';
 
+const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
+
 export class AnthropicProvider implements AIProvider {
+  private readonly model = 'claude-haiku-4-5-20251001';
+
   constructor(private apiKey: string) {}
 
   async testConnection(): Promise<{ ok: boolean; error?: string }> {
@@ -14,7 +18,7 @@ export class AnthropicProvider implements AIProvider {
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
+          model: this.model,
           max_tokens: 10,
           messages: [{ role: 'user', content: 'ping' }],
         }),
@@ -39,15 +43,35 @@ export class AnthropicProvider implements AIProvider {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: this.model,
         max_tokens: 1024,
         system:
           'You are an accessibility expert. Analyze the issue and return JSON with fields: title (string), description (string), severity (critical|high|medium|low), wcag_codes (string[]), confidence (0-1 number). Return only JSON.',
         messages: [{ role: 'user', content: plainText }],
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
-    return JSON.parse(data.content[0].text) as AIAnalysisResult;
+    const text = data.content[0].text;
+    let result: Record<string, unknown>;
+    try {
+      result = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      throw new Error('Invalid response from AI provider');
+    }
+    if (
+      typeof result.title !== 'string' ||
+      typeof result.description !== 'string' ||
+      !VALID_SEVERITIES.includes(result.severity as (typeof VALID_SEVERITIES)[number]) ||
+      !Array.isArray(result.wcag_codes) ||
+      typeof result.confidence !== 'number'
+    ) {
+      throw new Error('AI response missing required fields');
+    }
+    return result as unknown as AIAnalysisResult;
   }
 
   async generateReportSection(context: string, sectionTitle: string): Promise<string> {
@@ -60,7 +84,7 @@ export class AnthropicProvider implements AIProvider {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: this.model,
         max_tokens: 2048,
         messages: [
           {
@@ -70,6 +94,10 @@ export class AnthropicProvider implements AIProvider {
         ],
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
     return data.content[0].text as string;
   }
@@ -84,7 +112,7 @@ export class AnthropicProvider implements AIProvider {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: this.model,
         max_tokens: 512,
         messages: [
           {
@@ -94,6 +122,10 @@ export class AnthropicProvider implements AIProvider {
         ],
       }),
     });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
     const data = await res.json();
     return data.content[0].text as string;
   }
