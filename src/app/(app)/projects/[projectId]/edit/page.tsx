@@ -50,10 +50,15 @@ export default function EditProjectPage({ params }: { params: { projectId: strin
   };
 
   if (fetching) {
-    return <div className="text-muted-foreground">Loading…</div>;
+    return (
+      <p role="status" className="text-muted-foreground">
+        Loading…
+      </p>
+    );
   }
 
   if (!project) {
+    router.push('/projects');
     return null;
   }
 

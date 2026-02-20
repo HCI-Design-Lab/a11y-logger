@@ -2,11 +2,9 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/projects/project-card';
-import { initDb } from '@/lib/db';
 import { getProjects } from '@/lib/db/projects';
 
 export default function ProjectsPage() {
-  initDb();
   const projects = getProjects();
   return (
     <div className="space-y-6">

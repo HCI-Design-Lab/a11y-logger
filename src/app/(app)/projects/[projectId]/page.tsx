@@ -1,19 +1,22 @@
 import Link from 'next/link';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, ExternalLink, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { initDb } from '@/lib/db';
 import { getProject } from '@/lib/db/projects';
 import { getIssuesByProject } from '@/lib/db/issues';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 
-export default function ProjectDetailPage({ params }: { params: { projectId: string } }) {
-  initDb();
-  const project = getProject(params.projectId);
+export default async function ProjectDetailPage({
+  params,
+}: {
+  params: Promise<{ projectId: string }>;
+}) {
+  const { projectId } = await params;
+  const project = getProject(projectId);
   if (!project) notFound();
 
-  const issues = getIssuesByProject(params.projectId);
+  const issues = getIssuesByProject(projectId);
 
   const severityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
   for (const issue of issues) {
@@ -35,6 +38,17 @@ export default function ProjectDetailPage({ params }: { params: { projectId: str
           <h1 className="text-2xl font-bold">{project.name}</h1>
           {project.description && (
             <p className="mt-1 text-muted-foreground">{project.description}</p>
+          )}
+          {project.product_url && (
+            <a
+              href={project.product_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1"
+            >
+              <ExternalLink className="h-3 w-3" />
+              {project.product_url}
+            </a>
           )}
         </div>
         <div className="flex gap-2">
