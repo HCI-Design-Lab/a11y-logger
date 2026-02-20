@@ -35,6 +35,11 @@ export function IssueForm({ issue, onSubmit, loading }: IssueFormProps) {
   const [os, setOs] = useState(issue?.operating_system ?? '');
   const [assistiveTech, setAssistiveTech] = useState(issue?.assistive_technology ?? '');
 
+  // AI suggest state
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiConfidence, setAiConfidence] = useState<number | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const data: CreateIssueInput = {
@@ -51,6 +56,38 @@ export function IssueForm({ issue, onSubmit, loading }: IssueFormProps) {
       assistive_technology: assistiveTech || undefined,
     };
     onSubmit(data);
+  };
+
+  const handleAiSuggest = async () => {
+    if (!title.trim()) return;
+
+    setAiLoading(true);
+    setAiError(null);
+    setAiConfidence(null);
+
+    try {
+      const res = await fetch('/api/ai/suggest-wcag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        const errMsg = json.error ?? 'Failed to get AI suggestion';
+        setAiError(errMsg);
+        return;
+      }
+
+      const { codes, confidence } = json.data as { codes: string[]; confidence: number };
+      setWcagCodes(codes);
+      setAiConfidence(confidence);
+    } catch {
+      setAiError('Failed to connect to AI service');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -123,7 +160,26 @@ export function IssueForm({ issue, onSubmit, loading }: IssueFormProps) {
           </div>
 
           <div className="space-y-1.5">
-            <Label>WCAG Criteria</Label>
+            <div className="flex items-center justify-between">
+              <Label>WCAG Criteria</Label>
+              <div className="flex items-center gap-2">
+                {aiConfidence !== null && (
+                  <span className="text-xs text-muted-foreground">
+                    {Math.round(aiConfidence * 100)}% confidence
+                  </span>
+                )}
+                {aiError && <span className="text-xs text-destructive">{aiError}</span>}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAiSuggest}
+                  disabled={aiLoading || !title.trim()}
+                >
+                  {aiLoading ? 'Suggesting…' : 'AI Suggest'}
+                </Button>
+              </div>
+            </div>
             <WcagSelector selected={wcagCodes} onChange={setWcagCodes} />
           </div>
 

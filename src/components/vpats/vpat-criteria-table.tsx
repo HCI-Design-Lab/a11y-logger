@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -16,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import {
   WCAG_CRITERIA,
   CONFORMANCE_OPTIONS,
@@ -34,6 +36,8 @@ interface VpatCriteriaTableProps {
   criteria: CriterionRow[];
   onChange: (criteria: CriterionRow[]) => void;
   readOnly?: boolean;
+  /** When provided, shows AI Generate buttons per criterion */
+  projectId?: string;
 }
 
 const PRINCIPLES = ['Perceivable', 'Operable', 'Understandable', 'Robust'] as const;
@@ -42,15 +46,49 @@ export function VpatCriteriaTable({
   criteria,
   onChange,
   readOnly = false,
+  projectId,
 }: VpatCriteriaTableProps) {
+  const [aiLoadingCode, setAiLoadingCode] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   const updateRow = (criterion_code: string, field: keyof CriterionRow, value: string) => {
     onChange(
       criteria.map((r) => (r.criterion_code === criterion_code ? { ...r, [field]: value } : r))
     );
   };
 
+  const handleAiGenerate = async (criterionCode: string) => {
+    if (!projectId) return;
+
+    setAiLoadingCode(criterionCode);
+    setAiError(null);
+
+    try {
+      const res = await fetch('/api/ai/generate-vpat-narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, criterionCode }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        setAiError(json.error ?? 'Failed to generate narrative');
+        return;
+      }
+
+      const { narrative } = json.data as { narrative: string };
+      updateRow(criterionCode, 'remarks', narrative);
+    } catch {
+      setAiError('Failed to connect to AI service');
+    } finally {
+      setAiLoadingCode(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {aiError && <p className="text-sm text-destructive">{aiError}</p>}
       {PRINCIPLES.map((principle) => {
         const rows = criteria.filter((r) => {
           const meta = WCAG_CRITERIA.find((c) => c.criterion === r.criterion_code);
@@ -69,6 +107,7 @@ export function VpatCriteriaTable({
                   <TableHead className="w-16">Level</TableHead>
                   <TableHead className="w-48">Conformance</TableHead>
                   <TableHead>Remarks</TableHead>
+                  {projectId && !readOnly && <TableHead className="w-32">AI</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -78,6 +117,7 @@ export function VpatCriteriaTable({
                   const displayConformance =
                     CONFORMANCE_DISPLAY[row.conformance as keyof typeof CONFORMANCE_DISPLAY] ??
                     row.conformance;
+                  const isGenerating = aiLoadingCode === row.criterion_code;
 
                   return (
                     <TableRow key={row.criterion_code}>
@@ -134,6 +174,24 @@ export function VpatCriteriaTable({
                           />
                         )}
                       </TableCell>
+                      {projectId && !readOnly && (
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAiGenerate(row.criterion_code)}
+                            disabled={isGenerating}
+                            aria-label={
+                              isGenerating
+                                ? `Generating narrative for ${row.criterion_code}`
+                                : `AI Generate for ${row.criterion_code}`
+                            }
+                          >
+                            {isGenerating ? 'Generating…' : 'AI Generate'}
+                          </Button>
+                        </TableCell>
+                      )}
                     </TableRow>
                   );
                 })}
