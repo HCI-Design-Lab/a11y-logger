@@ -5,14 +5,7 @@ import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
-
-interface AssessmentFormData {
-  name: string;
-  description: string;
-  test_date_start: string;
-  test_date_end: string;
-  status: 'planning' | 'in_progress' | 'completed';
-}
+import type { AssessmentFormData } from '@/components/assessments/assessment-form';
 
 export default function NewAssessmentPage() {
   const params = useParams();
@@ -27,7 +20,7 @@ export default function NewAssessmentPage() {
         name: data.name,
         status: data.status,
       };
-      if (data.description) payload.description = data.description;
+      if (data.description !== undefined) payload.description = data.description;
       if (data.test_date_start)
         payload.test_date_start = new Date(data.test_date_start).toISOString();
       if (data.test_date_end) payload.test_date_end = new Date(data.test_date_end).toISOString();

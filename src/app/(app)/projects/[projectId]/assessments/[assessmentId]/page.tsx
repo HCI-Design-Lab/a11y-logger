@@ -55,12 +55,9 @@ export default async function AssessmentDetailPage({
 }) {
   const { projectId, assessmentId } = await params;
 
-  const [project, assessment] = await Promise.all([
-    Promise.resolve(getProject(projectId)),
-    Promise.resolve(getAssessment(assessmentId)),
-  ]);
-
+  const project = getProject(projectId);
   if (!project) notFound();
+  const assessment = getAssessment(assessmentId);
   if (!assessment) notFound();
 
   const issues = getIssues(assessmentId);

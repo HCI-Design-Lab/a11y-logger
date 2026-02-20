@@ -37,7 +37,7 @@ export function StatusTransitionButton({
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
-      toast.success(`Assessment marked as ${transition.status.replace('_', ' ')}`);
+      toast.success(`Assessment marked as ${transition.status.replaceAll('_', ' ')}`);
       router.refresh();
     } catch {
       toast.error('Failed to update status');

@@ -53,3 +53,15 @@ test('shows completed status badge', () => {
   render(<AssessmentCard assessment={completed} projectId="p1" />);
   expect(screen.getByText(/completed/i)).toBeInTheDocument();
 });
+
+test('shows formatted date range', () => {
+  render(<AssessmentCard assessment={mockAssessment} projectId="p1" />);
+  expect(screen.getByText(/jan/i)).toBeInTheDocument();
+});
+
+test('planning badge has gray style', () => {
+  const planning = { ...mockAssessment, status: 'planning' as const };
+  render(<AssessmentCard assessment={planning} projectId="p1" />);
+  const badge = screen.getByText(/planning/i);
+  expect(badge).toHaveClass('bg-gray-100');
+});

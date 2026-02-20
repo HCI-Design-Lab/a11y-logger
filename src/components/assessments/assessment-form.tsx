@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import type { Assessment } from '@/lib/db/assessments';
 
-interface AssessmentFormData {
+export interface AssessmentFormData {
   name: string;
   description: string;
   test_date_start: string;

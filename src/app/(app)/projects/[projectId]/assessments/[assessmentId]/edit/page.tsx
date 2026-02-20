@@ -5,15 +5,8 @@ import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
+import type { AssessmentFormData } from '@/components/assessments/assessment-form';
 import type { Assessment } from '@/lib/db/assessments';
-
-interface AssessmentFormData {
-  name: string;
-  description: string;
-  test_date_start: string;
-  test_date_end: string;
-  status: 'planning' | 'in_progress' | 'completed';
-}
 
 export default function EditAssessmentPage() {
   const params = useParams();
