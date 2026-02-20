@@ -11,7 +11,7 @@ export interface DashboardStats {
 
 export interface ActivityItem {
   id: string;
-  type: 'project' | 'assessment' | 'issue' | 'report';
+  type: 'project' | 'issue';
   title: string;
   created_at: string;
 }
