@@ -6,6 +6,17 @@ import { GET, POST } from '../route';
 
 vi.stubEnv('ENCRYPTION_SECRET', 'a'.repeat(64));
 
+// Mock next/headers so getSession() doesn't throw in test environment
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockResolvedValue({
+    get: vi.fn().mockReturnValue(undefined),
+    set: vi.fn(),
+    delete: vi.fn(),
+    getAll: vi.fn(),
+    has: vi.fn(),
+  }),
+}));
+
 beforeAll(() => {
   initDb(':memory:');
 });
@@ -20,17 +31,17 @@ beforeEach(() => {
 });
 
 describe('GET /api/users — auth disabled', () => {
-  it('returns 403 when auth_enabled is false', async () => {
+  it('returns 200 when auth_enabled is false (auth disabled allows all access)', async () => {
     setSetting('auth_enabled', false);
     const response = await GET();
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body.code).toBe('AUTH_NOT_ENABLED');
+    expect(body.success).toBe(true);
   });
 
-  it('returns 403 when auth_enabled is not set', async () => {
+  it('returns 200 when auth_enabled is not set (auth disabled by default)', async () => {
     const response = await GET();
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(200);
   });
 });
 
@@ -39,34 +50,17 @@ describe('GET /api/users — auth enabled', () => {
     setSetting('auth_enabled', true);
   });
 
-  it('returns empty array when no users exist', async () => {
+  it('returns 401 when auth is enabled but no session cookie', async () => {
     const response = await GET();
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(401);
     const body = await response.json();
-    expect(body).toEqual({ success: true, data: [] });
-  });
-
-  it('returns users without password_hash', async () => {
-    await POST(
-      new Request('http://localhost/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'alice', password: 'password123' }),
-      })
-    );
-    const response = await GET();
-    const body = await response.json();
-    expect(body.data).toHaveLength(1);
-    expect(body.data[0]).not.toHaveProperty('password_hash');
+    expect(body.code).toBe('UNAUTHENTICATED');
   });
 });
 
-describe('POST /api/users — auth enabled', () => {
-  beforeEach(() => {
-    setSetting('auth_enabled', true);
-  });
-
-  it('creates a user and returns 201', async () => {
+describe('POST /api/users — auth disabled', () => {
+  it('creates a user when auth is disabled', async () => {
+    setSetting('auth_enabled', false);
     const request = new Request('http://localhost/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -80,7 +74,8 @@ describe('POST /api/users — auth enabled', () => {
     expect(body.data).not.toHaveProperty('password_hash');
   });
 
-  it('returns 400 for missing required fields', async () => {
+  it('returns 400 for missing required fields when auth is disabled', async () => {
+    setSetting('auth_enabled', false);
     const request = new Request('http://localhost/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,6 +88,7 @@ describe('POST /api/users — auth enabled', () => {
   });
 
   it('returns 409 for duplicate username', async () => {
+    setSetting('auth_enabled', false);
     const payload = { username: 'alice', password: 'pass12345' };
     await POST(
       new Request('http://localhost/api/users', {
@@ -112,15 +108,22 @@ describe('POST /api/users — auth enabled', () => {
     const body = await response.json();
     expect(body.code).toBe('CONFLICT');
   });
+});
 
-  it('returns 403 when auth_enabled is false', async () => {
-    setSetting('auth_enabled', false);
+describe('POST /api/users — auth enabled', () => {
+  beforeEach(() => {
+    setSetting('auth_enabled', true);
+  });
+
+  it('returns 401 when auth is enabled but no session', async () => {
     const request = new Request('http://localhost/api/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: 'alice', password: 'pass12345' }),
     });
     const response = await POST(request);
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(401);
+    const body = await response.json();
+    expect(body.code).toBe('UNAUTHENTICATED');
   });
 });

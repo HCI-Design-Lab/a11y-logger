@@ -8,7 +8,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const authError = requireAuth();
+    const authError = await requireAuth();
     if (authError) return authError;
 
     const user = getUser(id);
@@ -32,7 +32,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 export async function PUT(request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const authError = requireAuth();
+    const authError = await requireAuth();
     if (authError) return authError;
 
     const body = await request.json();
@@ -77,7 +77,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
 export async function DELETE(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const authError = requireAuth();
+    const authError = await requireAuth();
     if (authError) return authError;
 
     const deleted = deleteUser(id);

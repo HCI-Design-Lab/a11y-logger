@@ -5,7 +5,7 @@ import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const authError = requireAuth();
+    const authError = await requireAuth();
     if (authError) return authError;
 
     return NextResponse.json({ success: true, data: getUsers() });
@@ -19,7 +19,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const authError = requireAuth();
+    const authError = await requireAuth();
     if (authError) return authError;
 
     const body = await request.json();

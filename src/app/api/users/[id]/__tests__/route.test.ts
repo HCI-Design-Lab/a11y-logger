@@ -7,6 +7,17 @@ import { GET, PUT, DELETE } from '../route';
 
 vi.stubEnv('ENCRYPTION_SECRET', 'a'.repeat(64));
 
+// Mock next/headers so getSession() doesn't throw in test environment
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockResolvedValue({
+    get: vi.fn().mockReturnValue(undefined),
+    set: vi.fn(),
+    delete: vi.fn(),
+    getAll: vi.fn(),
+    has: vi.fn(),
+  }),
+}));
+
 beforeAll(() => {
   initDb(':memory:');
 });
@@ -18,7 +29,7 @@ afterAll(() => {
 beforeEach(() => {
   getDb().prepare('DELETE FROM users').run();
   getDb().prepare('DELETE FROM settings').run();
-  setSetting('auth_enabled', true);
+  setSetting('auth_enabled', false);
 });
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -28,18 +39,20 @@ function makeContext(id: string): RouteContext {
 }
 
 describe('GET /api/users/[id]', () => {
-  it('returns 403 when auth disabled', async () => {
-    setSetting('auth_enabled', false);
+  it('returns 401 when auth is enabled and no session', async () => {
+    setSetting('auth_enabled', true);
     const response = await GET(new Request('http://localhost'), makeContext('any-id'));
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(401);
+    const body = await response.json();
+    expect(body.code).toBe('UNAUTHENTICATED');
   });
 
-  it('returns 404 for non-existent user', async () => {
+  it('returns 404 for non-existent user when auth is disabled', async () => {
     const response = await GET(new Request('http://localhost'), makeContext('nonexistent'));
     expect(response.status).toBe(404);
   });
 
-  it('returns user without password_hash', async () => {
+  it('returns user without password_hash when auth is disabled', async () => {
     const user = await createUser({ username: 'alice', password: 'pass12345' });
     const response = await GET(new Request('http://localhost'), makeContext(user.id));
     expect(response.status).toBe(200);
@@ -50,7 +63,7 @@ describe('GET /api/users/[id]', () => {
 });
 
 describe('PUT /api/users/[id]', () => {
-  it('updates a user', async () => {
+  it('updates a user when auth is disabled', async () => {
     const user = await createUser({ username: 'alice', password: 'pass12345' });
     const request = new Request('http://localhost', {
       method: 'PUT',

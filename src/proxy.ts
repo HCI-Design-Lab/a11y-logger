@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/auth/login', '/api/auth/login', '/api/auth/logout'];
+const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/logout', '/api/auth/toggle'];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Always allow public paths
@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
 
   const session = req.cookies.get('session')?.value;
   if (!session) {
-    const loginUrl = new URL('/auth/login', req.url);
+    const loginUrl = new URL('/login', req.url);
     return NextResponse.redirect(loginUrl);
   }
 
