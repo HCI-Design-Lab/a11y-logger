@@ -1,0 +1,145 @@
+// @vitest-environment node
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { initDb, closeDb, getDb } from '@/lib/db/index';
+import { createProject } from '@/lib/db/projects';
+import { createReport } from '@/lib/db/reports';
+import { GET } from '../route';
+
+let reportId: string;
+
+function makeContext(id: string) {
+  return { params: Promise.resolve({ id }) };
+}
+
+beforeAll(() => {
+  initDb(':memory:');
+});
+
+afterAll(() => {
+  closeDb();
+});
+
+beforeEach(() => {
+  getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM projects').run();
+  const project = createProject({ name: 'Test Project' });
+  const report = createReport({
+    title: 'Accessibility Audit Report',
+    project_id: project.id,
+    content: [
+      { title: 'Executive Summary', body: 'This is the summary.' },
+      { title: 'Findings', body: 'Several issues found.' },
+    ],
+  });
+  reportId = report.id;
+});
+
+describe('GET /api/reports/[id]/export', () => {
+  describe('HTML export (?format=html)', () => {
+    it('returns 200 with text/html content type', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Content-Type')).toContain('text/html');
+    });
+
+    it('returns HTML containing the report title', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('Accessibility Audit Report');
+    });
+
+    it('returns HTML containing section titles', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('Executive Summary');
+      expect(text).toContain('Findings');
+    });
+
+    it('returns HTML containing section body content', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('This is the summary.');
+      expect(text).toContain('Several issues found.');
+    });
+
+    it('returns a complete HTML document', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('<!DOCTYPE html>');
+      expect(text).toContain('<html');
+    });
+
+    it('includes Content-Disposition header for download', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const disposition = response.headers.get('Content-Disposition');
+      expect(disposition).toBeTruthy();
+      expect(disposition).toContain('attachment');
+      expect(disposition).toContain('.html');
+    });
+
+    it('defaults to html format when no format param is provided', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Content-Type')).toContain('text/html');
+    });
+  });
+
+  describe('PDF export (?format=pdf)', () => {
+    it('returns 501 with helpful message since Puppeteer is not available', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=pdf`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(501);
+      const body = await response.json();
+      expect(body.success).toBe(false);
+      expect(body.code).toBe('NOT_IMPLEMENTED');
+      expect(body.error).toBeTruthy();
+    });
+  });
+
+  describe('Error cases', () => {
+    it('returns 404 for a nonexistent report', async () => {
+      const response = await GET(
+        new Request('http://localhost/api/reports/nonexistent/export?format=html'),
+        makeContext('nonexistent')
+      );
+      expect(response.status).toBe(404);
+      const body = await response.json();
+      expect(body.success).toBe(false);
+      expect(body.code).toBe('NOT_FOUND');
+    });
+
+    it('returns 400 for an unsupported format', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=docx`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(400);
+      const body = await response.json();
+      expect(body.success).toBe(false);
+      expect(body.code).toBe('BAD_REQUEST');
+    });
+  });
+});

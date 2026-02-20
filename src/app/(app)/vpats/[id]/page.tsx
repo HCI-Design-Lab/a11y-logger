@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Download, Pencil } from 'lucide-react';
 import { getVpat } from '@/lib/db/vpats';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +62,12 @@ export default async function VpatDetailPage({ params }: PageProps) {
           <div className="flex items-start justify-between gap-4 mb-6">
             <h1 className="text-2xl font-bold">{vpat.title}</h1>
             <div className="flex items-center gap-2 shrink-0">
+              <Button asChild variant="outline" size="sm">
+                <a href={`/api/vpats/${vpat.id}/export?format=html`} target="_blank">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export HTML
+                </a>
+              </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href={`/vpats/${vpat.id}/edit`}>
                   <Pencil className="mr-2 h-4 w-4" />
