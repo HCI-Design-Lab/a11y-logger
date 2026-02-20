@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VpatCriteriaTable, type CriterionRow } from '@/components/vpats/vpat-criteria-table';
 import { buildDefaultCriteriaRows, CONFORMANCE_DB_VALUE } from '@/lib/vpats/wcag-criteria';
@@ -26,7 +25,6 @@ export default function NewVpatPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [projectId, setProjectId] = useState('');
-  const [notes, setNotes] = useState('');
   const [criteria, setCriteria] = useState<CriterionRow[]>(buildInitialCriteria);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -120,16 +118,6 @@ export default function NewVpatPage() {
               <p className="text-xs text-muted-foreground">
                 Find the project ID on the Projects page.
               </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Optional notes about scope or evaluation methodology…"
-                rows={3}
-              />
             </div>
           </CardContent>
         </Card>

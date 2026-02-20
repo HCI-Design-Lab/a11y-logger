@@ -46,8 +46,15 @@ export const CONFORMANCE_OPTIONS = [
 
 export type ConformanceLevel = (typeof CONFORMANCE_OPTIONS)[number];
 
+type DbConformance =
+  | 'supports'
+  | 'partially_supports'
+  | 'does_not_support'
+  | 'not_applicable'
+  | 'not_evaluated';
+
 // Map from DB snake_case conformance values to display labels
-export const CONFORMANCE_DISPLAY: Record<string, string> = {
+export const CONFORMANCE_DISPLAY: Record<DbConformance, string> = {
   supports: 'Supports',
   partially_supports: 'Partially Supports',
   does_not_support: 'Does Not Support',
@@ -56,7 +63,7 @@ export const CONFORMANCE_DISPLAY: Record<string, string> = {
 };
 
 // Map from display labels to DB snake_case values
-export const CONFORMANCE_DB_VALUE: Record<string, string> = {
+export const CONFORMANCE_DB_VALUE: Record<string, DbConformance> = {
   Supports: 'supports',
   'Partially Supports': 'partially_supports',
   'Does Not Support': 'does_not_support',

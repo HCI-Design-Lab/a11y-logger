@@ -76,9 +76,8 @@ export function VpatCriteriaTable({
                   const meta = WCAG_CRITERIA.find((c) => c.criterion === row.criterion_code);
                   // Display value: convert db snake_case to human-readable label
                   const displayConformance =
-                    CONFORMANCE_DISPLAY[row.conformance] ?? row.conformance;
-                  // Select value: use display label so SelectItem values match
-                  const selectValue = CONFORMANCE_DISPLAY[row.conformance] ?? row.conformance;
+                    CONFORMANCE_DISPLAY[row.conformance as keyof typeof CONFORMANCE_DISPLAY] ??
+                    row.conformance;
 
                   return (
                     <TableRow key={row.criterion_code}>
@@ -92,7 +91,7 @@ export function VpatCriteriaTable({
                           <span className="text-sm">{displayConformance}</span>
                         ) : (
                           <Select
-                            value={selectValue}
+                            value={displayConformance}
                             onValueChange={(v) =>
                               updateRow(
                                 row.criterion_code,
@@ -101,7 +100,10 @@ export function VpatCriteriaTable({
                               )
                             }
                           >
-                            <SelectTrigger className="h-8 text-sm">
+                            <SelectTrigger
+                              className="h-8 text-sm"
+                              aria-label={`Conformance for ${row.criterion_code}`}
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -128,6 +130,7 @@ export function VpatCriteriaTable({
                             rows={2}
                             className="text-sm min-h-0"
                             placeholder="Add remarks…"
+                            aria-label={`Remarks for ${row.criterion_code}`}
                           />
                         )}
                       </TableCell>

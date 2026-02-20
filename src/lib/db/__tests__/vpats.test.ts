@@ -10,6 +10,7 @@ import {
   deleteVpat,
   publishVpat,
   getInvalidIssueIds,
+  safeParse,
 } from '../vpats';
 
 let projectId: string;
@@ -236,5 +237,41 @@ describe('getInvalidIssueIds', () => {
     const invalid = getInvalidIssueIds(['nonexistent-id-1', 'nonexistent-id-2']);
     expect(invalid).toContain('nonexistent-id-1');
     expect(invalid).toContain('nonexistent-id-2');
+  });
+});
+
+describe('safeParse', () => {
+  it('parses valid JSON and returns the value', () => {
+    expect(safeParse('["1.1.1","4.1.2"]', [])).toEqual(['1.1.1', '4.1.2']);
+  });
+
+  it('returns the fallback for malformed JSON', () => {
+    expect(safeParse('not valid json{{', [])).toEqual([]);
+  });
+
+  it('returns the fallback for empty string', () => {
+    expect(safeParse('', [])).toEqual([]);
+  });
+
+  it('returns the fallback for null-ish values', () => {
+    expect(safeParse(undefined as unknown as string, [])).toEqual([]);
+  });
+
+  it('does not throw when getVpat encounters corrupt wcag_scope', () => {
+    const vpat = createVpat({ title: 'VPAT', project_id: projectId });
+    // Manually corrupt the wcag_scope column in the DB
+    getDb().prepare("UPDATE vpats SET wcag_scope = 'CORRUPT{{' WHERE id = ?").run(vpat.id);
+    expect(() => getVpat(vpat.id)).not.toThrow();
+    const found = getVpat(vpat.id);
+    expect(found).not.toBeNull();
+    expect(found!.wcag_scope).toEqual([]);
+  });
+
+  it('does not throw when getVpats encounters corrupt criteria_rows', () => {
+    const vpat = createVpat({ title: 'VPAT', project_id: projectId });
+    getDb().prepare("UPDATE vpats SET criteria_rows = 'CORRUPT{{' WHERE id = ?").run(vpat.id);
+    expect(() => getVpats(projectId)).not.toThrow();
+    const results = getVpats(projectId);
+    expect(results[0]!.criteria_rows).toEqual([]);
   });
 });
