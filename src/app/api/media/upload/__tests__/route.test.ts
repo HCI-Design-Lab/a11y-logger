@@ -97,4 +97,30 @@ describe('POST /api/media/upload', () => {
     expect(mkdir).toHaveBeenCalled();
     expect(writeFile).toHaveBeenCalled();
   });
+
+  it('rejects malicious projectId with path traversal', async () => {
+    const fd = new FormData();
+    fd.append('file', new File(['hello'], 'test.png', { type: 'image/png' }));
+    fd.append('projectId', '../../../tmp');
+    fd.append('issueId', 'evil');
+    const req = new Request('http://localhost/api/media/upload', { method: 'POST', body: fd });
+    const res = await POST(req as never);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    // writeFile should NOT have been called
+    const { writeFile } = await import('fs/promises');
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when issueId is missing', async () => {
+    const file = new File(['hello'], 'test.png', { type: 'image/png' });
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('projectId', 'proj1');
+    // issueId intentionally omitted
+    const req = new Request('http://localhost/api/media/upload', { method: 'POST', body: fd });
+    const res = await POST(req as never);
+    expect(res.status).toBe(400);
+  });
 });

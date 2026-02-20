@@ -15,9 +15,14 @@ const MIME_TYPES: Record<string, string> = {
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path: pathSegments } = await params;
-  // Prevent path traversal: only use basename of each segment
-  const safeParts = pathSegments.map((p) => path.basename(p));
-  const filePath = path.join(process.cwd(), 'data', 'media', ...safeParts);
+
+  const MEDIA_ROOT = path.resolve(process.cwd(), 'data', 'media');
+  const filePath = path.resolve(MEDIA_ROOT, ...pathSegments);
+
+  // Guard against path traversal
+  if (!filePath.startsWith(MEDIA_ROOT + path.sep)) {
+    return NextResponse.json({ success: false, error: 'Invalid path' }, { status: 400 });
+  }
 
   try {
     const file = await readFile(filePath);

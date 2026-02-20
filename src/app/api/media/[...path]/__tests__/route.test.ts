@@ -77,13 +77,15 @@ describe('GET /api/media/[...path]', () => {
     expect(res.headers.get('Content-Type')).toBe('application/octet-stream');
   });
 
-  it('prevents path traversal by using only basename of each segment', async () => {
-    const fakeBuffer = Buffer.from('data');
-    mockReadFile.mockResolvedValue(fakeBuffer as never);
-    const { request, params } = makeGetRequest(['proj1', '..', 'evil.png']);
-    await GET(request as never, { params });
-    // readFile should have been called with a path that doesn't go up a directory
-    const calledPath = mockReadFile.mock.calls[0][0] as string;
-    expect(calledPath).not.toContain('..');
+  it('prevents path traversal attack', async () => {
+    // Mock readFile to avoid 'file not found' masking the result
+    mockReadFile.mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
+
+    // Real attack: path segments that escape the media root
+    const params = Promise.resolve({ path: ['..', '..', 'etc', 'passwd'] });
+    const req = new Request('http://localhost/api/media/../../../etc/passwd');
+    const res = await GET(req as never, { params });
+    // Should return 400 (bad request), not 404
+    expect(res.status).toBe(400);
   });
 });

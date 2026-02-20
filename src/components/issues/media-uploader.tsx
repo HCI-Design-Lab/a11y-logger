@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
 const ALLOWED_TYPES = [
   'image/png',
   'image/jpeg',
@@ -44,6 +46,12 @@ export function MediaUploader({
     // Client-side type validation
     if (!ALLOWED_TYPES.includes(file.type)) {
       setError(`File type "${file.type}" is not allowed. Please upload an image or video file.`);
+      return;
+    }
+
+    // Client-side size validation
+    if (file.size > MAX_SIZE) {
+      setError('File too large. Maximum size is 10MB.');
       return;
     }
 

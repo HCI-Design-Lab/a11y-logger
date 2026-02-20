@@ -83,6 +83,16 @@ describe('MediaUploader', () => {
     expect(input).toBeDisabled();
   });
 
+  it('shows error when file is too large', async () => {
+    render(<MediaUploader projectId="p1" issueId="i1" onUpload={vi.fn()} urls={[]} />);
+    const input = screen.getByLabelText(/choose file/i);
+    // Create a file that reports as > 10MB
+    const largeFile = new File(['x'], 'large.png', { type: 'image/png' });
+    Object.defineProperty(largeFile, 'size', { value: 11 * 1024 * 1024 });
+    fireEvent.change(input, { target: { files: [largeFile] } });
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/too large/i));
+  });
+
   it('clears error when a valid file is selected after an invalid one', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       json: () => Promise.resolve({ success: true, data: { url: '/api/media/p1/i1/photo.png' } }),

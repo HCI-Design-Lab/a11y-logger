@@ -43,7 +43,14 @@ export async function POST(req: NextRequest) {
 
   // Sanitize: take only basename, replace unsafe chars
   const safeName = path.basename(file.name).replace(/[^a-zA-Z0-9._-]/g, '_');
-  const dir = path.join(process.cwd(), 'data', 'media', projectId, issueId);
+
+  const MEDIA_ROOT = path.resolve(process.cwd(), 'data', 'media');
+  const dir = path.resolve(MEDIA_ROOT, projectId, issueId);
+
+  // Guard against path traversal via projectId or issueId
+  if (!dir.startsWith(MEDIA_ROOT + path.sep)) {
+    return NextResponse.json({ success: false, error: 'Invalid path' }, { status: 400 });
+  }
 
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, safeName), Buffer.from(await file.arrayBuffer()));
