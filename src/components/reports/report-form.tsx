@@ -43,6 +43,10 @@ export function ReportForm({ report, projects = [] }: ReportFormProps) {
   const [sections, setSections] = useState<EditorSection[]>(initialSections);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // AI generate state
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
@@ -83,6 +87,46 @@ export function ReportForm({ report, projects = [] }: ReportFormProps) {
       toast.error('Failed to save report');
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleGenerateWithAI() {
+    if (!report) return;
+
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const res = await fetch('/api/ai/generate-report-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId: report.project_id, reportId: report.id }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        const errMsg = json.error ?? 'Failed to generate summary';
+        setAiError(errMsg);
+        return;
+      }
+
+      const { summary } = json.data as { summary: string };
+
+      // Add the generated summary as a new section (or replace first section)
+      const summarySection: EditorSection = {
+        title: 'Executive Summary',
+        content: summary,
+      };
+
+      setSections((prev) => {
+        const existing = prev.filter((s) => s.title !== 'Executive Summary');
+        return [summarySection, ...existing];
+      });
+    } catch {
+      setAiError('Failed to connect to AI service');
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -137,7 +181,23 @@ export function ReportForm({ report, projects = [] }: ReportFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Sections</Label>
+            <div className="flex items-center justify-between">
+              <Label>Sections</Label>
+              {isEdit && (
+                <div className="flex items-center gap-2">
+                  {aiError && <span className="text-xs text-destructive">{aiError}</span>}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateWithAI}
+                    disabled={aiLoading}
+                  >
+                    {aiLoading ? 'Generating…' : 'Generate with AI'}
+                  </Button>
+                </div>
+              )}
+            </div>
             <SectionEditor sections={sections} onChange={setSections} />
           </div>
         </div>
@@ -153,6 +213,9 @@ export function ReportForm({ report, projects = [] }: ReportFormProps) {
               <li>Each section has a title and body content.</li>
               <li>Markdown formatting is supported in section content.</li>
               <li>Published reports cannot be edited.</li>
+              {isEdit && (
+                <li>Use &ldquo;Generate with AI&rdquo; to auto-generate an executive summary.</li>
+              )}
             </ul>
           </div>
         </aside>
