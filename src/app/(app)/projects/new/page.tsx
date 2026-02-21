@@ -1,0 +1,44 @@
+'use client';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import { ProjectForm } from '@/components/projects/project-form';
+
+export default function NewProjectPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (data: { name: string; description: string; product_url: string }) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success('Project created');
+      router.push(`/projects/${json.data.id}`);
+    } catch {
+      toast.error('Failed to create project');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Link
+        href="/projects"
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to Projects
+      </Link>
+      <h1 className="text-2xl font-bold">Create Project</h1>
+      <ProjectForm onSubmit={handleSubmit} loading={loading} />
+    </div>
+  );
+}
