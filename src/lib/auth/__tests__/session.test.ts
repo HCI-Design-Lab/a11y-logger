@@ -44,7 +44,7 @@ describe('session management', () => {
       expect.objectContaining({ httpOnly: true, secure: false, path: '/' })
     );
     // The token value should not be the raw userId
-    const tokenValue = mockSet.mock.calls[0][1] as string;
+    const tokenValue = mockSet.mock.calls[0]![1] as string;
     expect(tokenValue).not.toBe('user-123');
     // Token should have at least 3 colon-separated parts (userId:nonce:sig)
     expect(tokenValue.split(':').length).toBeGreaterThanOrEqual(3);

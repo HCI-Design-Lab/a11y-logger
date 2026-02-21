@@ -13,6 +13,7 @@ vi.mock('@/lib/auth/session', () => ({
 import { getUserByUsername } from '@/lib/db/users';
 import bcrypt from 'bcryptjs';
 import { POST } from '../route';
+import type { NextRequest } from 'next/server';
 
 describe('POST /api/auth/login', () => {
   it('returns 400 for missing credentials', async () => {
@@ -21,7 +22,7 @@ describe('POST /api/auth/login', () => {
       body: JSON.stringify({}),
       headers: { 'Content-Type': 'application/json' },
     });
-    const res = await POST(req);
+    const res = await POST(req as unknown as NextRequest);
     expect(res.status).toBe(400);
   });
 
@@ -32,7 +33,7 @@ describe('POST /api/auth/login', () => {
       body: JSON.stringify({ username: 'unknown', password: 'pass' }),
       headers: { 'Content-Type': 'application/json' },
     });
-    const res = await POST(req);
+    const res = await POST(req as unknown as NextRequest);
     expect(res.status).toBe(401);
   });
 
@@ -51,7 +52,7 @@ describe('POST /api/auth/login', () => {
       body: JSON.stringify({ username: 'testuser', password: 'wrong' }),
       headers: { 'Content-Type': 'application/json' },
     });
-    const res = await POST(req);
+    const res = await POST(req as unknown as NextRequest);
     expect(res.status).toBe(401);
   });
 
@@ -70,7 +71,7 @@ describe('POST /api/auth/login', () => {
       body: JSON.stringify({ username: 'testuser', password: 'correct' }),
       headers: { 'Content-Type': 'application/json' },
     });
-    const res = await POST(req);
+    const res = await POST(req as unknown as NextRequest);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
