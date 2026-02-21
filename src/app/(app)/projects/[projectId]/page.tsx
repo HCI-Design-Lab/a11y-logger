@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import Link from 'next/link';
 import { ChevronLeft, Download, ExternalLink, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
