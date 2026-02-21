@@ -7,6 +7,8 @@ import { getProject } from '@/lib/db/projects';
 import { getIssuesByProject } from '@/lib/db/issues';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProjectDetailPage({
   params,
 }: {
