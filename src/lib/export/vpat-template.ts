@@ -59,11 +59,11 @@ export function generateVpatHtml(vpat: Vpat, project: Project): string {
       : WCAG_CRITERIA;
 
   // Group criteria by principle
-  const byPrinciple = new Map<string, typeof criteriaToDisplay>();
+  type CriterionItem = (typeof criteriaToDisplay)[number];
+  const byPrinciple = new Map<string, CriterionItem[]>();
   for (const criterion of criteriaToDisplay) {
     const list = byPrinciple.get(criterion.principle) ?? [];
-    list.push(criterion);
-    byPrinciple.set(criterion.principle, list);
+    byPrinciple.set(criterion.principle, [...list, criterion]);
   }
 
   const principlesHtml = Array.from(byPrinciple.entries())
