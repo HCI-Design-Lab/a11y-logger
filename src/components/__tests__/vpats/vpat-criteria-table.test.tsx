@@ -70,7 +70,7 @@ test('calls onChange with db snake_case value when conformance is changed', () =
 
   expect(handleChange).toHaveBeenCalled();
   const updatedCriteria: { criterion_code: string; conformance: string }[] =
-    handleChange.mock.calls[handleChange.mock.calls.length - 1][0];
-  const row = updatedCriteria.find((r) => r.criterion_code === '1.1.1');
+    handleChange.mock.calls[handleChange.mock.calls.length - 1]![0];
+  const row = updatedCriteria.find((r) => r.criterion_code === '1.1.1')!;
   expect(row?.conformance).toBe('does_not_support');
 });
