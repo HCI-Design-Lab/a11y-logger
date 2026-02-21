@@ -2,8 +2,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
-import { createReport } from '@/lib/db/reports';
-import { POST } from '../route';
+import { createReport, publishReport } from '@/lib/db/reports';
+import { POST, DELETE } from '../route';
 
 let projectId: string;
 let reportId: string;
@@ -71,5 +71,42 @@ describe('POST /api/reports/[id]/publish', () => {
     const secondBody = await second.json();
     expect(secondBody.data.status).toBe('published');
     expect(secondBody.data.published_at).toBe(firstPublishedAt);
+  });
+});
+
+describe('DELETE /api/reports/[id]/publish', () => {
+  it('unpublishes a published report and reverts it to draft', async () => {
+    publishReport(reportId);
+    const response = await DELETE(
+      new Request(`http://localhost/api/reports/${reportId}/publish`, { method: 'DELETE' }),
+      makeContext(reportId)
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.status).toBe('draft');
+    expect(body.data.published_at).toBeNull();
+  });
+
+  it('is idempotent — unpublishing a draft report returns 200', async () => {
+    const response = await DELETE(
+      new Request(`http://localhost/api/reports/${reportId}/publish`, { method: 'DELETE' }),
+      makeContext(reportId)
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.status).toBe('draft');
+  });
+
+  it('returns 404 when report does not exist', async () => {
+    const response = await DELETE(
+      new Request('http://localhost/api/reports/no-report/publish', { method: 'DELETE' }),
+      makeContext('no-report')
+    );
+    expect(response.status).toBe(404);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('NOT_FOUND');
   });
 });

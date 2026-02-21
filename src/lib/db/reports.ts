@@ -1,6 +1,12 @@
 import { getDb } from './index';
 import type { CreateReportInput, UpdateReportInput } from '../validators/reports';
 
+/** Shape of a section as stored in the DB/API (content JSON: [{title, body}]) */
+export interface ReportSection {
+  title: string;
+  body: string;
+}
+
 export interface Report {
   id: string;
   project_id: string;
@@ -107,6 +113,22 @@ export function publishReport(id: string): Report | null {
   getDb()
     .prepare(
       `UPDATE reports SET status = 'published', published_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
+    )
+    .run(id);
+
+  return getReport(id);
+}
+
+export function unpublishReport(id: string): Report | null {
+  const existing = getReport(id);
+  if (!existing) return null;
+
+  // Already draft — return as-is
+  if (existing.status === 'draft') return existing;
+
+  getDb()
+    .prepare(
+      `UPDATE reports SET status = 'draft', published_at = NULL, updated_at = datetime('now') WHERE id = ?`
     )
     .run(id);
 
