@@ -13,7 +13,10 @@ export async function GET(
   const { projectId } = await params;
   const project = getProject(projectId);
   if (!project) {
-    return NextResponse.json({ success: false, error: 'Not found', code: 'NOT_FOUND' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: 'Not found', code: 'NOT_FOUND' },
+      { status: 404 }
+    );
   }
 
   const assessments = getAssessments(projectId);
@@ -45,7 +48,10 @@ export async function GET(
     });
     archive.on('error', (err: Error) => {
       resolve(
-        NextResponse.json({ success: false, error: err.message, code: 'INTERNAL_ERROR' }, { status: 500 })
+        NextResponse.json(
+          { success: false, error: err.message, code: 'INTERNAL_ERROR' },
+          { status: 500 }
+        )
       );
     });
 

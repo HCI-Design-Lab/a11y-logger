@@ -47,7 +47,11 @@ export async function POST(req: NextRequest) {
     // Validate manifest
     if (!zip.files['manifest.json']) {
       return NextResponse.json(
-        { success: false, error: 'Invalid export: missing manifest.json', code: 'VALIDATION_ERROR' },
+        {
+          success: false,
+          error: 'Invalid export: missing manifest.json',
+          code: 'VALIDATION_ERROR',
+        },
         { status: 400 }
       );
     }
@@ -124,6 +128,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, data: { projectId: newProjectId! } });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to import';
-    return NextResponse.json({ success: false, error: message, code: 'INTERNAL_ERROR' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: message, code: 'INTERNAL_ERROR' },
+      { status: 400 }
+    );
   }
 }

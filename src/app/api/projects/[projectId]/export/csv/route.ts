@@ -11,7 +11,10 @@ export async function GET(
   const { projectId } = await params;
   const project = getProject(projectId);
   if (!project) {
-    return NextResponse.json({ success: false, error: 'Not found', code: 'NOT_FOUND' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, error: 'Not found', code: 'NOT_FOUND' },
+      { status: 404 }
+    );
   }
 
   const issues = getIssuesByProject(projectId);

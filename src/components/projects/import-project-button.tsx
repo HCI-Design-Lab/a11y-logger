@@ -51,11 +51,7 @@ export function ImportProjectButton() {
         onChange={handleFileChange}
         aria-label="Import project zip file"
       />
-      <Button
-        variant="outline"
-        disabled={loading}
-        onClick={() => inputRef.current?.click()}
-      >
+      <Button variant="outline" disabled={loading} onClick={() => inputRef.current?.click()}>
         <Upload className="mr-2 h-4 w-4" />
         {loading ? 'Importing...' : 'Import'}
       </Button>
