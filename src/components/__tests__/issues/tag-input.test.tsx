@@ -34,7 +34,7 @@ test('removes tag on click', () => {
   render(<TagInput tags={['accessibility', 'forms']} onChange={onChange} />);
   const removeButtons = screen.getAllByRole('button');
   // Click the first remove button (for 'accessibility')
-  fireEvent.click(removeButtons[0]);
+  fireEvent.click(removeButtons[0]!);
   expect(onChange).toHaveBeenCalledWith(['forms']);
 });
 
