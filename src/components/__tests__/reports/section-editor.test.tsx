@@ -23,7 +23,7 @@ test('removing a section calls onChange without it', () => {
     { title: 'Section 2', content: 'Content 2' },
   ];
   render(<SectionEditor sections={sections} onChange={onChange} />);
-  fireEvent.click(screen.getAllByRole('button', { name: /remove/i })[0]);
+  fireEvent.click(screen.getAllByRole('button', { name: /remove/i })[0]!);
   expect(onChange).toHaveBeenCalledWith([{ title: 'Section 2', content: 'Content 2' }]);
 });
 

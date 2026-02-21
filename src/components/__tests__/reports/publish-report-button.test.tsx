@@ -66,7 +66,7 @@ test('publish API is called after confirmation', async () => {
   // Click the confirm Publish action in the dialog
   const confirmButtons = screen.getAllByRole('button', { name: /^publish$/i });
   // The last Publish button is the action (in dialog)
-  fireEvent.click(confirmButtons[confirmButtons.length - 1]);
+  fireEvent.click(confirmButtons[confirmButtons.length - 1]!);
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith('/api/reports/r1/publish', { method: 'POST' });
   });
