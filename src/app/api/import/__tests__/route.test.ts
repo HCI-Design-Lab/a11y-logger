@@ -25,7 +25,7 @@ async function makeZipFile(files: Record<string, string>): Promise<File> {
     zip.file(name, content);
   }
   const buffer = await zip.generateAsync({ type: 'nodebuffer' });
-  return new File([buffer], 'export.zip', { type: 'application/zip' });
+  return new File([buffer as unknown as BlobPart], 'export.zip', { type: 'application/zip' });
 }
 
 function makeValidExportData(projectName: string) {
@@ -162,7 +162,11 @@ describe('POST /api/import', () => {
   });
 
   it('imports project with correct name', async () => {
-    const manifest = { version: '1.0', exported_at: new Date().toISOString(), project_id: 'orig-project-id' };
+    const manifest = {
+      version: '1.0',
+      exported_at: new Date().toISOString(),
+      project_id: 'orig-project-id',
+    };
     const exportData = makeValidExportData('My Imported Project');
 
     const file = await makeZipFile({
@@ -184,7 +188,9 @@ describe('POST /api/import', () => {
     expect(body.data.projectId).toBeDefined();
 
     // Verify the project was created in the DB
-    const projects = getDb().prepare('SELECT * FROM projects WHERE id = ?').get(body.data.projectId) as { name: string } | undefined;
+    const projects = getDb()
+      .prepare('SELECT * FROM projects WHERE id = ?')
+      .get(body.data.projectId) as { name: string } | undefined;
     expect(projects).toBeDefined();
     expect(projects!.name).toBe('My Imported Project');
   });
@@ -193,7 +199,11 @@ describe('POST /api/import', () => {
     // Create existing project with same name
     createProject({ name: 'Existing Project' });
 
-    const manifest = { version: '1.0', exported_at: new Date().toISOString(), project_id: 'orig-project-id' };
+    const manifest = {
+      version: '1.0',
+      exported_at: new Date().toISOString(),
+      project_id: 'orig-project-id',
+    };
     const exportData = makeValidExportData('Existing Project');
 
     const file = await makeZipFile({
@@ -220,7 +230,11 @@ describe('POST /api/import', () => {
   });
 
   it('imports assessments and issues linked to the new project', async () => {
-    const manifest = { version: '1.0', exported_at: new Date().toISOString(), project_id: 'orig-project-id' };
+    const manifest = {
+      version: '1.0',
+      exported_at: new Date().toISOString(),
+      project_id: 'orig-project-id',
+    };
     const exportData = makeValidExportData('Full Import Project');
 
     const file = await makeZipFile({

@@ -5,6 +5,7 @@ import { createProject } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
 import { createIssue } from '@/lib/db/issues';
 import { GET } from '../route';
+import type { NextRequest } from 'next/server';
 import JSZip from 'jszip';
 
 beforeAll(() => {
@@ -30,7 +31,7 @@ function makeParams(projectId: string): RouteParams {
 describe('GET /api/projects/[projectId]/export', () => {
   it('returns 404 for unknown project', async () => {
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams('nonexistent-project-id')
     );
 
@@ -43,7 +44,7 @@ describe('GET /api/projects/[projectId]/export', () => {
     const project = createProject({ name: 'Zip Project' });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 
@@ -57,7 +58,7 @@ describe('GET /api/projects/[projectId]/export', () => {
     const project = createProject({ name: 'Manifest Test' });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 
@@ -79,7 +80,7 @@ describe('GET /api/projects/[projectId]/export', () => {
     createIssue(assessment.id, { title: 'Test Issue', severity: 'high', status: 'open' });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 

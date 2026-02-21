@@ -5,6 +5,7 @@ import { createProject } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
 import { createIssue } from '@/lib/db/issues';
 import { GET } from '../route';
+import type { NextRequest } from 'next/server';
 
 beforeAll(() => {
   initDb(':memory:');
@@ -39,7 +40,7 @@ describe('GET /api/projects/[projectId]/export/csv', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 
@@ -60,7 +61,7 @@ describe('GET /api/projects/[projectId]/export/csv', () => {
     const project = createProject({ name: 'Empty Project' });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 
@@ -71,7 +72,7 @@ describe('GET /api/projects/[projectId]/export/csv', () => {
 
   it('returns 404 for unknown project', async () => {
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams('nonexistent-project-id')
     );
 
@@ -90,7 +91,7 @@ describe('GET /api/projects/[projectId]/export/csv', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost'),
+      new Request('http://localhost') as unknown as NextRequest,
       makeParams(project.id)
     );
 
