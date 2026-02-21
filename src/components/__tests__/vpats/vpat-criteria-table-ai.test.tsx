@@ -44,7 +44,7 @@ describe('VpatCriteriaTable AI Generate Narrative', () => {
     render(<VpatCriteriaTable criteria={mockCriteria} onChange={vi.fn()} projectId="p1" />);
 
     const aiButtons = screen.getAllByRole('button', { name: /ai generate/i });
-    fireEvent.click(aiButtons[0]);
+    fireEvent.click(aiButtons[0]!);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /generating narrative for/i })).toBeDisabled();
@@ -72,7 +72,7 @@ describe('VpatCriteriaTable AI Generate Narrative', () => {
     render(<VpatCriteriaTable criteria={mockCriteria} onChange={onChange} projectId="p1" />);
 
     const aiButtons = screen.getAllByRole('button', { name: /ai generate/i });
-    fireEvent.click(aiButtons[0]);
+    fireEvent.click(aiButtons[0]!);
 
     await waitFor(() => {
       expect(onChange).toHaveBeenCalledWith(
@@ -108,7 +108,7 @@ describe('VpatCriteriaTable AI Generate Narrative', () => {
     render(<VpatCriteriaTable criteria={mockCriteria} onChange={vi.fn()} projectId="p1" />);
 
     const aiButtons = screen.getAllByRole('button', { name: /ai generate/i });
-    fireEvent.click(aiButtons[0]);
+    fireEvent.click(aiButtons[0]!);
 
     await waitFor(() => {
       expect(screen.getByText(/ai not configured/i)).toBeInTheDocument();

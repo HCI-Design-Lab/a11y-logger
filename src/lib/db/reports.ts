@@ -22,6 +22,11 @@ export interface Report {
   updated_at: string;
 }
 
+export interface ReportSection {
+  title: string;
+  body: string;
+}
+
 export function getReport(id: string): Report | null {
   return (
     (getDb().prepare('SELECT * FROM reports WHERE id = ?').get(id) as Report | undefined) ?? null
