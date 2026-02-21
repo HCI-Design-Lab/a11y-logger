@@ -32,12 +32,20 @@ interface VpatRow {
   updated_at: string;
 }
 
+export function safeParse<T>(json: string, fallback: T): T {
+  try {
+    return JSON.parse(json || JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
 function parseVpat(raw: VpatRow): Vpat {
   return {
     ...raw,
     status: raw.status as Vpat['status'],
-    wcag_scope: JSON.parse(raw.wcag_scope || '[]'),
-    criteria_rows: JSON.parse(raw.criteria_rows || '[]'),
+    wcag_scope: safeParse(raw.wcag_scope, []),
+    criteria_rows: safeParse(raw.criteria_rows, []),
   };
 }
 
