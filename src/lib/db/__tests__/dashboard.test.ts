@@ -45,8 +45,18 @@ describe('getDashboardStats with data', () => {
   it('counts projects correctly', async () => {
     const { getDashboardStats } = await import('../dashboard');
     const { createProject } = await import('../projects');
-    createProject({ name: 'Project A', description: null, product_url: null, status: 'active' });
-    createProject({ name: 'Project B', description: null, product_url: null, status: 'active' });
+    createProject({
+      name: 'Project A',
+      description: undefined,
+      product_url: undefined,
+      status: 'active',
+    });
+    createProject({
+      name: 'Project B',
+      description: undefined,
+      product_url: undefined,
+      status: 'active',
+    });
     const stats = getDashboardStats();
     expect(stats.total_projects).toBe(2);
   });
@@ -59,13 +69,13 @@ describe('getDashboardStats with data', () => {
 
     const project = createProject({
       name: 'Test Project',
-      description: null,
-      product_url: null,
+      description: undefined,
+      product_url: undefined,
       status: 'active',
     });
     const assessment = createAssessment(project.id, {
       name: 'Test Assessment',
-      description: null,
+      description: undefined,
       status: 'planning',
     });
 
@@ -89,8 +99,8 @@ describe('getRecentActivity with data', () => {
     const { createProject } = await import('../projects');
     createProject({
       name: 'Active Project',
-      description: null,
-      product_url: null,
+      description: undefined,
+      product_url: undefined,
       status: 'active',
     });
     const activity = getRecentActivity();
@@ -106,8 +116,8 @@ describe('getRecentActivity with data', () => {
     for (let i = 0; i < 15; i++) {
       createProject({
         name: `Limit Project ${i}`,
-        description: null,
-        product_url: null,
+        description: undefined,
+        product_url: undefined,
         status: 'active',
       });
     }
