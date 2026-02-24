@@ -142,7 +142,7 @@ export function ActivityChart() {
                 dataKey="issues"
                 stroke="#f97316"
                 strokeWidth={2}
-                dot={false}
+                dot={{ r: 3 }}
                 name="Issues"
               />
             </LineChart>

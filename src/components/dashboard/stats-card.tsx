@@ -8,7 +8,7 @@ interface StatsCardProps {
 export function StatsCard({ label, count }: StatsCardProps) {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent className="pt-2">
         <dl>
           <dt className="text-sm text-muted-foreground w">
             Total
