@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { TimeRange } from '@/lib/db/dashboard';
+import type { TimeRange, TimeSeriesEntry } from '@/lib/db/dashboard';
 
 const RANGES: { label: string; value: TimeRange }[] = [
   { label: '6 months', value: '6m' },
@@ -20,13 +20,6 @@ const RANGES: { label: string; value: TimeRange }[] = [
   { label: '1 month', value: '1m' },
   { label: '1 week', value: '1w' },
 ];
-
-interface TimeSeriesEntry {
-  date: string;
-  projects: number;
-  assessments: number;
-  issues: number;
-}
 
 export function ActivityChart() {
   const [range, setRange] = useState<TimeRange>('6m');
