@@ -75,5 +75,6 @@ export function getWcagCriterionName(code: string): string | undefined {
 
 export function getPrincipleFromCode(code: string): WcagPrinciple | null {
   const prefix = code.split('.')[0];
+  if (!prefix) return null;
   return PRINCIPLE_MAP[prefix] ?? null;
 }

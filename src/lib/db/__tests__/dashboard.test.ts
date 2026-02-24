@@ -106,7 +106,7 @@ describe('getWcagCriteriaCounts', () => {
     ).run(JSON.stringify(['1.4.3']));
 
     const results = getWcagCriteriaCounts('perceivable');
-    expect(results[0].count).toBeGreaterThanOrEqual(results[1]?.count ?? 0);
+    expect(results[0]?.count).toBeGreaterThanOrEqual(results[1]?.count ?? 0);
   });
 
   it('silently skips rows with malformed wcag_codes JSON', () => {
