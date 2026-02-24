@@ -16,13 +16,21 @@ export function WcagCriteria() {
   const [principle, setPrinciple] = useState<WcagPrinciple>('perceivable');
   const [rows, setRows] = useState<WcagCriteriaCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async (p: WcagPrinciple) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/dashboard/wcag-criteria?principle=${p}`);
       const json = await res.json();
-      if (json.success) setRows(json.data);
+      if (json.success) {
+        setRows(json.data);
+      } else {
+        setError('Failed to load WCAG criteria.');
+      }
+    } catch {
+      setError('Failed to load WCAG criteria.');
     } finally {
       setLoading(false);
     }
@@ -63,6 +71,8 @@ export function WcagCriteria() {
       <CardContent>
         {loading ? (
           <p className="text-sm text-muted-foreground py-4">Loading…</p>
+        ) : error ? (
+          <p className="text-sm text-destructive py-4">{error}</p>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
             No issues logged for {PRINCIPLE_LABELS[principle]} criteria yet.

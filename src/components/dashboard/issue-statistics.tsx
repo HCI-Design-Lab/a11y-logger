@@ -115,12 +115,14 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
             <tbody>
               {SEVERITY_CONFIG.map(({ key, label, color }) => (
                 <tr key={key} className="border-b last:border-0">
-                  <td className="py-2 flex items-center gap-2">
-                    <span
-                      className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
-                    {label}
+                  <td className="py-2">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                      {label}
+                    </span>
                   </td>
                   <td className="py-2 text-right font-bold">{severityBreakdown[key]}</td>
                 </tr>

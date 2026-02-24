@@ -25,13 +25,21 @@ export function ActivityChart() {
   const [range, setRange] = useState<TimeRange>('6m');
   const [data, setData] = useState<TimeSeriesEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async (r: TimeRange) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/dashboard/timeseries?range=${r}`);
       const json = await res.json();
-      if (json.success) setData(json.data);
+      if (json.success) {
+        setData(json.data);
+      } else {
+        setError('Failed to load chart data.');
+      }
+    } catch {
+      setError('Failed to load chart data.');
     } finally {
       setLoading(false);
     }
@@ -83,6 +91,10 @@ export function ActivityChart() {
         {loading ? (
           <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
             Loading…
+          </div>
+        ) : error ? (
+          <div className="h-48 flex items-center justify-center text-sm text-destructive">
+            {error}
           </div>
         ) : data.length === 0 ? (
           <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
