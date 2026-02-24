@@ -82,10 +82,10 @@ export function WcagCriteria() {
             <tbody>
               {rows.map((row) => (
                 <tr key={row.code} className="border-b last:border-0">
-                  <td className="py-2 pr-3 text-muted-foreground font-mono text-xs w-12 shrink-0">
+                  <td className="py-2 pr-3 text-muted-foreground font-mono text-xs w-12 shrink-0 whitespace-nowrap">
                     {row.code}
                   </td>
-                  <td className="py-2 pr-4 w-48">{row.name ?? row.code}</td>
+                  <td className="py-2 pr-4 w-48  whitespace-nowrap">{row.name ?? row.code}</td>
                   <td className="py-2 pr-3 text-right font-bold w-8">{row.count}</td>
                   <td className="py-2 w-full">
                     <div className="h-2 rounded-full bg-muted overflow-hidden">

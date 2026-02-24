@@ -10,7 +10,10 @@ export function StatsCard({ label, count }: StatsCardProps) {
     <Card>
       <CardContent className="pt-6">
         <dl>
-          <dt className="text-sm text-muted-foreground">Total {label}</dt>
+          <dt className="text-sm text-muted-foreground w">
+            Total
+            <br /> {label}
+          </dt>
           <dd className="text-4xl font-bold m-0">{count}</dd>
         </dl>
       </CardContent>

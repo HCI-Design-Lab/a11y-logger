@@ -77,10 +77,10 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
                     innerRadius={60}
                     outerRadius={90}
                     dataKey="value"
-                    strokeWidth={0}
+                    strokeWidth={5}
                   >
                     {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
+                      <Cell key={entry.name} fill={entry.color} style={{ stroke: 'var(--card)' }} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Issues']} />
