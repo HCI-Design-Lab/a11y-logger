@@ -1,7 +1,8 @@
 // @vitest-environment node
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, afterEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { GET } from '../route';
+import * as dashboardDb from '@/lib/db/dashboard';
 
 beforeAll(() => {
   initDb(':memory:');
@@ -16,6 +17,10 @@ beforeEach(() => {
   db.prepare('DELETE FROM issues').run();
   db.prepare('DELETE FROM assessments').run();
   db.prepare('DELETE FROM projects').run();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe('GET /api/dashboard/timeseries', () => {
@@ -57,6 +62,24 @@ describe('GET /api/dashboard/timeseries', () => {
     const body = await response.json();
     expect(body.success).toBe(true);
     expect(body.data.length).toBeGreaterThan(0);
-    expect(body.data[0]).toMatchObject({ date: expect.any(String), projects: expect.any(Number) });
+    expect(body.data[0]).toMatchObject({
+      date: expect.any(String),
+      projects: expect.any(Number),
+      assessments: expect.any(Number),
+      issues: expect.any(Number),
+    });
+  });
+
+  it('returns 500 when DB throws', async () => {
+    vi.spyOn(dashboardDb, 'getTimeSeriesData').mockImplementation(() => {
+      throw new Error('DB failure');
+    });
+
+    const req = new Request('http://localhost/api/dashboard/timeseries?range=1w');
+    const response = await GET(req);
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('INTERNAL_ERROR');
   });
 });
