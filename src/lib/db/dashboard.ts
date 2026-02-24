@@ -142,6 +142,8 @@ export function getTimeSeriesData(range: TimeRange): TimeSeriesEntry[] {
 export function getWcagCriteriaCounts(principle: WcagPrinciple): WcagCriteriaCount[] {
   const db = getDb();
 
+  // Loads all non-empty wcag_codes into memory for JS-side filtering.
+  // Acceptable for this single-user offline tool; revisit if issue counts grow very large.
   const rows = db
     .prepare(`SELECT wcag_codes FROM issues WHERE wcag_codes IS NOT NULL AND wcag_codes != '[]'`)
     .all() as { wcag_codes: string }[];

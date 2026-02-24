@@ -108,4 +108,20 @@ describe('getWcagCriteriaCounts', () => {
     const results = getWcagCriteriaCounts('perceivable');
     expect(results[0].count).toBeGreaterThanOrEqual(results[1]?.count ?? 0);
   });
+
+  it('silently skips rows with malformed wcag_codes JSON', () => {
+    const db = getDb();
+    db.prepare(
+      `INSERT INTO projects (id, name, created_at, updated_at) VALUES ('p3', 'P', datetime('now'), datetime('now'))`
+    ).run();
+    db.prepare(
+      `INSERT INTO assessments (id, project_id, name, created_at, updated_at) VALUES ('a3', 'p3', 'A', datetime('now'), datetime('now'))`
+    ).run();
+    db.prepare(
+      `INSERT INTO issues (id, assessment_id, title, wcag_codes, created_at, updated_at) VALUES ('k1', 'a3', 'Bad JSON issue', 'not-valid-json', datetime('now'), datetime('now'))`
+    ).run();
+
+    const results = getWcagCriteriaCounts('perceivable');
+    expect(results).toEqual([]);
+  });
 });
