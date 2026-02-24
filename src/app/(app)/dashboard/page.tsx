@@ -9,20 +9,23 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <StatsCard label="Projects" count={stats.total_projects} />
-        <StatsCard label="Assessments" count={stats.total_assessments} />
-        <StatsCard label="Issues" count={stats.total_issues} />
-        <StatsCard label="Reports" count={stats.total_reports} />
-        <StatsCard label="VPATs" count={stats.total_vpats} />
-      </div>
-
-      {/* Charts row */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <ActivityChart />
+      {/* Two-column layout: left (stats + chart) | right (donut full height) */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Left: stats row stacked above line chart */}
+        <div className="lg:col-span-3 flex flex-col gap-4">
+          <div className="grid grid-cols-5 gap-4">
+            <StatsCard label="Projects" count={stats.total_projects} />
+            <StatsCard label="Assessments" count={stats.total_assessments} />
+            <StatsCard label="Issues" count={stats.total_issues} />
+            <StatsCard label="Reports" count={stats.total_reports} />
+            <StatsCard label="VPATs" count={stats.total_vpats} />
+          </div>
+          <div className="flex-1">
+            <ActivityChart />
+          </div>
         </div>
+
+        {/* Right: Issue Statistics spanning full height */}
         <div className="lg:col-span-2">
           <IssueStatistics
             total={stats.total_issues}
