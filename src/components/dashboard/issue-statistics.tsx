@@ -67,7 +67,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
       <CardContent>
         {view === 'chart' ? (
           <div className="flex flex-col items-center gap-4">
-            <div className="relative w-full" style={{ height: 200 }}>
+            <div className="relative w-full mb-8" style={{ height: 200 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -75,7 +75,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
-                    outerRadius={90}
+                    outerRadius={100}
                     dataKey="value"
                     strokeWidth={5}
                   >
@@ -95,11 +95,11 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
               {SEVERITY_CONFIG.map(({ key, label, color }) => (
                 <div key={key} className="flex flex-col items-center gap-0.5">
                   <span
-                    className="inline-block w-2.5 h-2.5 rounded-full"
+                    className="inline-block w-4 h-4 rounded-full"
                     style={{ backgroundColor: color }}
                   />
-                  <span className="text-xs text-muted-foreground">{label}</span>
-                  <span className="font-bold">{severityBreakdown[key]}</span>
+                  <span className="text-muted-foreground text-sm">{label}</span>
+                  <span className="font-bold text-xl">{severityBreakdown[key]}</span>
                 </div>
               ))}
             </div>
@@ -118,7 +118,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
                   <td className="py-2">
                     <span className="flex items-center gap-2">
                       <span
-                        className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: color }}
                       />
                       {label}
