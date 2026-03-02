@@ -9,6 +9,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 max-w-300">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
       {/* Two-column layout: left (stats + chart) | right (donut full height) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: stats row stacked above line chart */}
