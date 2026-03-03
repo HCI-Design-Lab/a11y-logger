@@ -52,7 +52,11 @@ export default async function AssessmentsPage({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {assessments.map((assessment) => (
-            <AssessmentCard key={assessment.id} assessment={assessment} projectId={projectId} />
+            <AssessmentCard
+              key={assessment.id}
+              assessment={assessment}
+              projectName={project.name}
+            />
           ))}
         </div>
       )}

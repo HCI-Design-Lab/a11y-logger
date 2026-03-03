@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AssessmentWithProject } from '@/lib/db/assessments';
+import type { AssessmentWithCounts, AssessmentWithProject } from '@/lib/db/assessments';
 
 const statusConfig = {
   planning: { label: 'Planning', className: 'bg-gray-100 text-gray-700' },
@@ -10,17 +10,22 @@ const statusConfig = {
 };
 
 interface AssessmentCardProps {
-  assessment: AssessmentWithProject;
+  assessment: AssessmentWithCounts | AssessmentWithProject;
+  projectName?: string;
 }
 
-export function AssessmentCard({ assessment }: AssessmentCardProps) {
+export function AssessmentCard({ assessment, projectName }: AssessmentCardProps) {
   const s = statusConfig[assessment.status];
+  const displayProjectName =
+    'project_name' in assessment ? assessment.project_name : (projectName ?? null);
   return (
     <Link href={`/projects/${assessment.project_id}/assessments/${assessment.id}`}>
       <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">{assessment.name}</CardTitle>
-          <p className="text-sm text-muted-foreground">{assessment.project_name}</p>
+          {displayProjectName && (
+            <p className="text-sm text-muted-foreground">{displayProjectName}</p>
+          )}
           {assessment.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">{assessment.description}</p>
           )}
