@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 export function Header() {
   const { theme, setTheme } = useTheme();
   return (
-    <header className="flex h-14 shrink-0 items-center justify-end border-b bg-background px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-6">
+      <div className="flex items-center gap-2">
+        {/*<Accessibility className="h-6 w-6 text-primary" aria-hidden="true" />*/}
+        <span className="font-semibold text-lg">A11y Logger</span>
+      </div>
       <Button
         variant="ghost"
         size="icon"

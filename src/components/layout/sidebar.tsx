@@ -19,9 +19,6 @@ export function Sidebar() {
       className="flex h-screen w-14 flex-col items-center border-r bg-sidebar py-4 gap-1"
       aria-label="Main navigation"
     >
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-        <span className="text-xs font-bold text-primary-foreground">A11y</span>
-      </div>
       {navItems.map(({ href, icon: Icon, label }) => (
         <Link
           key={href}
