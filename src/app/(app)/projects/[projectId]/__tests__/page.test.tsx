@@ -47,6 +47,12 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
+vi.mock('@/components/dashboard/issue-statistics', () => ({
+  IssueStatistics: ({ total }: { total: number }) => (
+    <div data-testid="issue-statistics">Issue Statistics mock: {total}</div>
+  ),
+}));
+
 vi.mock('@/components/assessments/assessments-table', () => ({
   AssessmentsTable: ({ assessments }: { assessments: { name: string }[] }) => (
     <table>
@@ -89,4 +95,10 @@ test('does not show hardcoded placeholder when assessments exist', async () => {
   const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
   render(page);
   expect(screen.queryByText('Assessments will appear here once created.')).not.toBeInTheDocument();
+});
+
+test('renders IssueStatistics component in the sidebar', async () => {
+  const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
+  render(page);
+  expect(screen.getByTestId('issue-statistics')).toBeInTheDocument();
 });

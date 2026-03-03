@@ -10,6 +10,7 @@ import { getIssues } from '@/lib/db/issues';
 import { DeleteAssessmentButton } from '@/components/assessments/delete-assessment-button';
 import { StatusTransitionButton } from '@/components/assessments/status-transition-button';
 import { IssuesTable } from '@/components/issues/issues-table';
+import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,31 +122,8 @@ export default async function AssessmentDetailPage({
         </div>
 
         {/* Sidebar */}
-        <aside className="w-64 shrink-0 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Issue Severity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {[
-                { key: 'critical', label: 'Critical', color: 'text-red-500' },
-                { key: 'high', label: 'High', color: 'text-orange-500' },
-                { key: 'medium', label: 'Medium', color: 'text-yellow-500' },
-                { key: 'low', label: 'Low', color: 'text-blue-500' },
-              ].map(({ key, label, color }) => (
-                <div key={key} className="flex justify-between text-sm">
-                  <span className={`font-medium ${color}`}>{label}</span>
-                  <span className="font-bold">
-                    {severityCounts[key as keyof typeof severityCounts]}
-                  </span>
-                </div>
-              ))}
-              <div className="border-t pt-2 flex justify-between text-sm">
-                <span className="text-muted-foreground">Total</span>
-                <span className="font-bold">{issues.length}</span>
-              </div>
-            </CardContent>
-          </Card>
+        <aside className="w-64 shrink-0">
+          <IssueStatistics total={issues.length} severityBreakdown={severityCounts} />
         </aside>
       </div>
     </div>
