@@ -1,19 +1,9 @@
 import { getAllIssues } from '@/lib/db/issues';
-import { AllIssuesTable } from '@/components/issues/all-issues-table';
-import { Card, CardContent } from '@/components/ui/card';
+import { IssuesListView } from '@/components/issues/issues-list-view';
 
 export const dynamic = 'force-dynamic';
 
 export default function IssuesPage() {
   const issues = getAllIssues();
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Issues</h1>
-      <Card>
-        <CardContent>
-          <AllIssuesTable issues={issues} />
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <IssuesListView issues={issues} />;
 }
