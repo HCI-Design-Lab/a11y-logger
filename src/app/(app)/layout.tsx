@@ -16,8 +16,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="relative w-14 shrink-0">
           <Sidebar />
         </div>
-        <main className="flex-1 overflow-auto p-6 max-w-300" id="main-content">
-          {children}
+        <main className="flex-1 overflow-auto p-6" id="main-content">
+          <div className="max-w-300"> {children}</div>
         </main>
       </div>
       <Toaster />

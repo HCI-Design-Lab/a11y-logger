@@ -80,7 +80,7 @@
   --severity-chart-2: oklch(0.723 0.15 60.6);
   --severity-chart-3: oklch(0.933 0.1487 100.6);
   --severity-chart-4: oklch(0.778 0.0222 225.3);
-  --sidebar: oklch(0.968 0.0068 247.9);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.137 0.036 258.5);
   --sidebar-primary: oklch(0.22 0.0076 285.8);
   --sidebar-primary-foreground: oklch(1 0 0);

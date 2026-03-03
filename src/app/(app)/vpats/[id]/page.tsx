@@ -47,42 +47,42 @@ export default async function VpatDetailPage({ params }: PageProps) {
       : `All ${WCAG_CRITERIA.length} criteria`;
 
   return (
-    <div>
+    <div className="space-y-6">
       <Link
         href="/vpats"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
+        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4 mr-1" />
         Back to VPATs
       </Link>
 
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-bold">{vpat.title}</h1>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button asChild variant="outline" size="sm">
+            <a
+              href={`/api/vpats/${vpat.id}/export?format=html`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export HTML
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/vpats/${vpat.id}/edit`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
+          <PublishVpatButton vpatId={vpat.id} isPublished={isPublished} />
+          <DeleteVpatButton vpatId={vpat.id} vpatTitle={vpat.title} />
+        </div>
+      </div>
+
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="text-2xl font-bold">{vpat.title}</h1>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button asChild variant="outline" size="sm">
-                <a
-                  href={`/api/vpats/${vpat.id}/export?format=html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export HTML
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/vpats/${vpat.id}/edit`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit
-                </Link>
-              </Button>
-              <PublishVpatButton vpatId={vpat.id} isPublished={isPublished} />
-              <DeleteVpatButton vpatId={vpat.id} vpatTitle={vpat.title} />
-            </div>
-          </div>
-
           <VpatCriteriaTable criteria={criteriaRows} readOnly />
         </div>
 
