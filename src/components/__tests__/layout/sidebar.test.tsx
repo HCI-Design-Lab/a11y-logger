@@ -38,3 +38,30 @@ test('inactive links do not have aria-current', () => {
   const projectsLink = screen.getByRole('link', { name: /projects/i });
   expect(projectsLink).not.toHaveAttribute('aria-current');
 });
+
+test('nav label text is present in the DOM for each item', () => {
+  render(<Sidebar />);
+  expect(screen.getByText('Dashboard')).toBeInTheDocument();
+  expect(screen.getByText('Projects')).toBeInTheDocument();
+  expect(screen.getByText('Assessments')).toBeInTheDocument();
+  expect(screen.getByText('Issues')).toBeInTheDocument();
+  expect(screen.getByText('Reports')).toBeInTheDocument();
+  expect(screen.getByText('VPATs')).toBeInTheDocument();
+  expect(screen.getByText('Settings')).toBeInTheDocument();
+});
+
+test('nav labels are aria-hidden', () => {
+  render(<Sidebar />);
+  const labels = screen.getAllByText(
+    /dashboard|projects|assessments|issues|reports|vpats|settings/i
+  );
+  const visibleLabels = labels.filter((el) => el.tagName === 'SPAN');
+  visibleLabels.forEach((label) => {
+    expect(label).toHaveAttribute('aria-hidden', 'true');
+  });
+});
+
+test('nav element is absolutely positioned for overlay behaviour', () => {
+  render(<Sidebar />);
+  expect(screen.getByRole('navigation')).toHaveClass('absolute');
+});
