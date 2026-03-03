@@ -1,0 +1,92 @@
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+
+const mockProject = {
+  id: 'proj-1',
+  name: 'Test Project',
+  description: null,
+  status: 'active',
+  product_url: null,
+  settings: '{}',
+  created_by: null,
+  created_at: '2026-01-01T00:00:00',
+  updated_at: '2026-01-01T00:00:00',
+};
+
+const mockAssessment = {
+  id: 'assess-1',
+  project_id: 'proj-1',
+  name: 'My Assessment',
+  description: null,
+  test_date_start: null,
+  test_date_end: null,
+  status: 'planning' as const,
+  assigned_to: null,
+  created_by: null,
+  created_at: '2026-01-01T00:00:00',
+  updated_at: '2026-01-01T00:00:00',
+  issue_count: 0,
+};
+
+vi.mock('@/lib/db/projects', () => ({
+  getProject: () => mockProject,
+}));
+
+vi.mock('@/lib/db/assessments', () => ({
+  getAssessments: () => [mockAssessment],
+}));
+
+vi.mock('@/lib/db/issues', () => ({
+  getIssuesByProject: () => [],
+}));
+
+vi.mock('next/navigation', () => ({
+  notFound: () => {
+    throw new Error('NOT_FOUND');
+  },
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock('@/components/assessments/assessments-table', () => ({
+  AssessmentsTable: ({ assessments }: { assessments: { name: string }[] }) => (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        {assessments.map((a) => (
+          <tr key={a.name}>
+            <td>{a.name}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ),
+}));
+
+import ProjectDetailPage from '../page';
+
+test('renders assessments in a table when assessments exist', async () => {
+  const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
+  render(page);
+  expect(screen.getByRole('table')).toBeInTheDocument();
+  expect(screen.getByText('My Assessment')).toBeInTheDocument();
+});
+
+test('assessment table has expected column headers', async () => {
+  const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
+  render(page);
+  expect(screen.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: /status/i })).toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: /issues/i })).toBeInTheDocument();
+});
+
+test('does not show hardcoded placeholder when assessments exist', async () => {
+  const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
+  render(page);
+  expect(screen.queryByText('Assessments will appear here once created.')).not.toBeInTheDocument();
+});

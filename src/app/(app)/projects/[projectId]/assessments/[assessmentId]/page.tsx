@@ -4,19 +4,12 @@ import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssues } from '@/lib/db/issues';
 import { DeleteAssessmentButton } from '@/components/assessments/delete-assessment-button';
 import { StatusTransitionButton } from '@/components/assessments/status-transition-button';
+import { IssuesTable } from '@/components/issues/issues-table';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,19 +17,6 @@ const statusConfig = {
   planning: { label: 'Planning', className: 'bg-gray-100 text-gray-700' },
   in_progress: { label: 'In Progress', className: 'bg-blue-100 text-blue-700' },
   completed: { label: 'Completed', className: 'bg-green-100 text-green-700' },
-};
-
-const severityConfig = {
-  critical: { label: 'Critical', className: 'bg-red-100 text-red-700' },
-  high: { label: 'High', className: 'bg-orange-100 text-orange-700' },
-  medium: { label: 'Medium', className: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low', className: 'bg-blue-100 text-blue-700' },
-};
-
-const issueStatusLabels: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
 };
 
 function formatDate(iso: string | null): string {
@@ -135,37 +115,7 @@ export default async function AssessmentDetailPage({
               </Button>
             </CardHeader>
             <CardContent>
-              {issues.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No issues yet.</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {issues.map((issue) => {
-                      const sev = severityConfig[issue.severity];
-                      return (
-                        <TableRow key={issue.id}>
-                          <TableCell className="font-medium">{issue.title}</TableCell>
-                          <TableCell>
-                            <Badge className={sev.className}>{sev.label}</Badge>
-                          </TableCell>
-                          <TableCell>{issueStatusLabels[issue.status] ?? issue.status}</TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {formatDate(issue.created_at)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
+              <IssuesTable issues={issues} projectId={projectId} assessmentId={assessmentId} />
             </CardContent>
           </Card>
         </div>

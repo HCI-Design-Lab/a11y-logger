@@ -1,11 +1,13 @@
 import Link from 'next/link';
-import { ChevronLeft, Download, ExternalLink, Pencil } from 'lucide-react';
+import { ChevronLeft, Download, ExternalLink, Pencil, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProject } from '@/lib/db/projects';
+import { getAssessments } from '@/lib/db/assessments';
 import { getIssuesByProject } from '@/lib/db/issues';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
+import { AssessmentsTable } from '@/components/assessments/assessments-table';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +20,7 @@ export default async function ProjectDetailPage({
   const project = getProject(projectId);
   if (!project) notFound();
 
+  const assessments = getAssessments(projectId);
   const issues = getIssuesByProject(projectId);
 
   const severityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
@@ -78,13 +81,17 @@ export default async function ProjectDetailPage({
       <div className="flex gap-6">
         <div className="flex-1 space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Assessments</CardTitle>
+              <Button asChild size="sm">
+                <Link href={`/projects/${projectId}/assessments/new`}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Assessment
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Assessments will appear here once created.
-              </p>
+              <AssessmentsTable assessments={assessments} projectId={projectId} />
             </CardContent>
           </Card>
         </div>
