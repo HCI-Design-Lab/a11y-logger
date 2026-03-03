@@ -38,7 +38,11 @@ test('links to report detail page', () => {
 
 test('renders updated_at date formatted as locale string', () => {
   render(<ReportCard report={mockReport} />);
-  const expectedDate = new Date('2026-01-15T00:00:00').toLocaleDateString();
+  const expectedDate = new Date('2026-01-15T00:00:00').toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
   expect(screen.getByText(`Updated ${expectedDate}`)).toBeInTheDocument();
 });
 

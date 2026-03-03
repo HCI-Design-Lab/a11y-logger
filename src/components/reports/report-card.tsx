@@ -10,7 +10,9 @@ interface ReportCardProps {
 
 export function ReportCard({ report }: ReportCardProps) {
   const dateObj = new Date(report.updated_at);
-  const updatedDate = isNaN(dateObj.getTime()) ? 'Unknown' : dateObj.toLocaleDateString();
+  const updatedDate = isNaN(dateObj.getTime())
+    ? 'Unknown'
+    : dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
     <Link href={`/reports/${report.id}`}>
