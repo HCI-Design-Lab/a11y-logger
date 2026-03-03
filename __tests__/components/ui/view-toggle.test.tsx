@@ -22,4 +22,16 @@ describe('ViewToggle', () => {
     await userEvent.click(screen.getByRole('button', { name: /table view/i }));
     expect(onViewChange).toHaveBeenCalledWith('table');
   });
+
+  it('marks the active view button as pressed', () => {
+    render(<ViewToggle view="table" onViewChange={() => {}} />);
+    expect(screen.getByRole('button', { name: /table view/i })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(screen.getByRole('button', { name: /grid view/i })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+  });
 });
