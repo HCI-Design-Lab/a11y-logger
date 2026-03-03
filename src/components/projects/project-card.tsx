@@ -8,7 +8,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Link href={`/projects/${project.id}`}>
+    <Link href={`/projects/${project.id}`} aria-label={project.name}>
       <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">{project.name}</CardTitle>
