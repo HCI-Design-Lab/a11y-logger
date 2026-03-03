@@ -44,7 +44,7 @@ describe('getAllAssessments', () => {
 
     const result = getAllAssessments();
     expect(result).toHaveLength(2);
-    expect(result[0].project_name).toBeDefined();
+    expect(result[0]!.project_name).toBeDefined();
     const a1 = result.find((a) => a.id === 'a1');
     expect(a1?.project_name).toBe('Alpha Project');
     expect(a1?.issue_count).toBe(1);
@@ -70,9 +70,9 @@ describe('getAllIssues', () => {
 
     const result = getAllIssues();
     expect(result).toHaveLength(1);
-    expect(result[0].project_name).toBe('Alpha Project');
-    expect(result[0].project_id).toBe('p1');
-    expect(result[0].assessment_name).toBe('My Assessment');
-    expect(result[0].title).toBe('Missing alt text');
+    expect(result[0]!.project_name).toBe('Alpha Project');
+    expect(result[0]!.project_id).toBe('p1');
+    expect(result[0]!.assessment_name).toBe('My Assessment');
+    expect(result[0]!.title).toBe('Missing alt text');
   });
 });

@@ -26,7 +26,12 @@ const manyRows: Row[] = Array.from({ length: 12 }, (_, i) => ({
 
 test('renders all rows', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   expect(screen.getByText('Zebra')).toBeInTheDocument();
   expect(screen.getByText('Alpha')).toBeInTheDocument();
@@ -34,7 +39,12 @@ test('renders all rows', () => {
 
 test('renders column headers', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   expect(screen.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: /count/i })).toBeInTheDocument();
@@ -42,7 +52,12 @@ test('renders column headers', () => {
 
 test('default sort is applied on initial render', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   const tableRows = screen.getAllByRole('row').slice(1);
   expect(tableRows[0]).toHaveTextContent('Alpha');
@@ -51,7 +66,12 @@ test('default sort is applied on initial render', () => {
 
 test('clicking the active sort header toggles to descending', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /name/i }));
   const tableRows = screen.getAllByRole('row').slice(1);
@@ -61,7 +81,12 @@ test('clicking the active sort header toggles to descending', () => {
 
 test('clicking the active sort header twice returns to ascending', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /name/i }));
   fireEvent.click(screen.getByRole('button', { name: /name/i }));
@@ -72,7 +97,12 @@ test('clicking the active sort header twice returns to ascending', () => {
 
 test('clicking a different column sorts ascending by that column', () => {
   render(
-    <SortableTable columns={columns} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={rows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /count/i }));
   const tableRows = screen.getAllByRole('row').slice(1);
@@ -84,7 +114,12 @@ test('clicking a different column sorts ascending by that column', () => {
 
 test('shows only first 10 rows by default when there are more than 10', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   const dataRows = screen.getAllByRole('row').slice(1);
   expect(dataRows).toHaveLength(10);
@@ -92,21 +127,36 @@ test('shows only first 10 rows by default when there are more than 10', () => {
 
 test('shows page indicator text', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   expect(screen.getByText('Page 1 of 2')).toBeInTheDocument();
 });
 
 test('prev button is disabled on first page', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   expect(screen.getByRole('button', { name: /previous page/i })).toBeDisabled();
 });
 
 test('next button navigates to next page', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /next page/i }));
   expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
@@ -116,7 +166,12 @@ test('next button navigates to next page', () => {
 
 test('next button is disabled on last page', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /next page/i }));
   expect(screen.getByRole('button', { name: /next page/i })).toBeDisabled();
@@ -124,7 +179,12 @@ test('next button is disabled on last page', () => {
 
 test('prev button navigates back', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /next page/i }));
   fireEvent.click(screen.getByRole('button', { name: /previous page/i }));
@@ -133,7 +193,12 @@ test('prev button navigates back', () => {
 
 test('changing page size resets to page 1', () => {
   render(
-    <SortableTable columns={columns} rows={manyRows} defaultSortKey="name" getKey={(r) => r.id} />
+    <SortableTable
+      columns={columns}
+      rows={manyRows}
+      defaultSortKey="name"
+      getKey={(r) => r.id as string}
+    />
   );
   fireEvent.click(screen.getByRole('button', { name: /next page/i }));
   expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
@@ -151,7 +216,7 @@ test('page size 25 shows all rows when total is under 25', () => {
       columns={columns}
       rows={manyRows}
       defaultSortKey="name"
-      getKey={(r) => r.id}
+      getKey={(r) => r.id as string}
       defaultPageSize={25}
     />
   );
@@ -165,7 +230,7 @@ test('shows empty message when rows is empty', () => {
       columns={columns}
       rows={[]}
       defaultSortKey="name"
-      getKey={(r) => r.id}
+      getKey={(r) => r.id as string}
       emptyMessage="Nothing here."
     />
   );

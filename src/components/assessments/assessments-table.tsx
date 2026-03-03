@@ -63,10 +63,10 @@ export function AssessmentsTable({ assessments, projectId }: AssessmentsTablePro
   return (
     <SortableTable
       columns={columns}
-      rows={assessments as unknown as Record<string, unknown>[]}
+      rows={assessments}
       defaultSortKey="test_date_start"
       defaultSortDir="desc"
-      getKey={(r) => r.id as string}
+      getKey={(r) => r.id}
       emptyMessage="No assessments yet."
     />
   );

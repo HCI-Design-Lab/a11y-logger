@@ -20,7 +20,7 @@ export interface Column<T> {
   render: (row: T) => React.ReactNode;
 }
 
-interface SortableTableProps<T extends Record<string, unknown>> {
+interface SortableTableProps<T extends object> {
   columns: Column<T>[];
   rows: T[];
   defaultSortKey: keyof T & string;
@@ -63,7 +63,7 @@ function SortHeader<T>({
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
-export function SortableTable<T extends Record<string, unknown>>({
+export function SortableTable<T extends object>({
   columns,
   rows,
   defaultSortKey,
@@ -92,8 +92,8 @@ export function SortableTable<T extends Record<string, unknown>>({
   }
 
   const sorted = [...rows].sort((a, b) => {
-    const aVal = a[sortKey] ?? '';
-    const bVal = b[sortKey] ?? '';
+    const aVal = (a as Record<string, unknown>)[sortKey] ?? '';
+    const bVal = (b as Record<string, unknown>)[sortKey] ?? '';
     const cmp = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
     return sortDir === 'asc' ? cmp : -cmp;
   });

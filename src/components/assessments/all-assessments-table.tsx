@@ -74,10 +74,10 @@ export function AllAssessmentsTable({ assessments }: AllAssessmentsTableProps) {
   return (
     <SortableTable
       columns={columns}
-      rows={assessments as unknown as Record<string, unknown>[]}
+      rows={assessments}
       defaultSortKey="created_at"
       defaultSortDir="desc"
-      getKey={(r) => r.id as string}
+      getKey={(r) => r.id}
       emptyMessage="No assessments yet."
     />
   );

@@ -93,10 +93,10 @@ export function AllIssuesTable({ issues }: AllIssuesTableProps) {
   return (
     <SortableTable
       columns={columns}
-      rows={issues as unknown as Record<string, unknown>[]}
+      rows={issues}
       defaultSortKey="created_at"
       defaultSortDir="desc"
-      getKey={(r) => r.id as string}
+      getKey={(r) => r.id}
       emptyMessage="No issues yet."
     />
   );
