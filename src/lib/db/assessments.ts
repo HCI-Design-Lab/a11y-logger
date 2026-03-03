@@ -19,6 +19,23 @@ export interface AssessmentWithCounts extends Assessment {
   issue_count: number;
 }
 
+export interface AssessmentWithProject extends AssessmentWithCounts {
+  project_name: string;
+}
+
+export function getAllAssessments(): AssessmentWithProject[] {
+  return getDb()
+    .prepare(
+      `SELECT a.*, p.name AS project_name, COUNT(DISTINCT i.id) AS issue_count
+       FROM assessments a
+       JOIN projects p ON p.id = a.project_id
+       LEFT JOIN issues i ON i.assessment_id = a.id
+       GROUP BY a.id
+       ORDER BY a.created_at DESC`
+    )
+    .all() as AssessmentWithProject[];
+}
+
 export function getAssessment(id: string): Assessment | null {
   return (
     (getDb().prepare('SELECT * FROM assessments WHERE id = ?').get(id) as Assessment | undefined) ??

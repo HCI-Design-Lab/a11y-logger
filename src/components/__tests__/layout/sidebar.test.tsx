@@ -8,6 +8,8 @@ test('renders all nav links with accessible labels', () => {
   render(<Sidebar />);
   expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /projects/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /assessments/i })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /issues/i })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /reports/i })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /vpats/i })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();

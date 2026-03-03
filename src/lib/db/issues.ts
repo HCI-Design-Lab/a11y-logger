@@ -25,6 +25,12 @@ export interface Issue {
   updated_at: string;
 }
 
+export interface IssueWithContext extends Issue {
+  project_id: string;
+  project_name: string;
+  assessment_name: string;
+}
+
 // Raw row from SQLite — JSON fields are strings
 interface IssueRow extends Omit<
   Issue,
@@ -51,6 +57,33 @@ export interface IssueFilters {
   status?: 'open' | 'resolved' | 'wont_fix';
   wcag_code?: string;
   tag?: string;
+}
+
+export function getAllIssues(): IssueWithContext[] {
+  type IssueWithContextRow = Omit<
+    IssueWithContext,
+    'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags'
+  > & {
+    wcag_codes: string;
+    ai_suggested_codes: string;
+    evidence_media: string;
+    tags: string;
+  };
+  const rows = getDb()
+    .prepare(
+      `SELECT i.*, p.id AS project_id, p.name AS project_name, a.name AS assessment_name
+       FROM issues i
+       JOIN assessments a ON a.id = i.assessment_id
+       JOIN projects p ON p.id = a.project_id
+       ORDER BY i.created_at DESC`
+    )
+    .all() as IssueWithContextRow[];
+  return rows.map((row) => ({
+    ...deserializeIssue(row),
+    project_id: row.project_id,
+    project_name: row.project_name,
+    assessment_name: row.assessment_name,
+  }));
 }
 
 export function getIssue(id: string): Issue | null {

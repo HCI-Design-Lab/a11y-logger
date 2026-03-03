@@ -1,12 +1,22 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderOpen, FileText, Shield, Settings } from 'lucide-react';
+import {
+  LayoutDashboard,
+  FolderOpen,
+  ClipboardList,
+  Bug,
+  FileText,
+  Shield,
+  Settings,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/projects', icon: FolderOpen, label: 'Projects' },
+  { href: '/assessments', icon: ClipboardList, label: 'Assessments' },
+  { href: '/issues', icon: Bug, label: 'Issues' },
   { href: '/reports', icon: FileText, label: 'Reports' },
   { href: '/vpats', icon: Shield, label: 'VPATs' },
   { href: '/settings', icon: Settings, label: 'Settings' },
