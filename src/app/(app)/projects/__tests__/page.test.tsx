@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 vi.mock('@/lib/db/projects', () => ({
@@ -20,13 +21,18 @@ vi.mock('@/lib/db/projects', () => ({
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 import ProjectsPage from '../page';
 
-test('project grid uses 3-column layout at md breakpoint', () => {
+test('project grid uses 3-column layout at md breakpoint', async () => {
+  const user = userEvent.setup();
   const { container } = render(<ProjectsPage />);
+
+  const gridViewButton = screen.getByRole('button', { name: 'Grid view' });
+  await user.click(gridViewButton);
+
   const grid = container.querySelector('.md\\:grid-cols-3');
   expect(grid).toBeInTheDocument();
 });
