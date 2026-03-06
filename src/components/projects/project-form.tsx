@@ -29,7 +29,7 @@ export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">Project Name *</Label>
         <Input
@@ -46,11 +46,11 @@ export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={3}
+          rows={5}
           placeholder="Brief description of the project"
         />
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 mb-8">
         <Label htmlFor="product_url">Product URL</Label>
         <Input
           id="product_url"

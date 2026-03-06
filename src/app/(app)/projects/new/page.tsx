@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
 import { ProjectForm } from '@/components/projects/project-form';
 
 export default function NewProjectPage() {
@@ -38,7 +39,11 @@ export default function NewProjectPage() {
         Back to Projects
       </Link>
       <h1 className="text-2xl font-bold">New Project</h1>
-      <ProjectForm onSubmit={handleSubmit} loading={loading} />
+      <Card className="max-w-2xl">
+        <CardContent>
+          <ProjectForm onSubmit={handleSubmit} loading={loading} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
