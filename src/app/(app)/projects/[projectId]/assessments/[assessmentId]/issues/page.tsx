@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
+import { Card, CardContent } from '@/components/ui/card';
 import { getIssues } from '@/lib/db/issues';
 import { SeverityBadge } from '@/components/issues/severity-badge';
 import { StatusBadge } from '@/components/issues/status-badge';
@@ -122,41 +123,43 @@ export default async function IssuesPage({
           </Button>
         </div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Severity</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {issues.map((issue) => (
-                <TableRow key={issue.id}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issue.id}`}
-                      className="hover:underline"
-                    >
-                      {issue.title}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <SeverityBadge severity={issue.severity} />
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={issue.status} />
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(issue.created_at)}
-                  </TableCell>
+        <Card>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Severity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {issues.map((issue) => (
+                  <TableRow key={issue.id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issue.id}`}
+                        className="hover:underline"
+                      >
+                        {issue.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <SeverityBadge severity={issue.severity} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={issue.status} />
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(issue.created_at)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

@@ -115,7 +115,7 @@ export default async function IssueDetailPage({
         {/* Left column: all text fields in one card */}
         <div className="lg:col-span-2">
           <Card>
-            <CardContent className="divide-y pt-6">
+            <CardContent className="divide-y">
               {issue.description && (
                 <div className="pb-6">
                   <h2 className="text-sm font-semibold mb-2">Description</h2>
