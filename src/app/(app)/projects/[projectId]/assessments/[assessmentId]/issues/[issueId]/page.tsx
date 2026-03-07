@@ -110,172 +110,163 @@ export default async function IssueDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main content */}
-        <div className="lg:col-span-2 space-y-6">
-          {issue.description && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{issue.description}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {issue.user_impact && (
-            <Card>
-              <CardHeader>
-                <CardTitle>User Impact</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{issue.user_impact}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {issue.suggested_fix && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Suggested Fix</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{issue.suggested_fix}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {(issue.selector || issue.code_snippet) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Technical Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {issue.selector && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Selector</p>
-                    <code className="text-sm bg-muted px-2 py-1 rounded block break-all">
-                      {issue.selector}
-                    </code>
-                  </div>
-                )}
-                {issue.code_snippet && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Code Snippet</p>
-                    <pre className="text-sm bg-muted p-3 rounded overflow-x-auto whitespace-pre-wrap break-all">
-                      {issue.code_snippet}
-                    </pre>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {issue.wcag_codes.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>WCAG Criteria</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {issue.wcag_codes.map((code) => (
-                    <Badge key={code} variant="outline" className="font-mono">
-                      {code}
-                    </Badge>
-                  ))}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left column: all text fields in one card */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="divide-y pt-6">
+              {issue.description && (
+                <div className="pb-6">
+                  <h2 className="text-sm font-semibold mb-2">Description</h2>
+                  <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+                    {issue.description}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
 
-          {issue.tags.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Tags</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {issue.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
+              {issue.user_impact && (
+                <div className="py-6">
+                  <h2 className="text-sm font-semibold mb-2">User Impact</h2>
+                  <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+                    {issue.user_impact}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
 
-          {issue.evidence_media.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Evidence</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {issue.evidence_media.map((url, idx) => {
+              {issue.suggested_fix && (
+                <div className="py-6">
+                  <h2 className="text-sm font-semibold mb-2">Suggested Fix</h2>
+                  <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+                    {issue.suggested_fix}
+                  </p>
+                </div>
+              )}
+
+              {(issue.selector || issue.code_snippet) && (
+                <div className="py-6 space-y-4">
+                  <h2 className="text-sm font-semibold">Technical Details</h2>
+                  {issue.selector && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Selector</p>
+                      <code className="text-sm bg-muted px-2 py-1 rounded block break-all">
+                        {issue.selector}
+                      </code>
+                    </div>
+                  )}
+                  {issue.code_snippet && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Code Snippet</p>
+                      <pre className="text-sm bg-muted p-3 rounded overflow-x-auto whitespace-pre-wrap break-all">
+                        {issue.code_snippet}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {issue.wcag_codes.length > 0 && (
+                <div className="py-6">
+                  <h2 className="text-sm font-semibold mb-2">WCAG Criteria</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {issue.wcag_codes.map((code) => (
+                      <Badge key={code} variant="outline" className="font-mono">
+                        {code}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {issue.tags.length > 0 && (
+                <div className="py-6">
+                  <h2 className="text-sm font-semibold mb-2">Tags</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {issue.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="py-6">
+                <h2 className="text-sm font-semibold mb-3">Environment</h2>
+                <dl className="grid grid-cols-2 gap-3 text-sm">
+                  {[
+                    { label: 'Device', value: issue.device_type },
+                    { label: 'Browser', value: issue.browser },
+                    { label: 'OS', value: issue.operating_system },
+                    { label: 'Assistive Tech', value: issue.assistive_technology },
+                  ].map(({ label, value }) => (
+                    <div key={label}>
+                      <dt className="text-muted-foreground">{label}</dt>
+                      <dd className="font-medium">{value ?? '—'}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+
+              <div className="pt-6">
+                <h2 className="text-sm font-semibold mb-3">Dates</h2>
+                <dl className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Created</dt>
+                    <dd className="font-medium">{formatDate(issue.created_at)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Updated</dt>
+                    <dd className="font-medium">{formatDate(issue.updated_at)}</dd>
+                  </div>
+                  {issue.resolved_at && (
+                    <div>
+                      <dt className="text-muted-foreground">Resolved</dt>
+                      <dd className="font-medium">{formatDate(issue.resolved_at)}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: attachments */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Attachments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {issue.evidence_media.length > 0 ? (
+                <div className="grid gap-3 grid-cols-2">
+                  {issue.evidence_media.map((url) => {
+                    const fileName = url.split('/').pop() ?? url;
                     const isVideo = /\.(mp4|webm|ogg)$/i.test(url);
                     return isVideo ? (
-                      <video key={idx} src={url} controls className="rounded-md w-full" />
+                      <video
+                        key={url}
+                        src={url}
+                        controls
+                        aria-label={fileName}
+                        className="rounded-md w-full"
+                      />
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        key={idx}
+                        key={url}
                         src={url}
-                        alt={`Evidence ${idx + 1}`}
+                        alt={fileName}
                         className="rounded-md w-full object-cover"
                       />
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <aside className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Environment</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              {[
-                { label: 'Device', value: issue.device_type },
-                { label: 'Browser', value: issue.browser },
-                { label: 'OS', value: issue.operating_system },
-                { label: 'Assistive Tech', value: issue.assistive_technology },
-              ].map(({ label, value }) => (
-                <div key={label}>
-                  <span className="text-muted-foreground">{label}</span>
-                  <p className="font-medium">{value ?? '—'}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Dates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Created</span>
-                <p className="font-medium">{formatDate(issue.created_at)}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Updated</span>
-                <p className="font-medium">{formatDate(issue.updated_at)}</p>
-              </div>
-              {issue.resolved_at && (
-                <div>
-                  <span className="text-muted-foreground">Resolved</span>
-                  <p className="font-medium">{formatDate(issue.resolved_at)}</p>
-                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No attachments</p>
               )}
             </CardContent>
           </Card>
-        </aside>
+        </div>
       </div>
     </div>
   );
