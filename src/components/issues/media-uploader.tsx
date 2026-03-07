@@ -94,41 +94,40 @@ export function MediaUploader({
       {/* Thumbnails for existing media */}
       {urls.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {urls.map((url) => (
-            <div key={url} className="relative">
-              {isVideoUrl(url) ? (
-                <video
-                  src={url}
-                  className="h-24 w-24 rounded object-cover"
-                  controls
-                  aria-label="Uploaded video"
-                />
-              ) : (
-                <Image
-                  src={url}
-                  alt="Uploaded media"
-                  width={96}
-                  height={96}
-                  unoptimized
-                  className="h-24 w-24 rounded object-cover"
-                />
-              )}
-              {onRemove &&
-                (() => {
-                  const fileName = url.split('/').pop() ?? url;
-                  return (
-                    <button
-                      type="button"
-                      aria-label={`Remove ${fileName}`}
-                      onClick={() => onRemove(url)}
-                      className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
-                    >
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  );
-                })()}
-            </div>
-          ))}
+          {urls.map((url) => {
+            const fileName = url.split('/').pop() ?? url;
+            return (
+              <div key={url} className="relative">
+                {isVideoUrl(url) ? (
+                  <video
+                    src={url}
+                    className="h-24 w-24 rounded object-cover"
+                    controls
+                    aria-label={fileName}
+                  />
+                ) : (
+                  <Image
+                    src={url}
+                    alt={fileName}
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="h-24 w-24 rounded object-cover"
+                  />
+                )}
+                {onRemove && (
+                  <button
+                    type="button"
+                    aria-label={`Remove ${fileName}`}
+                    onClick={() => onRemove(url)}
+                    className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -140,38 +139,34 @@ export function MediaUploader({
       )}
 
       {/* Upload zone */}
-      <div
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center transition-colors hover:border-primary hover:bg-muted/30"
-        onClick={() => !disabled && !uploading && inputRef.current?.click()}
-        role="button"
-        tabIndex={0}
-        aria-label="Upload media"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            if (!disabled && !uploading) inputRef.current?.click();
-          }
-        }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-muted-foreground"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
+      <div>
+        <button
+          type="button"
+          disabled={disabled || uploading}
+          onClick={() => inputRef.current?.click()}
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center transition-colors hover:border-primary hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Upload media"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-        <p className="text-sm font-medium text-muted-foreground">
-          {uploading ? 'Uploading…' : 'Upload screenshots or videos'}
-        </p>
-        <p className="text-xs text-muted-foreground">PNG, JPG, GIF, MP4 up to 10MB</p>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8 text-muted-foreground"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+          <p className="text-sm font-medium text-muted-foreground">
+            {uploading ? 'Uploading…' : 'Upload screenshots or videos'}
+          </p>
+          <p className="text-xs text-muted-foreground">PNG, JPG, GIF, WebP, MP4, WebM up to 10MB</p>
+        </button>
         <label htmlFor="media-file-input" className="sr-only">
           Choose file
         </label>
@@ -185,6 +180,11 @@ export function MediaUploader({
           className="sr-only"
           aria-label="Choose file"
         />
+        {uploading && (
+          <p aria-live="polite" className="sr-only">
+            Uploading file…
+          </p>
+        )}
       </div>
     </div>
   );
