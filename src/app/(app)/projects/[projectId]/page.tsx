@@ -70,11 +70,6 @@ export default async function ProjectDetailPage({
               Export ZIP
             </a>
           </Button>
-          <Button variant="outline" asChild>
-            <a href={`/api/projects/${project.id}/export/csv`} download>
-              Export CSV
-            </a>
-          </Button>
           <DeleteProjectButton projectId={project.id} projectName={project.name} />
         </div>
       </div>
