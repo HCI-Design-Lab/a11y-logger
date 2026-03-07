@@ -139,8 +139,39 @@ export function MediaUploader({
         </p>
       )}
 
-      {/* File input */}
-      <div>
+      {/* Upload zone */}
+      <div
+        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center transition-colors hover:border-primary hover:bg-muted/30"
+        onClick={() => !disabled && !uploading && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        aria-label="Upload media"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!disabled && !uploading) inputRef.current?.click();
+          }
+        }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-8 w-8 text-muted-foreground"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+        <p className="text-sm font-medium text-muted-foreground">
+          {uploading ? 'Uploading…' : 'Upload screenshots or videos'}
+        </p>
+        <p className="text-xs text-muted-foreground">PNG, JPG, GIF, MP4 up to 10MB</p>
         <label htmlFor="media-file-input" className="sr-only">
           Choose file
         </label>
@@ -151,16 +182,10 @@ export function MediaUploader({
           accept={ALLOWED_TYPES.join(',')}
           disabled={disabled || uploading}
           onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200 disabled:opacity-50"
+          className="sr-only"
           aria-label="Choose file"
         />
       </div>
-
-      {uploading && (
-        <p className="text-sm text-gray-500" aria-live="polite">
-          Uploading...
-        </p>
-      )}
     </div>
   );
 }
