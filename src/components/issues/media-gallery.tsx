@@ -18,20 +18,32 @@ function getFileName(url: string): string {
 
 export function MediaGallery({ urls }: MediaGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  // Tracks the last valid index for rendering during the Dialog close animation,
+  // when selectedIndex becomes null before the content unmounts.
+  const [displayIndex, setDisplayIndex] = useState(0);
 
   if (urls.length === 0) return null;
 
   const isOpen = selectedIndex !== null;
-  const selected = isOpen ? urls[selectedIndex] : null;
-  const fileName = selected ? getFileName(selected) : '';
-  const isVideo = selected ? isVideoUrl(selected) : false;
+  const selected = urls[displayIndex];
+  const fileName = getFileName(selected);
+  const isVideo = isVideoUrl(selected);
+
+  function openAt(idx: number) {
+    setDisplayIndex(idx);
+    setSelectedIndex(idx);
+  }
 
   function prev() {
-    setSelectedIndex((i) => (i === null ? 0 : (i - 1 + urls.length) % urls.length));
+    const next = (displayIndex - 1 + urls.length) % urls.length;
+    setDisplayIndex(next);
+    setSelectedIndex(next);
   }
 
   function next() {
-    setSelectedIndex((i) => (i === null ? 0 : (i + 1) % urls.length));
+    const next = (displayIndex + 1) % urls.length;
+    setDisplayIndex(next);
+    setSelectedIndex(next);
   }
 
   return (
@@ -45,7 +57,7 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
             <button
               key={`${url}-${idx}`}
               type="button"
-              onClick={() => setSelectedIndex(idx)}
+              onClick={() => openAt(idx)}
               aria-label={`Open ${name}`}
               className="relative overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
@@ -80,7 +92,12 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
       </div>
 
       {/* Lightbox */}
-      <Dialog open={isOpen} onOpenChange={(open) => !open && setSelectedIndex(null)}>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          if (!open) setSelectedIndex(null);
+        }}
+      >
         <DialogContent
           className="max-w-4xl p-4"
           onKeyDown={(e) => {
@@ -104,18 +121,14 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
             {isVideo ? (
               <video
                 key={selected}
-                src={selected ?? ''}
+                src={selected}
                 controls
                 className="max-h-[80vh] w-full object-contain"
                 aria-label={fileName}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={selected ?? ''}
-                alt={fileName}
-                className="max-h-[80vh] w-full object-contain"
-              />
+              <img src={selected} alt={fileName} className="max-h-[80vh] w-full object-contain" />
             )}
 
             {urls.length > 1 && (
