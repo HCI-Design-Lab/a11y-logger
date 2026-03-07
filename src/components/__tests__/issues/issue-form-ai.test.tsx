@@ -8,12 +8,12 @@ describe('IssueForm AI Generate', () => {
   });
 
   it('renders the Generate with AI button', () => {
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     expect(screen.getByRole('button', { name: /generate with ai/i })).toBeInTheDocument();
   });
 
   it('Generate with AI button is disabled when ai description is empty', () => {
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     expect(screen.getByRole('button', { name: /generate with ai/i })).toBeDisabled();
   });
 
@@ -24,7 +24,7 @@ describe('IssueForm AI Generate', () => {
     });
     vi.spyOn(global, 'fetch').mockReturnValueOnce(fetchPromise as Promise<Response>);
 
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'The search button is not keyboard accessible' },
     });
@@ -67,7 +67,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'The search button is not keyboard accessible on the homepage' },
     });
@@ -100,7 +100,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'Some issue description' },
     });
@@ -114,7 +114,7 @@ describe('IssueForm AI Generate', () => {
 
   it('does not call fetch when ai description is empty', () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
-    render(<IssueForm onSubmit={vi.fn()} />);
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
 
     // AI description is empty — click Generate with AI
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
