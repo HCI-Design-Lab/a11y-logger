@@ -129,244 +129,249 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
     <form onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column: all form fields */}
-        <div className="space-y-4 lg:col-span-2">
-          {/* AI Assistance Section */}
-          <div className="rounded-md border border-border bg-muted/30 p-4 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              You can enter a description here and press <strong>Generate with AI</strong> to have
-              the rest of the issue filled out by the AI. For best results, include:
-            </p>
-            <ol className="text-sm text-muted-foreground list-decimal list-inside space-y-1">
-              <li>
-                <strong>Component:</strong> What element is affected? (e.g. &ldquo;Search
-                button&rdquo;)
-              </li>
-              <li>
-                <strong>Location:</strong> Where does the issue occur? (e.g. &ldquo;Homepage&rdquo;)
-              </li>
-              <li>
-                <strong>What&rsquo;s Happening:</strong> What is wrong? (e.g. &ldquo;Not focusable
-                via keyboard&rdquo;)
-              </li>
-              <li>
-                <strong>Expected Behavior (Optional):</strong> What is the expected behavior?
-              </li>
-            </ol>
-            <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
-              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-              <span>
-                AI assistance will only fill in fields you&rsquo;ve left empty; it will not
-                overwrite values you&rsquo;ve already entered.
-              </span>
+        <Card className="lg:col-span-2">
+          <CardContent className="space-y-4 pt-6">
+            {/* AI Assistance Section */}
+            <div className="rounded-md border border-border bg-muted/30 p-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                You can enter a description here and press <strong>Generate with AI</strong> to have
+                the rest of the issue filled out by the AI. For best results, include:
+              </p>
+              <ol className="text-sm text-muted-foreground list-decimal list-inside space-y-1">
+                <li>
+                  <strong>Component:</strong> What element is affected? (e.g. &ldquo;Search
+                  button&rdquo;)
+                </li>
+                <li>
+                  <strong>Location:</strong> Where does the issue occur? (e.g.
+                  &ldquo;Homepage&rdquo;)
+                </li>
+                <li>
+                  <strong>What&rsquo;s Happening:</strong> What is wrong? (e.g. &ldquo;Not focusable
+                  via keyboard&rdquo;)
+                </li>
+                <li>
+                  <strong>Expected Behavior (Optional):</strong> What is the expected behavior?
+                </li>
+              </ol>
+              <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>
+                  AI assistance will only fill in fields you&rsquo;ve left empty; it will not
+                  overwrite values you&rsquo;ve already entered.
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="ai_description">AI Assistance Description</Label>
+                <Textarea
+                  id="ai_description"
+                  value={aiDescription}
+                  onChange={(e) => setAiDescription(e.target.value)}
+                  rows={4}
+                  placeholder="Example: The search button on the homepage is not operable via keyboard. It should be focusable and activated using the Enter key."
+                />
+              </div>
+
+              {aiError && <p className="text-sm text-destructive">{aiError}</p>}
+
+              <Button
+                type="button"
+                onClick={handleAiGenerate}
+                disabled={aiLoading || !aiDescription.trim()}
+              >
+                {aiLoading ? 'Generating…' : 'Generate with AI'}
+              </Button>
             </div>
 
+            {/* Title */}
             <div className="space-y-1.5">
-              <Label htmlFor="ai_description">AI Assistance Description</Label>
-              <Textarea
-                id="ai_description"
-                value={aiDescription}
-                onChange={(e) => setAiDescription(e.target.value)}
-                rows={4}
-                placeholder="Example: The search button on the homepage is not operable via keyboard. It should be focusable and activated using the Enter key."
+              <Label htmlFor="title">Title *</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                placeholder="e.g. Image missing alt text"
               />
             </div>
 
-            {aiError && <p className="text-sm text-destructive">{aiError}</p>}
+            {/* Description */}
+            <div className="space-y-1.5">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                placeholder="Describe the accessibility issue"
+              />
+            </div>
 
-            <Button
-              type="button"
-              onClick={handleAiGenerate}
-              disabled={aiLoading || !aiDescription.trim()}
-            >
-              {aiLoading ? 'Generating…' : 'Generate with AI'}
+            {/* Severity */}
+            <div className="space-y-1.5">
+              <Label htmlFor="severity">Severity</Label>
+              <Select value={severity} onValueChange={(v) => setSeverity(v as Issue['severity'])}>
+                <SelectTrigger id="severity">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="critical">Critical</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* User Impact */}
+            <div className="space-y-1.5">
+              <Label htmlFor="user_impact">User Impact</Label>
+              <Textarea
+                id="user_impact"
+                value={userImpact}
+                onChange={(e) => setUserImpact(e.target.value)}
+                rows={3}
+                placeholder="Describe how this issue affects users, particularly those with disabilities"
+              />
+            </div>
+
+            {/* URL */}
+            <div className="space-y-1.5">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com/page"
+              />
+            </div>
+
+            {/* Selector */}
+            <div className="space-y-1.5">
+              <Label htmlFor="selector">Selector</Label>
+              <Input
+                id="selector"
+                value={selector}
+                onChange={(e) => setSelector(e.target.value)}
+                placeholder="e.g. #search-button or header nav .menu > li:nth-child(3) a"
+                className="font-mono text-sm"
+              />
+            </div>
+
+            {/* Code Snippet */}
+            <div className="space-y-1.5">
+              <Label htmlFor="code_snippet">Code Snippet</Label>
+              <Textarea
+                id="code_snippet"
+                value={codeSnippet}
+                onChange={(e) => setCodeSnippet(e.target.value)}
+                rows={4}
+                placeholder={`<button class="btn" aria-label="">...</button>`}
+                className="font-mono text-sm"
+              />
+            </div>
+
+            {/* Suggested Fix */}
+            <div className="space-y-1.5">
+              <Label htmlFor="suggested_fix">Suggested Fix</Label>
+              <Textarea
+                id="suggested_fix"
+                value={suggestedFix}
+                onChange={(e) => setSuggestedFix(e.target.value)}
+                rows={4}
+                placeholder="Describe how to fix this issue"
+              />
+            </div>
+
+            {/* Environment */}
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide pt-2">
+              Environment
+            </h3>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="device_type">Device Type</Label>
+              <Select
+                value={deviceType || 'none'}
+                onValueChange={(v) =>
+                  setDeviceType(v === 'none' ? '' : (v as Issue['device_type']))
+                }
+              >
+                <SelectTrigger id="device_type">
+                  <SelectValue placeholder="Select device type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="desktop">Desktop</SelectItem>
+                  <SelectItem value="mobile">Mobile</SelectItem>
+                  <SelectItem value="tablet">Tablet</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="browser">Browser</Label>
+              <Input
+                id="browser"
+                value={browser}
+                onChange={(e) => setBrowser(e.target.value)}
+                placeholder="e.g. Chrome 121"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="operating_system">Operating System</Label>
+              <Input
+                id="operating_system"
+                value={os}
+                onChange={(e) => setOs(e.target.value)}
+                placeholder="e.g. macOS 14"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="assistive_technology">Assistive Technology</Label>
+              <Input
+                id="assistive_technology"
+                value={assistiveTech}
+                onChange={(e) => setAssistiveTech(e.target.value)}
+                placeholder="e.g. VoiceOver, NVDA"
+              />
+            </div>
+
+            {/* WCAG Criteria */}
+            <div className="space-y-1.5">
+              <Label>WCAG Criteria</Label>
+              <WcagSelector selected={wcagCodes} onChange={setWcagCodes} />
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-1.5">
+              <Label>Tags</Label>
+              <TagInput tags={tags} onChange={setTags} />
+            </div>
+
+            {/* Status */}
+            <div className="space-y-1.5">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={(v) => setStatus(v as Issue['status'])}>
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="wont_fix">Won&apos;t Fix</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Saving…' : 'Save Issue'}
             </Button>
-          </div>
-
-          {/* Title */}
-          <div className="space-y-1.5">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              placeholder="e.g. Image missing alt text"
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-1.5">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              placeholder="Describe the accessibility issue"
-            />
-          </div>
-
-          {/* Severity */}
-          <div className="space-y-1.5">
-            <Label htmlFor="severity">Severity</Label>
-            <Select value={severity} onValueChange={(v) => setSeverity(v as Issue['severity'])}>
-              <SelectTrigger id="severity">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="critical">Critical</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* User Impact */}
-          <div className="space-y-1.5">
-            <Label htmlFor="user_impact">User Impact</Label>
-            <Textarea
-              id="user_impact"
-              value={userImpact}
-              onChange={(e) => setUserImpact(e.target.value)}
-              rows={3}
-              placeholder="Describe how this issue affects users, particularly those with disabilities"
-            />
-          </div>
-
-          {/* URL */}
-          <div className="space-y-1.5">
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/page"
-            />
-          </div>
-
-          {/* Selector */}
-          <div className="space-y-1.5">
-            <Label htmlFor="selector">Selector</Label>
-            <Input
-              id="selector"
-              value={selector}
-              onChange={(e) => setSelector(e.target.value)}
-              placeholder="e.g. #search-button or header nav .menu > li:nth-child(3) a"
-              className="font-mono text-sm"
-            />
-          </div>
-
-          {/* Code Snippet */}
-          <div className="space-y-1.5">
-            <Label htmlFor="code_snippet">Code Snippet</Label>
-            <Textarea
-              id="code_snippet"
-              value={codeSnippet}
-              onChange={(e) => setCodeSnippet(e.target.value)}
-              rows={4}
-              placeholder={`<button class="btn" aria-label="">...</button>`}
-              className="font-mono text-sm"
-            />
-          </div>
-
-          {/* Suggested Fix */}
-          <div className="space-y-1.5">
-            <Label htmlFor="suggested_fix">Suggested Fix</Label>
-            <Textarea
-              id="suggested_fix"
-              value={suggestedFix}
-              onChange={(e) => setSuggestedFix(e.target.value)}
-              rows={4}
-              placeholder="Describe how to fix this issue"
-            />
-          </div>
-
-          {/* Environment */}
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide pt-2">
-            Environment
-          </h3>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="device_type">Device Type</Label>
-            <Select
-              value={deviceType || 'none'}
-              onValueChange={(v) => setDeviceType(v === 'none' ? '' : (v as Issue['device_type']))}
-            >
-              <SelectTrigger id="device_type">
-                <SelectValue placeholder="Select device type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="desktop">Desktop</SelectItem>
-                <SelectItem value="mobile">Mobile</SelectItem>
-                <SelectItem value="tablet">Tablet</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="browser">Browser</Label>
-            <Input
-              id="browser"
-              value={browser}
-              onChange={(e) => setBrowser(e.target.value)}
-              placeholder="e.g. Chrome 121"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="operating_system">Operating System</Label>
-            <Input
-              id="operating_system"
-              value={os}
-              onChange={(e) => setOs(e.target.value)}
-              placeholder="e.g. macOS 14"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="assistive_technology">Assistive Technology</Label>
-            <Input
-              id="assistive_technology"
-              value={assistiveTech}
-              onChange={(e) => setAssistiveTech(e.target.value)}
-              placeholder="e.g. VoiceOver, NVDA"
-            />
-          </div>
-
-          {/* WCAG Criteria */}
-          <div className="space-y-1.5">
-            <Label>WCAG Criteria</Label>
-            <WcagSelector selected={wcagCodes} onChange={setWcagCodes} />
-          </div>
-
-          {/* Tags */}
-          <div className="space-y-1.5">
-            <Label>Tags</Label>
-            <TagInput tags={tags} onChange={setTags} />
-          </div>
-
-          {/* Status */}
-          <div className="space-y-1.5">
-            <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as Issue['status'])}>
-              <SelectTrigger id="status">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="wont_fix">Won&apos;t Fix</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Saving…' : 'Save Issue'}
-          </Button>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Right column: Attachments */}
         <div>

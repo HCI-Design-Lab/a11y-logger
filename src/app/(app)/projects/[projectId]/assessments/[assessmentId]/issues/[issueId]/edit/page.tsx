@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { Issue } from '@/lib/db/issues';
 import type { UpdateIssueInput } from '@/lib/validators/issues';
@@ -70,16 +69,7 @@ export default function EditIssuePage() {
         Back to Issue
       </Link>
       <h1 className="text-2xl font-bold">Edit Issue</h1>
-      <Card>
-        <CardContent>
-          <IssueForm
-            projectId={projectId}
-            issue={issue}
-            onSubmit={handleSubmit}
-            loading={loading}
-          />
-        </CardContent>
-      </Card>
+      <IssueForm projectId={projectId} issue={issue} onSubmit={handleSubmit} loading={loading} />
     </div>
   );
 }
