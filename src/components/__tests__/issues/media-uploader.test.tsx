@@ -128,6 +128,18 @@ describe('MediaUploader', () => {
     expect(removeButtons).toHaveLength(2);
   });
 
+  it('does not render remove buttons when onRemove is not provided', () => {
+    render(
+      <MediaUploader
+        projectId="p1"
+        issueId="i1"
+        onUpload={vi.fn()}
+        urls={['/api/media/p1/i1/photo.png']}
+      />
+    );
+    expect(screen.queryAllByRole('button', { name: /remove/i })).toHaveLength(0);
+  });
+
   it('calls onRemove with the correct url when remove button is clicked', () => {
     const onRemove = vi.fn();
     render(

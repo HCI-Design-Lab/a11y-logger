@@ -113,16 +113,20 @@ export function MediaUploader({
                   className="h-24 w-24 rounded object-cover"
                 />
               )}
-              {onRemove && (
-                <button
-                  type="button"
-                  aria-label="Remove"
-                  onClick={() => onRemove(url)}
-                  className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
-                >
-                  ×
-                </button>
-              )}
+              {onRemove &&
+                (() => {
+                  const fileName = url.split('/').pop() ?? url;
+                  return (
+                    <button
+                      type="button"
+                      aria-label={`Remove ${fileName}`}
+                      onClick={() => onRemove(url)}
+                      className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
+                    >
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  );
+                })()}
             </div>
           ))}
         </div>
