@@ -12,7 +12,7 @@ const IssueBaseSchema = z.object({
   browser: z.string().max(100).optional(),
   operating_system: z.string().max(100).optional(),
   assistive_technology: z.string().max(200).optional(),
-  user_impact: z.string().max(1000).optional(),
+  user_impact: z.string().max(2000).optional(),
   selector: z.string().max(500).optional(),
   code_snippet: z.string().max(5000).optional(),
   suggested_fix: z.string().max(5000).optional(),
