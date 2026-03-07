@@ -46,7 +46,7 @@ export class AnthropicProvider implements AIProvider {
         model: this.model,
         max_tokens: 1024,
         system:
-          'You are an accessibility expert. Analyze the issue and return JSON with fields: title (string), description (string), severity (critical|high|medium|low), wcag_codes (string[]), confidence (0-1 number). Return only JSON.',
+          'You are an accessibility expert. Analyze the issue description and return JSON with these fields:\n- title (string): Short summary of the issue\n- description (string): Detailed description of the accessibility problem\n- severity (string): One of "critical", "high", "medium", or "low" using these criteria:\n  * critical: Blocks an assistive tech user from completing a task\n  * high: Causes severe obstacles but user can still complete the task\n  * medium: Causes some difficulty; more of an annoyance\n  * low: An accessibility issue but easily ignored or circumvented\n- wcag_codes (string[]): Relevant WCAG 2.x criterion codes (e.g. ["1.1.1", "4.1.2"])\n- user_impact (string): How this issue affects users with disabilities, especially assistive tech users\n- suggested_fix (string): Concrete, actionable remediation steps\n- confidence (number): Your confidence score from 0 to 1\n\nReturn only valid JSON, no markdown.',
         messages: [{ role: 'user', content: plainText }],
       }),
     });
@@ -67,6 +67,8 @@ export class AnthropicProvider implements AIProvider {
       typeof result.description !== 'string' ||
       !VALID_SEVERITIES.includes(result.severity as (typeof VALID_SEVERITIES)[number]) ||
       !Array.isArray(result.wcag_codes) ||
+      typeof result.user_impact !== 'string' ||
+      typeof result.suggested_fix !== 'string' ||
       typeof result.confidence !== 'number'
     ) {
       throw new Error('AI response missing required fields');
