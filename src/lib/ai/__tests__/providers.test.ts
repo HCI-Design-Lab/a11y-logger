@@ -39,6 +39,8 @@ describe('OpenAIProvider.analyzeIssue', () => {
       description: 'Image has no alt attribute',
       severity: 'high',
       wcag_codes: ['1.1.1'],
+      user_impact: 'Screen reader users cannot access this element',
+      suggested_fix: 'Add appropriate ARIA attributes',
       confidence: 0.9,
     };
     global.fetch = vi.fn().mockResolvedValue({
@@ -196,6 +198,8 @@ describe('AnthropicProvider.analyzeIssue', () => {
       description: 'Image has no alt attribute',
       severity: 'high',
       wcag_codes: ['1.1.1'],
+      user_impact: 'Screen reader users cannot access this element',
+      suggested_fix: 'Add appropriate ARIA attributes',
       confidence: 0.9,
     };
     global.fetch = vi.fn().mockResolvedValue({
