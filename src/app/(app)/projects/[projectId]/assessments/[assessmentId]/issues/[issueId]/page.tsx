@@ -124,6 +124,54 @@ export default async function IssueDetailPage({
             </Card>
           )}
 
+          {issue.user_impact && (
+            <Card>
+              <CardHeader>
+                <CardTitle>User Impact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">{issue.user_impact}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {issue.suggested_fix && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Suggested Fix</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">{issue.suggested_fix}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {(issue.selector || issue.code_snippet) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Technical Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {issue.selector && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Selector</p>
+                    <code className="text-sm bg-muted px-2 py-1 rounded block break-all">
+                      {issue.selector}
+                    </code>
+                  </div>
+                )}
+                {issue.code_snippet && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Code Snippet</p>
+                    <pre className="text-sm bg-muted p-3 rounded overflow-x-auto whitespace-pre-wrap break-all">
+                      {issue.code_snippet}
+                    </pre>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {issue.wcag_codes.length > 0 && (
             <Card>
               <CardHeader>
