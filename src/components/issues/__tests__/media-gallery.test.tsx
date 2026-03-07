@@ -23,8 +23,7 @@ describe('MediaGallery', () => {
   it('shows the filename caption in the dialog', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));
-    const captions = screen.getAllByText('photo.png');
-    expect(captions.length).toBeGreaterThan(0);
+    expect(screen.getAllByText('photo.png')).toHaveLength(2);
   });
 
   it('shows prev and next buttons when there are multiple items', () => {
@@ -45,31 +44,37 @@ describe('MediaGallery', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    const captions = screen.getAllByText('shot.jpg');
-    expect(captions.length).toBeGreaterThan(0);
+    expect(screen.getAllByText('shot.jpg')).toHaveLength(2);
   });
 
   it('navigates to the previous item when Prev is clicked', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open shot\.jpg/i }));
     fireEvent.click(screen.getByRole('button', { name: /previous/i }));
-    const captions = screen.getAllByText('photo.png');
-    expect(captions.length).toBeGreaterThan(0);
+    expect(screen.getAllByText('photo.png')).toHaveLength(2);
   });
 
   it('wraps from the last item to the first on Next', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open shot\.jpg/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    const captions = screen.getAllByText('photo.png');
-    expect(captions.length).toBeGreaterThan(0);
+    expect(screen.getAllByText('photo.png')).toHaveLength(2);
   });
 
   it('wraps from the first item to the last on Prev', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));
     fireEvent.click(screen.getByRole('button', { name: /previous/i }));
-    const captions = screen.getAllByText('shot.jpg');
-    expect(captions.length).toBeGreaterThan(0);
+    expect(screen.getAllByText('shot.jpg')).toHaveLength(2);
+  });
+
+  it('navigates with arrow keys', () => {
+    render(<MediaGallery urls={IMAGE_URLS} />);
+    fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'ArrowRight' });
+    expect(screen.getAllByText('shot.jpg')).toHaveLength(2);
+    fireEvent.keyDown(dialog, { key: 'ArrowLeft' });
+    expect(screen.getAllByText('photo.png')).toHaveLength(2);
   });
 });

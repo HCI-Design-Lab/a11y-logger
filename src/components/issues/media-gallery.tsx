@@ -43,7 +43,7 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
           const video = isVideoUrl(url);
           return (
             <button
-              key={url}
+              key={`${url}-${idx}`}
               type="button"
               onClick={() => setSelectedIndex(idx)}
               aria-label={`Open ${name}`}
@@ -81,14 +81,20 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
 
       {/* Lightbox */}
       <Dialog open={isOpen} onOpenChange={(open) => !open && setSelectedIndex(null)}>
-        <DialogContent className="max-w-4xl p-4">
+        <DialogContent
+          className="max-w-4xl p-4"
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft') prev();
+            if (e.key === 'ArrowRight') next();
+          }}
+        >
           <DialogTitle className="sr-only">{fileName}</DialogTitle>
           <div className="relative flex items-center justify-center">
             {urls.length > 1 && (
               <button
                 type="button"
                 onClick={prev}
-                aria-label="Previous"
+                aria-label="Previous media"
                 className="absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -116,7 +122,7 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
               <button
                 type="button"
                 onClick={next}
-                aria-label="Next"
+                aria-label="Next media"
                 className="absolute right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
