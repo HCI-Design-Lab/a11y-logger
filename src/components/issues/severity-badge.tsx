@@ -4,22 +4,22 @@ const severityConfig: Record<Issue['severity'], { label: string; className: stri
   {
     critical: {
       label: 'Critical',
-      className: 'bg-red-500/20 text-red-900 border border-red-500',
+      className: 'bg-red-500/20 text-red-900 border border-red-500 dark:text-white',
       dot: 'bg-red-500',
     },
     high: {
       label: 'High',
-      className: 'bg-orange-500/20 text-orange-900 border border-orange-500',
+      className: 'bg-orange-500/20 text-orange-900 border border-orange-500 dark:text-white',
       dot: 'bg-orange-500',
     },
     medium: {
       label: 'Medium',
-      className: 'bg-yellow-500/20 text-yellow-900 border border-yellow-500',
+      className: 'bg-yellow-500/20 text-yellow-900 border border-yellow-500 dark:text-white',
       dot: 'bg-yellow-500',
     },
     low: {
       label: 'Low',
-      className: 'bg-blue-500/20 text-blue-900 border border-blue-500',
+      className: 'bg-blue-500/20 text-blue-900 border border-blue-500 dark:text-white',
       dot: 'bg-blue-500',
     },
   };
