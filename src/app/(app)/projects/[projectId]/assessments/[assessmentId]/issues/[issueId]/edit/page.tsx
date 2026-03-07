@@ -70,9 +70,14 @@ export default function EditIssuePage() {
         Back to Issue
       </Link>
       <h1 className="text-2xl font-bold">Edit Issue</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
-          <IssueForm issue={issue} onSubmit={handleSubmit} loading={loading} />
+          <IssueForm
+            projectId={projectId}
+            issue={issue}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
         </CardContent>
       </Card>
     </div>

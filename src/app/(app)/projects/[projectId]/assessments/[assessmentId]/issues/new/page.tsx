@@ -44,9 +44,9 @@ export default function NewIssuePage() {
         Back to Issues
       </Link>
       <h1 className="text-2xl font-bold">New Issue</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
-          <IssueForm onSubmit={handleSubmit} loading={loading} />
+          <IssueForm projectId={projectId} onSubmit={handleSubmit} loading={loading} />
         </CardContent>
       </Card>
     </div>
