@@ -10,6 +10,7 @@ import { getIssue } from '@/lib/db/issues';
 import { SeverityBadge } from '@/components/issues/severity-badge';
 import { StatusBadge } from '@/components/issues/status-badge';
 import { DeleteIssueButton } from '@/components/issues/delete-issue-button';
+import { MediaGallery } from '@/components/issues/media-gallery';
 
 export const dynamic = 'force-dynamic';
 
@@ -238,29 +239,7 @@ export default async function IssueDetailPage({
             </CardHeader>
             <CardContent>
               {issue.evidence_media.length > 0 ? (
-                <div className="grid gap-3 grid-cols-2">
-                  {issue.evidence_media.map((url) => {
-                    const fileName = url.split('/').pop() ?? url;
-                    const isVideo = /\.(mp4|webm|ogg)$/i.test(url);
-                    return isVideo ? (
-                      <video
-                        key={url}
-                        src={url}
-                        controls
-                        aria-label={fileName}
-                        className="rounded-md w-full"
-                      />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={url}
-                        src={url}
-                        alt={fileName}
-                        className="rounded-md w-full object-cover"
-                      />
-                    );
-                  })}
-                </div>
+                <MediaGallery urls={issue.evidence_media} />
               ) : (
                 <p className="text-sm text-muted-foreground">No attachments</p>
               )}
