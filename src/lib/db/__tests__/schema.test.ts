@@ -130,6 +130,10 @@ describe('core tables schema', () => {
         'resolved_at',
         'created_at',
         'updated_at',
+        'user_impact',
+        'selector',
+        'code_snippet',
+        'suggested_fix',
       ]);
     });
 
