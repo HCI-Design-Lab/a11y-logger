@@ -1,5 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({ get: () => null }),
+}));
+
 import { IssuesListView } from '@/components/issues/issues-list-view';
 import type { IssueWithContext } from '@/lib/db/issues';
 

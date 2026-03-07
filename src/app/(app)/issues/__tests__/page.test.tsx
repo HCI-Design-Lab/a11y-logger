@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({ get: () => null }),
+}));
+
 vi.mock('@/lib/db/issues', () => ({
   getAllIssues: () => [
     {
