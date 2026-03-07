@@ -1,16 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { SortableTable } from '@/components/ui/sortable-table';
+import { SeverityBadge } from '@/components/issues/severity-badge';
 import type { Issue } from '@/lib/db/issues';
-
-const severityConfig = {
-  critical: { label: 'Critical', className: 'bg-red-100 text-red-700' },
-  high: { label: 'High', className: 'bg-orange-100 text-orange-700' },
-  medium: { label: 'Medium', className: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low', className: 'bg-blue-100 text-blue-700' },
-};
 
 const statusLabels: Record<string, string> = {
   open: 'Open',
@@ -50,10 +43,7 @@ export function IssuesTable({ issues, projectId, assessmentId }: IssuesTableProp
     {
       key: 'severity' as const,
       label: 'Severity',
-      render: (row: Issue) => {
-        const sev = severityConfig[row.severity];
-        return <Badge className={sev.className}>{sev.label}</Badge>;
-      },
+      render: (row: Issue) => <SeverityBadge severity={row.severity} />,
     },
     {
       key: 'status' as const,
