@@ -113,4 +113,33 @@ describe('MediaUploader', () => {
     });
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
   });
+
+  it('renders a remove button for each uploaded url', () => {
+    render(
+      <MediaUploader
+        projectId="p1"
+        issueId="i1"
+        onUpload={vi.fn()}
+        onRemove={vi.fn()}
+        urls={['/api/media/p1/i1/photo.png', '/api/media/p1/i1/shot.jpg']}
+      />
+    );
+    const removeButtons = screen.getAllByRole('button', { name: /remove/i });
+    expect(removeButtons).toHaveLength(2);
+  });
+
+  it('calls onRemove with the correct url when remove button is clicked', () => {
+    const onRemove = vi.fn();
+    render(
+      <MediaUploader
+        projectId="p1"
+        issueId="i1"
+        onUpload={vi.fn()}
+        onRemove={onRemove}
+        urls={['/api/media/p1/i1/photo.png']}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /remove/i }));
+    expect(onRemove).toHaveBeenCalledWith('/api/media/p1/i1/photo.png');
+  });
 });

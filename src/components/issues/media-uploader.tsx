@@ -21,6 +21,7 @@ interface MediaUploaderProps {
   issueId: string;
   urls: string[];
   onUpload: (url: string) => void;
+  onRemove?: (url: string) => void;
   disabled?: boolean;
 }
 
@@ -33,6 +34,7 @@ export function MediaUploader({
   issueId,
   urls,
   onUpload,
+  onRemove,
   disabled = false,
 }: MediaUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,27 +94,37 @@ export function MediaUploader({
       {/* Thumbnails for existing media */}
       {urls.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {urls.map((url) =>
-            isVideoUrl(url) ? (
-              <video
-                key={url}
-                src={url}
-                className="h-24 w-24 rounded object-cover"
-                controls
-                aria-label="Uploaded video"
-              />
-            ) : (
-              <Image
-                key={url}
-                src={url}
-                alt="Uploaded media"
-                width={96}
-                height={96}
-                unoptimized
-                className="h-24 w-24 rounded object-cover"
-              />
-            )
-          )}
+          {urls.map((url) => (
+            <div key={url} className="relative">
+              {isVideoUrl(url) ? (
+                <video
+                  src={url}
+                  className="h-24 w-24 rounded object-cover"
+                  controls
+                  aria-label="Uploaded video"
+                />
+              ) : (
+                <Image
+                  src={url}
+                  alt="Uploaded media"
+                  width={96}
+                  height={96}
+                  unoptimized
+                  className="h-24 w-24 rounded object-cover"
+                />
+              )}
+              {onRemove && (
+                <button
+                  type="button"
+                  aria-label="Remove"
+                  onClick={() => onRemove(url)}
+                  className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
