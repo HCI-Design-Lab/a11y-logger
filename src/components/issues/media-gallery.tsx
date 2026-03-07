@@ -25,7 +25,8 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
   if (urls.length === 0) return null;
 
   const isOpen = selectedIndex !== null;
-  const selected = urls[displayIndex];
+  // displayIndex is always kept in-bounds by openAt/prev/next
+  const selected = urls[displayIndex]!;
   const fileName = getFileName(selected);
   const isVideo = isVideoUrl(selected);
 

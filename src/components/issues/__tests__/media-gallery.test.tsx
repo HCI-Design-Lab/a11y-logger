@@ -34,7 +34,7 @@ describe('MediaGallery', () => {
   });
 
   it('does not show prev/next buttons with a single item', () => {
-    render(<MediaGallery urls={[IMAGE_URLS[0]]} />);
+    render(<MediaGallery urls={[IMAGE_URLS[0]!]} />);
     fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));
     expect(screen.queryByRole('button', { name: /previous/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /next/i })).not.toBeInTheDocument();
