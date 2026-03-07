@@ -97,6 +97,26 @@ describe('createIssue', () => {
     const i2 = createIssue(assessmentId, { title: 'B' });
     expect(i1.id).not.toBe(i2.id);
   });
+
+  it('createIssue stores new fields', () => {
+    const issue = createIssue(assessmentId, {
+      title: 'Test',
+      user_impact: 'Screen reader users cannot navigate',
+      selector: '#main-nav > a',
+      code_snippet: '<a href="#">Menu</a>',
+      suggested_fix: 'Add aria-label to the link',
+    });
+    expect(issue.user_impact).toBe('Screen reader users cannot navigate');
+    expect(issue.selector).toBe('#main-nav > a');
+    expect(issue.code_snippet).toBe('<a href="#">Menu</a>');
+    expect(issue.suggested_fix).toBe('Add aria-label to the link');
+  });
+
+  it('updateIssue updates new fields', () => {
+    const issue = createIssue(assessmentId, { title: 'Test' });
+    const updated = updateIssue(issue.id, { suggested_fix: 'Use aria-label' });
+    expect(updated?.suggested_fix).toBe('Use aria-label');
+  });
 });
 
 // ─── getIssue ────────────────────────────────────────────────────────────────

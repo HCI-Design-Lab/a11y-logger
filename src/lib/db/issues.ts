@@ -16,6 +16,10 @@ export interface Issue {
   browser: string | null;
   operating_system: string | null;
   assistive_technology: string | null;
+  user_impact: string | null;
+  selector: string | null;
+  code_snippet: string | null;
+  suggested_fix: string | null;
   evidence_media: string[];
   tags: string[];
   created_by: string | null;
@@ -126,8 +130,9 @@ export function createIssue(assessmentId: string, input: CreateIssueInput): Issu
       `INSERT INTO issues (
         id, assessment_id, title, description, url, severity, status,
         wcag_codes, device_type, browser, operating_system, assistive_technology,
+        user_impact, selector, code_snippet, suggested_fix,
         evidence_media, tags, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       id,
@@ -142,6 +147,10 @@ export function createIssue(assessmentId: string, input: CreateIssueInput): Issu
       input.browser ?? null,
       input.operating_system ?? null,
       input.assistive_technology ?? null,
+      input.user_impact ?? null,
+      input.selector ?? null,
+      input.code_snippet ?? null,
+      input.suggested_fix ?? null,
       JSON.stringify(input.evidence_media ?? []),
       JSON.stringify(input.tags ?? []),
       input.created_by ?? null
@@ -195,6 +204,22 @@ export function updateIssue(id: string, input: UpdateIssueInput): Issue | null {
   if (input.assistive_technology !== undefined) {
     fields.push('assistive_technology = ?');
     values.push(input.assistive_technology);
+  }
+  if (input.user_impact !== undefined) {
+    fields.push('user_impact = ?');
+    values.push(input.user_impact);
+  }
+  if (input.selector !== undefined) {
+    fields.push('selector = ?');
+    values.push(input.selector);
+  }
+  if (input.code_snippet !== undefined) {
+    fields.push('code_snippet = ?');
+    values.push(input.code_snippet);
+  }
+  if (input.suggested_fix !== undefined) {
+    fields.push('suggested_fix = ?');
+    values.push(input.suggested_fix);
   }
   if (input.evidence_media !== undefined) {
     fields.push('evidence_media = ?');
