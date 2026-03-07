@@ -10,7 +10,7 @@ test('renders title field as required', () => {
 
 test('renders description textarea', () => {
   render(<IssueForm onSubmit={vi.fn()} />);
-  expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/^description$/i)).toBeInTheDocument();
 });
 
 test('renders severity select', () => {
@@ -48,6 +48,10 @@ test('pre-fills data when editing existing issue', () => {
     wcag_codes: ['4.1.2'],
     ai_suggested_codes: [],
     ai_confidence_score: null,
+    user_impact: null,
+    selector: null,
+    code_snippet: null,
+    suggested_fix: null,
     device_type: 'desktop',
     browser: 'Chrome',
     operating_system: 'macOS',
@@ -62,7 +66,7 @@ test('pre-fills data when editing existing issue', () => {
   };
   render(<IssueForm issue={issue} onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/title/i)).toHaveValue('Button has no label');
-  expect(screen.getByLabelText(/description/i)).toHaveValue(
+  expect(screen.getByLabelText(/^description$/i)).toHaveValue(
     'The submit button has no accessible name.'
   );
 });
