@@ -14,9 +14,8 @@ interface VpatCardProps {
 }
 
 export function VpatCard({ vpat }: VpatCardProps) {
-  const scopeLabel = vpat.wcag_scope.length > 0
-    ? `${vpat.wcag_scope.length} criteria`
-    : 'All criteria';
+  const scopeLabel =
+    vpat.wcag_scope.length > 0 ? `${vpat.wcag_scope.length} criteria` : 'All criteria';
 
   return (
     <Link href={`/vpats/${vpat.id}`}>
