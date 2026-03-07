@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { CreateIssueInput, UpdateIssueInput } from '@/lib/validators/issues';
 
@@ -43,7 +44,11 @@ export default function NewIssuePage() {
         Back to Issues
       </Link>
       <h1 className="text-2xl font-bold">New Issue</h1>
-      <IssueForm onSubmit={handleSubmit} loading={loading} />
+      <Card className="max-w-2xl">
+        <CardContent>
+          <IssueForm onSubmit={handleSubmit} loading={loading} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
