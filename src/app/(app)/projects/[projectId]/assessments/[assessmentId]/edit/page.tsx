@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import type { AssessmentFormData } from '@/components/assessments/assessment-form';
 import type { Assessment } from '@/lib/db/assessments';
@@ -74,7 +75,11 @@ export default function EditAssessmentPage() {
         Back to Assessment
       </Link>
       <h1 className="text-2xl font-bold">Edit Assessment</h1>
-      <AssessmentForm assessment={assessment} onSubmit={handleSubmit} loading={loading} />
+      <Card className="max-w-2xl">
+        <CardContent>
+          <AssessmentForm assessment={assessment} onSubmit={handleSubmit} loading={loading} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -10,10 +10,10 @@ interface StatusTransitionButtonProps {
   currentStatus: 'planning' | 'in_progress' | 'completed';
 }
 
-const nextStatus: Record<string, { status: string; label: string } | null> = {
+const nextStatus: Record<string, { status: string; label: string }> = {
   planning: { status: 'in_progress', label: 'Mark as In Progress' },
   in_progress: { status: 'completed', label: 'Mark as Complete' },
-  completed: null,
+  completed: { status: 'in_progress', label: 'Mark as Incomplete' },
 };
 
 export function StatusTransitionButton({
@@ -24,8 +24,6 @@ export function StatusTransitionButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const transition = nextStatus[currentStatus];
-
-  if (!transition) return null;
 
   const handleTransition = async () => {
     setLoading(true);

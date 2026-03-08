@@ -11,15 +11,6 @@ const statusConfig = {
   completed: { label: 'Completed', className: 'bg-green-100 text-green-700' },
 };
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 interface AssessmentsTableProps {
   assessments: AssessmentWithCounts[];
   projectId: string;
@@ -52,19 +43,13 @@ export function AssessmentsTable({ assessments, projectId }: AssessmentsTablePro
       label: 'Issues',
       render: (row: AssessmentWithCounts) => row.issue_count,
     },
-    {
-      key: 'test_date_start' as const,
-      label: 'Date Range',
-      render: (row: AssessmentWithCounts) =>
-        `${formatDate(row.test_date_start)}${row.test_date_end ? ` — ${formatDate(row.test_date_end)}` : ''}`,
-    },
   ];
 
   return (
     <SortableTable
       columns={columns}
       rows={assessments}
-      defaultSortKey="test_date_start"
+      defaultSortKey="name"
       defaultSortDir="desc"
       getKey={(r) => r.id}
       emptyMessage="No assessments yet."

@@ -11,15 +11,6 @@ const statusConfig = {
   completed: { label: 'Completed', className: 'bg-green-100 text-green-700' },
 };
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 interface AllAssessmentsTableProps {
   assessments: AssessmentWithProject[];
 }
@@ -62,12 +53,6 @@ export function AllAssessmentsTable({ assessments }: AllAssessmentsTableProps) {
       key: 'issue_count' as const,
       label: 'Issues',
       render: (row: AssessmentWithProject) => row.issue_count,
-    },
-    {
-      key: 'test_date_start' as const,
-      label: 'Date Range',
-      render: (row: AssessmentWithProject) =>
-        `${formatDate(row.test_date_start)}${row.test_date_end ? ` — ${formatDate(row.test_date_end)}` : ''}`,
     },
   ];
 

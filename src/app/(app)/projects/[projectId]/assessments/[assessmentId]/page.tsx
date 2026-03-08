@@ -20,15 +20,6 @@ const statusConfig = {
   completed: { label: 'Completed', className: 'bg-green-100 text-green-700' },
 };
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 export default async function AssessmentDetailPage({
   params,
 }: {
@@ -79,9 +70,6 @@ export default async function AssessmentDetailPage({
           {assessment.description && (
             <p className="text-muted-foreground">{assessment.description}</p>
           )}
-          <p className="text-sm text-muted-foreground">
-            {formatDate(assessment.test_date_start)} — {formatDate(assessment.test_date_end)}
-          </p>
         </div>
         <div className="flex gap-2">
           <StatusTransitionButton
