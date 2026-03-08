@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import type { AssessmentFormData } from '@/components/assessments/assessment-form';
 
@@ -44,6 +45,9 @@ export default function NewAssessmentClient({ projects }: Props) {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[{ label: 'Assessments', href: '/assessments' }, { label: 'New Assessment' }]}
+      />
       <h1 className="text-2xl font-bold">New Assessment</h1>
       <Card className="max-w-2xl">
         <CardContent>
