@@ -11,6 +11,7 @@ import { DeleteAssessmentButton } from '@/components/assessments/delete-assessme
 import { StatusTransitionButton } from '@/components/assessments/status-transition-button';
 import { IssuesTable } from '@/components/issues/issues-table';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,22 +44,14 @@ export default async function AssessmentDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-        <Link href="/projects" className="hover:text-foreground">
-          Projects
-        </Link>
-        <span>/</span>
-        <Link href={`/projects/${projectId}`} className="hover:text-foreground">
-          {project.name}
-        </Link>
-        <span>/</span>
-        <Link href={`/projects/${projectId}/assessments`} className="hover:text-foreground">
-          Assessments
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">{assessment.name}</span>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/projects' },
+          { label: project.name, href: `/projects/${projectId}` },
+          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: assessment.name },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex items-start justify-between">

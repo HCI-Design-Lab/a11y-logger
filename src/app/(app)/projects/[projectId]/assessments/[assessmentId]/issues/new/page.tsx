@@ -1,40 +1,37 @@
-'use client';
-import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { IssueForm } from '@/components/issues/issue-form';
-import type { CreateIssueInput, UpdateIssueInput } from '@/lib/validators/issues';
+import { notFound } from 'next/navigation';
+import { getProject } from '@/lib/db/projects';
+import { getAssessment } from '@/lib/db/assessments';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { NewIssueClient } from './new-issue-client';
 
-export default function NewIssuePage() {
-  const params = useParams();
-  const projectId = params.projectId as string;
-  const assessmentId = params.assessmentId as string;
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+export const dynamic = 'force-dynamic';
 
-  const handleSubmit = async (data: CreateIssueInput | UpdateIssueInput) => {
-    setLoading(true);
-    try {
-      const payload = data as CreateIssueInput;
-      const res = await fetch(`/api/projects/${projectId}/assessments/${assessmentId}/issues`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error);
-      toast.success('Issue created');
-      router.push(`/projects/${projectId}/assessments/${assessmentId}/issues/${json.data.id}`);
-    } catch {
-      toast.error('Failed to create issue');
-      setLoading(false);
-    }
-  };
+export default async function NewIssuePage({
+  params,
+}: {
+  params: Promise<{ projectId: string; assessmentId: string }>;
+}) {
+  const { projectId, assessmentId } = await params;
+
+  const project = getProject(projectId);
+  if (!project) notFound();
+
+  const assessment = getAssessment(assessmentId);
+  if (!assessment) notFound();
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">New Issue</h1>
-      <IssueForm projectId={projectId} onSubmit={handleSubmit} loading={loading} />
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/projects' },
+          { label: project.name, href: `/projects/${projectId}` },
+          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: assessment.name, href: `/projects/${projectId}/assessments/${assessmentId}` },
+          { label: 'Issues', href: `/projects/${projectId}/assessments/${assessmentId}/issues` },
+          { label: 'New Issue' },
+        ]}
+      />
+      <NewIssueClient projectId={projectId} assessmentId={assessmentId} />
     </div>
   );
 }
