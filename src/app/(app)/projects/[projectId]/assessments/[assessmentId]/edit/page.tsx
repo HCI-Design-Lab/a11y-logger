@@ -24,10 +24,17 @@ export default function EditAssessmentPage() {
     fetch(`/api/projects/${projectId}/assessments/${assessmentId}`)
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setAssessment(json.data);
-        else toast.error('Failed to load assessment');
+        if (json.success) {
+          setAssessment(json.data);
+        } else {
+          toast.error('Failed to load assessment');
+          router.push(`/projects/${projectId}/assessments`);
+        }
       })
-      .catch(() => toast.error('Failed to load assessment'))
+      .catch(() => {
+        toast.error('Failed to load assessment');
+        router.push(`/projects/${projectId}/assessments`);
+      })
       .finally(() => setFetching(false));
   }, [projectId, assessmentId]);
 
