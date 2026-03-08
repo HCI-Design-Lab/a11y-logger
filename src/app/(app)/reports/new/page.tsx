@@ -3,12 +3,14 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { getProjects } from '@/lib/db/projects';
 import { ReportForm } from '@/components/reports/report-form';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 export default function NewReportPage() {
   const projects = getProjects().map((p) => ({ id: p.id, name: p.name }));
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Reports', href: '/reports' }, { label: 'New Report' }]} />
       <h1 className="text-2xl font-bold mb-6">New Report</h1>
 
       {projects.length === 0 ? (

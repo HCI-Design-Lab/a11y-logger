@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { DeleteReportButton } from '@/components/reports/delete-report-button';
 import { PublishReportButton } from '@/components/reports/publish-report-button';
 import { getTypeBadgeClass, getStatusBadgeClass } from '@/components/reports/report-badge-utils';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -41,6 +42,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Reports', href: '/reports' }, { label: report.title }]} />
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Main content */}
         <div className="flex-1 min-w-0">
