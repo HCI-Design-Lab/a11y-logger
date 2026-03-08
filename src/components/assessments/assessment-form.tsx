@@ -19,12 +19,15 @@ export interface AssessmentFormData {
   test_date_start: string;
   test_date_end: string;
   status: 'planning' | 'in_progress' | 'completed';
+  project_id?: string;
 }
 
 interface AssessmentFormProps {
   assessment?: Assessment;
   onSubmit: (data: AssessmentFormData) => void;
   loading?: boolean;
+  projects?: { id: string; name: string }[];
+  defaultProjectId?: string;
 }
 
 function toDateInputValue(iso: string | null | undefined): string {
@@ -33,7 +36,13 @@ function toDateInputValue(iso: string | null | undefined): string {
   return iso.slice(0, 10);
 }
 
-export function AssessmentForm({ assessment, onSubmit, loading }: AssessmentFormProps) {
+export function AssessmentForm({
+  assessment,
+  onSubmit,
+  loading,
+  projects,
+  defaultProjectId,
+}: AssessmentFormProps) {
   const [name, setName] = useState(assessment?.name ?? '');
   const [description, setDescription] = useState(assessment?.description ?? '');
   const [testDateStart, setTestDateStart] = useState(toDateInputValue(assessment?.test_date_start));
@@ -41,6 +50,7 @@ export function AssessmentForm({ assessment, onSubmit, loading }: AssessmentForm
   const [status, setStatus] = useState<'planning' | 'in_progress' | 'completed'>(
     assessment?.status ?? 'planning'
   );
+  const [projectId, setProjectId] = useState(defaultProjectId ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +60,29 @@ export function AssessmentForm({ assessment, onSubmit, loading }: AssessmentForm
       test_date_start: testDateStart,
       test_date_end: testDateEnd,
       status,
+      project_id: projectId || undefined,
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+      {projects && (
+        <div className="space-y-1.5">
+          <Label htmlFor="project_id">Project</Label>
+          <Select value={projectId} onValueChange={setProjectId}>
+            <SelectTrigger id="project_id">
+              <SelectValue placeholder="Select a project" />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="space-y-1.5">
         <Label htmlFor="name">Name *</Label>
         <Input
