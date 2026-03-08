@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart2, Table2 } from 'lucide-react';
 
@@ -30,7 +30,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
   const pieData = SEVERITY_CONFIG.map(({ key, label, color }) => ({
     name: label,
     value: severityBreakdown[key],
-    color,
+    fill: color,
   })).filter((d) => d.value > 0);
 
   return (
@@ -68,7 +68,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
         {view === 'chart' ? (
           <div className="flex flex-col items-center gap-4">
             <div className="relative w-full mb-8" style={{ height: 200 }}>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
                     data={pieData}
@@ -78,11 +78,8 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
                     outerRadius={100}
                     dataKey="value"
                     strokeWidth={5}
-                  >
-                    {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} style={{ stroke: 'var(--card)' }} />
-                    ))}
-                  </Pie>
+                    stroke="var(--card)"
+                  />
                   <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Issues']} />
                 </PieChart>
               </ResponsiveContainer>
