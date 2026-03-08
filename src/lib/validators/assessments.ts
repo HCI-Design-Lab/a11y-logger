@@ -19,7 +19,6 @@ const AssessmentBaseSchema = z.object({
   test_date_start: z.string().datetime().optional(),
   test_date_end: z.string().datetime().optional(),
   assigned_to: z.string().optional(),
-  project_id: z.string().uuid().optional(),
 });
 
 export const CreateAssessmentSchema = AssessmentBaseSchema.refine(
@@ -27,10 +26,9 @@ export const CreateAssessmentSchema = AssessmentBaseSchema.refine(
   dateRangeRefineOptions
 );
 
-export const UpdateAssessmentSchema = AssessmentBaseSchema.partial().refine(
-  dateRangeRefine,
-  dateRangeRefineOptions
-);
+export const UpdateAssessmentSchema = AssessmentBaseSchema.partial()
+  .extend({ project_id: z.string().uuid().optional() })
+  .refine(dateRangeRefine, dateRangeRefineOptions);
 
 export type CreateAssessmentInput = z.infer<typeof CreateAssessmentSchema>;
 export type UpdateAssessmentInput = z.infer<typeof UpdateAssessmentSchema>;
