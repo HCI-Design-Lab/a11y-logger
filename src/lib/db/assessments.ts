@@ -106,6 +106,10 @@ export function updateAssessment(id: string, input: UpdateAssessmentInput): Asse
     fields.push('assigned_to = ?');
     values.push(input.assigned_to);
   }
+  if (input.project_id !== undefined) {
+    fields.push('project_id = ?');
+    values.push(input.project_id);
+  }
 
   if (fields.length === 0) return existing;
 

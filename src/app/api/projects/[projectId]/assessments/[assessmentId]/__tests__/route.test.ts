@@ -1,8 +1,9 @@
 // @vitest-environment node
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, test } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
+import { UpdateAssessmentSchema } from '@/lib/validators/assessments';
 import { GET, PUT, DELETE } from '../route';
 
 let projectId: string;
@@ -200,4 +201,10 @@ describe('DELETE /api/projects/[projectId]/assessments/[id]', () => {
     );
     expect(response.status).toBe(404);
   });
+});
+
+test('PUT accepts project_id field in body via UpdateAssessmentSchema', () => {
+  const result = UpdateAssessmentSchema.safeParse({ project_id: 'p2' });
+  expect(result.success).toBe(true);
+  expect(result.data?.project_id).toBe('p2');
 });

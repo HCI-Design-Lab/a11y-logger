@@ -19,6 +19,7 @@ const AssessmentBaseSchema = z.object({
   test_date_start: z.string().datetime().optional(),
   test_date_end: z.string().datetime().optional(),
   assigned_to: z.string().optional(),
+  project_id: z.string().optional(),
 });
 
 export const CreateAssessmentSchema = AssessmentBaseSchema.refine(
