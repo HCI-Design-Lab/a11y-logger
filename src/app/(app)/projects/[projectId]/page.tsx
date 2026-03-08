@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronLeft, ExternalLink, Pencil, Plus } from 'lucide-react';
+import { ExternalLink, Pencil, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,14 +31,6 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
-      <Link
-        href="/projects"
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Projects
-      </Link>
-
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{project.name}</h1>

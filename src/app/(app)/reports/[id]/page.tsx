@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Download, Pencil } from 'lucide-react';
+import { Download, Pencil } from 'lucide-react';
 import { getReport } from '@/lib/db/reports';
 import type { ReportSection } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
@@ -41,15 +41,6 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
   return (
     <div>
-      {/* Back link */}
-      <Link
-        href="/reports"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ChevronLeft className="h-4 w-4 mr-1" />
-        Back to Reports
-      </Link>
-
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Main content */}
         <div className="flex-1 min-w-0">

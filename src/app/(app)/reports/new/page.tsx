@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 import { getProjects } from '@/lib/db/projects';
 import { ReportForm } from '@/components/reports/report-form';
 
@@ -10,14 +9,6 @@ export default function NewReportPage() {
 
   return (
     <div>
-      <Link
-        href="/reports"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ChevronLeft className="h-4 w-4 mr-1" />
-        Back to Reports
-      </Link>
-
       <h1 className="text-2xl font-bold mb-6">New Report</h1>
 
       {projects.length === 0 ? (

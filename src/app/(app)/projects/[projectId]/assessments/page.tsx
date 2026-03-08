@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { getProject } from '@/lib/db/projects';
@@ -21,14 +21,6 @@ export default async function AssessmentsPage({
 
   return (
     <div className="space-y-6">
-      <Link
-        href={`/projects/${projectId}`}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to project
-      </Link>
-
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assessments — {project.name}</h1>
         <Button asChild>

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,14 +79,6 @@ export default function NewVpatPage() {
 
   return (
     <div>
-      <Link
-        href="/vpats"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ChevronLeft className="h-4 w-4 mr-1" />
-        Back to VPATs
-      </Link>
-
       <h1 className="text-2xl font-bold mb-6">New VPAT</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -2,8 +2,6 @@
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProjectForm } from '@/components/projects/project-form';
 import type { Project } from '@/lib/db/projects';
@@ -67,13 +65,6 @@ export default function EditProjectPage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        href={`/projects/${projectId}`}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Project
-      </Link>
       <h1 className="text-2xl font-bold">Edit Project</h1>
       <Card className="max-w-2xl">
         <CardContent>

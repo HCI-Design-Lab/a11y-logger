@@ -2,8 +2,6 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { Issue } from '@/lib/db/issues';
 import type { UpdateIssueInput } from '@/lib/validators/issues';
@@ -61,13 +59,6 @@ export default function EditIssuePage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Issue
-      </Link>
       <h1 className="text-2xl font-bold">Edit Issue</h1>
       <IssueForm projectId={projectId} issue={issue} onSubmit={handleSubmit} loading={loading} />
     </div>
