@@ -65,6 +65,16 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
+    if (result.data.project_id && result.data.project_id !== projectId) {
+      const targetProject = getProject(result.data.project_id);
+      if (!targetProject) {
+        return NextResponse.json(
+          { success: false, error: 'Target project not found', code: 'NOT_FOUND' },
+          { status: 404 }
+        );
+      }
+    }
+
     const updated = updateAssessment(assessmentId, result.data);
     if (!updated) {
       return NextResponse.json(

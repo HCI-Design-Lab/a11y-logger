@@ -112,4 +112,17 @@ describe('UpdateAssessmentSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts project_id as a UUID', () => {
+    const result = UpdateAssessmentSchema.safeParse({
+      project_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    });
+    expect(result.success).toBe(true);
+    expect(result.data?.project_id).toBe('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+  });
+
+  it('rejects non-UUID project_id', () => {
+    const result = UpdateAssessmentSchema.safeParse({ project_id: 'not-a-uuid' });
+    expect(result.success).toBe(false);
+  });
 });
