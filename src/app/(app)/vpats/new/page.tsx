@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VpatCriteriaTable, type CriterionRow } from '@/components/vpats/vpat-criteria-table';
 import { buildDefaultCriteriaRows, CONFORMANCE_DB_VALUE } from '@/lib/vpats/wcag-criteria';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 function buildInitialCriteria(): CriterionRow[] {
   return buildDefaultCriteriaRows().map((r) => ({
@@ -79,6 +80,7 @@ export default function NewVpatPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'VPATs', href: '/vpats' }, { label: 'New VPAT' }]} />
       <h1 className="text-2xl font-bold mb-6">New VPAT</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VpatCriteriaTable, type CriterionRow } from '@/components/vpats/vpat-criteria-table';
 import { buildDefaultCriteriaRows, CONFORMANCE_DB_VALUE } from '@/lib/vpats/wcag-criteria';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 interface VpatData {
   id: string;
@@ -29,7 +30,7 @@ export default function EditVpatPage() {
   const params = useParams<{ id: string }>();
   const vpatId = params.id;
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState<string | null>(null);
   const [criteria, setCriteria] = useState<CriterionRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,7 +75,7 @@ export default function EditVpatPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) {
+    if (!title || !title.trim()) {
       toast.error('Title is required');
       return;
     }
@@ -122,6 +123,13 @@ export default function EditVpatPage() {
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: 'VPATs', href: '/vpats' },
+          ...(title !== null ? [{ label: title, href: `/vpats/${vpatId}` }] : []),
+          { label: 'Edit' },
+        ]}
+      />
       <h1 className="text-2xl font-bold mb-6">Edit VPAT</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -134,7 +142,7 @@ export default function EditVpatPage() {
               <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
-                value={title}
+                value={title ?? ''}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Acme SaaS Platform VPAT 2024"
                 required
