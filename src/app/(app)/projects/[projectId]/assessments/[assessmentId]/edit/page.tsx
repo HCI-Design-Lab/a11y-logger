@@ -18,6 +18,7 @@ export default function EditAssessmentPage() {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     fetch(`/api/projects/${projectId}/assessments/${assessmentId}`)
@@ -30,9 +31,22 @@ export default function EditAssessmentPage() {
       .finally(() => setFetching(false));
   }, [projectId, assessmentId]);
 
+  useEffect(() => {
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success)
+          setProjects(
+            json.data.map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))
+          );
+      })
+      .catch(() => {}); // non-critical, form still works without projects
+  }, []);
+
   const handleSubmit = async (data: AssessmentFormData) => {
     setLoading(true);
     try {
+      const newProjectId = data.project_id ?? projectId;
       const payload: Record<string, unknown> = {
         name: data.name,
         status: data.status,
@@ -41,6 +55,9 @@ export default function EditAssessmentPage() {
       if (data.test_date_start)
         payload.test_date_start = new Date(data.test_date_start).toISOString();
       if (data.test_date_end) payload.test_date_end = new Date(data.test_date_end).toISOString();
+      if (data.project_id && data.project_id !== projectId) {
+        payload.project_id = data.project_id;
+      }
 
       const res = await fetch(`/api/projects/${projectId}/assessments/${assessmentId}`, {
         method: 'PUT',
@@ -50,7 +67,7 @@ export default function EditAssessmentPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success('Assessment updated');
-      router.push(`/projects/${projectId}/assessments/${assessmentId}`);
+      router.push(`/projects/${newProjectId}/assessments/${assessmentId}`);
     } catch {
       toast.error('Failed to update assessment');
       setLoading(false);
@@ -77,7 +94,13 @@ export default function EditAssessmentPage() {
       <h1 className="text-2xl font-bold">Edit Assessment</h1>
       <Card className="max-w-2xl">
         <CardContent>
-          <AssessmentForm assessment={assessment} onSubmit={handleSubmit} loading={loading} />
+          <AssessmentForm
+            assessment={assessment}
+            onSubmit={handleSubmit}
+            loading={loading}
+            projects={projects}
+            defaultProjectId={assessment.project_id}
+          />
         </CardContent>
       </Card>
     </div>
