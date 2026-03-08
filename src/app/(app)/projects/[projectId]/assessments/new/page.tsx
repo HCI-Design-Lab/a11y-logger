@@ -12,7 +12,7 @@ export default function NewAssessmentPage() {
   const projectId = params.projectId as string;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [projectName, setProjectName] = useState<string>('Project');
+  const [projectName, setProjectName] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/projects/${projectId}`)
@@ -22,8 +22,10 @@ export default function NewAssessmentPage() {
           setProjectName(json.data.name);
         }
       })
-      .catch(() => {});
-  }, [projectId]);
+      .catch(() => {
+        router.push('/projects');
+      });
+  }, [projectId, router]);
 
   const handleSubmit = async (data: AssessmentFormData) => {
     setLoading(true);
@@ -57,7 +59,7 @@ export default function NewAssessmentPage() {
       <Breadcrumbs
         items={[
           { label: 'Projects', href: '/projects' },
-          { label: projectName, href: `/projects/${projectId}` },
+          ...(projectName !== null ? [{ label: projectName, href: `/projects/${projectId}` }] : []),
           { label: 'Assessments', href: `/projects/${projectId}/assessments` },
           { label: 'New Assessment' },
         ]}
