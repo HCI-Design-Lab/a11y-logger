@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronLeft, Download, ExternalLink, Pencil, Plus } from 'lucide-react';
+import { ChevronLeft, ExternalLink, Pencil, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,12 +63,6 @@ export default async function ProjectDetailPage({
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <a href={`/api/projects/${project.id}/export`} download>
-              <Download className="mr-2 h-4 w-4" />
-              Export ZIP
-            </a>
           </Button>
           <DeleteProjectButton projectId={project.id} projectName={project.name} />
         </div>

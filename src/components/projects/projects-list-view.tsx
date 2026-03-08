@@ -8,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { ProjectCard } from '@/components/projects/project-card';
 import { ProjectsTable } from '@/components/projects/projects-table';
-import { ImportProjectButton } from '@/components/projects/import-project-button';
 import type { ProjectWithCounts } from '@/lib/db/projects';
 
 interface ProjectsListViewProps {
@@ -24,7 +23,6 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
         <h1 className="text-2xl font-bold">Projects</h1>
         <div className="flex items-center gap-2">
           <ViewToggle view={view} onViewChange={setView} />
-          <ImportProjectButton />
           <Button asChild>
             <Link href="/projects/new">
               <Plus className="mr-2 h-4 w-4" />
