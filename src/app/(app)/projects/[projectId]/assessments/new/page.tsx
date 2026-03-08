@@ -60,7 +60,7 @@ export default function NewAssessmentPage() {
         items={[
           { label: 'Projects', href: '/projects' },
           ...(projectName !== null ? [{ label: projectName, href: `/projects/${projectId}` }] : []),
-          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'Assessments' },
           { label: 'New Assessment' },
         ]}
       />

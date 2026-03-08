@@ -53,8 +53,8 @@ vi.mock('@/components/dashboard/issue-statistics', () => ({
   ),
 }));
 
-vi.mock('@/components/assessments/assessments-table', () => ({
-  AssessmentsTable: ({ assessments }: { assessments: { name: string }[] }) => (
+vi.mock('@/components/assessments/project-assessments-card', () => ({
+  ProjectAssessmentsCard: ({ assessments }: { assessments: { name: string }[] }) => (
     <table>
       <thead>
         <tr>

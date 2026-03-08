@@ -86,7 +86,7 @@ export default function EditIssuePage() {
         items={[
           { label: 'Projects', href: '/projects' },
           ...(projectName !== null ? [{ label: projectName, href: `/projects/${projectId}` }] : []),
-          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'Assessments' },
           ...(assessmentName !== null
             ? [
                 {

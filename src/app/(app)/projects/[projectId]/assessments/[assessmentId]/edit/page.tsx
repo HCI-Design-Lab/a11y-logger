@@ -99,7 +99,7 @@ export default function EditAssessmentPage() {
         items={[
           { label: 'Projects', href: '/projects' },
           ...(projectName !== null ? [{ label: projectName, href: `/projects/${projectId}` }] : []),
-          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'Assessments' },
           { label: assessment.name, href: `/projects/${projectId}/assessments/${assessmentId}` },
           { label: 'Edit' },
         ]}

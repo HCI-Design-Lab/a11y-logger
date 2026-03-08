@@ -48,7 +48,7 @@ export default async function AssessmentDetailPage({
         items={[
           { label: 'Projects', href: '/projects' },
           { label: project.name, href: `/projects/${projectId}` },
-          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'Assessments' },
           { label: assessment.name },
         ]}
       />

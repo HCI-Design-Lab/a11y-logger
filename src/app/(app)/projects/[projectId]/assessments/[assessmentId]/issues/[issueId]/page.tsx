@@ -48,7 +48,7 @@ export default async function IssueDetailPage({
         items={[
           { label: 'Projects', href: '/projects' },
           { label: project.name, href: `/projects/${projectId}` },
-          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'Assessments' },
           { label: assessment.name, href: `/projects/${projectId}/assessments/${assessmentId}` },
           { label: 'Issues', href: `/projects/${projectId}/assessments/${assessmentId}/issues` },
           { label: issue.title },
