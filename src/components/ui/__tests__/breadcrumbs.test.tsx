@@ -31,3 +31,8 @@ test('has accessible navigation landmark labelled Breadcrumb', () => {
   render(<Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: 'Edit' }]} />);
   expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
 });
+
+test('last item has aria-current="page"', () => {
+  render(<Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: 'Edit' }]} />);
+  expect(screen.getByText('Edit')).toHaveAttribute('aria-current', 'page');
+});
