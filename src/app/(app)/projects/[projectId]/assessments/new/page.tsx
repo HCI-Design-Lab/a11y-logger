@@ -1,16 +1,29 @@
 'use client';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import type { AssessmentFormData } from '@/components/assessments/assessment-form';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 export default function NewAssessmentPage() {
   const params = useParams();
   const projectId = params.projectId as string;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [projectName, setProjectName] = useState<string>('Project');
+
+  useEffect(() => {
+    fetch(`/api/projects/${projectId}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data?.name) {
+          setProjectName(json.data.name);
+        }
+      })
+      .catch(() => {});
+  }, [projectId]);
 
   const handleSubmit = async (data: AssessmentFormData) => {
     setLoading(true);
@@ -41,6 +54,14 @@ export default function NewAssessmentPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/projects' },
+          { label: projectName, href: `/projects/${projectId}` },
+          { label: 'Assessments', href: `/projects/${projectId}/assessments` },
+          { label: 'New Assessment' },
+        ]}
+      />
       <h1 className="text-2xl font-bold">New Assessment</h1>
       <Card className="max-w-2xl">
         <CardContent>

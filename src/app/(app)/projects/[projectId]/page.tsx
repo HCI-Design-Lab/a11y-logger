@@ -3,6 +3,7 @@ import { ExternalLink, Pencil, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { getProject } from '@/lib/db/projects';
 import { getAssessments } from '@/lib/db/assessments';
 import { getIssuesByProject } from '@/lib/db/issues';
@@ -31,6 +32,7 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name }]} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{project.name}</h1>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { getProject } from '@/lib/db/projects';
 import { getAssessments } from '@/lib/db/assessments';
 import { AssessmentCard } from '@/components/assessments/assessment-card';
@@ -21,6 +22,13 @@ export default async function AssessmentsPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/projects' },
+          { label: project.name, href: `/projects/${projectId}` },
+          { label: 'Assessments' },
+        ]}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assessments — {project.name}</h1>
         <Button asChild>
