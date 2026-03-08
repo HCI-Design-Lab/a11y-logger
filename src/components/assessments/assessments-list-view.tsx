@@ -1,7 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { AllAssessmentsTable } from '@/components/assessments/all-assessments-table';
 import { AssessmentCard } from '@/components/assessments/assessment-card';
@@ -18,7 +21,15 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Assessments</h1>
-        <ViewToggle view={view} onViewChange={setView} />
+        <div className="flex items-center gap-2">
+          <ViewToggle view={view} onViewChange={setView} />
+          <Button asChild>
+            <Link href="/assessments/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Assessment
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {view === 'grid' ? (
