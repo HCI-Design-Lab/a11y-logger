@@ -1,70 +1,64 @@
 import { getDb } from './index';
 import type { CreateReportInput, UpdateReportInput } from '../validators/reports';
-
-/** Shape of a section as stored in the DB/API (content JSON: [{title, body}]) */
-export interface ReportSection {
-  title: string;
-  body: string;
-}
+import type { Issue } from './issues';
 
 export interface Report {
   id: string;
-  project_id: string;
-  type: 'executive' | 'detailed' | 'custom';
+  type: string;
   title: string;
   status: 'draft' | 'published';
-  content: string; // JSON string: [{title, body}]
+  content: string; // JSON string of ReportContent
   template_id: string | null;
-  ai_generated: number; // 0 | 1
+  ai_generated: number;
   created_by: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface ReportSection {
-  title: string;
-  body: string;
+  assessment_ids: string[]; // derived from report_assessments
 }
 
 export function getReport(id: string): Report | null {
-  return (
-    (getDb().prepare('SELECT * FROM reports WHERE id = ?').get(id) as Report | undefined) ?? null
-  );
+  const row = getDb().prepare('SELECT * FROM reports WHERE id = ?').get(id) as
+    | Omit<Report, 'assessment_ids'>
+    | undefined;
+  if (!row) return null;
+  return { ...row, assessment_ids: getAssessmentIds(id) };
 }
 
-export function getReports(projectId?: string): Report[] {
-  if (projectId) {
-    return getDb()
-      .prepare('SELECT * FROM reports WHERE project_id = ? ORDER BY created_at DESC')
-      .all(projectId) as Report[];
-  }
-  return getDb().prepare('SELECT * FROM reports ORDER BY created_at DESC').all() as Report[];
+export function getReports(): Report[] {
+  const rows = getDb().prepare('SELECT * FROM reports ORDER BY created_at DESC').all() as Omit<
+    Report,
+    'assessment_ids'
+  >[];
+  return rows.map((r) => ({ ...r, assessment_ids: getAssessmentIds(r.id) }));
+}
+
+function getAssessmentIds(reportId: string): string[] {
+  const rows = getDb()
+    .prepare('SELECT assessment_id FROM report_assessments WHERE report_id = ?')
+    .all(reportId) as { assessment_id: string }[];
+  return rows.map((r) => r.assessment_id);
 }
 
 export function createReport(input: CreateReportInput): Report {
   const id = crypto.randomUUID();
   const db = getDb();
   db.prepare(
-    `INSERT INTO reports (id, project_id, title, type, content, template_id, ai_generated)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(
-    id,
-    input.project_id,
-    input.title,
-    input.type ?? 'detailed',
-    input.content ? JSON.stringify(input.content) : '[]',
-    input.template_id ?? null,
-    input.ai_generated ? 1 : 0
+    `INSERT INTO reports (id, title, type, content, template_id, ai_generated)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(id, input.title, 'detailed', input.content ? JSON.stringify(input.content) : '{}', null, 0);
+  const insert = db.prepare(
+    'INSERT INTO report_assessments (report_id, assessment_id) VALUES (?, ?)'
   );
+  for (const aId of input.assessment_ids) {
+    insert.run(id, aId);
+  }
   return getReport(id)!;
 }
 
 export function updateReport(id: string, input: UpdateReportInput): Report | null {
   const existing = getReport(id);
   if (!existing) return null;
-
-  // Published reports are immutable
   if (existing.status === 'published') return null;
 
   const fields: string[] = [];
@@ -74,31 +68,29 @@ export function updateReport(id: string, input: UpdateReportInput): Report | nul
     fields.push('title = ?');
     values.push(input.title);
   }
-  if (input.type !== undefined) {
-    fields.push('type = ?');
-    values.push(input.type);
-  }
   if (input.content !== undefined) {
     fields.push('content = ?');
     values.push(JSON.stringify(input.content));
   }
-  if (input.template_id !== undefined) {
-    fields.push('template_id = ?');
-    values.push(input.template_id);
+
+  if (fields.length > 0) {
+    fields.push("updated_at = datetime('now')");
+    values.push(id);
+    getDb()
+      .prepare(`UPDATE reports SET ${fields.join(', ')} WHERE id = ?`)
+      .run(...values);
   }
-  if (input.ai_generated !== undefined) {
-    fields.push('ai_generated = ?');
-    values.push(input.ai_generated ? 1 : 0);
+
+  if (input.assessment_ids !== undefined) {
+    const db = getDb();
+    db.prepare('DELETE FROM report_assessments WHERE report_id = ?').run(id);
+    const insert = db.prepare(
+      'INSERT INTO report_assessments (report_id, assessment_id) VALUES (?, ?)'
+    );
+    for (const aId of input.assessment_ids) {
+      insert.run(id, aId);
+    }
   }
-
-  if (fields.length === 0) return existing;
-
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
-
-  getDb()
-    .prepare(`UPDATE reports SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
 
   return getReport(id);
 }
@@ -111,31 +103,34 @@ export function deleteReport(id: string): boolean {
 export function publishReport(id: string): Report | null {
   const existing = getReport(id);
   if (!existing) return null;
-
-  // Already published — return as-is to preserve original published_at
   if (existing.status === 'published') return existing;
-
   getDb()
     .prepare(
       `UPDATE reports SET status = 'published', published_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
     )
     .run(id);
-
   return getReport(id);
 }
 
 export function unpublishReport(id: string): Report | null {
   const existing = getReport(id);
   if (!existing) return null;
-
-  // Already draft — return as-is
   if (existing.status === 'draft') return existing;
-
   getDb()
     .prepare(
       `UPDATE reports SET status = 'draft', published_at = NULL, updated_at = datetime('now') WHERE id = ?`
     )
     .run(id);
-
   return getReport(id);
+}
+
+export function getReportIssues(reportId: string): Issue[] {
+  return getDb()
+    .prepare(
+      `SELECT i.* FROM issues i
+       JOIN report_assessments ra ON ra.assessment_id = i.assessment_id
+       WHERE ra.report_id = ?
+       ORDER BY i.created_at DESC`
+    )
+    .all(reportId) as Issue[];
 }

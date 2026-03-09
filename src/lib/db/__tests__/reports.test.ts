@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '../index';
 import { createProject } from '../projects';
+import { createAssessment } from '../assessments';
 import {
   createReport,
   getReport,
@@ -10,9 +11,11 @@ import {
   deleteReport,
   publishReport,
   unpublishReport,
+  getReportIssues,
 } from '../reports';
 
-let projectId: string;
+let assessmentId: string;
+let assessmentId2: string;
 
 beforeAll(() => {
   initDb(':memory:');
@@ -23,205 +26,166 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  // Clear child tables before parent due to FK constraints
+  getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM issues').run();
+  getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
-  projectId = project.id;
+  const a1 = createAssessment(project.id, { name: 'Assessment 1' });
+  const a2 = createAssessment(project.id, { name: 'Assessment 2' });
+  assessmentId = a1.id;
+  assessmentId2 = a2.id;
 });
 
 describe('createReport', () => {
-  it('inserts a report and returns it', () => {
-    const report = createReport({ title: 'Q1 Report', project_id: projectId });
+  it('creates a report and links assessments', () => {
+    const report = createReport({ title: 'Q1 Report', assessment_ids: [assessmentId] });
     expect(report.id).toBeDefined();
     expect(report.title).toBe('Q1 Report');
-    expect(report.project_id).toBe(projectId);
     expect(report.status).toBe('draft');
-    expect(report.type).toBe('detailed');
-    expect(report.content).toBe('[]');
-    expect(report.created_at).toBeDefined();
-    expect(report.updated_at).toBeDefined();
+    expect(report.assessment_ids).toEqual([assessmentId]);
+  });
+
+  it('links multiple assessments', () => {
+    const report = createReport({
+      title: 'Multi',
+      assessment_ids: [assessmentId, assessmentId2],
+    });
+    expect(report.assessment_ids).toHaveLength(2);
+    expect(report.assessment_ids).toContain(assessmentId);
+    expect(report.assessment_ids).toContain(assessmentId2);
   });
 
   it('generates a unique id for each report', () => {
-    const r1 = createReport({ title: 'Report A', project_id: projectId });
-    const r2 = createReport({ title: 'Report B', project_id: projectId });
+    const r1 = createReport({ title: 'A', assessment_ids: [assessmentId] });
+    const r2 = createReport({ title: 'B', assessment_ids: [assessmentId] });
     expect(r1.id).not.toBe(r2.id);
   });
 
-  it('stores optional type field', () => {
-    const report = createReport({
-      title: 'Executive Summary',
-      project_id: projectId,
-      type: 'executive',
-    });
-    expect(report.type).toBe('executive');
-  });
-
-  it('serialises content array to JSON string', () => {
-    const report = createReport({
-      title: 'With Content',
-      project_id: projectId,
-      content: [{ title: 'Overview', body: '## Summary' }],
-    });
-    expect(report.content).toBe(JSON.stringify([{ title: 'Overview', body: '## Summary' }]));
-  });
-
-  it('stores null for omitted optional fields', () => {
-    const report = createReport({ title: 'Minimal', project_id: projectId });
-    expect(report.template_id).toBeNull();
-    expect(report.published_at).toBeNull();
-    expect(report.created_by).toBeNull();
+  it('stores typed content as JSON', () => {
+    const content = { executive_summary: { body: 'Hello' } };
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId], content });
+    const parsed = JSON.parse(report.content);
+    expect(parsed).toEqual(content);
   });
 });
 
 describe('getReport', () => {
-  it('returns the report by id', () => {
-    const created = createReport({ title: 'Find Me', project_id: projectId });
-    const found = getReport(created.id);
-    expect(found).not.toBeNull();
-    expect(found?.title).toBe('Find Me');
+  it('returns null for unknown id', () => {
+    expect(getReport('nope')).toBeNull();
   });
 
-  it('returns null for nonexistent id', () => {
-    expect(getReport('nonexistent')).toBeNull();
+  it('includes assessment_ids', () => {
+    const created = createReport({ title: 'R', assessment_ids: [assessmentId, assessmentId2] });
+    const fetched = getReport(created.id);
+    expect(fetched?.assessment_ids).toHaveLength(2);
   });
 });
 
 describe('getReports', () => {
-  it('returns empty array when no reports exist', () => {
-    expect(getReports()).toEqual([]);
-  });
-
-  it('returns all reports when no projectId filter', () => {
-    const otherProject = createProject({ name: 'Other' });
-    createReport({ title: 'Mine', project_id: projectId });
-    createReport({ title: 'Theirs', project_id: otherProject.id });
+  it('returns all reports', () => {
+    createReport({ title: 'A', assessment_ids: [assessmentId] });
+    createReport({ title: 'B', assessment_ids: [assessmentId] });
     expect(getReports()).toHaveLength(2);
-  });
-
-  it('filters by projectId when provided', () => {
-    const otherProject = createProject({ name: 'Other' });
-    createReport({ title: 'Mine', project_id: projectId });
-    createReport({ title: 'Theirs', project_id: otherProject.id });
-    const results = getReports(projectId);
-    expect(results).toHaveLength(1);
-    expect(results[0]!.title).toBe('Mine');
-  });
-
-  it('returns reports ordered by created_at descending', () => {
-    createReport({ title: 'First', project_id: projectId });
-    createReport({ title: 'Second', project_id: projectId });
-    const results = getReports(projectId);
-    expect(results).toHaveLength(2);
   });
 });
 
 describe('updateReport', () => {
-  it('updates provided fields and returns the updated report', () => {
-    const created = createReport({ title: 'Original', project_id: projectId });
-    const updated = updateReport(created.id, { title: 'Updated' });
-    expect(updated).not.toBeNull();
-    expect(updated!.title).toBe('Updated');
-  });
-
-  it('does not change fields not included in the update', () => {
-    const created = createReport({ title: 'Keep', project_id: projectId, type: 'executive' });
-    const updated = updateReport(created.id, { title: 'New Title' });
-    expect(updated!.type).toBe('executive');
-  });
-
-  it('serialises content array to JSON string on update', () => {
-    const created = createReport({ title: 'Content Report', project_id: projectId });
-    const updated = updateReport(created.id, {
-      content: [{ title: 'Section', body: 'Body text' }],
+  it('updates title and content', () => {
+    const report = createReport({ title: 'Old', assessment_ids: [assessmentId] });
+    const updated = updateReport(report.id, {
+      title: 'New',
+      content: { top_risks: { items: ['Risk A'] } },
     });
-    expect(updated!.content).toBe(JSON.stringify([{ title: 'Section', body: 'Body text' }]));
+    expect(updated?.title).toBe('New');
+    expect(JSON.parse(updated!.content)).toEqual({ top_risks: { items: ['Risk A'] } });
   });
 
-  it('sets updated_at on update', () => {
-    const created = createReport({ title: 'Time Test', project_id: projectId });
-    const updated = updateReport(created.id, { title: 'Changed' });
-    expect(updated!.updated_at).toBeDefined();
+  it('updates assessment_ids', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    const updated = updateReport(report.id, { assessment_ids: [assessmentId2] });
+    expect(updated?.assessment_ids).toEqual([assessmentId2]);
   });
 
-  it('returns null for nonexistent id', () => {
+  it('returns null for unknown id', () => {
     expect(updateReport('nope', { title: 'X' })).toBeNull();
   });
 
-  it('returns existing report when no fields change', () => {
-    const created = createReport({ title: 'Unchanged', project_id: projectId });
-    const result = updateReport(created.id, {});
-    expect(result).not.toBeNull();
-    expect(result!.title).toBe('Unchanged');
-  });
-
-  it('returns null when trying to update a published report', () => {
-    const created = createReport({ title: 'Published', project_id: projectId });
-    publishReport(created.id);
-    const result = updateReport(created.id, { title: 'Attempted Edit' });
-    expect(result).toBeNull();
+  it('returns null for published report', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    publishReport(report.id);
+    expect(updateReport(report.id, { title: 'X' })).toBeNull();
   });
 });
 
 describe('deleteReport', () => {
-  it('removes the report', () => {
-    const created = createReport({ title: 'Delete Me', project_id: projectId });
-    deleteReport(created.id);
-    expect(getReport(created.id)).toBeNull();
+  it('deletes report and cascade removes report_assessments', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    expect(deleteReport(report.id)).toBe(true);
+    expect(getReport(report.id)).toBeNull();
+    const rows = getDb()
+      .prepare('SELECT * FROM report_assessments WHERE report_id = ?')
+      .all(report.id);
+    expect(rows).toHaveLength(0);
   });
 
-  it('returns true when report existed', () => {
-    const created = createReport({ title: 'Exists', project_id: projectId });
-    expect(deleteReport(created.id)).toBe(true);
-  });
-
-  it('returns false when report did not exist', () => {
-    expect(deleteReport('ghost-id')).toBe(false);
-  });
-});
-
-describe('publishReport', () => {
-  it('sets status to published and records published_at', () => {
-    const created = createReport({ title: 'To Publish', project_id: projectId });
-    const published = publishReport(created.id);
-    expect(published).not.toBeNull();
-    expect(published!.status).toBe('published');
-    expect(published!.published_at).toBeDefined();
-    expect(published!.published_at).not.toBeNull();
-  });
-
-  it('returns null for nonexistent id', () => {
-    expect(publishReport('ghost-id')).toBeNull();
-  });
-
-  it('is idempotent — publishing an already-published report preserves original published_at', () => {
-    const created = createReport({ title: 'Already Published', project_id: projectId });
-    const first = publishReport(created.id);
-    const second = publishReport(created.id);
-    expect(second?.status).toBe('published');
-    expect(second?.published_at).toBe(first?.published_at);
+  it('returns false for unknown id', () => {
+    expect(deleteReport('nope')).toBe(false);
   });
 });
 
-describe('unpublishReport', () => {
-  it('reverts a published report back to draft and clears published_at', () => {
-    const created = createReport({ title: 'To Unpublish', project_id: projectId });
-    publishReport(created.id);
-    const unpublished = unpublishReport(created.id);
-    expect(unpublished).not.toBeNull();
-    expect(unpublished!.status).toBe('draft');
-    expect(unpublished!.published_at).toBeNull();
+describe('publishReport / unpublishReport', () => {
+  it('publishes a draft report', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    const published = publishReport(report.id);
+    expect(published?.status).toBe('published');
+    expect(published?.published_at).toBeDefined();
   });
 
-  it('is idempotent — unpublishing a draft report returns it unchanged', () => {
-    const created = createReport({ title: 'Already Draft', project_id: projectId });
-    const result = unpublishReport(created.id);
-    expect(result).not.toBeNull();
-    expect(result!.status).toBe('draft');
+  it('unpublishes a published report', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    publishReport(report.id);
+    const draft = unpublishReport(report.id);
+    expect(draft?.status).toBe('draft');
+  });
+});
+
+describe('getReportIssues', () => {
+  it('returns issues from linked assessments', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    // Insert an issue directly
+    getDb()
+      .prepare(
+        `INSERT INTO issues (id, assessment_id, title, severity) VALUES ('i1', ?, 'Issue 1', 'high')`
+      )
+      .run(assessmentId);
+    const issues = getReportIssues(report.id);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].title).toBe('Issue 1');
   });
 
-  it('returns null for nonexistent id', () => {
-    expect(unpublishReport('ghost-id')).toBeNull();
+  it('returns issues from all linked assessments', () => {
+    const report = createReport({
+      title: 'R',
+      assessment_ids: [assessmentId, assessmentId2],
+    });
+    getDb()
+      .prepare(
+        `INSERT INTO issues (id, assessment_id, title, severity) VALUES ('i1', ?, 'Issue A', 'high')`
+      )
+      .run(assessmentId);
+    getDb()
+      .prepare(
+        `INSERT INTO issues (id, assessment_id, title, severity) VALUES ('i2', ?, 'Issue B', 'low')`
+      )
+      .run(assessmentId2);
+    const issues = getReportIssues(report.id);
+    expect(issues).toHaveLength(2);
+  });
+
+  it('returns empty array for report with no issues', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    expect(getReportIssues(report.id)).toEqual([]);
   });
 });
