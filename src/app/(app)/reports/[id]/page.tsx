@@ -99,7 +99,9 @@ export default async function ReportDetailPage({ params }: PageProps) {
               )}
 
               {(content.top_risks || content.quick_wins) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  className={`grid grid-cols-1 gap-4 ${content.top_risks && content.quick_wins ? 'sm:grid-cols-2' : ''}`}
+                >
                   {content.top_risks && (
                     <Card>
                       <CardHeader>

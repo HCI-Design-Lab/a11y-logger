@@ -39,7 +39,7 @@ function buildSectionsHtml(content: ReportContent): string {
     parts.push(`
       <section class="report-section">
         <h2>Executive Summary</h2>
-        <div class="section-body">${escapeHtml(content.executive_summary.body)}</div>
+        <div class="section-body">${content.executive_summary.body}</div>
       </section>`);
   }
 
@@ -195,7 +195,6 @@ export function generateReportHtml(report: Report, project: Project): string {
     }
 
     .section-body {
-      white-space: pre-wrap;
       font-size: 11pt;
     }
 
