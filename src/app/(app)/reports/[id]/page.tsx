@@ -12,6 +12,7 @@ import { PublishReportButton } from '@/components/reports/publish-report-button'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { ReportWcagCriteriaList } from '@/components/reports/report-wcag-criteria-list';
+import DOMPurify from 'isomorphic-dompurify';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -87,9 +88,12 @@ export default async function ReportDetailPage({ params }: PageProps) {
                     <CardTitle>Executive Summary</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {content.executive_summary.body}
-                    </p>
+                    <div
+                      className="text-sm leading-relaxed [&_p]:mb-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground [&_strong]:font-semibold [&_em]:italic"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(content.executive_summary.body),
+                      }}
+                    />
                   </CardContent>
                 </Card>
               )}
