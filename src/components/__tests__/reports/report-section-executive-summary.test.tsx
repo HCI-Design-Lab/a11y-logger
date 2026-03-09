@@ -1,22 +1,33 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('@/components/ui/rich-text-editor', () => ({
+  RichTextEditor: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
+    <div data-testid="rich-text-editor">
+      <div data-testid="editor-value">{value}</div>
+      <button onClick={() => onChange('<p>New text</p>')}>trigger-change</button>
+    </div>
+  ),
+}));
+
 import { ExecutiveSummarySection } from '@/components/reports/report-section-executive-summary';
 
 describe('ExecutiveSummarySection', () => {
-  it('renders textarea with current value', () => {
+  it('renders the rich text editor with current value', () => {
     render(
       <ExecutiveSummarySection
-        body="Current summary"
+        body="<p>Current summary</p>"
         onChange={vi.fn()}
         onDelete={vi.fn()}
         onGenerate={vi.fn()}
         isGenerating={false}
       />
     );
-    expect(screen.getByDisplayValue('Current summary')).toBeInTheDocument();
+    expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument();
+    expect(screen.getByTestId('editor-value')).toHaveTextContent('Current summary');
   });
 
-  it('calls onChange when textarea changes', () => {
+  it('calls onChange when editor changes', () => {
     const onChange = vi.fn();
     render(
       <ExecutiveSummarySection
@@ -27,8 +38,8 @@ describe('ExecutiveSummarySection', () => {
         isGenerating={false}
       />
     );
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'New text' } });
-    expect(onChange).toHaveBeenCalledWith('New text');
+    fireEvent.click(screen.getByRole('button', { name: 'trigger-change' }));
+    expect(onChange).toHaveBeenCalledWith('<p>New text</p>');
   });
 
   it('calls onDelete when trash icon clicked', () => {

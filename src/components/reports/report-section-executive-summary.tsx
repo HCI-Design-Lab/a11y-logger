@@ -1,7 +1,7 @@
 'use client';
 import { Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 
 interface Props {
   body: string;
@@ -44,11 +44,10 @@ export function ExecutiveSummarySection({
           </Button>
         </div>
       </div>
-      <Textarea
+      <RichTextEditor
         value={body}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         placeholder="Write your executive summary…"
-        rows={8}
       />
     </div>
   );
