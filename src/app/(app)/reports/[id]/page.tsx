@@ -24,40 +24,6 @@ const PERSONA_LABELS: Record<string, string> = {
   deaf_hard_of_hearing: 'Deaf / hard of hearing',
 };
 
-function RisksWinsGrid({
-  topRisks,
-  quickWins,
-}: {
-  topRisks?: { items: string[] };
-  quickWins?: { items: string[] };
-}) {
-  if (!topRisks && !quickWins) return null;
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      {topRisks && (
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Top Risks</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-            {topRisks.items.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {quickWins && (
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Quick Wins</h3>
-          <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-            {quickWins.items.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default async function ReportDetailPage({ params }: PageProps) {
   const { id } = await params;
   const report = getReport(id);
@@ -112,25 +78,50 @@ export default async function ReportDetailPage({ params }: PageProps) {
             </p>
           ) : (
             <div className="space-y-8">
-              {/* Executive Summary card — includes top risks & quick wins */}
               {content.executive_summary && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Executive Summary</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">
                       {content.executive_summary.body}
                     </p>
-
-                    <RisksWinsGrid topRisks={content.top_risks} quickWins={content.quick_wins} />
                   </CardContent>
                 </Card>
               )}
 
-              {/* Top Risks / Quick Wins standalone (when no exec summary) */}
-              {!content.executive_summary && (content.top_risks || content.quick_wins) && (
-                <RisksWinsGrid topRisks={content.top_risks} quickWins={content.quick_wins} />
+              {(content.top_risks || content.quick_wins) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {content.top_risks && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Top Risks</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+                          {content.top_risks.items.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
+                  {content.quick_wins && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Quick Wins</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+                          {content.quick_wins.items.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               )}
 
               {/* Persona Summaries */}
