@@ -58,4 +58,12 @@ describe('ReportIssuesPanel', () => {
     render(<ReportIssuesPanel issues={[]} />);
     expect(screen.getByText(/no issues/i)).toBeInTheDocument();
   });
+
+  it('shows "Open full issue" link in detail view', () => {
+    render(<ReportIssuesPanel issues={mockIssues} />);
+    fireEvent.click(screen.getByText('Button not focusable'));
+    const link = screen.getByRole('link', { name: /open full issue/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('target', '_blank');
+  });
 });

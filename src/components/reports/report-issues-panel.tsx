@@ -54,17 +54,15 @@ export function ReportIssuesPanel({ issues }: Props) {
               </div>
             </div>
           )}
-          {selected.url && (
-            <a
-              href={`/issues/${selected.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
-            >
-              Open full issue
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
+          <a
+            href={`/issues/${selected.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            Open full issue
+            <ExternalLink className="h-3 w-3" />
+          </a>
         </div>
       </div>
     );
