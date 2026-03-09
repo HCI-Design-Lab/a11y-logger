@@ -1,13 +1,13 @@
 import { getDb } from './index';
-import type { CreateReportInput, UpdateReportInput } from '../validators/reports';
+import type { CreateReportInput, UpdateReportInput, ReportContent } from '../validators/reports';
 import type { Issue } from './issues';
 
 export interface Report {
   id: string;
-  type: string;
+  type: 'executive' | 'detailed' | 'custom';
   title: string;
   status: 'draft' | 'published';
-  content: string; // JSON string of ReportContent
+  content: string; // serialized ReportContent
   template_id: string | null;
   ai_generated: number;
   created_by: string | null;
@@ -15,6 +15,14 @@ export interface Report {
   created_at: string;
   updated_at: string;
   assessment_ids: string[]; // derived from report_assessments
+}
+
+export function parseReportContent(content: string): ReportContent {
+  try {
+    return JSON.parse(content) as ReportContent;
+  } catch {
+    return {} as ReportContent;
+  }
 }
 
 export function getReport(id: string): Report | null {
@@ -61,36 +69,37 @@ export function updateReport(id: string, input: UpdateReportInput): Report | nul
   if (!existing) return null;
   if (existing.status === 'published') return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  const db = getDb();
 
-  if (input.title !== undefined) {
-    fields.push('title = ?');
-    values.push(input.title);
-  }
-  if (input.content !== undefined) {
-    fields.push('content = ?');
-    values.push(JSON.stringify(input.content));
-  }
+  db.transaction(() => {
+    const fields: string[] = [];
+    const values: unknown[] = [];
 
-  if (fields.length > 0) {
-    fields.push("updated_at = datetime('now')");
-    values.push(id);
-    getDb()
-      .prepare(`UPDATE reports SET ${fields.join(', ')} WHERE id = ?`)
-      .run(...values);
-  }
-
-  if (input.assessment_ids !== undefined) {
-    const db = getDb();
-    db.prepare('DELETE FROM report_assessments WHERE report_id = ?').run(id);
-    const insert = db.prepare(
-      'INSERT INTO report_assessments (report_id, assessment_id) VALUES (?, ?)'
-    );
-    for (const aId of input.assessment_ids) {
-      insert.run(id, aId);
+    if (input.title !== undefined) {
+      fields.push('title = ?');
+      values.push(input.title);
     }
-  }
+    if (input.content !== undefined) {
+      fields.push('content = ?');
+      values.push(JSON.stringify(input.content));
+    }
+
+    if (fields.length > 0) {
+      fields.push("updated_at = datetime('now')");
+      values.push(id);
+      db.prepare(`UPDATE reports SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    }
+
+    if (input.assessment_ids !== undefined) {
+      db.prepare('DELETE FROM report_assessments WHERE report_id = ?').run(id);
+      const insert = db.prepare(
+        'INSERT INTO report_assessments (report_id, assessment_id) VALUES (?, ?)'
+      );
+      for (const aId of input.assessment_ids) {
+        insert.run(id, aId);
+      }
+    }
+  })();
 
   return getReport(id);
 }
