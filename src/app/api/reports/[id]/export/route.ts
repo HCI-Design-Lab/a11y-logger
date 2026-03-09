@@ -46,13 +46,20 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
+    // Guard: report must have at least one linked assessment
+    if (report.assessment_ids.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Report has no linked assessments', code: 'UNPROCESSABLE_ENTITY' },
+        { status: 422 }
+      );
+    }
+
     // Derive the project from the first linked assessment
-    const firstAssessmentId = report.assessment_ids[0];
-    const assessment = firstAssessmentId ? getAssessment(firstAssessmentId) : null;
+    const assessment = getAssessment(report.assessment_ids[0]);
     const project = assessment ? getProject(assessment.project_id) : null;
     if (!project) {
       return NextResponse.json(
-        { success: false, error: 'Project not found', code: 'NOT_FOUND' },
+        { success: false, error: 'No project found for linked assessments', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }

@@ -7,6 +7,7 @@ import { createReport } from '@/lib/db/reports';
 import { GET } from '../route';
 
 let reportId: string;
+let assessmentId: string;
 
 function makeContext(id: string) {
   return { params: Promise.resolve({ id }) };
@@ -27,6 +28,7 @@ beforeEach(() => {
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
   const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  assessmentId = assessment.id;
   const report = createReport({
     title: 'Accessibility Audit Report',
     assessment_ids: [assessment.id],
@@ -82,6 +84,22 @@ describe('GET /api/reports/[id]/export', () => {
       const text = await response.text();
       expect(text).toContain('<!DOCTYPE html>');
       expect(text).toContain('<html');
+    });
+
+    it('includes report content in HTML output', async () => {
+      // Create a report with executive summary content
+      const reportWithContent = createReport({
+        title: 'Content Report',
+        assessment_ids: [assessmentId],
+        content: { executive_summary: { body: 'Test summary text' } },
+      });
+
+      const req = new Request(
+        `http://localhost/api/reports/${reportWithContent.id}/export?format=html`
+      );
+      const res = await GET(req, { params: Promise.resolve({ id: reportWithContent.id }) });
+      const text = await res.text();
+      expect(text).toContain('Content Report');
     });
   });
 

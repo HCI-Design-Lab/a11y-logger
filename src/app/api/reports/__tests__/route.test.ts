@@ -72,4 +72,20 @@ describe('GET /api/reports', () => {
     expect(json.success).toBe(true);
     expect(json.data).toEqual([]);
   });
+
+  it('returns all reports', async () => {
+    await POST(
+      new Request('http://localhost/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Report A', assessment_ids: [assessmentId] }),
+      })
+    );
+    const req = new Request('http://localhost/api/reports');
+    const res = await GET(req);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data).toHaveLength(1);
+    expect(json.data[0].assessment_ids).toContain(assessmentId);
+  });
 });
