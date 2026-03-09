@@ -22,6 +22,10 @@ const mockReport = {
 };
 
 describe('ReportEditForm', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders section placeholder cards when content is empty', () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     expect(screen.getByText(/add executive summary/i)).toBeInTheDocument();
@@ -59,5 +63,36 @@ describe('ReportEditForm', () => {
   it('renders Save Report button', () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     expect(screen.getByRole('button', { name: /save report/i })).toBeInTheDocument();
+  });
+
+  it('shows error toast when save fails', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: async () => ({ success: false, error: 'Server error' }),
+    } as Response);
+
+    const { toast } = await import('sonner');
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: /save report/i }));
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Server error');
+    });
+  });
+
+  it('disables save button while saving', async () => {
+    let resolvePromise: (value: Response) => void;
+    const pending = new Promise<Response>((resolve) => {
+      resolvePromise = resolve;
+    });
+    vi.spyOn(global, 'fetch').mockReturnValueOnce(pending);
+
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: /save report/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
+    });
+
+    // Resolve to clean up
+    resolvePromise!({ json: async () => ({ success: true, data: {} }) } as Response);
   });
 });
