@@ -104,6 +104,36 @@ export class AnthropicProvider implements AIProvider {
     return data.content[0].text as string;
   }
 
+  async generateExecutiveSummaryHtml(context: string): Promise<string> {
+    if (!this.apiKey) throw new Error('No API key configured');
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: 2048,
+        system:
+          'You are an accessibility report writer. Return only valid HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, and <blockquote> tags. No markdown. No surrounding code blocks. No other HTML elements.',
+        messages: [
+          {
+            role: 'user',
+            content: `Write the Executive Summary section for an accessibility audit report based on:\n\n${context}`,
+          },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
+    const data = await res.json();
+    return data.content[0].text as string;
+  }
+
   async generateVpatRemarks(issueSummary: string, criterion: string): Promise<string> {
     if (!this.apiKey) throw new Error('No API key configured');
     const res = await fetch('https://api.anthropic.com/v1/messages', {

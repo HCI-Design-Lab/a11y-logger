@@ -11,6 +11,7 @@ export interface AIAnalysisResult {
 export interface AIProvider {
   analyzeIssue(plainText: string): Promise<AIAnalysisResult>;
   generateReportSection(context: string, sectionTitle: string): Promise<string>;
+  generateExecutiveSummaryHtml(context: string): Promise<string>;
   generateVpatRemarks(issueSummary: string, criterion: string): Promise<string>;
   testConnection(): Promise<{ ok: boolean; error?: string }>;
 }

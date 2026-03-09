@@ -95,6 +95,34 @@ export class OpenAIProvider implements AIProvider {
     return data.choices[0].message.content as string;
   }
 
+  async generateExecutiveSummaryHtml(context: string): Promise<string> {
+    if (!this.apiKey) throw new Error('No API key configured');
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
+      body: JSON.stringify({
+        model: this.model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an accessibility report writer. Return only valid HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, and <blockquote> tags. No markdown. No surrounding code blocks. No other HTML elements.',
+          },
+          {
+            role: 'user',
+            content: `Write the Executive Summary section for an accessibility audit report based on:\n\n${context}`,
+          },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
+    const data = await res.json();
+    return data.choices[0].message.content as string;
+  }
+
   async generateVpatRemarks(issueSummary: string, criterion: string): Promise<string> {
     if (!this.apiKey) throw new Error('No API key configured');
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
