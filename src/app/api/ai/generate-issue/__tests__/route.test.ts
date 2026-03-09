@@ -14,6 +14,7 @@ const mockProvider = {
   analyzeIssue: vi.fn(),
   generateReportSection: vi.fn(),
   generateVpatRemarks: vi.fn(),
+  generateExecutiveSummaryHtml: vi.fn(),
   testConnection: vi.fn(),
 };
 
