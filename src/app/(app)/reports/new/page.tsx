@@ -2,11 +2,20 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getProjects } from '@/lib/db/projects';
-import { ReportForm } from '@/components/reports/report-form';
+import { getAssessments } from '@/lib/db/assessments';
+import { ReportWizard } from '@/components/reports/report-wizard';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 export default function NewReportPage() {
   const projects = getProjects().map((p) => ({ id: p.id, name: p.name }));
+  const assessments = projects.flatMap((p) =>
+    getAssessments(p.id).map((a) => ({
+      id: a.id,
+      project_id: a.project_id,
+      name: a.name,
+      status: a.status,
+    }))
+  );
 
   return (
     <div>
@@ -24,7 +33,7 @@ export default function NewReportPage() {
           </Link>
         </div>
       ) : (
-        <ReportForm projects={projects} />
+        <ReportWizard projects={projects} assessments={assessments} />
       )}
     </div>
   );
