@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExecutiveSummarySection } from './report-section-executive-summary';
 import { TopRisksSection } from './report-section-top-risks';
 import { QuickWinsSection } from './report-section-quick-wins';
@@ -195,12 +196,14 @@ export function ReportEditForm({ report, issues }: Props) {
 
       {/* Right: issues panel */}
       <aside>
-        <div className="rounded-lg border p-4">
-          <h2 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-            Issues list
-          </h2>
-          <ReportIssuesPanel issues={issues} />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Issues list</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReportIssuesPanel issues={issues} />
+          </CardContent>
+        </Card>
       </aside>
 
       {/* Delete confirmation modal */}

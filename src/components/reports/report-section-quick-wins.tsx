@@ -1,6 +1,7 @@
 'use client';
 import { Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
 interface Props {
@@ -21,9 +22,9 @@ export function QuickWinsSection({ items, onChange, onDelete, onGenerate, isGene
   };
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Quick Wins</h3>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle>Quick Wins</CardTitle>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -45,19 +46,21 @@ export function QuickWinsSection({ items, onChange, onDelete, onGenerate, isGene
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-      <ol className="space-y-2">
-        {normalizedItems.map((item, index) => (
-          <li key={index} className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground w-4 shrink-0">{index + 1}.</span>
-            <Input
-              value={item}
-              onChange={(e) => handleItemChange(index, e.target.value)}
-              placeholder={`Quick win ${index + 1}`}
-            />
-          </li>
-        ))}
-      </ol>
-    </div>
+      </CardHeader>
+      <CardContent>
+        <ol className="space-y-2">
+          {normalizedItems.map((item, index) => (
+            <li key={index} className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground w-4 shrink-0">{index + 1}.</span>
+              <Input
+                value={item}
+                onChange={(e) => handleItemChange(index, e.target.value)}
+                placeholder={`Quick win ${index + 1}`}
+              />
+            </li>
+          ))}
+        </ol>
+      </CardContent>
+    </Card>
   );
 }

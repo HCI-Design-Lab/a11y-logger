@@ -1,6 +1,7 @@
 'use client';
 import { Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import type { ReportContent } from '@/lib/validators/reports';
@@ -30,9 +31,9 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
   };
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold">User Impact</h3>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle>User Impact</CardTitle>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -54,21 +55,23 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        {IMPACT_FIELDS.map(({ key, label }) => (
-          <div key={key} className="space-y-1">
-            <Label htmlFor={`user-impact-${key}`}>{label}</Label>
-            <Textarea
-              id={`user-impact-${key}`}
-              value={data[key]}
-              onChange={(e) => handleFieldChange(key, e.target.value)}
-              placeholder={label}
-              rows={3}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          {IMPACT_FIELDS.map(({ key, label }) => (
+            <div key={key} className="space-y-1">
+              <Label htmlFor={`user-impact-${key}`}>{label}</Label>
+              <Textarea
+                id={`user-impact-${key}`}
+                value={data[key]}
+                onChange={(e) => handleFieldChange(key, e.target.value)}
+                placeholder={label}
+                rows={3}
+              />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
