@@ -3,8 +3,7 @@ export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Pencil } from 'lucide-react';
-import { getReport, getReportStats } from '@/lib/db/reports';
-import type { ReportContent } from '@/lib/validators/reports';
+import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -25,6 +24,40 @@ const PERSONA_LABELS: Record<string, string> = {
   deaf_hard_of_hearing: 'Deaf / hard of hearing',
 };
 
+function RisksWinsGrid({
+  topRisks,
+  quickWins,
+}: {
+  topRisks?: { items: string[] };
+  quickWins?: { items: string[] };
+}) {
+  if (!topRisks && !quickWins) return null;
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {topRisks && (
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Top Risks</h3>
+          <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+            {topRisks.items.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {quickWins && (
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Quick Wins</h3>
+          <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+            {quickWins.items.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default async function ReportDetailPage({ params }: PageProps) {
   const { id } = await params;
   const report = getReport(id);
@@ -33,15 +66,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  let content: ReportContent = {};
-  try {
-    const raw = JSON.parse(report.content);
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-      content = raw as ReportContent;
-    }
-  } catch {
-    content = {};
-  }
+  const content = parseReportContent(report.content);
 
   const stats = getReportStats(id);
   const hasContent = Object.keys(content).length > 0;
@@ -98,58 +123,14 @@ export default async function ReportDetailPage({ params }: PageProps) {
                       {content.executive_summary.body}
                     </p>
 
-                    {(content.top_risks || content.quick_wins) && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {content.top_risks && (
-                          <div>
-                            <h3 className="text-sm font-semibold mb-2">Top Risks</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-                              {content.top_risks.items.map((item, i) => (
-                                <li key={i}>{item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {content.quick_wins && (
-                          <div>
-                            <h3 className="text-sm font-semibold mb-2">Quick Wins</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-                              {content.quick_wins.items.map((item, i) => (
-                                <li key={i}>{item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <RisksWinsGrid topRisks={content.top_risks} quickWins={content.quick_wins} />
                   </CardContent>
                 </Card>
               )}
 
               {/* Top Risks / Quick Wins standalone (when no exec summary) */}
               {!content.executive_summary && (content.top_risks || content.quick_wins) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {content.top_risks && (
-                    <div>
-                      <h2 className="text-xl font-semibold mb-3">Top Risks</h2>
-                      <ul className="list-disc list-inside space-y-2 text-sm leading-relaxed">
-                        {content.top_risks.items.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {content.quick_wins && (
-                    <div>
-                      <h2 className="text-xl font-semibold mb-3">Quick Wins</h2>
-                      <ul className="list-disc list-inside space-y-2 text-sm leading-relaxed">
-                        {content.quick_wins.items.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+                <RisksWinsGrid topRisks={content.top_risks} quickWins={content.quick_wins} />
               )}
 
               {/* Persona Summaries */}
