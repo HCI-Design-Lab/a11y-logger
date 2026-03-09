@@ -3,26 +3,26 @@ export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Pencil } from 'lucide-react';
-import { getReport } from '@/lib/db/reports';
+import { getReport, getReportStats } from '@/lib/db/reports';
 import type { ReportContent } from '@/lib/validators/reports';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { DeleteReportButton } from '@/components/reports/delete-report-button';
 import { PublishReportButton } from '@/components/reports/publish-report-button';
-import { getTypeBadgeClass, getStatusBadgeClass } from '@/components/reports/report-badge-utils';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { IssueStatistics } from '@/components/dashboard/issue-statistics';
+import { ReportWcagCriteriaList } from '@/components/reports/report-wcag-criteria-list';
 
 type PageProps = { params: Promise<{ id: string }> };
 
-const USER_IMPACT_LABELS: Record<string, string> = {
-  screen_reader: 'Screen Reader',
-  low_vision: 'Low Vision',
-  color_vision: 'Color Vision',
-  keyboard_only: 'Keyboard Only',
-  cognitive: 'Cognitive',
-  deaf_hard_of_hearing: 'Deaf / Hard of Hearing',
+const PERSONA_LABELS: Record<string, string> = {
+  screen_reader: 'Screen reader user',
+  low_vision: 'Low vision / magnification',
+  color_vision: 'Color vision deficiency',
+  keyboard_only: 'Keyboard-only / motor',
+  cognitive: 'Cognitive / attention',
+  deaf_hard_of_hearing: 'Deaf / hard of hearing',
 };
 
 export default async function ReportDetailPage({ params }: PageProps) {
@@ -33,7 +33,6 @@ export default async function ReportDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Parse content as ReportContent object
   let content: ReportContent = {};
   try {
     const raw = JSON.parse(report.content);
@@ -44,6 +43,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
     content = {};
   }
 
+  const stats = getReportStats(id);
   const hasContent = Object.keys(content).length > 0;
   const isPublished = report.status === 'published';
 
@@ -87,50 +87,89 @@ export default async function ReportDetailPage({ params }: PageProps) {
             </p>
           ) : (
             <div className="space-y-8">
+              {/* Executive Summary card — includes top risks & quick wins */}
               {content.executive_summary && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-3">Executive Summary</h2>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {content.executive_summary.body}
-                  </p>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Executive Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {content.executive_summary.body}
+                    </p>
+
+                    {(content.top_risks || content.quick_wins) && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {content.top_risks && (
+                          <div>
+                            <h3 className="text-sm font-semibold mb-2">Top Risks</h3>
+                            <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+                              {content.top_risks.items.map((item, i) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {content.quick_wins && (
+                          <div>
+                            <h3 className="text-sm font-semibold mb-2">Quick Wins</h3>
+                            <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
+                              {content.quick_wins.items.map((item, i) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Top Risks / Quick Wins standalone (when no exec summary) */}
+              {!content.executive_summary && (content.top_risks || content.quick_wins) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {content.top_risks && (
+                    <div>
+                      <h2 className="text-xl font-semibold mb-3">Top Risks</h2>
+                      <ul className="list-disc list-inside space-y-2 text-sm leading-relaxed">
+                        {content.top_risks.items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {content.quick_wins && (
+                    <div>
+                      <h2 className="text-xl font-semibold mb-3">Quick Wins</h2>
+                      <ul className="list-disc list-inside space-y-2 text-sm leading-relaxed">
+                        {content.quick_wins.items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {content.top_risks && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-3">Top Risks</h2>
-                  <ol className="list-decimal list-inside space-y-2 text-sm leading-relaxed">
-                    {content.top_risks.items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-
-              {content.quick_wins && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-3">Quick Wins</h2>
-                  <ol className="list-decimal list-inside space-y-2 text-sm leading-relaxed">
-                    {content.quick_wins.items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-
+              {/* Persona Summaries */}
               {content.user_impact && (
                 <div>
-                  <h2 className="text-xl font-semibold mb-3">User Impact</h2>
+                  <h2 className="text-xl font-semibold mb-4">Persona Summaries</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {(
                       Object.keys(content.user_impact) as Array<keyof typeof content.user_impact>
                     ).map((key) => (
-                      <div key={key} className="rounded-lg border p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-                          {USER_IMPACT_LABELS[key] ?? key}
-                        </p>
-                        <p className="text-sm leading-relaxed">{content.user_impact![key]}</p>
-                      </div>
+                      <Card key={key}>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm font-semibold">
+                            {PERSONA_LABELS[key] ?? key}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm leading-relaxed">{content.user_impact![key]}</p>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 </div>
@@ -140,46 +179,9 @@ export default async function ReportDetailPage({ params }: PageProps) {
         </div>
 
         {/* Sidebar */}
-        <aside className="lg:w-64 shrink-0">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Report Info
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Type</span>
-                <Badge className={getTypeBadgeClass(report.type)} variant="outline">
-                  {report.type}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <Badge className={getStatusBadgeClass(report.status)} variant="outline">
-                  {report.status}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Sections</span>
-                <span>{Object.keys(content).length}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Created</span>
-                <span>{new Date(report.created_at).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Updated</span>
-                <span>{new Date(report.updated_at).toLocaleDateString()}</span>
-              </div>
-              {report.published_at && (
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Published</span>
-                  <span>{new Date(report.published_at).toLocaleDateString()}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <aside className="lg:w-72 shrink-0 space-y-4">
+          <IssueStatistics total={stats.total} severityBreakdown={stats.severityBreakdown} />
+          <ReportWcagCriteriaList criteria={stats.wcagCriteriaCounts} />
         </aside>
       </div>
     </div>
