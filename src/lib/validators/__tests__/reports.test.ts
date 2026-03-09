@@ -62,6 +62,16 @@ describe('CreateReportSchema', () => {
     expect(result.success).toBe(true);
     expect((result as { data: { project_id?: string } }).data?.project_id).toBeUndefined();
   });
+
+  it('rejects empty title', () => {
+    const result = CreateReportSchema.safeParse({ title: '', assessment_ids: ['a'] });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects title over 200 characters', () => {
+    const result = CreateReportSchema.safeParse({ title: 'x'.repeat(201), assessment_ids: ['a'] });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('UpdateReportSchema', () => {
@@ -69,6 +79,26 @@ describe('UpdateReportSchema', () => {
     const result = UpdateReportSchema.safeParse({
       content: { executive_summary: { body: 'Updated' } },
     });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts empty object (no-op update)', () => {
+    const result = UpdateReportSchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects empty title string', () => {
+    const result = UpdateReportSchema.safeParse({ title: '' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects empty assessment_ids array', () => {
+    const result = UpdateReportSchema.safeParse({ assessment_ids: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts valid assessment_ids', () => {
+    const result = UpdateReportSchema.safeParse({ assessment_ids: ['a', 'b'] });
     expect(result.success).toBe(true);
   });
 });
