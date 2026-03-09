@@ -157,7 +157,7 @@ const SEVERITY_BADGE_STYLES: Record<string, string> = {
   low: 'background:#f8fafc;color:#475569;border:1px solid #cbd5e1',
 };
 
-function buildIssuesHtml(issues: Issue[]): string {
+function buildIssuesHtml(issues: Issue[], baseUrl = ''): string {
   if (issues.length === 0) {
     return `
       <section class="report-section">
@@ -274,7 +274,11 @@ function buildIssuesHtml(issues: Issue[]): string {
       <article aria-labelledby="issue-${i + 1}-title" style="margin-bottom:24px;padding:16px 20px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;page-break-inside:avoid">
         <header style="margin-bottom:12px">
           <h3 id="issue-${i + 1}-title" style="margin:0 0 8px;font-size:11pt;font-weight:bold;color:#0f172a;line-height:1.4">
-            <span style="color:#94a3b8;font-weight:400;margin-right:6px">#${i + 1}</span>${escapeHtml(issue.title)}
+            <span style="color:#94a3b8;font-weight:400;margin-right:6px">#${i + 1}</span>${
+              baseUrl
+                ? `<a href="${escapeHtml(baseUrl)}/issues/${escapeHtml(issue.id)}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${escapeHtml(issue.title)}</a>`
+                : escapeHtml(issue.title)
+            }
           </h3>
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">${badges}</div>
         </header>
@@ -363,22 +367,25 @@ function buildSectionsHtml(content: ReportContent): string {
  * Generates a complete, standalone HTML document for a report.
  * Suitable for direct download or browser print-to-PDF.
  */
-export type ExportVariant = 'default' | 'with-chart' | 'with-issues';
+export type ExportVariant = 'default' | 'with-chart' | 'with-issues' | 'with-all';
 
 export function generateReportHtml(
   report: Report,
   project: Project,
   variant: ExportVariant = 'default',
-  extras: { stats?: ReportStats; issues?: Issue[] } = {}
+  extras: { stats?: ReportStats; issues?: Issue[] } = {},
+  baseUrl = ''
 ): string {
   const content = parseContent(report.content);
   const sectionsHtml = buildSectionsHtml(content);
-  const extrasHtml =
-    variant === 'with-chart' && extras.stats
-      ? buildStatsHtml(extras.stats)
-      : variant === 'with-issues' && extras.issues
-        ? buildIssuesHtml(extras.issues)
-        : '';
+  const extraParts: string[] = [];
+  if ((variant === 'with-chart' || variant === 'with-all') && extras.stats) {
+    extraParts.push(buildStatsHtml(extras.stats));
+  }
+  if ((variant === 'with-issues' || variant === 'with-all') && extras.issues) {
+    extraParts.push(buildIssuesHtml(extras.issues, baseUrl));
+  }
+  const extrasHtml = extraParts.join('\n');
   const hasContent = Object.keys(content).length > 0;
 
   const generatedDate = new Date().toLocaleDateString('en-US', {

@@ -42,6 +42,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     'default',
     'with-chart',
     'with-issues',
+    'with-all',
   ] as const satisfies readonly ExportVariant[];
   const rawVariant = url.searchParams.get('variant') ?? 'default';
   if (!(VALID_VARIANTS as readonly string[]).includes(rawVariant)) {
@@ -84,13 +85,14 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const extras =
-      variant === 'with-chart'
-        ? { stats: getReportStats(report.id) }
-        : variant === 'with-issues'
-          ? { issues: getReportIssues(report.id) }
-          : {};
-    const html = generateReportHtml(report, project, variant, extras);
+    const needsStats = variant === 'with-chart' || variant === 'with-all';
+    const needsIssues = variant === 'with-issues' || variant === 'with-all';
+    const extras = {
+      ...(needsStats ? { stats: getReportStats(report.id) } : {}),
+      ...(needsIssues ? { issues: getReportIssues(report.id) } : {}),
+    };
+    const baseUrl = new URL(request.url).origin;
+    const html = generateReportHtml(report, project, variant, extras, baseUrl);
 
     // Sanitize title for use in filename
     const safeTitle =

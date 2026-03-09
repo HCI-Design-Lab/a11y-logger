@@ -92,6 +92,15 @@ export default async function ReportDetailPage({ params }: PageProps) {
                   With Issues
                 </a>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/reports/${report.id}/export?format=html&variant=with-all`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  All (Chart + Issues)
+                </a>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {!isPublished && (

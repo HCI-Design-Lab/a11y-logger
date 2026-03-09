@@ -196,4 +196,36 @@ describe('GET /api/reports/[id]/export', () => {
       expect(body.code).toBe('BAD_REQUEST');
     });
   });
+
+  describe('variant=with-all', () => {
+    it('returns 200 HTML containing both issue statistics and issues list', async () => {
+      const { createIssue } = await import('@/lib/db/issues');
+      createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
+
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html&variant=with-all`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).toContain('Issue Statistics');
+      expect(text).toContain('Alt text missing');
+    });
+  });
+
+  describe('issue title links', () => {
+    it('includes app links on issue titles in with-issues export', async () => {
+      const { createIssue } = await import('@/lib/db/issues');
+      const issue = createIssue(assessmentId, { title: 'Linked issue', severity: 'low' });
+
+      const response = await GET(
+        new Request(
+          `http://localhost/api/reports/${reportId}/export?format=html&variant=with-issues`
+        ),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain(`/issues/${issue.id}`);
+    });
+  });
 });
