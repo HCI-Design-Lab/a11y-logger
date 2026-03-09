@@ -1,24 +1,36 @@
 import { z } from 'zod';
 
-const ContentSectionSchema = z.object({
-  title: z.string(),
-  body: z.string(),
-});
+export const ReportContentSchema = z
+  .object({
+    executive_summary: z.object({ body: z.string() }).optional(),
+    top_risks: z.object({ items: z.array(z.string()) }).optional(),
+    quick_wins: z.object({ items: z.array(z.string()) }).optional(),
+    user_impact: z
+      .object({
+        screen_reader: z.string(),
+        low_vision: z.string(),
+        color_vision: z.string(),
+        keyboard_only: z.string(),
+        cognitive: z.string(),
+        deaf_hard_of_hearing: z.string(),
+      })
+      .optional(),
+  })
+  .strict();
 
 const ReportBaseSchema = z.object({
   title: z.string().min(1).max(200),
-  type: z.enum(['executive', 'detailed', 'custom']).optional(),
-  content: z.array(ContentSectionSchema).optional(),
-  template_id: z.string().optional(),
-  ai_generated: z.boolean().optional(),
+  content: ReportContentSchema.optional(),
 });
 
 export const CreateReportSchema = ReportBaseSchema.extend({
-  project_id: z.string().min(1),
+  assessment_ids: z.array(z.string().min(1)).min(1),
 });
 
-export const UpdateReportSchema = ReportBaseSchema.partial();
+export const UpdateReportSchema = ReportBaseSchema.partial().extend({
+  assessment_ids: z.array(z.string().min(1)).min(1).optional(),
+});
 
-export type ContentSection = z.infer<typeof ContentSectionSchema>;
+export type ReportContent = z.infer<typeof ReportContentSchema>;
 export type CreateReportInput = z.infer<typeof CreateReportSchema>;
 export type UpdateReportInput = z.infer<typeof UpdateReportSchema>;

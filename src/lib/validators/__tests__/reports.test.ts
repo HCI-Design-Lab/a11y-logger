@@ -1,91 +1,74 @@
 import { describe, it, expect } from 'vitest';
-import { CreateReportSchema, UpdateReportSchema } from '../reports';
+import { CreateReportSchema, UpdateReportSchema, ReportContentSchema } from '../reports';
 
-describe('CreateReportSchema', () => {
-  it('accepts a valid minimal input', () => {
-    const result = CreateReportSchema.safeParse({
-      title: 'Quarterly Report',
-      project_id: 'proj-123',
+describe('ReportContentSchema', () => {
+  it('accepts empty object', () => {
+    expect(ReportContentSchema.safeParse({}).success).toBe(true);
+  });
+
+  it('accepts executive_summary', () => {
+    const result = ReportContentSchema.safeParse({ executive_summary: { body: 'Hello' } });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts top_risks with items array', () => {
+    const result = ReportContentSchema.safeParse({ top_risks: { items: ['Risk 1', 'Risk 2'] } });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts quick_wins with items array', () => {
+    const result = ReportContentSchema.safeParse({ quick_wins: { items: ['Win 1'] } });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts user_impact with all sub-fields', () => {
+    const result = ReportContentSchema.safeParse({
+      user_impact: {
+        screen_reader: 'a',
+        low_vision: 'b',
+        color_vision: 'c',
+        keyboard_only: 'd',
+        cognitive: 'e',
+        deaf_hard_of_hearing: 'f',
+      },
     });
     expect(result.success).toBe(true);
   });
 
-  it('accepts all optional fields', () => {
-    const result = CreateReportSchema.safeParse({
-      title: 'Full Report',
-      project_id: 'proj-123',
-      type: 'executive',
-      content: [{ title: 'Overview', body: '## Summary\n\nAll good.' }],
-      template_id: 'tmpl-abc',
-      ai_generated: true,
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects missing title', () => {
-    const result = CreateReportSchema.safeParse({ project_id: 'proj-123' });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects empty title', () => {
-    const result = CreateReportSchema.safeParse({ title: '', project_id: 'proj-123' });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects title over 200 chars', () => {
-    const result = CreateReportSchema.safeParse({
-      title: 'A'.repeat(201),
-      project_id: 'proj-123',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects missing project_id', () => {
-    const result = CreateReportSchema.safeParse({ title: 'Report' });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects invalid type', () => {
-    const result = CreateReportSchema.safeParse({
-      title: 'Report',
-      project_id: 'proj-123',
-      type: 'invalid',
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects content section missing body', () => {
-    const result = CreateReportSchema.safeParse({
-      title: 'Report',
-      project_id: 'proj-123',
-      content: [{ title: 'Overview' }],
-    });
+  it('rejects unknown keys', () => {
+    const result = ReportContentSchema.safeParse({ unknown_section: {} });
     expect(result.success).toBe(false);
   });
 });
 
-describe('UpdateReportSchema', () => {
-  it('accepts empty object (no-op update)', () => {
-    const result = UpdateReportSchema.safeParse({});
+describe('CreateReportSchema', () => {
+  it('requires title and assessment_ids', () => {
+    const result = CreateReportSchema.safeParse({ title: 'R1', assessment_ids: ['abc'] });
     expect(result.success).toBe(true);
   });
 
-  it('accepts partial update', () => {
-    const result = UpdateReportSchema.safeParse({ title: 'New Title' });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects empty title in partial update', () => {
-    const result = UpdateReportSchema.safeParse({ title: '' });
+  it('rejects missing assessment_ids', () => {
+    const result = CreateReportSchema.safeParse({ title: 'R1' });
     expect(result.success).toBe(false);
   });
 
-  it('does not include project_id in parsed output (not updatable)', () => {
+  it('rejects empty assessment_ids array', () => {
+    const result = CreateReportSchema.safeParse({ title: 'R1', assessment_ids: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it('does not require project_id', () => {
+    const result = CreateReportSchema.safeParse({ title: 'R1', assessment_ids: ['abc'] });
+    expect(result.success).toBe(true);
+    expect((result as { data: { project_id?: string } }).data?.project_id).toBeUndefined();
+  });
+});
+
+describe('UpdateReportSchema', () => {
+  it('accepts partial content update', () => {
     const result = UpdateReportSchema.safeParse({
-      title: 'Updated Title',
-      project_id: 'proj-should-be-ignored',
+      content: { executive_summary: { body: 'Updated' } },
     });
     expect(result.success).toBe(true);
-    expect((result.data as Record<string, unknown>).project_id).toBeUndefined();
   });
 });
