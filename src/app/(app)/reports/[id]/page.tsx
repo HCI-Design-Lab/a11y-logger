@@ -2,10 +2,16 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Download, Pencil } from 'lucide-react';
+import { Download, Pencil, ChevronDown } from 'lucide-react';
 import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DeleteReportButton } from '@/components/reports/delete-report-button';
 import { PublishReportButton } from '@/components/reports/publish-report-button';
@@ -50,16 +56,44 @@ export default async function ReportDetailPage({ params }: PageProps) {
           <Badge variant="outline">{isPublished ? 'Published' : 'Draft'}</Badge>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm">
-            <a
-              href={`/api/reports/${report.id}/export?format=html`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export HTML
-            </a>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export HTML
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/reports/${report.id}/export?format=html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Default
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/reports/${report.id}/export?format=html&variant=with-chart`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  With Chart
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/reports/${report.id}/export?format=html&variant=with-issues`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  With Issues
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {!isPublished && (
             <Button asChild variant="outline" size="sm">
               <Link href={`/reports/${report.id}/edit`}>
