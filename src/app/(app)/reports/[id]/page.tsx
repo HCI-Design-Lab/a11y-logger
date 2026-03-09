@@ -151,7 +151,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
         </div>
 
         {/* Sidebar */}
-        <aside className="lg:w-72 shrink-0 space-y-4">
+        <aside className="lg:w-72 shrink-0 space-y-4 self-start lg:sticky lg:top-6">
           <IssueStatistics total={stats.total} severityBreakdown={stats.severityBreakdown} />
           <ReportWcagCriteriaList criteria={stats.wcagCriteriaCounts} />
         </aside>
