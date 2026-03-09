@@ -1,6 +1,6 @@
 import { getDb } from './index';
 import type { CreateReportInput, UpdateReportInput, ReportContent } from '../validators/reports';
-import type { Issue, IssueRow } from './issues';
+import type { IssueWithContext } from './issues';
 import { deserializeIssue } from './issues';
 import { getWcagCriterionName } from '@/lib/wcag-criteria';
 
@@ -135,16 +135,33 @@ export function unpublishReport(id: string): Report | null {
   return getReport(id);
 }
 
-export function getReportIssues(reportId: string): Issue[] {
+export function getReportIssues(reportId: string): IssueWithContext[] {
+  type IssueWithContextRow = Omit<
+    IssueWithContext,
+    'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags'
+  > & {
+    wcag_codes: string;
+    ai_suggested_codes: string;
+    evidence_media: string;
+    tags: string;
+  };
   const rows = getDb()
     .prepare(
-      `SELECT i.* FROM issues i
+      `SELECT i.*, p.id AS project_id, p.name AS project_name, a.name AS assessment_name
+       FROM issues i
+       JOIN assessments a ON a.id = i.assessment_id
+       JOIN projects p ON p.id = a.project_id
        JOIN report_assessments ra ON ra.assessment_id = i.assessment_id
        WHERE ra.report_id = ?
        ORDER BY i.created_at DESC`
     )
-    .all(reportId) as IssueRow[];
-  return rows.map(deserializeIssue);
+    .all(reportId) as IssueWithContextRow[];
+  return rows.map((row) => ({
+    ...deserializeIssue(row),
+    project_id: row.project_id,
+    project_name: row.project_name,
+    assessment_name: row.assessment_name,
+  }));
 }
 
 export interface ReportStats {

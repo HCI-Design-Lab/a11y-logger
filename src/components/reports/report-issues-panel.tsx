@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Issue } from '@/lib/db/issues';
+import type { IssueWithContext } from '@/lib/db/issues';
 
 const SEVERITY_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   critical: 'destructive',
@@ -12,11 +12,11 @@ const SEVERITY_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' |
 };
 
 interface Props {
-  issues: Issue[];
+  issues: IssueWithContext[];
 }
 
 export function ReportIssuesPanel({ issues }: Props) {
-  const [selected, setSelected] = useState<Issue | null>(null);
+  const [selected, setSelected] = useState<IssueWithContext | null>(null);
 
   if (selected) {
     const wcagCodes: string[] = Array.isArray(selected.wcag_codes)
@@ -55,7 +55,7 @@ export function ReportIssuesPanel({ issues }: Props) {
             </div>
           )}
           <a
-            href={`/issues/${selected.id}`}
+            href={`/projects/${selected.project_id}/assessments/${selected.assessment_id}/issues/${selected.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-primary hover:underline flex items-center gap-1"

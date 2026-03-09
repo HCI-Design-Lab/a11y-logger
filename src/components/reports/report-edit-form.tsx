@@ -12,7 +12,7 @@ import { UserImpactSection } from './report-section-user-impact';
 import { ReportSectionDeleteModal } from './report-section-delete-modal';
 import { ReportIssuesPanel } from './report-issues-panel';
 import type { Report } from '@/lib/db/reports';
-import type { Issue } from '@/lib/db/issues';
+import type { IssueWithContext } from '@/lib/db/issues';
 import type { ReportContent } from '@/lib/validators/reports';
 
 type SectionKey = keyof ReportContent;
@@ -35,7 +35,7 @@ const EMPTY_USER_IMPACT = {
 
 interface Props {
   report: Report;
-  issues: Issue[];
+  issues: IssueWithContext[];
 }
 
 export function ReportEditForm({ report, issues }: Props) {

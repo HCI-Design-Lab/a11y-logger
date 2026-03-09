@@ -2,7 +2,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import type { Report, ReportStats } from '@/lib/db/reports';
 import type { Project } from '@/lib/db/projects';
 import type { ReportContent } from '@/lib/validators/reports';
-import type { Issue } from '@/lib/db/issues';
+import type { IssueWithContext } from '@/lib/db/issues';
 import { getWcagCriterionName } from '@/lib/wcag-criteria';
 
 function parseContent(content: string): ReportContent {
@@ -157,7 +157,7 @@ const SEVERITY_BADGE_STYLES: Record<string, string> = {
   low: 'background:#f8fafc;color:#475569;border:1px solid #cbd5e1',
 };
 
-function buildIssuesHtml(issues: Issue[], baseUrl = ''): string {
+function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
   if (issues.length === 0) {
     return `
       <section class="report-section">
@@ -276,7 +276,7 @@ function buildIssuesHtml(issues: Issue[], baseUrl = ''): string {
           <h3 id="issue-${i + 1}-title" style="margin:0 0 8px;font-size:11pt;font-weight:bold;color:#0f172a;line-height:1.4">
             <span style="color:#94a3b8;font-weight:400;margin-right:6px">#${i + 1}</span>${
               baseUrl
-                ? `<a href="${escapeHtml(baseUrl)}/issues/${escapeHtml(issue.id)}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${escapeHtml(issue.title)}</a>`
+                ? `<a href="${escapeHtml(baseUrl)}/projects/${escapeHtml(issue.project_id)}/assessments/${escapeHtml(issue.assessment_id)}/issues/${escapeHtml(issue.id)}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${escapeHtml(issue.title)}</a>`
                 : escapeHtml(issue.title)
             }
           </h3>
@@ -373,7 +373,7 @@ export function generateReportHtml(
   report: Report,
   project: Project,
   variant: ExportVariant = 'default',
-  extras: { stats?: ReportStats; issues?: Issue[] } = {},
+  extras: { stats?: ReportStats; issues?: IssueWithContext[] } = {},
   baseUrl = ''
 ): string {
   const content = parseContent(report.content);
