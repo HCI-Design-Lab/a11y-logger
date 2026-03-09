@@ -120,7 +120,7 @@ export function ReportEditForm({ report, issues }: Props) {
         return;
       }
       toast.success('Report saved');
-      router.refresh();
+      router.push(`/reports/${report.id}`);
     } catch {
       toast.error('Failed to save report');
     } finally {
