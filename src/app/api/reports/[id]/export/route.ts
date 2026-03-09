@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getReport } from '@/lib/db/reports';
+import { getReport, getReportStats, getReportIssues } from '@/lib/db/reports';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { generateReportHtml } from '@/lib/export/report-template';
+import type { ExportVariant } from '@/lib/export/report-template';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -37,6 +38,18 @@ export async function GET(request: Request, { params }: RouteContext) {
     );
   }
 
+  const variant = (url.searchParams.get('variant') ?? 'default') as ExportVariant;
+  if (!['default', 'with-chart', 'with-issues'].includes(variant)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Unsupported variant "${variant}". Supported variants: default, with-chart, with-issues`,
+        code: 'BAD_REQUEST',
+      },
+      { status: 400 }
+    );
+  }
+
   try {
     const report = getReport(id);
     if (!report) {
@@ -65,7 +78,13 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const html = generateReportHtml(report, project);
+    const extras =
+      variant === 'with-chart'
+        ? { stats: getReportStats(report.id) }
+        : variant === 'with-issues'
+          ? { issues: getReportIssues(report.id) }
+          : {};
+    const html = generateReportHtml(report, project, variant, extras);
 
     // Sanitize title for use in filename
     const safeTitle = report.title

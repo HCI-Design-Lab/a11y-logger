@@ -140,4 +140,60 @@ describe('GET /api/reports/[id]/export', () => {
       expect(body.code).toBe('BAD_REQUEST');
     });
   });
+
+  describe('variant=with-chart', () => {
+    it('returns 200 HTML containing issue statistics section', async () => {
+      const response = await GET(
+        new Request(
+          `http://localhost/api/reports/${reportId}/export?format=html&variant=with-chart`
+        ),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).toContain('Issue Statistics');
+    });
+
+    it('contains WCAG criterion breakdown section', async () => {
+      const response = await GET(
+        new Request(
+          `http://localhost/api/reports/${reportId}/export?format=html&variant=with-chart`
+        ),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('WCAG Criteria Breakdown');
+    });
+  });
+
+  describe('variant=with-issues', () => {
+    it('returns 200 HTML containing linked issues', async () => {
+      const { createIssue } = await import('@/lib/db/issues');
+      createIssue(assessmentId, { title: 'Missing alt text', severity: 'high' });
+
+      const response = await GET(
+        new Request(
+          `http://localhost/api/reports/${reportId}/export?format=html&variant=with-issues`
+        ),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      expect(text).toContain('Missing alt text');
+      expect(text).toContain('Issues');
+    });
+  });
+
+  describe('invalid variant', () => {
+    it('returns 400 for unknown variant', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html&variant=unknown`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(400);
+      const body = await response.json();
+      expect(body.success).toBe(false);
+      expect(body.code).toBe('BAD_REQUEST');
+    });
+  });
 });
