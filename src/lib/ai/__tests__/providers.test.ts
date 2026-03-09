@@ -163,6 +163,30 @@ describe('OpenAIProvider.generateVpatRemarks', () => {
   });
 });
 
+describe('OpenAIProvider.generateExecutiveSummaryHtml', () => {
+  it('returns HTML string on success', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          choices: [{ message: { content: '<p>Executive summary in HTML.</p>' } }],
+        }),
+    } as Response);
+    const provider = new OpenAIProvider('sk-test');
+    const result = await provider.generateExecutiveSummaryHtml('Some audit context');
+    expect(result).toBe('<p>Executive summary in HTML.</p>');
+  });
+
+  it('throws when response is not ok', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ error: { message: 'Quota exceeded' } }),
+    } as Response);
+    const provider = new OpenAIProvider('sk-test');
+    await expect(provider.generateExecutiveSummaryHtml('context')).rejects.toThrow();
+  });
+});
+
 describe('AnthropicProvider', () => {
   it('testConnection returns ok:false when API key is empty', async () => {
     const provider = new AnthropicProvider('');
@@ -319,30 +343,6 @@ describe('AnthropicProvider.generateVpatRemarks', () => {
     } as Response);
     const provider = new AnthropicProvider('sk-ant-test');
     await expect(provider.generateVpatRemarks('summary', '1.1.1')).rejects.toThrow();
-  });
-});
-
-describe('OpenAIProvider.generateExecutiveSummaryHtml', () => {
-  it('returns HTML string on success', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          choices: [{ message: { content: '<p>Executive summary in HTML.</p>' } }],
-        }),
-    } as Response);
-    const provider = new OpenAIProvider('sk-test');
-    const result = await provider.generateExecutiveSummaryHtml('Some audit context');
-    expect(result).toBe('<p>Executive summary in HTML.</p>');
-  });
-
-  it('throws when response is not ok', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      json: () => Promise.resolve({ error: { message: 'Quota exceeded' } }),
-    } as Response);
-    const provider = new OpenAIProvider('sk-test');
-    await expect(provider.generateExecutiveSummaryHtml('context')).rejects.toThrow();
   });
 });
 
