@@ -20,7 +20,7 @@ export function ReportWcagCriteriaList({ criteria }: ReportWcagCriteriaListProps
         {criteria.length === 0 ? (
           <p className="text-sm text-muted-foreground px-6 py-2">No WCAG criteria data.</p>
         ) : (
-          <ul className="max-h-72 overflow-y-auto">
+          <ul className="max-h-300 overflow-y-auto">
             {criteria.map(({ code, name, count }) => (
               <li
                 key={code}
