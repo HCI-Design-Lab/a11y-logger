@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Pencil } from 'lucide-react';
 import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { DeleteReportButton } from '@/components/reports/delete-report-button';
 import { PublishReportButton } from '@/components/reports/publish-report-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -39,39 +39,42 @@ export default async function ReportDetailPage({ params }: PageProps) {
   const isPublished = report.status === 'published';
 
   return (
-    <div>
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Reports', href: '/reports' }, { label: report.title }]} />
-      <div className="flex flex-col gap-6 lg:flex-row">
+
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">{report.title}</h1>
+          <Badge variant="outline">{isPublished ? 'Published' : 'Draft'}</Badge>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <a
+              href={`/api/reports/${report.id}/export?format=html`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export HTML
+            </a>
+          </Button>
+          {!isPublished && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/reports/${report.id}/edit`}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+          )}
+          <PublishReportButton reportId={report.id} isPublished={isPublished} />
+          <DeleteReportButton reportId={report.id} reportTitle={report.title} />
+        </div>
+      </div>
+
+      <div className="flex gap-6">
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h1 className="text-2xl font-bold">{report.title}</h1>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button asChild variant="outline" size="sm">
-                <a
-                  href={`/api/reports/${report.id}/export?format=html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export HTML
-                </a>
-              </Button>
-              {!isPublished && (
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/reports/${report.id}/edit`}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                  </Link>
-                </Button>
-              )}
-              <PublishReportButton reportId={report.id} isPublished={isPublished} />
-              <DeleteReportButton reportId={report.id} reportTitle={report.title} />
-            </div>
-          </div>
-
-          <Separator className="mb-6" />
-
           {!hasContent ? (
             <p className="text-muted-foreground italic">
               No content yet. Edit this report to add content.
@@ -151,7 +154,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
         </div>
 
         {/* Sidebar */}
-        <aside className="lg:w-72 shrink-0 space-y-4 self-start lg:sticky lg:top-6">
+        <aside className="w-72 shrink-0 space-y-4 self-start sticky top-6">
           <IssueStatistics total={stats.total} severityBreakdown={stats.severityBreakdown} />
           <ReportWcagCriteriaList criteria={stats.wcagCriteriaCounts} />
         </aside>
