@@ -2,10 +2,11 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
+import { createAssessment } from '@/lib/db/assessments';
 import { createReport, publishReport } from '@/lib/db/reports';
 import { GET, PUT, DELETE } from '../route';
 
-let projectId: string;
+let assessmentId: string;
 let reportId: string;
 
 beforeAll(() => {
@@ -17,11 +18,14 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+  getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
-  projectId = project.id;
-  const report = createReport({ title: 'Test Report', project_id: projectId });
+  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  assessmentId = assessment.id;
+  const report = createReport({ title: 'Test Report', assessment_ids: [assessmentId] });
   reportId = report.id;
 });
 
@@ -58,14 +62,13 @@ describe('PUT /api/reports/[id]', () => {
     const request = new Request(`http://localhost/api/reports/${reportId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'Updated Title', type: 'executive' }),
+      body: JSON.stringify({ title: 'Updated Title' }),
     });
     const response = await PUT(request, makeContext(reportId));
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.success).toBe(true);
     expect(body.data.title).toBe('Updated Title');
-    expect(body.data.type).toBe('executive');
   });
 
   it('returns 400 for invalid update data', async () => {

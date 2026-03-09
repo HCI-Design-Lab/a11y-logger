@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
+import { createAssessment } from '@/lib/db/assessments';
 import { createReport } from '@/lib/db/reports';
 import { GET } from '../route';
 
@@ -20,16 +21,15 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+  getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
+  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
   const report = createReport({
     title: 'Accessibility Audit Report',
-    project_id: project.id,
-    content: [
-      { title: 'Executive Summary', body: 'This is the summary.' },
-      { title: 'Findings', body: 'Several issues found.' },
-    ],
+    assessment_ids: [assessment.id],
   });
   reportId = report.id;
 });
@@ -54,36 +54,6 @@ describe('GET /api/reports/[id]/export', () => {
       expect(text).toContain('Accessibility Audit Report');
     });
 
-    it('returns HTML containing section titles', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
-        makeContext(reportId)
-      );
-      const text = await response.text();
-      expect(text).toContain('Executive Summary');
-      expect(text).toContain('Findings');
-    });
-
-    it('returns HTML containing section body content', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
-        makeContext(reportId)
-      );
-      const text = await response.text();
-      expect(text).toContain('This is the summary.');
-      expect(text).toContain('Several issues found.');
-    });
-
-    it('returns a complete HTML document', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
-        makeContext(reportId)
-      );
-      const text = await response.text();
-      expect(text).toContain('<!DOCTYPE html>');
-      expect(text).toContain('<html');
-    });
-
     it('includes Content-Disposition header for download', async () => {
       const response = await GET(
         new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
@@ -102,6 +72,16 @@ describe('GET /api/reports/[id]/export', () => {
       );
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('text/html');
+    });
+
+    it('returns a complete HTML document', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=html`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('<!DOCTYPE html>');
+      expect(text).toContain('<html');
     });
   });
 

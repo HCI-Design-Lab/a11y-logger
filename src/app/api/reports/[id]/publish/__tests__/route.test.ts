@@ -2,10 +2,11 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
+import { createAssessment } from '@/lib/db/assessments';
 import { createReport, publishReport } from '@/lib/db/reports';
 import { POST, DELETE } from '../route';
 
-let projectId: string;
+let assessmentId: string;
 let reportId: string;
 
 beforeAll(() => {
@@ -17,11 +18,14 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+  getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
+  getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
-  projectId = project.id;
-  const report = createReport({ title: 'Draft Report', project_id: projectId });
+  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  assessmentId = assessment.id;
+  const report = createReport({ title: 'Draft Report', assessment_ids: [assessmentId] });
   reportId = report.id;
 });
 

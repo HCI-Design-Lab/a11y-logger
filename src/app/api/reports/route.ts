@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getProject } from '@/lib/db/projects';
 import { getReports, createReport } from '@/lib/db/reports';
+import { getAssessment } from '@/lib/db/assessments';
 import { CreateReportSchema } from '@/lib/validators/reports';
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId') ?? undefined;
-    const reports = getReports(projectId);
+    const reports = getReports();
     return NextResponse.json({ success: true, data: reports });
   } catch {
     return NextResponse.json(
@@ -33,12 +31,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const project = getProject(result.data.project_id);
-    if (!project) {
-      return NextResponse.json(
-        { success: false, error: 'Project not found', code: 'NOT_FOUND' },
-        { status: 404 }
-      );
+    // Verify all assessments exist
+    for (const aId of result.data.assessment_ids) {
+      const assessment = getAssessment(aId);
+      if (!assessment) {
+        return NextResponse.json(
+          { success: false, error: `Assessment not found: ${aId}`, code: 'NOT_FOUND' },
+          { status: 404 }
+        );
+      }
     }
 
     const report = createReport(result.data);

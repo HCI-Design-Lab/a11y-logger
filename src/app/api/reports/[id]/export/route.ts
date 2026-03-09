@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getReport } from '@/lib/db/reports';
 import { getProject } from '@/lib/db/projects';
+import { getAssessment } from '@/lib/db/assessments';
 import { generateReportHtml } from '@/lib/export/report-template';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -45,7 +46,10 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const project = getProject(report.project_id);
+    // Derive the project from the first linked assessment
+    const firstAssessmentId = report.assessment_ids[0];
+    const assessment = firstAssessmentId ? getAssessment(firstAssessmentId) : null;
+    const project = assessment ? getProject(assessment.project_id) : null;
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found', code: 'NOT_FOUND' },
