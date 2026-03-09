@@ -12,13 +12,13 @@ interface Props {
 }
 
 export function TopRisksSection({ items, onChange, onDelete, onGenerate, isGenerating }: Props) {
+  const normalizedItems = Array.from({ length: 5 }, (_, i) => items[i] ?? '');
+
   const handleItemChange = (index: number, value: string) => {
-    const updated = [...items];
+    const updated = [...normalizedItems];
     updated[index] = value;
     onChange(updated);
   };
-
-  const normalizedItems = Array.from({ length: 5 }, (_, i) => items[i] ?? '');
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
