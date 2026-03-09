@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const generatedBody = await ai.generateReportSection(context, 'Executive Summary');
+    const generatedBody = await ai.generateExecutiveSummaryHtml(context);
     return NextResponse.json({ success: true, data: { body: generatedBody } });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'AI request failed';

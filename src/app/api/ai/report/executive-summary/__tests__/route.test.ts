@@ -39,9 +39,9 @@ describe('POST /api/ai/report/executive-summary', () => {
     expect(res.status).toBe(503);
   });
 
-  it('returns generated summary', async () => {
+  it('returns generated HTML summary', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
-      generateReportSection: vi.fn().mockResolvedValue('Generated summary text'),
+      generateExecutiveSummaryHtml: vi.fn().mockResolvedValue('<p>Generated summary</p>'),
     } as never);
     const req = new Request('http://localhost', {
       method: 'POST',
@@ -51,12 +51,12 @@ describe('POST /api/ai/report/executive-summary', () => {
     const res = await POST(req);
     const json = await res.json();
     expect(json.success).toBe(true);
-    expect(json.data.body).toBe('Generated summary text');
+    expect(json.data.body).toBe('<p>Generated summary</p>');
   });
 
   it('returns 404 for unknown report', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
-      generateReportSection: vi.fn(),
+      generateExecutiveSummaryHtml: vi.fn(),
     } as never);
     const req = new Request('http://localhost', {
       method: 'POST',
@@ -69,7 +69,7 @@ describe('POST /api/ai/report/executive-summary', () => {
 
   it('returns 400 when reportId is missing', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
-      generateReportSection: vi.fn(),
+      generateExecutiveSummaryHtml: vi.fn(),
     } as never);
     const req = new Request('http://localhost', {
       method: 'POST',
@@ -84,7 +84,7 @@ describe('POST /api/ai/report/executive-summary', () => {
 
   it('returns 500 when AI throws', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
-      generateReportSection: vi.fn().mockRejectedValue(new Error('AI failed')),
+      generateExecutiveSummaryHtml: vi.fn().mockRejectedValue(new Error('AI failed')),
     } as never);
     const req = new Request('http://localhost', {
       method: 'POST',
