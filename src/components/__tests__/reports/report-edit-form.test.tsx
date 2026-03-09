@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('@/components/ui/rich-text-editor', () => ({
+  RichTextEditor: ({ placeholder }: { placeholder?: string }) => (
+    <div data-testid="rich-text-editor" data-placeholder={placeholder} />
+  ),
+}));
 
 import { ReportEditForm } from '@/components/reports/report-edit-form';
 
@@ -37,7 +42,7 @@ describe('ReportEditForm', () => {
   it('expands executive summary section when + clicked', () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
-    expect(screen.getByPlaceholderText(/executive summary/i)).toBeInTheDocument();
+    expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument();
   });
 
   it('shows delete modal when trash icon clicked', async () => {
