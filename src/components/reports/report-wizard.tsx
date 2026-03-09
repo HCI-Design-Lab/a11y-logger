@@ -37,6 +37,17 @@ export function ReportWizard({ projects, assessments }: Props) {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
+        // Remove assessments that belonged to this project
+        const projectAssessmentIds = new Set(
+          assessments.filter((a) => a.project_id === id).map((a) => a.id)
+        );
+        setSelectedAssessments((prevA) => {
+          const nextA = new Set(prevA);
+          for (const aid of projectAssessmentIds) {
+            nextA.delete(aid);
+          }
+          return nextA;
+        });
       } else {
         next.add(id);
       }

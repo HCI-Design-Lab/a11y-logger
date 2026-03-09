@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }));
@@ -10,6 +10,10 @@ const mockProjects = [{ id: 'p1', name: 'Project Alpha' }];
 const mockAssessments = [{ id: 'a1', project_id: 'p1', name: 'Assessment 1', status: 'completed' }];
 
 describe('ReportWizard', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders step 1 with project list', () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
     expect(screen.getByText('Project Alpha')).toBeInTheDocument();
@@ -51,5 +55,51 @@ describe('ReportWizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
     expect(screen.getByText(/step 1/i)).toBeInTheDocument();
+  });
+
+  it('filters assessments by selected projects', () => {
+    const multiProjects = [
+      { id: 'p1', name: 'Project Alpha' },
+      { id: 'p2', name: 'Project Beta' },
+    ];
+    const multiAssessments = [
+      { id: 'a1', project_id: 'p1', name: 'Alpha Assessment', status: 'completed' },
+      { id: 'a2', project_id: 'p2', name: 'Beta Assessment', status: 'completed' },
+    ];
+    render(<ReportWizard projects={multiProjects} assessments={multiAssessments} />);
+    fireEvent.click(screen.getByText('Project Alpha'));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText('Alpha Assessment')).toBeInTheDocument();
+    expect(screen.queryByText('Beta Assessment')).not.toBeInTheDocument();
+  });
+
+  it('disables Create Report when title is empty', () => {
+    render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
+    fireEvent.click(screen.getByText('Project Alpha'));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByText('Assessment 1'));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByRole('button', { name: /create report/i })).toBeDisabled();
+  });
+
+  it('shows error when API returns failure', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: async () => ({ success: false, error: 'Validation failed' }),
+    } as Response);
+
+    const { toast } = await import('sonner');
+    render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
+    fireEvent.click(screen.getByText('Project Alpha'));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByText('Assessment 1'));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.change(screen.getByPlaceholderText(/report title/i), {
+      target: { value: 'My Report' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /create report/i }));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Validation failed');
+    });
   });
 });
