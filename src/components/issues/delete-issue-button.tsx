@@ -42,7 +42,7 @@ export function DeleteIssueButton({
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success('Issue deleted');
-      router.push(`/projects/${projectId}/assessments/${assessmentId}/issues`);
+      router.push(`/projects/${projectId}/assessments/${assessmentId}`);
     } catch {
       toast.error('Failed to delete issue');
       setLoading(false);

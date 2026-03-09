@@ -32,8 +32,8 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-vi.mock('@/components/issues/issues-table', () => ({
-  IssuesTable: () => <div data-testid="issues-table" />,
+vi.mock('@/components/issues/assessment-issues-card', () => ({
+  AssessmentIssuesCard: () => <div data-testid="assessment-issues-card" />,
 }));
 
 vi.mock('@/components/assessments/delete-assessment-button', () => ({
@@ -52,10 +52,19 @@ vi.mock('@/components/dashboard/issue-statistics', () => ({
 
 import AssessmentDetailPage from '../page';
 
+const defaultProps = {
+  params: Promise.resolve({ projectId: 'p1', assessmentId: 'a1' }),
+  searchParams: Promise.resolve({}),
+};
+
 test('renders IssueStatistics component in the sidebar', async () => {
-  const page = await AssessmentDetailPage({
-    params: Promise.resolve({ projectId: 'p1', assessmentId: 'a1' }),
-  });
+  const page = await AssessmentDetailPage(defaultProps);
   render(page);
   expect(screen.getByTestId('issue-statistics')).toBeInTheDocument();
+});
+
+test('renders AssessmentIssuesCard', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByTestId('assessment-issues-card')).toBeInTheDocument();
 });

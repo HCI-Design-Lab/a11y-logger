@@ -86,7 +86,7 @@ test('redirects to issues list on success', async () => {
   fireEvent.click(confirmButton);
 
   await waitFor(() => {
-    expect(mockPush).toHaveBeenCalledWith('/projects/p1/assessments/a1/issues');
+    expect(mockPush).toHaveBeenCalledWith('/projects/p1/assessments/a1');
   });
 });
 

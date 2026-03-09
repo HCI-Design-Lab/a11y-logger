@@ -95,7 +95,7 @@ export default function EditIssuePage() {
                 },
               ]
             : []),
-          { label: 'Issues', href: `/projects/${projectId}/assessments/${assessmentId}/issues` },
+          { label: 'Issues' },
           {
             label: issue.title,
             href: `/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`,

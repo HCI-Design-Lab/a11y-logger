@@ -27,7 +27,7 @@ export default async function NewIssuePage({
           { label: project.name, href: `/projects/${projectId}` },
           { label: 'Assessments' },
           { label: assessment.name, href: `/projects/${projectId}/assessments/${assessmentId}` },
-          { label: 'Issues', href: `/projects/${projectId}/assessments/${assessmentId}/issues` },
+          { label: 'Issues' },
           { label: 'New Issue' },
         ]}
       />
