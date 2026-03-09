@@ -95,4 +95,17 @@ describe('POST /api/ai/report/quick-wins', () => {
     const json = await res.json();
     expect(json.code).toBe('VALIDATION_ERROR');
   });
+
+  it('returns 500 when AI throws', async () => {
+    vi.mocked(getAIProvider).mockReturnValue({
+      generateReportSection: vi.fn().mockRejectedValue(new Error('AI failed')),
+    } as never);
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+  });
 });

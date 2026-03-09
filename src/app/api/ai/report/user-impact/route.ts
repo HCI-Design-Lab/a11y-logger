@@ -47,20 +47,22 @@ export async function POST(request: Request) {
   "deaf_hard_of_hearing": "..."
 }`;
 
+  const EMPTY_IMPACT = {
+    screen_reader: '',
+    low_vision: '',
+    color_vision: '',
+    keyboard_only: '',
+    cognitive: '',
+    deaf_hard_of_hearing: '',
+  };
+
   try {
     const raw = await ai.generateReportSection(prompt, 'User Impact');
     let data: Record<string, string>;
     try {
-      data = JSON.parse(raw);
+      data = { ...EMPTY_IMPACT, ...JSON.parse(raw) };
     } catch {
-      data = {
-        screen_reader: '',
-        low_vision: '',
-        color_vision: '',
-        keyboard_only: '',
-        cognitive: '',
-        deaf_hard_of_hearing: '',
-      };
+      data = { ...EMPTY_IMPACT };
     }
     return NextResponse.json({ success: true, data });
   } catch (err) {
