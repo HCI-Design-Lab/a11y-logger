@@ -10,7 +10,10 @@ interface StatusTransitionButtonProps {
   currentStatus: 'planning' | 'in_progress' | 'completed';
 }
 
-const nextStatus: Record<string, { status: string; label: string }> = {
+const nextStatus: Record<
+  'planning' | 'in_progress' | 'completed',
+  { status: string; label: string }
+> = {
   planning: { status: 'in_progress', label: 'Mark as In Progress' },
   in_progress: { status: 'completed', label: 'Mark as Complete' },
   completed: { status: 'in_progress', label: 'Mark as Incomplete' },
