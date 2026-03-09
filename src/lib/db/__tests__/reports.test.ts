@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '../index';
 import { createProject } from '../projects';
 import { createAssessment } from '../assessments';
+import { createIssue } from '../issues';
 import {
   createReport,
   getReport,
@@ -12,6 +13,7 @@ import {
   publishReport,
   unpublishReport,
   getReportIssues,
+  getReportStats,
 } from '../reports';
 
 let assessmentId: string;
@@ -187,5 +189,44 @@ describe('getReportIssues', () => {
   it('returns empty array for report with no issues', () => {
     const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
     expect(getReportIssues(report.id)).toEqual([]);
+  });
+});
+
+describe('getReportStats', () => {
+  it('returns zero counts when report has no issues', () => {
+    const report = createReport({ title: 'Empty', assessment_ids: [assessmentId] });
+    const stats = getReportStats(report.id);
+    expect(stats.total).toBe(0);
+    expect(stats.severityBreakdown).toEqual({ critical: 0, high: 0, medium: 0, low: 0 });
+    expect(stats.wcagCriteriaCounts).toEqual([]);
+  });
+
+  it('counts severity breakdown correctly', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    createIssue(assessmentId, { title: 'A', severity: 'critical', wcag_codes: ['1.3.1'] });
+    createIssue(assessmentId, { title: 'B', severity: 'high', wcag_codes: ['1.3.1'] });
+    createIssue(assessmentId, { title: 'C', severity: 'high', wcag_codes: ['2.4.3'] });
+    const stats = getReportStats(report.id);
+    expect(stats.total).toBe(3);
+    expect(stats.severityBreakdown).toEqual({ critical: 1, high: 2, medium: 0, low: 0 });
+  });
+
+  it('counts WCAG criteria sorted by count descending', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    createIssue(assessmentId, { title: 'A', severity: 'high', wcag_codes: ['1.3.1'] });
+    createIssue(assessmentId, { title: 'B', severity: 'high', wcag_codes: ['1.3.1'] });
+    createIssue(assessmentId, { title: 'C', severity: 'high', wcag_codes: ['2.4.3'] });
+    const stats = getReportStats(report.id);
+    expect(stats.wcagCriteriaCounts[0].code).toBe('1.3.1');
+    expect(stats.wcagCriteriaCounts[0].count).toBe(2);
+    expect(stats.wcagCriteriaCounts[1].code).toBe('2.4.3');
+    expect(stats.wcagCriteriaCounts[1].count).toBe(1);
+  });
+
+  it('includes WCAG criterion name when known', () => {
+    const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+    createIssue(assessmentId, { title: 'A', severity: 'high', wcag_codes: ['1.3.1'] });
+    const stats = getReportStats(report.id);
+    expect(stats.wcagCriteriaCounts[0].name).toBe('Info and Relationships');
   });
 });

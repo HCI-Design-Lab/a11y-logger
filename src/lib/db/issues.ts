@@ -36,7 +36,7 @@ export interface IssueWithContext extends Issue {
 }
 
 // Raw row from SQLite — JSON fields are strings
-interface IssueRow extends Omit<
+export interface IssueRow extends Omit<
   Issue,
   'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags'
 > {
@@ -46,7 +46,7 @@ interface IssueRow extends Omit<
   tags: string;
 }
 
-function deserializeIssue(row: IssueRow): Issue {
+export function deserializeIssue(row: IssueRow): Issue {
   return {
     ...row,
     wcag_codes: JSON.parse(row.wcag_codes || '[]'),

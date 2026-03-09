@@ -1,6 +1,8 @@
 import { getDb } from './index';
 import type { CreateReportInput, UpdateReportInput, ReportContent } from '../validators/reports';
-import type { Issue } from './issues';
+import type { Issue, IssueRow } from './issues';
+import { deserializeIssue } from './issues';
+import { getWcagCriterionName } from '@/lib/wcag-criteria';
 
 export interface Report {
   id: string;
@@ -134,12 +136,38 @@ export function unpublishReport(id: string): Report | null {
 }
 
 export function getReportIssues(reportId: string): Issue[] {
-  return getDb()
+  const rows = getDb()
     .prepare(
       `SELECT i.* FROM issues i
        JOIN report_assessments ra ON ra.assessment_id = i.assessment_id
        WHERE ra.report_id = ?
        ORDER BY i.created_at DESC`
     )
-    .all(reportId) as Issue[];
+    .all(reportId) as IssueRow[];
+  return rows.map(deserializeIssue);
+}
+
+export interface ReportStats {
+  total: number;
+  severityBreakdown: { critical: number; high: number; medium: number; low: number };
+  wcagCriteriaCounts: Array<{ code: string; name: string | null; count: number }>;
+}
+
+export function getReportStats(reportId: string): ReportStats {
+  const issues = getReportIssues(reportId);
+  const severityBreakdown = { critical: 0, high: 0, medium: 0, low: 0 };
+  const codeCounts: Record<string, number> = {};
+
+  for (const issue of issues) {
+    severityBreakdown[issue.severity]++;
+    for (const code of issue.wcag_codes) {
+      codeCounts[code] = (codeCounts[code] ?? 0) + 1;
+    }
+  }
+
+  const wcagCriteriaCounts = Object.entries(codeCounts)
+    .map(([code, count]) => ({ code, name: getWcagCriterionName(code) ?? null, count }))
+    .sort((a, b) => b.count - a.count || a.code.localeCompare(b.code));
+
+  return { total: issues.length, severityBreakdown, wcagCriteriaCounts };
 }
