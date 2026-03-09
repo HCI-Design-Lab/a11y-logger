@@ -1,3 +1,4 @@
+import DOMPurify from 'isomorphic-dompurify';
 import type { Report, ReportStats } from '@/lib/db/reports';
 import type { Project } from '@/lib/db/projects';
 import type { ReportContent } from '@/lib/validators/reports';
@@ -306,7 +307,7 @@ function buildSectionsHtml(content: ReportContent): string {
     parts.push(`
       <section class="report-section">
         <h2>Executive Summary</h2>
-        <div class="section-body">${content.executive_summary.body}</div>
+        <div class="section-body">${DOMPurify.sanitize(content.executive_summary.body)}</div>
       </section>`);
   }
 

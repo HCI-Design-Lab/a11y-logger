@@ -38,17 +38,23 @@ export async function GET(request: Request, { params }: RouteContext) {
     );
   }
 
-  const variant = (url.searchParams.get('variant') ?? 'default') as ExportVariant;
-  if (!['default', 'with-chart', 'with-issues'].includes(variant)) {
+  const VALID_VARIANTS = [
+    'default',
+    'with-chart',
+    'with-issues',
+  ] as const satisfies readonly ExportVariant[];
+  const rawVariant = url.searchParams.get('variant') ?? 'default';
+  if (!(VALID_VARIANTS as readonly string[]).includes(rawVariant)) {
     return NextResponse.json(
       {
         success: false,
-        error: `Unsupported variant "${variant}". Supported variants: default, with-chart, with-issues`,
+        error: `Unsupported variant "${rawVariant}". Supported variants: default, with-chart, with-issues`,
         code: 'BAD_REQUEST',
       },
       { status: 400 }
     );
   }
+  const variant = rawVariant as ExportVariant;
 
   try {
     const report = getReport(id);
@@ -87,11 +93,12 @@ export async function GET(request: Request, { params }: RouteContext) {
     const html = generateReportHtml(report, project, variant, extras);
 
     // Sanitize title for use in filename
-    const safeTitle = report.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 80);
+    const safeTitle =
+      report.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) || 'untitled';
     const filename = `report-${safeTitle}.html`;
 
     return new Response(html, {
