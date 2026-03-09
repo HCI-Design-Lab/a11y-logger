@@ -117,11 +117,11 @@ export class AnthropicProvider implements AIProvider {
         model: this.model,
         max_tokens: 2048,
         system:
-          'You are an accessibility report writer. Return only valid HTML using <p>, <ul>, <ol>, <li>, <strong>, <em>, and <blockquote> tags. No markdown. No surrounding code blocks. No other HTML elements.',
+          'You are an accessibility report writer. Return only valid HTML using <p>, <ul>, <li>, and <strong> tags. No markdown. No surrounding code blocks. No other HTML elements.',
         messages: [
           {
             role: 'user',
-            content: `Write the Executive Summary section for an accessibility audit report based on:\n\n${context}`,
+            content: `Write an Executive Summary for an accessibility audit report using the data below. Follow this exact structure:\n\n1. A single opening <p> (max 300 words) describing what was audited, its purpose (WCAG compliance), and the total number of issues found.\n2. A <ul> listing only the count of issues per severity level that has at least one issue (e.g. <li><strong>High Severity Issues (6):</strong></li>). Do not list individual issues.\n3. A single closing <p> about the importance of addressing these issues for users with disabilities and WCAG compliance.\n\nData:\n${context}`,
           },
         ],
       }),
