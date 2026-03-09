@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Pencil } from 'lucide-react';
 import { getReport } from '@/lib/db/reports';
-import type { ReportSection } from '@/lib/db/reports';
+import type { ReportContent } from '@/lib/validators/reports';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,15 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 type PageProps = { params: Promise<{ id: string }> };
 
+const USER_IMPACT_LABELS: Record<string, string> = {
+  screen_reader: 'Screen Reader',
+  low_vision: 'Low Vision',
+  color_vision: 'Color Vision',
+  keyboard_only: 'Keyboard Only',
+  cognitive: 'Cognitive',
+  deaf_hard_of_hearing: 'Deaf / Hard of Hearing',
+};
+
 export default async function ReportDetailPage({ params }: PageProps) {
   const { id } = await params;
   const report = getReport(id);
@@ -24,20 +33,18 @@ export default async function ReportDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // content is stored as JSON: [{title, body}]
-  // Filter out any entries missing required fields to avoid silent empty renders
-  let sections: ReportSection[] = [];
+  // Parse content as ReportContent object
+  let content: ReportContent = {};
   try {
     const raw = JSON.parse(report.content);
-    sections = Array.isArray(raw)
-      ? raw.filter(
-          (s): s is ReportSection => typeof s?.title === 'string' && typeof s?.body === 'string'
-        )
-      : [];
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      content = raw as ReportContent;
+    }
   } catch {
-    sections = [];
+    content = {};
   }
 
+  const hasContent = Object.keys(content).length > 0;
   const isPublished = report.status === 'published';
 
   return (
@@ -74,18 +81,60 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
           <Separator className="mb-6" />
 
-          {sections.length === 0 ? (
+          {!hasContent ? (
             <p className="text-muted-foreground italic">
-              No sections yet. Edit this report to add content.
+              No content yet. Edit this report to add content.
             </p>
           ) : (
             <div className="space-y-8">
-              {sections.map((section, i) => (
-                <div key={i}>
-                  <h2 className="text-xl font-semibold mb-3">{section.title}</h2>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{section.body}</p>
+              {content.executive_summary && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">Executive Summary</h2>
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {content.executive_summary.body}
+                  </p>
                 </div>
-              ))}
+              )}
+
+              {content.top_risks && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">Top Risks</h2>
+                  <ol className="list-decimal list-inside space-y-2 text-sm leading-relaxed">
+                    {content.top_risks.items.map((item, i) => (
+                      <li key={i}>{item}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {content.quick_wins && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">Quick Wins</h2>
+                  <ol className="list-decimal list-inside space-y-2 text-sm leading-relaxed">
+                    {content.quick_wins.items.map((item, i) => (
+                      <li key={i}>{item}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {content.user_impact && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-3">User Impact</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {(
+                      Object.keys(content.user_impact) as Array<keyof typeof content.user_impact>
+                    ).map((key) => (
+                      <div key={key} className="rounded-lg border p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                          {USER_IMPACT_LABELS[key] ?? key}
+                        </p>
+                        <p className="text-sm leading-relaxed">{content.user_impact![key]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -113,7 +162,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Sections</span>
-                <span>{sections.length}</span>
+                <span>{Object.keys(content).length}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Created</span>

@@ -17,15 +17,15 @@ const mockProject: Project = {
 
 const mockReport: Report = {
   id: 'report-1',
-  project_id: 'project-1',
+  assessment_ids: ['assessment-1'],
   type: 'detailed',
   title: 'Accessibility Audit Report Q1 2024',
   status: 'published',
-  content: JSON.stringify([
-    { title: 'Executive Summary', body: 'This report covers all findings.' },
-    { title: 'Findings', body: 'Several issues were identified.' },
-    { title: 'Recommendations', body: 'Fix the issues promptly.' },
-  ]),
+  content: JSON.stringify({
+    executive_summary: { body: 'This report covers all findings.' },
+    top_risks: { items: ['Several issues were identified.'] },
+    quick_wins: { items: ['Fix the issues promptly.'] },
+  }),
   template_id: null,
   ai_generated: 0,
   created_by: null,
@@ -53,8 +53,8 @@ describe('generateReportHtml', () => {
   it('contains all section titles', () => {
     const result = generateReportHtml(mockReport, mockProject);
     expect(result).toContain('Executive Summary');
-    expect(result).toContain('Findings');
-    expect(result).toContain('Recommendations');
+    expect(result).toContain('Top Risks');
+    expect(result).toContain('Quick Wins');
   });
 
   it('contains all section body content', () => {
@@ -83,7 +83,7 @@ describe('generateReportHtml', () => {
   });
 
   it('handles a report with empty content gracefully', () => {
-    const emptyReport: Report = { ...mockReport, content: '[]' };
+    const emptyReport: Report = { ...mockReport, content: '{}' };
     const result = generateReportHtml(emptyReport, mockProject);
     expect(typeof result).toBe('string');
     expect(result).toContain('Accessibility Audit Report Q1 2024');

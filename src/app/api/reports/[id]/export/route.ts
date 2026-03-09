@@ -55,7 +55,8 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     // Derive the project from the first linked assessment
-    const assessment = getAssessment(report.assessment_ids[0]);
+    const firstId = report.assessment_ids[0];
+    const assessment = firstId ? getAssessment(firstId) : null;
     const project = assessment ? getProject(assessment.project_id) : null;
     if (!project) {
       return NextResponse.json(

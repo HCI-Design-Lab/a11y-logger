@@ -162,7 +162,7 @@ describe('getReportIssues', () => {
       .run(assessmentId);
     const issues = getReportIssues(report.id);
     expect(issues).toHaveLength(1);
-    expect(issues[0].title).toBe('Issue 1');
+    expect(issues[0]!.title).toBe('Issue 1');
   });
 
   it('returns issues from all linked assessments', () => {

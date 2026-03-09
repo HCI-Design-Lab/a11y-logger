@@ -6,11 +6,11 @@ import type { Report } from '@/lib/db/reports';
 const mockReports: Report[] = [
   {
     id: 'r1',
-    project_id: 'p1',
+    assessment_ids: [],
     title: 'Q1 Report',
     type: 'detailed',
     status: 'draft',
-    content: '[]',
+    content: '{}',
     template_id: null,
     ai_generated: 0,
     created_by: null,

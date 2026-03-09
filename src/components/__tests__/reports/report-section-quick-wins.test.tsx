@@ -41,7 +41,7 @@ describe('QuickWinsSection', () => {
       />
     );
     const inputs = screen.getAllByRole('textbox');
-    fireEvent.change(inputs[0], { target: { value: 'Updated' } });
+    fireEvent.change(inputs[0]!, { target: { value: 'Updated' } });
     expect(onChange).toHaveBeenCalledWith(['Updated', 'B', '', '', '']);
   });
 

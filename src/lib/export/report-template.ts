@@ -1,20 +1,16 @@
 import type { Report } from '@/lib/db/reports';
 import type { Project } from '@/lib/db/projects';
+import type { ReportContent } from '@/lib/validators/reports';
 
-interface ReportSection {
-  title: string;
-  body: string;
-}
-
-function parseContent(content: string): ReportSection[] {
+function parseContent(content: string): ReportContent {
   try {
     const parsed = JSON.parse(content);
-    if (Array.isArray(parsed)) {
-      return parsed as ReportSection[];
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as ReportContent;
     }
-    return [];
+    return {};
   } catch {
-    return [];
+    return {};
   }
 }
 
@@ -27,12 +23,83 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;');
 }
 
+const USER_IMPACT_LABELS: Record<string, string> = {
+  screen_reader: 'Screen Reader',
+  low_vision: 'Low Vision',
+  color_vision: 'Color Vision',
+  keyboard_only: 'Keyboard Only',
+  cognitive: 'Cognitive',
+  deaf_hard_of_hearing: 'Deaf / Hard of Hearing',
+};
+
+function buildSectionsHtml(content: ReportContent): string {
+  const parts: string[] = [];
+
+  if (content.executive_summary) {
+    parts.push(`
+      <section class="report-section">
+        <h2>Executive Summary</h2>
+        <div class="section-body">${escapeHtml(content.executive_summary.body)}</div>
+      </section>`);
+  }
+
+  if (content.top_risks) {
+    const items = content.top_risks.items
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join('\n        ');
+    parts.push(`
+      <section class="report-section">
+        <h2>Top Risks</h2>
+        <ol class="section-list">
+          ${items}
+        </ol>
+      </section>`);
+  }
+
+  if (content.quick_wins) {
+    const items = content.quick_wins.items
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join('\n        ');
+    parts.push(`
+      <section class="report-section">
+        <h2>Quick Wins</h2>
+        <ol class="section-list">
+          ${items}
+        </ol>
+      </section>`);
+  }
+
+  if (content.user_impact) {
+    const grid = (Object.keys(content.user_impact) as Array<keyof typeof content.user_impact>)
+      .map(
+        (key) => `
+          <div class="impact-card">
+            <dt>${escapeHtml(USER_IMPACT_LABELS[key] ?? key)}</dt>
+            <dd>${escapeHtml(content.user_impact![key])}</dd>
+          </div>`
+      )
+      .join('\n');
+    parts.push(`
+      <section class="report-section">
+        <h2>User Impact</h2>
+        <dl class="impact-grid">
+          ${grid}
+        </dl>
+      </section>`);
+  }
+
+  return parts.join('\n');
+}
+
 /**
  * Generates a complete, standalone HTML document for a report.
  * Suitable for direct download or browser print-to-PDF.
  */
 export function generateReportHtml(report: Report, project: Project): string {
-  const sections = parseContent(report.content);
+  const content = parseContent(report.content);
+  const sectionsHtml = buildSectionsHtml(content);
+  const hasContent = Object.keys(content).length > 0;
+
   const generatedDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -46,20 +113,9 @@ export function generateReportHtml(report: Report, project: Project): string {
       })
     : null;
 
-  const sectionsHtml = sections
-    .map(
-      (section) => `
-      <section class="report-section">
-        <h2>${escapeHtml(section.title)}</h2>
-        <div class="section-body">${escapeHtml(section.body)}</div>
-      </section>`
-    )
-    .join('\n');
-
-  const noSectionsHtml =
-    sections.length === 0
-      ? '<p class="no-content">No content sections have been added to this report.</p>'
-      : '';
+  const noSectionsHtml = !hasContent
+    ? '<p class="no-content">No content sections have been added to this report.</p>'
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -140,6 +196,43 @@ export function generateReportHtml(report: Report, project: Project): string {
 
     .section-body {
       white-space: pre-wrap;
+      font-size: 11pt;
+    }
+
+    .section-list {
+      font-size: 11pt;
+      padding-left: 1.5em;
+    }
+
+    .section-list li {
+      margin-bottom: 6px;
+    }
+
+    /* User impact grid */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 0;
+    }
+
+    .impact-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px 16px;
+    }
+
+    .impact-card dt {
+      font-size: 9pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .impact-card dd {
+      margin: 0;
       font-size: 11pt;
     }
 

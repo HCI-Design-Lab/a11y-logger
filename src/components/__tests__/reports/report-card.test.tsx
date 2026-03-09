@@ -3,10 +3,10 @@ import { ReportCard } from '@/components/reports/report-card';
 
 const mockReport = {
   id: '1',
-  project_id: 'proj-1',
+  assessment_ids: [],
   title: 'Q1 Accessibility Report',
   type: 'executive' as const,
-  content: '[]',
+  content: '{}',
   template_id: null,
   ai_generated: 0,
   created_by: null,

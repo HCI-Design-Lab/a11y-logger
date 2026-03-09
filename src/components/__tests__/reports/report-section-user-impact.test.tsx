@@ -50,7 +50,7 @@ describe('UserImpactSection', () => {
       />
     );
     const textareas = screen.getAllByRole('textbox');
-    fireEvent.change(textareas[0], { target: { value: 'New value' } });
+    fireEvent.change(textareas[0]!, { target: { value: 'New value' } });
     expect(onChange).toHaveBeenCalledWith({ ...EMPTY, screen_reader: 'New value' });
   });
 

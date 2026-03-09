@@ -15,8 +15,9 @@ export function buildIssueContext(reportId: string): {
   // Derive project from first linked assessment
   let projectName = '';
   let projectDescription = '';
-  if (report.assessment_ids.length > 0) {
-    const assessment = getAssessment(report.assessment_ids[0]);
+  const firstId = report.assessment_ids[0];
+  if (firstId) {
+    const assessment = getAssessment(firstId);
     if (assessment) {
       const project = getProject(assessment.project_id);
       if (project) {
