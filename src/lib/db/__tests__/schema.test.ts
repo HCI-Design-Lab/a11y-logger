@@ -230,6 +230,57 @@ describe('core tables schema', () => {
     });
   });
 
+  describe('report_assessments', () => {
+    it('has the correct columns', () => {
+      const columns = getColumnNames(db, 'report_assessments');
+      expect(columns).toEqual(['report_id', 'assessment_id']);
+    });
+
+    it('has a foreign key to reports', () => {
+      const fks = getForeignKeys(db, 'report_assessments');
+      expect(fks.some((fk) => fk.table === 'reports' && fk.from === 'report_id')).toBe(true);
+    });
+
+    it('has a foreign key to assessments', () => {
+      const fks = getForeignKeys(db, 'report_assessments');
+      expect(fks.some((fk) => fk.table === 'assessments' && fk.from === 'assessment_id')).toBe(
+        true
+      );
+    });
+
+    it('cascades delete when parent report is deleted', () => {
+      db.prepare("INSERT INTO projects (id, name) VALUES ('p1', 'Test')").run();
+      db.prepare(
+        "INSERT INTO assessments (id, project_id, name) VALUES ('a1', 'p1', 'Assessment 1')"
+      ).run();
+      db.prepare(
+        "INSERT INTO reports (id, project_id, type, title) VALUES ('r1', 'p1', 'executive', 'Report 1')"
+      ).run();
+      db.prepare(
+        "INSERT INTO report_assessments (report_id, assessment_id) VALUES ('r1', 'a1')"
+      ).run();
+      db.prepare("DELETE FROM reports WHERE id = 'r1'").run();
+      const row = db.prepare("SELECT * FROM report_assessments WHERE report_id = 'r1'").get();
+      expect(row).toBeUndefined();
+    });
+
+    it('cascades delete when parent assessment is deleted', () => {
+      db.prepare("INSERT INTO projects (id, name) VALUES ('p1', 'Test')").run();
+      db.prepare(
+        "INSERT INTO assessments (id, project_id, name) VALUES ('a1', 'p1', 'Assessment 1')"
+      ).run();
+      db.prepare(
+        "INSERT INTO reports (id, project_id, type, title) VALUES ('r1', 'p1', 'executive', 'Report 1')"
+      ).run();
+      db.prepare(
+        "INSERT INTO report_assessments (report_id, assessment_id) VALUES ('r1', 'a1')"
+      ).run();
+      db.prepare("DELETE FROM assessments WHERE id = 'a1'").run();
+      const row = db.prepare("SELECT * FROM report_assessments WHERE assessment_id = 'a1'").get();
+      expect(row).toBeUndefined();
+    });
+  });
+
   describe('foreign key enforcement', () => {
     it('rejects inserting an assessment with a nonexistent project_id', () => {
       expect(() => {
