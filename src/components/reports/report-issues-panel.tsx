@@ -54,10 +54,10 @@ export function ReportIssuesPanel({ issues }: Props) {
           <h3 className="font-semibold text-sm leading-snug">{selected.title}</h3>
           <SeverityBadge severity={selected.severity} />
           {selected.description && (
-            <p className="text-sm text-muted-foreground">{selected.description}</p>
+            <p className="text-sm text-muted-foreground my-4">{selected.description}</p>
           )}
           {wcagCodes.length > 0 && (
-            <div className="space-y-1">
+            <div className="space-y-1 mb-4">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 WCAG Criteria
               </p>

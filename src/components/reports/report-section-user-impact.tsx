@@ -66,7 +66,7 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
                 value={data[key]}
                 onChange={(e) => handleFieldChange(key, e.target.value)}
                 placeholder={label}
-                rows={3}
+                rows={10}
               />
             </div>
           ))}
