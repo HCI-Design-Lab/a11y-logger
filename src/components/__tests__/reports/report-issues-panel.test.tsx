@@ -78,11 +78,27 @@ describe('ReportIssuesPanel', () => {
     expect(screen.getByText(/critical/i)).toBeInTheDocument();
   });
 
-  it('renders issue titles as links with correct href', () => {
+  it('opens detail view when row clicked', () => {
     render(<ReportIssuesPanel issues={mockIssues} />);
-    const link = screen.getByRole('link', { name: 'Button not focusable' });
+    fireEvent.click(screen.getByText('Button not focusable'));
+    expect(screen.getByText('The button cannot be reached by keyboard.')).toBeInTheDocument();
+    expect(screen.getByText(/back to list/i)).toBeInTheDocument();
+  });
+
+  it('shows "Open full issue" link with correct href in detail view', () => {
+    render(<ReportIssuesPanel issues={mockIssues} />);
+    fireEvent.click(screen.getByText('Button not focusable'));
+    const link = screen.getByRole('link', { name: /open full issue/i });
     expect(link).toHaveAttribute('href', '/projects/p1/assessments/a1/issues/i1');
     expect(link).toHaveAttribute('target', '_blank');
+  });
+
+  it('returns to table when Back clicked', () => {
+    render(<ReportIssuesPanel issues={mockIssues} />);
+    fireEvent.click(screen.getByText('Button not focusable'));
+    fireEvent.click(screen.getByText(/back to list/i));
+    expect(screen.getByText('Button not focusable')).toBeInTheDocument();
+    expect(screen.queryByText(/back to list/i)).not.toBeInTheDocument();
   });
 
   it('shows empty state when no issues', () => {

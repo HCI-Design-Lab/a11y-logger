@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { Search, ArrowUpDown } from 'lucide-react';
+import { Search, ArrowUpDown, ArrowLeft, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { SeverityBadge } from '@/components/issues/severity-badge';
 import type { IssueWithContext } from '@/lib/db/issues';
 import type { Issue } from '@/lib/db/issues';
@@ -24,6 +25,7 @@ export function ReportIssuesPanel({ issues }: Props) {
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<SortField>('severity');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [selected, setSelected] = useState<IssueWithContext | null>(null);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -33,6 +35,54 @@ export function ReportIssuesPanel({ issues }: Props) {
       setSortDir('asc');
     }
   };
+
+  if (selected) {
+    const wcagCodes: string[] = Array.isArray(selected.wcag_codes)
+      ? selected.wcag_codes
+      : JSON.parse((selected.wcag_codes as unknown as string) || '[]');
+
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={() => setSelected(null)}
+          className="text-sm text-primary hover:underline flex items-center gap-1"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Back to list
+        </button>
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm leading-snug">{selected.title}</h3>
+          <SeverityBadge severity={selected.severity} />
+          {selected.description && (
+            <p className="text-sm text-muted-foreground">{selected.description}</p>
+          )}
+          {wcagCodes.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                WCAG Criteria
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {wcagCodes.map((code) => (
+                  <Badge key={code} variant="outline" className="text-xs">
+                    {code}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          <a
+            href={`/projects/${selected.project_id}/assessments/${selected.assessment_id}/issues/${selected.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            Open full issue
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const filtered = issues
     .filter((i) => i.title.toLowerCase().includes(search.toLowerCase()))
@@ -95,18 +145,10 @@ export function ReportIssuesPanel({ issues }: Props) {
               filtered.map((issue) => (
                 <tr
                   key={issue.id}
-                  className="border-b last:border-0 hover:bg-muted/40 transition-colors"
+                  onClick={() => setSelected(issue)}
+                  className="border-b last:border-0 hover:bg-muted/40 transition-colors cursor-pointer"
                 >
-                  <td className="py-2 pr-3">
-                    <a
-                      href={`/projects/${issue.project_id}/assessments/${issue.assessment_id}/issues/${issue.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:underline leading-snug"
-                    >
-                      {issue.title}
-                    </a>
-                  </td>
+                  <td className="py-2 pr-3">{issue.title}</td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <SeverityBadge severity={issue.severity} />
                   </td>
