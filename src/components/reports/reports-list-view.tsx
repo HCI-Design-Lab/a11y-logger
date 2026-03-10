@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { ReportCard } from '@/components/reports/report-card';
-import { getTypeBadgeClass, getStatusBadgeClass } from '@/components/reports/report-badge-utils';
+import { getStatusBadgeClass } from '@/components/reports/report-badge-utils';
 import {
   Table,
   TableBody,
@@ -65,7 +65,6 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Updated</TableHead>
                 </TableRow>
@@ -77,11 +76,6 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
                       <Link href={`/reports/${report.id}`} className="font-medium hover:underline">
                         {report.title}
                       </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getTypeBadgeClass(report.type)} variant="outline">
-                        {report.type}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusBadgeClass(report.status)} variant="outline">

@@ -21,11 +21,6 @@ test('renders report title', () => {
   expect(screen.getByText('Q1 Accessibility Report')).toBeInTheDocument();
 });
 
-test('renders type badge', () => {
-  render(<ReportCard report={mockReport} />);
-  expect(screen.getByText(/executive/i)).toBeInTheDocument();
-});
-
 test('renders status badge', () => {
   render(<ReportCard report={mockReport} />);
   expect(screen.getByText(/draft/i)).toBeInTheDocument();

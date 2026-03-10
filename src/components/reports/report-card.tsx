@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Report } from '@/lib/db/reports';
-import { getTypeBadgeClass, getStatusBadgeClass } from './report-badge-utils';
+import { getStatusBadgeClass } from './report-badge-utils';
 
 interface ReportCardProps {
   report: Report;
@@ -21,9 +21,6 @@ export function ReportCard({ report }: ReportCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base">{report.title}</CardTitle>
             <div className="flex gap-2 shrink-0">
-              <Badge className={getTypeBadgeClass(report.type)} variant="outline">
-                {report.type}
-              </Badge>
               <Badge className={getStatusBadgeClass(report.status)} variant="outline">
                 {report.status}
               </Badge>
