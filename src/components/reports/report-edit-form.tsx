@@ -198,7 +198,7 @@ export function ReportEditForm({ report, issues }: Props) {
       <aside>
         <Card>
           <CardHeader>
-            <CardTitle>Issues list</CardTitle>
+            <CardTitle>Assessment Issues</CardTitle>
           </CardHeader>
           <CardContent>
             <ReportIssuesPanel issues={issues} />
