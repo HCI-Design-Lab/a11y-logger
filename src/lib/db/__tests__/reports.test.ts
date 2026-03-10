@@ -217,16 +217,16 @@ describe('getReportStats', () => {
     createIssue(assessmentId, { title: 'B', severity: 'high', wcag_codes: ['1.3.1'] });
     createIssue(assessmentId, { title: 'C', severity: 'high', wcag_codes: ['2.4.3'] });
     const stats = getReportStats(report.id);
-    expect(stats.wcagCriteriaCounts[0].code).toBe('1.3.1');
-    expect(stats.wcagCriteriaCounts[0].count).toBe(2);
-    expect(stats.wcagCriteriaCounts[1].code).toBe('2.4.3');
-    expect(stats.wcagCriteriaCounts[1].count).toBe(1);
+    expect(stats.wcagCriteriaCounts[0]!.code).toBe('1.3.1');
+    expect(stats.wcagCriteriaCounts[0]!.count).toBe(2);
+    expect(stats.wcagCriteriaCounts[1]!.code).toBe('2.4.3');
+    expect(stats.wcagCriteriaCounts[1]!.count).toBe(1);
   });
 
   it('includes WCAG criterion name when known', () => {
     const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
     createIssue(assessmentId, { title: 'A', severity: 'high', wcag_codes: ['1.3.1'] });
     const stats = getReportStats(report.id);
-    expect(stats.wcagCriteriaCounts[0].name).toBe('Info and Relationships');
+    expect(stats.wcagCriteriaCounts[0]!.name).toBe('Info and Relationships');
   });
 });
