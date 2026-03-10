@@ -129,7 +129,7 @@ export function ReportEditForm({ report, issues }: Props) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
       {/* Left: sections */}
       <div className="space-y-4">
         {/* Executive Summary — full width */}

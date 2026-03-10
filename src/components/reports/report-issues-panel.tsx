@@ -58,7 +58,7 @@ export function ReportIssuesPanel({ issues }: Props) {
         />
       </div>
 
-      <div className="overflow-auto max-h-[600px]">
+      <div className="overflow-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b">
