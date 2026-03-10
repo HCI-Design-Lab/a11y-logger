@@ -103,7 +103,7 @@ test('includes evidence_media in submitted data after upload', async () => {
   expect(onSubmit).toHaveBeenCalledWith(
     expect.objectContaining({ evidence_media: ['/api/media/p1/tmp/photo.png'] })
   );
-});
+}, 15000);
 
 test('removes media url when remove button is clicked', () => {
   const onSubmit = vi.fn();

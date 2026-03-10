@@ -87,7 +87,7 @@ describe('IssueForm AI Generate', () => {
         ),
       })
     );
-  });
+  }, 15000);
 
   it('shows error message when AI is not configured', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({

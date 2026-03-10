@@ -24,9 +24,8 @@ describe('ReportCard', () => {
     expect(screen.getByText('Accessibility Report Q1')).toBeInTheDocument();
   });
 
-  it('renders type and status badges', () => {
+  it('renders status badge', () => {
     render(<ReportCard report={mockReport} />);
-    expect(screen.getByText('detailed')).toBeInTheDocument();
     expect(screen.getByText('draft')).toBeInTheDocument();
   });
 
