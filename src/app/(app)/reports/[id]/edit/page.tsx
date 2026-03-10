@@ -17,7 +17,7 @@ export default async function EditReportPage({ params }: PageProps) {
   const issues = getReportIssues(id);
 
   return (
-    <div>
+    <div className="space-y-6">
       <Breadcrumbs
         items={[
           { label: 'Reports', href: '/reports' },
