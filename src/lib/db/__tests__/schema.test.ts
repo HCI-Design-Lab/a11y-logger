@@ -186,6 +186,8 @@ describe('core tables schema', () => {
         'published_at',
         'created_at',
         'updated_at',
+        'wcag_version',
+        'wcag_level',
       ]);
     });
 

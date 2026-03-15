@@ -24,6 +24,8 @@ const wcagScopeSchema = z.array(
 export const CreateVpatSchema = z.object({
   title: z.string().min(1).max(200),
   project_id: z.string().min(1),
+  wcag_version: z.enum(['2.1', '2.2']).default('2.1'),
+  wcag_level: z.enum(['A', 'AA', 'AAA']).default('AA'),
   wcag_scope: wcagScopeSchema.default([]),
   criteria_rows: z.array(CriterionRowSchema).default([]),
 });

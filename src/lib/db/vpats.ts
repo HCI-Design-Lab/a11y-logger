@@ -7,6 +7,8 @@ export interface Vpat {
   title: string;
   status: 'draft' | 'published';
   version_number: number;
+  wcag_version: '2.1' | '2.2';
+  wcag_level: 'A' | 'AA' | 'AAA';
   wcag_scope: string[];
   criteria_rows: CriterionRow[];
   ai_generated: number;
@@ -23,6 +25,8 @@ interface VpatRow {
   title: string;
   status: string;
   version_number: number;
+  wcag_version: string;
+  wcag_level: string;
   wcag_scope: string;
   criteria_rows: string;
   ai_generated: number;
@@ -44,6 +48,8 @@ function parseVpat(raw: VpatRow): Vpat {
   return {
     ...raw,
     status: raw.status as Vpat['status'],
+    wcag_version: raw.wcag_version as Vpat['wcag_version'],
+    wcag_level: raw.wcag_level as Vpat['wcag_level'],
     wcag_scope: safeParse(raw.wcag_scope, []),
     criteria_rows: safeParse(raw.criteria_rows, []),
   };
@@ -70,12 +76,14 @@ export function createVpat(input: CreateVpatInput): Vpat {
   const id = crypto.randomUUID();
   const db = getDb();
   db.prepare(
-    `INSERT INTO vpats (id, project_id, title, wcag_scope, criteria_rows)
-     VALUES (?, ?, ?, ?, ?)`
+    `INSERT INTO vpats (id, project_id, title, wcag_version, wcag_level, wcag_scope, criteria_rows)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     input.project_id,
     input.title,
+    input.wcag_version ?? '2.1',
+    input.wcag_level ?? 'AA',
     JSON.stringify(input.wcag_scope ?? []),
     JSON.stringify(input.criteria_rows ?? [])
   );

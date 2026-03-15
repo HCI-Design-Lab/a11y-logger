@@ -47,6 +47,23 @@ describe('createVpat', () => {
     expect(vpat.updated_at).toBeDefined();
   });
 
+  it('defaults wcag_version to "2.1" and wcag_level to "AA"', () => {
+    const vpat = createVpat({ title: 'VPAT Defaults', project_id: projectId });
+    expect(vpat.wcag_version).toBe('2.1');
+    expect(vpat.wcag_level).toBe('AA');
+  });
+
+  it('stores and returns provided wcag_version and wcag_level', () => {
+    const vpat = createVpat({
+      title: 'VPAT 2.2 AAA',
+      project_id: projectId,
+      wcag_version: '2.2',
+      wcag_level: 'AAA',
+    });
+    expect(vpat.wcag_version).toBe('2.2');
+    expect(vpat.wcag_level).toBe('AAA');
+  });
+
   it('generates a unique id for each VPAT', () => {
     const v1 = createVpat({ title: 'VPAT A', project_id: projectId });
     const v2 = createVpat({ title: 'VPAT B', project_id: projectId });
@@ -101,6 +118,19 @@ describe('getVpat', () => {
     const found = getVpat(created.id);
     expect(Array.isArray(found!.wcag_scope)).toBe(true);
     expect(found!.wcag_scope).toEqual(['1.1.1']);
+  });
+
+  it('returns wcag_version and wcag_level on read', () => {
+    const created = createVpat({
+      title: 'VPAT',
+      project_id: projectId,
+      wcag_version: '2.2',
+      wcag_level: 'A',
+    });
+    const found = getVpat(created.id);
+    expect(found).not.toBeNull();
+    expect(found!.wcag_version).toBe('2.2');
+    expect(found!.wcag_level).toBe('A');
   });
 });
 
