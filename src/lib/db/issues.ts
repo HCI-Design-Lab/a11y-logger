@@ -271,3 +271,12 @@ export function getIssuesByProject(projectId: string): Issue[] {
     .all(projectId) as IssueRow[];
   return rows.map(deserializeIssue);
 }
+
+export function getIssuesByIds(ids: string[]): Issue[] {
+  if (ids.length === 0) return [];
+  const placeholders = ids.map(() => '?').join(', ');
+  const rows = getDb()
+    .prepare(`SELECT * FROM issues WHERE id IN (${placeholders})`)
+    .all(...ids) as IssueRow[];
+  return rows.map(deserializeIssue);
+}
