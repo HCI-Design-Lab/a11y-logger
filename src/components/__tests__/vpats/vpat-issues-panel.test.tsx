@@ -46,4 +46,10 @@ describe('VpatIssuesPanel', () => {
     render(<VpatIssuesPanel issues={mockIssues} criterionCode="1.1.1" />);
     expect(screen.getByText(/Images lack alt text/i)).toBeInTheDocument();
   });
+
+  it('renders severity badge for each issue', () => {
+    render(<VpatIssuesPanel issues={mockIssues} criterionCode="1.1.1" />);
+    // SeverityBadge renders the severity value as text
+    expect(screen.getByText(/critical/i)).toBeInTheDocument();
+  });
 });

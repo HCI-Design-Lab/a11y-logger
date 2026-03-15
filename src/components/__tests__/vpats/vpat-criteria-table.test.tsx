@@ -138,4 +138,18 @@ describe('VpatCriteriaTable', () => {
     const row = updatedCriteria.find((r) => r.criterion_code === '1.1.1')!;
     expect(row?.conformance).toBe('does_not_support');
   });
+
+  it('renders Generate All button when projectId and onGenerateAll provided', () => {
+    const onGenerateAll = vi.fn();
+    render(<VpatCriteriaTable criteria={[rowA]} projectId="p1" onGenerateAll={onGenerateAll} />);
+    expect(screen.getByRole('button', { name: /generate all/i })).toBeInTheDocument();
+  });
+
+  it('does not render Generate All button when readOnly', () => {
+    const onGenerateAll = vi.fn();
+    render(
+      <VpatCriteriaTable criteria={[rowA]} projectId="p1" onGenerateAll={onGenerateAll} readOnly />
+    );
+    expect(screen.queryByRole('button', { name: /generate all/i })).not.toBeInTheDocument();
+  });
 });

@@ -11,6 +11,7 @@ import {
   deleteIssue,
   resolveIssue,
   getIssuesByProject,
+  getIssuesByIds,
 } from '../issues';
 
 let projectId: string;
@@ -323,5 +324,41 @@ describe('getIssuesByProject', () => {
     const results = getIssuesByProject(projectId);
     expect(Array.isArray(results[0]!.wcag_codes)).toBe(true);
     expect(results[0]!.wcag_codes).toEqual(['1.1.1']);
+  });
+});
+
+// ─── getIssuesByIds ───────────────────────────────────────────────────────────
+
+describe('getIssuesByIds', () => {
+  it('returns empty array for empty ids', () => {
+    const result = getIssuesByIds([]);
+    expect(result).toEqual([]);
+  });
+
+  it('returns issues matching the given ids', () => {
+    const issue1 = createIssue(assessmentId, { title: 'Issue One' });
+    const issue2 = createIssue(assessmentId, { title: 'Issue Two' });
+    createIssue(assessmentId, { title: 'Issue Three' });
+    const results = getIssuesByIds([issue1.id, issue2.id]);
+    expect(results).toHaveLength(2);
+    const titles = results.map((i) => i.title);
+    expect(titles).toContain('Issue One');
+    expect(titles).toContain('Issue Two');
+    expect(titles).not.toContain('Issue Three');
+  });
+
+  it('returns empty array when no ids match', () => {
+    createIssue(assessmentId, { title: 'Exists' });
+    const results = getIssuesByIds(['nonexistent-id']);
+    expect(results).toEqual([]);
+  });
+
+  it('returns deserialized array fields', () => {
+    const issue = createIssue(assessmentId, { title: 'T', wcag_codes: ['1.1.1'], tags: ['nav'] });
+    const results = getIssuesByIds([issue.id]);
+    expect(results).toHaveLength(1);
+    expect(Array.isArray(results[0]!.wcag_codes)).toBe(true);
+    expect(results[0]!.wcag_codes).toEqual(['1.1.1']);
+    expect(results[0]!.tags).toEqual(['nav']);
   });
 });
