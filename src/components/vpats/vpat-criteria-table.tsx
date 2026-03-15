@@ -39,15 +39,27 @@ interface VpatCriteriaTableProps {
   readOnly?: boolean;
   /** When provided, shows AI Generate buttons per criterion */
   projectId?: string;
+  /** Called with criterion code when the issues badge is clicked */
+  onIssuesBadgeClick?: (criterionCode: string) => void;
+  /** Called when the Generate All button is clicked */
+  onGenerateAll?: () => void;
 }
 
-const PRINCIPLES = ['Perceivable', 'Operable', 'Understandable', 'Robust'] as const;
+const LEVELS = ['A', 'AA', 'AAA'] as const;
+
+const TABLE_TITLES: Record<string, string> = {
+  A: 'Table 1: Success Criteria, Level A',
+  AA: 'Table 2: Success Criteria, Level AA',
+  AAA: 'Table 3: Success Criteria, Level AAA',
+};
 
 export function VpatCriteriaTable({
   criteria,
   onChange,
   readOnly = false,
   projectId,
+  onIssuesBadgeClick,
+  onGenerateAll,
 }: VpatCriteriaTableProps) {
   const [aiLoadingCode, setAiLoadingCode] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
@@ -90,17 +102,26 @@ export function VpatCriteriaTable({
   return (
     <div className="space-y-8">
       {aiError && <p className="text-sm text-destructive">{aiError}</p>}
-      {PRINCIPLES.map((principle) => {
+
+      {projectId && !readOnly && onGenerateAll && (
+        <div className="flex justify-end mb-4">
+          <Button type="button" variant="outline" onClick={onGenerateAll}>
+            Generate All
+          </Button>
+        </div>
+      )}
+
+      {LEVELS.map((level) => {
         const rows = criteria.filter((r) => {
           const meta = WCAG_CRITERIA.find((c) => c.criterion === r.criterion_code);
-          return meta?.principle === principle;
+          return meta?.level === level;
         });
         if (rows.length === 0) return null;
 
         return (
-          <Card key={principle}>
+          <Card key={level}>
             <CardHeader>
-              <CardTitle>{principle}</CardTitle>
+              <CardTitle>{TABLE_TITLES[level]}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -108,9 +129,9 @@ export function VpatCriteriaTable({
                   <TableRow>
                     <TableHead className="w-24">Criterion</TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead className="w-16">Level</TableHead>
                     <TableHead className="w-48">Conformance</TableHead>
                     <TableHead>Remarks</TableHead>
+                    <TableHead className="w-24">Issues</TableHead>
                     {projectId && !readOnly && <TableHead className="w-32">AI</TableHead>}
                   </TableRow>
                 </TableHeader>
@@ -122,14 +143,12 @@ export function VpatCriteriaTable({
                       CONFORMANCE_DISPLAY[row.conformance as keyof typeof CONFORMANCE_DISPLAY] ??
                       row.conformance;
                     const isGenerating = aiLoadingCode === row.criterion_code;
+                    const issueCount = row.related_issue_ids.length;
 
                     return (
                       <TableRow key={row.criterion_code}>
                         <TableCell className="font-mono text-sm">{row.criterion_code}</TableCell>
                         <TableCell>{meta?.name ?? row.criterion_code}</TableCell>
-                        <TableCell>
-                          <span className="text-xs font-medium">{meta?.level ?? ''}</span>
-                        </TableCell>
                         <TableCell>
                           {readOnly ? (
                             <span className="text-sm">{displayConformance}</span>
@@ -177,6 +196,20 @@ export function VpatCriteriaTable({
                               placeholder="Add remarks…"
                               aria-label={`Remarks for ${row.criterion_code}`}
                             />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {issueCount > 0 ? (
+                            <button
+                              type="button"
+                              onClick={() => onIssuesBadgeClick?.(row.criterion_code)}
+                              aria-label={`${issueCount} issue${issueCount !== 1 ? 's' : ''}`}
+                              className="inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5 min-w-[1.5rem] cursor-pointer hover:bg-primary/90"
+                            >
+                              {issueCount} issue{issueCount !== 1 ? 's' : ''}
+                            </button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">0</span>
                           )}
                         </TableCell>
                         {projectId && !readOnly && (
