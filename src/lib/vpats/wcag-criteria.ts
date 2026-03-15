@@ -640,7 +640,7 @@ export const CONFORMANCE_DISPLAY: Record<DbConformance, string> = {
   not_evaluated: 'Not Evaluated',
 };
 
-export const CONFORMANCE_DB_VALUE: Record<string, DbConformance> = {
+export const CONFORMANCE_DB_VALUE: Record<(typeof CONFORMANCE_OPTIONS)[number], DbConformance> = {
   Supports: 'supports',
   'Partially Supports': 'partially_supports',
   'Does Not Support': 'does_not_support',
@@ -670,7 +670,12 @@ export function getCriteriaForScope(
 export function buildDefaultCriteriaRows(
   version: '2.1' | '2.2' = '2.1',
   level: 'A' | 'AA' | 'AAA' = 'AA'
-) {
+): Array<{
+  criterion_code: string;
+  conformance: 'not_evaluated';
+  remarks: string;
+  related_issue_ids: string[];
+}> {
   return getCriteriaForScope(version, level).map((c) => ({
     criterion_code: c.criterion,
     conformance: 'not_evaluated' as const,

@@ -9,7 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VpatCriteriaTable, type CriterionRow } from '@/components/vpats/vpat-criteria-table';
-import { buildDefaultCriteriaRows, CONFORMANCE_DB_VALUE } from '@/lib/vpats/wcag-criteria';
+import {
+  buildDefaultCriteriaRows,
+  CONFORMANCE_DB_VALUE,
+  CONFORMANCE_OPTIONS,
+} from '@/lib/vpats/wcag-criteria';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 function buildInitialCriteria(): CriterionRow[] {
@@ -44,7 +48,8 @@ export default function NewVpatPage() {
       const criteriaRows = criteria.map((r) => ({
         criterion_code: r.criterion_code,
         // Normalise: if value is already a db key keep it, else map from display label
-        conformance: (CONFORMANCE_DB_VALUE[r.conformance] ?? r.conformance) as
+        conformance: (CONFORMANCE_DB_VALUE[r.conformance as (typeof CONFORMANCE_OPTIONS)[number]] ??
+          r.conformance) as
           | 'supports'
           | 'partially_supports'
           | 'does_not_support'

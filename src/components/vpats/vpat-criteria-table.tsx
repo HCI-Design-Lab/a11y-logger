@@ -140,7 +140,8 @@ export function VpatCriteriaTable({
                                 updateRow(
                                   row.criterion_code,
                                   'conformance',
-                                  CONFORMANCE_DB_VALUE[v] ?? v
+                                  CONFORMANCE_DB_VALUE[v as (typeof CONFORMANCE_OPTIONS)[number]] ??
+                                    v
                                 )
                               }
                             >
