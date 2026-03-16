@@ -84,10 +84,10 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                         {vpat.title}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {vpat.wcag_scope.length > 0
-                        ? `${vpat.wcag_scope.length} criteria`
-                        : 'All criteria'}
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        WCAG {vpat.wcag_version} · {vpat.wcag_level}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusBadgeClass(vpat.status)} variant="outline">

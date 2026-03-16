@@ -27,6 +27,9 @@ export function VpatCard({ vpat }: VpatCardProps) {
           <Badge className={getStatusBadgeClass(vpat.status)} variant="outline">
             {vpat.status}
           </Badge>
+          <Badge variant="outline" className="text-xs">
+            WCAG {vpat.wcag_version} · {vpat.wcag_level}
+          </Badge>
           <span className="text-muted-foreground">v{vpat.version_number}</span>
           <span className="text-muted-foreground">{scopeLabel}</span>
         </CardContent>

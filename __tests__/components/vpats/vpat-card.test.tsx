@@ -9,6 +9,8 @@ const mockVpat: Vpat = {
   status: 'draft',
   version_number: 2,
   wcag_scope: ['1.1.1', '1.4.3'],
+  wcag_version: '2.1',
+  wcag_level: 'AA',
   criteria_rows: [],
   ai_generated: 0,
   created_by: null,
@@ -42,5 +44,16 @@ describe('VpatCard', () => {
   it('renders all criteria when scope is empty', () => {
     render(<VpatCard vpat={{ ...mockVpat, wcag_scope: [] }} />);
     expect(screen.getByText(/all criteria/i)).toBeInTheDocument();
+  });
+
+  it('shows WCAG scope badge', () => {
+    render(<VpatCard vpat={mockVpat} />);
+    expect(screen.getByText(/wcag 2\.1/i)).toBeInTheDocument();
+  });
+
+  it('does not show inline Edit or Delete action buttons', () => {
+    render(<VpatCard vpat={mockVpat} />);
+    expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
   });
 });
