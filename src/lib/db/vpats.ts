@@ -149,6 +149,38 @@ export function publishVpat(id: string): Vpat | null {
  * Returns the subset of the provided issue IDs that do not exist in the database.
  * Used by API routes to validate related_issue_ids in criteria_rows.
  */
+export interface VpatWithProject extends Vpat {
+  project_name: string | null;
+}
+
+export function countIssues(criteriaRows: CriterionRow[]): number {
+  const ids = new Set<string>();
+  for (const row of criteriaRows) {
+    for (const id of row.related_issue_ids) ids.add(id);
+  }
+  return ids.size;
+}
+
+export function getVpatsWithProject(projectId?: string): VpatWithProject[] {
+  const sql = `
+    SELECT v.*, p.name as project_name
+    FROM vpats v
+    LEFT JOIN projects p ON v.project_id = p.id
+    ${projectId ? 'WHERE v.project_id = ?' : ''}
+    ORDER BY v.created_at DESC
+  `;
+  let rows: (VpatRow & { project_name: string | null })[];
+  if (projectId) {
+    rows = getDb().prepare(sql).all(projectId) as (VpatRow & { project_name: string | null })[];
+  } else {
+    rows = getDb().prepare(sql).all() as (VpatRow & { project_name: string | null })[];
+  }
+  return rows.map((raw) => ({
+    ...parseVpat(raw),
+    project_name: raw.project_name,
+  }));
+}
+
 export function getInvalidIssueIds(ids: string[]): string[] {
   if (ids.length === 0) return [];
   const placeholders = ids.map(() => '?').join(', ');

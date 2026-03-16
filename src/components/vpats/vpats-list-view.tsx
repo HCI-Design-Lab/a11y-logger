@@ -15,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { Vpat } from '@/lib/db/vpats';
+import type { VpatWithProject } from '@/lib/db/vpats';
+import { countIssues } from '@/lib/db/vpats';
 
 function getStatusBadgeClass(status: string): string {
   return status === 'published'
@@ -24,7 +25,7 @@ function getStatusBadgeClass(status: string): string {
 }
 
 interface VpatsListViewProps {
-  vpats: Vpat[];
+  vpats: VpatWithProject[];
 }
 
 export function VpatsListView({ vpats }: VpatsListViewProps) {
@@ -70,9 +71,10 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
+                  <TableHead>Project</TableHead>
                   <TableHead>Scope</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-20">Version</TableHead>
+                  <TableHead className="w-20">Issues</TableHead>
                   <TableHead>Updated</TableHead>
                 </TableRow>
               </TableHeader>
@@ -83,6 +85,18 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                       <Link href={`/vpats/${vpat.id}`} className="font-medium hover:underline">
                         {vpat.title}
                       </Link>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {vpat.project_id ? (
+                        <Link
+                          href={`/projects/${vpat.project_id}`}
+                          className="hover:underline text-muted-foreground"
+                        >
+                          {vpat.project_name ?? 'Unknown'}
+                        </Link>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
@@ -95,7 +109,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      v{vpat.version_number}
+                      {countIssues(vpat.criteria_rows)}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {new Date(vpat.updated_at).toLocaleDateString()}
