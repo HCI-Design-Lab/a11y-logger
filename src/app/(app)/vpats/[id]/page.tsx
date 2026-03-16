@@ -2,12 +2,18 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Download, Pencil } from 'lucide-react';
+import { Download, Pencil, ChevronDown } from 'lucide-react';
 import { getVpat } from '@/lib/db/vpats';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { VpatCriteriaWithPanel } from '@/components/vpats/vpat-criteria-with-panel';
 import { DeleteVpatButton } from '@/components/vpats/delete-vpat-button';
 import { PublishVpatButton } from '@/components/vpats/publish-vpat-button';
 import { WCAG_CRITERIA, buildDefaultCriteriaRows } from '@/lib/vpats/wcag-criteria';
@@ -40,7 +46,7 @@ export default async function VpatDetailPage({ params }: PageProps) {
           remarks: r.remarks ?? '',
           related_issue_ids: r.related_issue_ids,
         }))
-      : buildDefaultCriteriaRows();
+      : buildDefaultCriteriaRows(vpat.wcag_version, vpat.wcag_level);
 
   const scopeLabel =
     vpat.wcag_scope.length > 0
@@ -51,18 +57,51 @@ export default async function VpatDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'VPATs', href: '/vpats' }, { label: vpat.title }]} />
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-2xl font-bold">{vpat.title}</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">{vpat.title}</h1>
+          <Badge variant="outline">
+            WCAG {vpat.wcag_version} · Level {vpat.wcag_level}
+          </Badge>
+        </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Button asChild variant="outline" size="sm">
-            <a
-              href={`/api/vpats/${vpat.id}/export?format=html`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export HTML
-            </a>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/vpats/${vpat.id}/export?format=html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Export HTML
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/vpats/${vpat.id}/export?format=pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Export PDF
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/vpats/${vpat.id}/export?format=docx`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Export Word (.docx)
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button asChild variant="outline" size="sm">
             <Link href={`/vpats/${vpat.id}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
@@ -77,7 +116,7 @@ export default async function VpatDetailPage({ params }: PageProps) {
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <VpatCriteriaTable criteria={criteriaRows} readOnly />
+          <VpatCriteriaWithPanel criteria={criteriaRows} readOnly />
         </div>
 
         {/* Sidebar */}

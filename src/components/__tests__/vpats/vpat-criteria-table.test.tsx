@@ -40,22 +40,22 @@ const mockCriteria = [
 describe('VpatCriteriaTable', () => {
   it('renders Level A section heading', () => {
     render(<VpatCriteriaTable criteria={[rowA]} />);
-    expect(screen.getByText(/success criteria.*level a/i)).toBeInTheDocument();
+    expect(screen.getByText(/table 1: success criteria/i)).toBeInTheDocument();
   });
 
   it('renders Level AA section heading when AA rows present', () => {
     render(<VpatCriteriaTable criteria={[rowA, rowAA]} />);
-    expect(screen.getByText(/success criteria.*level aa/i)).toBeInTheDocument();
+    expect(screen.getByText(/table 2: success criteria/i)).toBeInTheDocument();
   });
 
   it('does not render Level AAA section when no AAA rows present', () => {
     render(<VpatCriteriaTable criteria={[rowA, rowAA]} />);
-    expect(screen.queryByText(/success criteria.*level aaa/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/table 3: success criteria/i)).not.toBeInTheDocument();
   });
 
   it('renders Level AAA section heading when AAA rows present', () => {
     render(<VpatCriteriaTable criteria={[rowA, rowAA, rowAAA]} />);
-    expect(screen.getByText(/success criteria.*level aaa/i)).toBeInTheDocument();
+    expect(screen.getByText(/table 3: success criteria/i)).toBeInTheDocument();
   });
 
   it('shows clickable issues badge for rows with related issues', () => {
@@ -101,7 +101,7 @@ describe('VpatCriteriaTable', () => {
   it('groups criteria by level headings', () => {
     render(<VpatCriteriaTable criteria={mockCriteria} onChange={vi.fn()} readOnly />);
     // 1.1.1 is Level A, 2.1.1 is Level A — both in same section
-    expect(screen.getByText(/success criteria.*level a/i)).toBeInTheDocument();
+    expect(screen.getByText(/table 1: success criteria/i)).toBeInTheDocument();
   });
 
   it('renders criterion names from WCAG metadata', () => {
