@@ -14,9 +14,6 @@ interface VpatCardProps {
 }
 
 export function VpatCard({ vpat }: VpatCardProps) {
-  const scopeLabel =
-    vpat.wcag_scope.length > 0 ? `${vpat.wcag_scope.length} criteria` : 'All criteria';
-
   return (
     <Link href={`/vpats/${vpat.id}`}>
       <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer">
@@ -31,7 +28,6 @@ export function VpatCard({ vpat }: VpatCardProps) {
             WCAG {vpat.wcag_version} · {vpat.wcag_level}
           </Badge>
           <span className="text-muted-foreground">v{vpat.version_number}</span>
-          <span className="text-muted-foreground">{scopeLabel}</span>
         </CardContent>
       </Card>
     </Link>

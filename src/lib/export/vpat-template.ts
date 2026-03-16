@@ -1,6 +1,6 @@
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
-import { WCAG_CRITERIA, CONFORMANCE_DISPLAY } from '@/lib/vpats/wcag-criteria';
+import { CONFORMANCE_DISPLAY, getCriteriaForScope } from '@/lib/vpats/wcag-criteria';
 
 type DbConformance =
   | 'supports'
@@ -55,30 +55,30 @@ export function generateVpatHtml(
   // Build a map of criterion code → criteria_row for quick lookup
   const rowMap = new Map(vpat.criteria_rows.map((r) => [r.criterion_code, r]));
 
-  // Determine which criteria to display:
-  // If wcag_scope is set, filter to those criteria; otherwise show all
-  const criteriaToDisplay =
-    vpat.wcag_scope.length > 0
-      ? WCAG_CRITERIA.filter((c) => vpat.wcag_scope.includes(c.criterion))
-      : WCAG_CRITERIA;
+  // Determine which criteria to display based on wcag_version and wcag_level
+  const criteriaToDisplay = getCriteriaForScope(vpat.wcag_version, vpat.wcag_level);
 
-  // Group criteria by principle
-  type CriterionItem = (typeof criteriaToDisplay)[number];
-  const byPrinciple = new Map<string, CriterionItem[]>();
-  for (const criterion of criteriaToDisplay) {
-    const list = byPrinciple.get(criterion.principle) ?? [];
-    byPrinciple.set(criterion.principle, [...list, criterion]);
-  }
+  // Group criteria by level and render one table per level (only levels within scope)
+  type ConformanceLevelKey = 'A' | 'AA' | 'AAA';
+  const LEVEL_ORDER: ConformanceLevelKey[] = ['A', 'AA', 'AAA'];
+  const LEVEL_LABELS: Record<ConformanceLevelKey, string> = {
+    A: 'Table 1: Success Criteria, Level A',
+    AA: 'Table 2: Success Criteria, Level AA',
+    AAA: 'Table 3: Success Criteria, Level AAA',
+  };
 
-  const principlesHtml = Array.from(byPrinciple.entries())
-    .map(([principle, criteria]) => {
-      const rowsHtml = criteria
-        .map((criterion) => {
-          const row = rowMap.get(criterion.criterion);
-          const conformance = row?.conformance ?? 'not_evaluated';
-          const remarks = row?.remarks ?? '';
+  // Determine which levels are in scope
+  const levelIndex = LEVEL_ORDER.indexOf(vpat.wcag_level);
+  const levelsInScope = LEVEL_ORDER.slice(0, levelIndex + 1);
 
-          return `
+  function buildTableRows(criteria: typeof criteriaToDisplay): string {
+    return criteria
+      .map((criterion) => {
+        const row = rowMap.get(criterion.criterion);
+        const conformance = row?.conformance ?? 'not_evaluated';
+        const remarks = row?.remarks ?? '';
+
+        return `
           <tr>
             <td class="criterion-code">${escapeHtml(criterion.criterion)}</td>
             <td class="criterion-name">${escapeHtml(criterion.name)}</td>
@@ -86,12 +86,18 @@ export function generateVpatHtml(
             <td class="conformance-cell ${getConformanceClass(conformance)}">${escapeHtml(getConformanceDisplay(conformance))}</td>
             <td class="remarks-cell">${remarks ? escapeHtml(remarks) : '<span class="no-remarks">—</span>'}</td>
           </tr>`;
-        })
-        .join('\n');
+      })
+      .join('\n');
+  }
 
+  const principlesHtml = levelsInScope
+    .map((level) => {
+      const criteria = criteriaToDisplay.filter((c) => c.level === level);
+      if (criteria.length === 0) return '';
+      const rowsHtml = buildTableRows(criteria);
       return `
         <section class="principle-section">
-          <h2>${escapeHtml(principle)}</h2>
+          <h2>${escapeHtml(LEVEL_LABELS[level])}</h2>
           <table>
             <thead>
               <tr>
@@ -356,8 +362,8 @@ export function generateVpatHtml(
           </dd>
         </div>
         <div class="meta-pair">
-          <dt>Criteria:</dt>
-          <dd>${criteriaToDisplay.length} of ${WCAG_CRITERIA.length} WCAG criteria</dd>
+          <dt>Scope:</dt>
+          <dd>WCAG ${escapeHtml(vpat.wcag_version)} · Level ${escapeHtml(vpat.wcag_level)} (${criteriaToDisplay.length} criteria)</dd>
         </div>
         <div class="meta-pair">
           <dt>Generated:</dt>

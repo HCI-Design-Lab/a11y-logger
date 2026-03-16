@@ -21,6 +21,8 @@ const mockVpat: Vpat = {
   title: 'WCAG 2.1 Conformance Report',
   status: 'published',
   version_number: 2,
+  wcag_version: '2.1',
+  wcag_level: 'AA',
   wcag_scope: ['1.1.1', '1.4.3', '2.1.1'],
   criteria_rows: [
     {

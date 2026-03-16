@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -25,7 +24,6 @@ export default function NewVpatPage() {
   const [wcagVersion, setWcagVersion] = useState<'2.1' | '2.2'>('2.1');
   const [wcagLevel, setWcagLevel] = useState<'A' | 'AA' | 'AAA'>('AA');
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState('');
   const [projects, setProjects] = useState<Project[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,16 +170,6 @@ export default function NewVpatPage() {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional product description…"
-                  rows={3}
-                />
               </div>
               <div className="text-sm text-muted-foreground">
                 Scope: WCAG {wcagVersion} · Level {wcagLevel} (locked after creation)

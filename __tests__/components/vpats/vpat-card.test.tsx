@@ -36,14 +36,10 @@ describe('VpatCard', () => {
     expect(screen.getByText('v2')).toBeInTheDocument();
   });
 
-  it('renders scope as criteria count when scoped', () => {
+  it('does not render a scope criteria count label', () => {
     render(<VpatCard vpat={mockVpat} />);
-    expect(screen.getByText('2 criteria')).toBeInTheDocument();
-  });
-
-  it('renders all criteria when scope is empty', () => {
-    render(<VpatCard vpat={{ ...mockVpat, wcag_scope: [] }} />);
-    expect(screen.getByText(/all criteria/i)).toBeInTheDocument();
+    expect(screen.queryByText('2 criteria')).not.toBeInTheDocument();
+    expect(screen.queryByText(/all criteria/i)).not.toBeInTheDocument();
   });
 
   it('shows WCAG scope badge', () => {
