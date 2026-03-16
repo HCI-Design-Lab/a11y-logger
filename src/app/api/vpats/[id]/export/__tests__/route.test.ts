@@ -111,16 +111,13 @@ describe('GET /api/vpats/[id]/export', () => {
   });
 
   describe('PDF export (?format=pdf)', () => {
-    it('returns 501 with helpful message since Puppeteer is not available', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/vpats/${vpatId}/export?format=pdf`),
-        makeContext(vpatId)
-      );
-      expect(response.status).toBe(501);
-      const body = await response.json();
-      expect(body.success).toBe(false);
-      expect(body.code).toBe('NOT_IMPLEMENTED');
-      expect(body.error).toBeTruthy();
+    it('returns html with auto-print for format=pdf', async () => {
+      const req = new Request(`http://localhost/api/vpats/${vpatId}/export?format=pdf`);
+      const res = await GET(req, makeContext(vpatId));
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toContain('text/html');
+      const text = await res.text();
+      expect(text).toContain('window.print()');
     });
   });
 

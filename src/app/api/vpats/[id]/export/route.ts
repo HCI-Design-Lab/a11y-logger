@@ -23,18 +23,45 @@ export async function GET(request: Request, { params }: RouteContext) {
     );
   }
 
-  // PDF requires Puppeteer which is not a production dependency
   if (format === 'pdf') {
-    return NextResponse.json(
-      {
-        success: false,
-        error:
-          'PDF export requires Puppeteer which is not installed. ' +
-          'Use HTML export (?format=html) and print to PDF from your browser using File > Print > Save as PDF.',
-        code: 'NOT_IMPLEMENTED',
-      },
-      { status: 501 }
-    );
+    try {
+      const vpat = getVpat(id);
+      if (!vpat) {
+        return NextResponse.json(
+          { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
+          { status: 404 }
+        );
+      }
+
+      const project = getProject(vpat.project_id);
+      if (!project) {
+        return NextResponse.json(
+          { success: false, error: 'Project not found', code: 'NOT_FOUND' },
+          { status: 404 }
+        );
+      }
+
+      const html = generateVpatHtml(vpat, project, { autoPrint: true });
+      const safeTitle = vpat.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80);
+      const filename = `vpat-${safeTitle}.html`;
+
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+        },
+      });
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Failed to generate export', code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
+    }
   }
 
   if (format === 'docx') {
