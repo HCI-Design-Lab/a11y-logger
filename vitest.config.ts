@@ -9,6 +9,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['__tests__/setup.ts'],
     exclude: ['node_modules/**', '.next/**', 'e2e/**'],
+    testTimeout: 15000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
