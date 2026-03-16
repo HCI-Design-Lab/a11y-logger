@@ -1,9 +1,13 @@
 // @vitest-environment node
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
 import { createVpat } from '@/lib/db/vpats';
 import { GET } from '../route';
+
+vi.mock('@/lib/export/vpat-docx', () => ({
+  generateVpatDocx: vi.fn().mockResolvedValue(Buffer.from('fake-docx')),
+}));
 
 let vpatId: string;
 
@@ -120,6 +124,28 @@ describe('GET /api/vpats/[id]/export', () => {
     });
   });
 
+  describe('DOCX export (?format=docx)', () => {
+    it('returns 200 with correct content-type for docx format', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/vpats/${vpatId}/export?format=docx`),
+        makeContext(vpatId)
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toContain('wordprocessingml');
+    });
+
+    it('includes Content-Disposition header for docx download', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/vpats/${vpatId}/export?format=docx`),
+        makeContext(vpatId)
+      );
+      const disposition = response.headers.get('Content-Disposition');
+      expect(disposition).toBeTruthy();
+      expect(disposition).toContain('attachment');
+      expect(disposition).toContain('.docx');
+    });
+  });
+
   describe('Error cases', () => {
     it('returns 404 for a nonexistent VPAT', async () => {
       const response = await GET(
@@ -134,7 +160,7 @@ describe('GET /api/vpats/[id]/export', () => {
 
     it('returns 400 for an unsupported format', async () => {
       const response = await GET(
-        new Request(`http://localhost/api/vpats/${vpatId}/export?format=docx`),
+        new Request(`http://localhost/api/vpats/${vpatId}/export?format=csv`),
         makeContext(vpatId)
       );
       expect(response.status).toBe(400);
