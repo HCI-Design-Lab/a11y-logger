@@ -151,3 +151,28 @@ describe('generateVpatHtml', () => {
     expect(result).toContain('&lt;script&gt;');
   });
 });
+
+describe('level-based scope rendering', () => {
+  it('renders Level A and Level AA sections for AA scope', () => {
+    const result = generateVpatHtml(mockVpat, mockProject);
+    expect(result).toContain('Table 1: Success Criteria, Level A');
+    expect(result).toContain('Table 2: Success Criteria, Level AA');
+    expect(result).not.toContain('Table 3: Success Criteria, Level AAA');
+  });
+
+  it('renders only Level A section for A scope', () => {
+    const aVpat: Vpat = { ...mockVpat, wcag_level: 'A' };
+    const result = generateVpatHtml(aVpat, mockProject);
+    expect(result).toContain('Table 1: Success Criteria, Level A');
+    expect(result).not.toContain('Table 2: Success Criteria, Level AA');
+    expect(result).not.toContain('Table 3: Success Criteria, Level AAA');
+  });
+
+  it('renders all three level sections for AAA scope', () => {
+    const aaaVpat: Vpat = { ...mockVpat, wcag_level: 'AAA' };
+    const result = generateVpatHtml(aaaVpat, mockProject);
+    expect(result).toContain('Table 1: Success Criteria, Level A');
+    expect(result).toContain('Table 2: Success Criteria, Level AA');
+    expect(result).toContain('Table 3: Success Criteria, Level AAA');
+  });
+});
