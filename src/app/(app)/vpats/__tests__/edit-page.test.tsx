@@ -36,8 +36,8 @@ describe('EditVpatPage', () => {
 
   it('shows locked scope badge after loading', async () => {
     render(<EditVpatPage />);
-    expect(await screen.findByText(/wcag 2\.1/i)).toBeInTheDocument();
-    expect(screen.getByText(/level aa/i)).toBeInTheDocument();
+    // The scope badge shows "WCAG 2.1 · Level AA" as a single text node
+    expect(await screen.findByText(/wcag 2\.1\s*·\s*level aa/i)).toBeInTheDocument();
   });
 
   it('shows Generate All button', async () => {

@@ -48,9 +48,9 @@ interface VpatCriteriaTableProps {
 const LEVELS = ['A', 'AA', 'AAA'] as const;
 
 const TABLE_TITLES: Record<string, string> = {
-  A: 'Table 1: Success Criteria, A',
-  AA: 'Table 2: Success Criteria, AA',
-  AAA: 'Table 3: Success Criteria, AAA',
+  A: 'Table 1: Success Criteria, Level A',
+  AA: 'Table 2: Success Criteria, Level AA',
+  AAA: 'Table 3: Success Criteria, Level AAA',
 };
 
 export function VpatCriteriaTable({
