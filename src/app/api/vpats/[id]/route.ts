@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getVpat, updateVpat, deleteVpat } from '@/lib/db/vpats';
-import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
+import { getCriterionRowsWithIssueCounts } from '@/lib/db/vpat-criterion-rows';
 import { UpdateVpatSchema } from '@/lib/validators/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
   try {
     const resolved = await resolveVpat(id);
     if (resolved.error) return resolved.error;
-    const rows = getCriterionRows(id);
+    const rows = getCriterionRowsWithIssueCounts(id, resolved.vpat.project_id);
     return NextResponse.json({ success: true, data: { ...resolved.vpat, criterion_rows: rows } });
   } catch {
     return NextResponse.json(

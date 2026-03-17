@@ -144,9 +144,21 @@ export function VpatCriteriaTable({
                             aria-label={`View issues for ${row.criterion_code}`}
                           >
                             {row.criterion_name}
+                            {row.issue_count > 0 && (
+                              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                                ({row.issue_count})
+                              </span>
+                            )}
                           </button>
                         ) : (
-                          <div className="font-medium text-sm">{row.criterion_name}</div>
+                          <div className="font-medium text-sm">
+                            {row.criterion_name}
+                            {row.issue_count > 0 && (
+                              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                                ({row.issue_count})
+                              </span>
+                            )}
+                          </div>
                         )}
                       </TableCell>
                       <TableCell className="align-top pt-3">

@@ -20,6 +20,7 @@ export interface VpatCriterionRow {
   ai_reasoning: string | null;
   last_generated_at: string | null;
   updated_at: string;
+  issue_count: number;
 }
 
 export interface CreateCriterionRowInput {
@@ -51,6 +52,7 @@ interface CriterionRowDbRow {
   ai_reasoning: string | null;
   last_generated_at: string | null;
   updated_at: string;
+  issue_count?: number;
 }
 
 function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
@@ -58,6 +60,7 @@ function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
     ...raw,
     conformance: raw.conformance as VpatCriterionRow['conformance'],
     ai_confidence: raw.ai_confidence as VpatCriterionRow['ai_confidence'],
+    issue_count: raw.issue_count ?? 0,
   };
 }
 
@@ -107,6 +110,26 @@ export function getCriterionRows(vpatId: string): VpatCriterionRow[] {
   const rows = getDb()
     .prepare(`${SELECT_JOINED} WHERE r.vpat_id = ? ORDER BY c.sort_order`)
     .all(vpatId) as CriterionRowDbRow[];
+  return rows.map(parseRow);
+}
+
+export function getCriterionRowsWithIssueCounts(
+  vpatId: string,
+  projectId: string
+): VpatCriterionRow[] {
+  const sql = `
+    ${SELECT_JOINED},
+    (
+      SELECT COUNT(*)
+      FROM issues i
+      JOIN assessments a ON i.assessment_id = a.id
+      WHERE a.project_id = ?
+        AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = c.code)
+    ) AS issue_count
+    WHERE r.vpat_id = ?
+    ORDER BY c.sort_order
+  `;
+  const rows = getDb().prepare(sql).all(projectId, vpatId) as CriterionRowDbRow[];
   return rows.map(parseRow);
 }
 

@@ -18,6 +18,7 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   ai_reasoning: null,
   last_generated_at: null,
   updated_at: '2026-01-01',
+  issue_count: 0,
   ...overrides,
 });
 
@@ -171,6 +172,16 @@ describe('VpatCriteriaTable', () => {
     );
     const btn = screen.getByRole('button', { name: /generating for 1.1.1/i });
     expect(btn).toBeDisabled();
+  });
+
+  it('shows issue count after criterion name when issue_count > 0', () => {
+    render(<VpatCriteriaTable rows={[makeRow({ issue_count: 3 })]} onRowChange={vi.fn()} />);
+    expect(screen.getByText('(3)')).toBeInTheDocument();
+  });
+
+  it('does not show issue count when issue_count is 0', () => {
+    render(<VpatCriteriaTable rows={[makeRow({ issue_count: 0 })]} onRowChange={vi.fn()} />);
+    expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
   });
 
   it('calls onRowChange with remarks when textarea changes', () => {
