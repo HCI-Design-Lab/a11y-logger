@@ -694,40 +694,299 @@ const WCAG_CRITERIA: CriterionRow[] = [
 ];
 
 const PRODUCT_TYPES = '["web","software-desktop","software-mobile","documents"]';
+const PRODUCT_TYPES_EXTENDED =
+  '["web","software-desktop","software-mobile","documents","hardware","telephony"]';
+const PRODUCT_TYPES_DOCS = '["web","software-desktop","software-mobile","documents"]';
+
+type NonWcagCriterionRow = [code: string, name: string, description: string];
+
+const S508_CHAPTER3: NonWcagCriterionRow[] = [
+  ['302.1', 'Without Vision', 'At least one mode of operation that does not require user vision.'],
+  ['302.2', 'With Limited Vision', 'At least one mode of operation for users with limited vision.'],
+  [
+    '302.3',
+    'Without Perception of Color',
+    'At least one mode that does not require color perception.',
+  ],
+  ['302.4', 'Without Hearing', 'At least one mode that does not require hearing.'],
+  [
+    '302.5',
+    'With Limited Hearing',
+    'At least one mode of operation for users with limited hearing.',
+  ],
+  ['302.6', 'Without Speech', 'At least one mode that does not require user speech.'],
+  [
+    '302.7',
+    'With Limited Manipulation',
+    'At least one mode that does not require fine motor control.',
+  ],
+  [
+    '302.8',
+    'With Limited Reach and Strength',
+    'At least one mode usable by people with limited reach or strength.',
+  ],
+  [
+    '302.9',
+    'With Limited Language, Cognitive, and Learning Abilities',
+    'At least one mode for users with limited language or cognitive abilities.',
+  ],
+];
+
+const S508_CHAPTER6: NonWcagCriterionRow[] = [
+  [
+    '602.2',
+    'Accessibility and Compatibility Features',
+    'Documentation describes product accessibility and AT compatibility features.',
+  ],
+  [
+    '602.3',
+    'Electronic Support Documentation',
+    'All support documentation meets WCAG 2.0 Level A and AA.',
+  ],
+  [
+    '602.4',
+    'Alternate Formats',
+    'Documentation is available in alternate accessible formats on request.',
+  ],
+  ['603.2', 'Information Services', 'Support staff are trained to assist users with disabilities.'],
+];
+
+const EN_CLAUSE4: NonWcagCriterionRow[] = [
+  [
+    '4.2.1',
+    'Usage without vision',
+    'Where ICT provides visual modes of operation, some modes do not require vision.',
+  ],
+  [
+    '4.2.2',
+    'Usage with limited vision',
+    'Where ICT provides visual modes, some modes enable users with limited vision.',
+  ],
+  [
+    '4.2.3',
+    'Usage without perception of colour',
+    'Where ICT provides visual modes, some modes do not require colour perception.',
+  ],
+  [
+    '4.2.4',
+    'Usage without hearing',
+    'Where ICT provides auditory modes, some modes do not require hearing.',
+  ],
+  [
+    '4.2.5',
+    'Usage with limited hearing',
+    'Where ICT provides auditory modes, some modes support users with limited hearing.',
+  ],
+  [
+    '4.2.6',
+    'Usage without vocal capability',
+    'Where ICT requires voice input, an alternative mode is provided.',
+  ],
+  [
+    '4.2.7',
+    'Usage with limited manipulation or strength',
+    'Where ICT requires manual actions, some modes do not require fine motor control.',
+  ],
+  [
+    '4.2.8',
+    'Usage with limited reach',
+    'Where ICT products are free-standing, they can be operated by people with limited reach.',
+  ],
+  [
+    '4.2.9',
+    'Minimize photosensitive seizure triggers',
+    'ICT minimizes the potential to trigger photosensitive seizures.',
+  ],
+  ['4.2.10', 'Usage without timed responses', 'ICT does not require timed responses.'],
+];
+
+const EN_CLAUSE5: NonWcagCriterionRow[] = [
+  [
+    '5.2',
+    'Activation of accessibility features',
+    'Accessibility features can be activated without requiring AT.',
+  ],
+  [
+    '5.3',
+    'Biometrics',
+    'Where biometrics are required for identity, an alternative non-biometric method is provided.',
+  ],
+  [
+    '5.4',
+    'Preservation of accessibility information during conversion',
+    'Format conversions preserve accessibility information.',
+  ],
+  ['5.7', 'Key repeat', 'Keyboard repeat delay and speed can be adjusted.'],
+  [
+    '5.8',
+    'Double-strike key acceptance',
+    'Keyboard double-strike acceptance time can be adjusted.',
+  ],
+  [
+    '5.9',
+    'Simultaneous user actions',
+    'ICT does not require simultaneous user actions for operation.',
+  ],
+];
+
+const EN_CLAUSE12: NonWcagCriterionRow[] = [
+  [
+    '12.1.1',
+    'Accessibility and compatibility features',
+    'Product documentation lists its accessibility features.',
+  ],
+  ['12.1.2', 'Accessible documentation', 'All product documentation meets WCAG 2.1 Level AA.'],
+  [
+    '12.2.2',
+    'Information on accessibility and compatibility features',
+    'Support services provide information about accessibility features.',
+  ],
+  [
+    '12.2.3',
+    'Effective communication',
+    'Support services communicate effectively with users with disabilities.',
+  ],
+  [
+    '12.2.4',
+    'Accessible documentation',
+    'Documentation provided by support services meets WCAG 2.1 AA.',
+  ],
+];
 
 export function seedCriteria(): void {
   const db = getDb();
 
-  const existing = (
+  // Seed WCAG criteria
+  const existingWcag = (
     db.prepare("SELECT COUNT(*) as n FROM criteria WHERE standard = 'WCAG'").get() as { n: number }
   ).n;
 
-  if (existing > 0) return;
+  if (existingWcag === 0) {
+    const insertWcag = db.prepare(`
+      INSERT INTO criteria (id, code, name, description, standard, chapter_section, wcag_version, level, editions, product_types, sort_order)
+      VALUES (?, ?, ?, ?, 'WCAG', ?, ?, ?, ?, ?, ?)
+    `);
 
-  const insert = db.prepare(`
-    INSERT INTO criteria (id, code, name, description, standard, chapter_section, wcag_version, level, editions, product_types, sort_order)
-    VALUES (?, ?, ?, ?, 'WCAG', ?, ?, ?, ?, ?, ?)
-  `);
+    const insertAllWcag = db.transaction(() => {
+      WCAG_CRITERIA.forEach(
+        ([code, name, level, chapter_section, wcag_version, description], index) => {
+          const editions = getEditions(wcag_version);
+          insertWcag.run(
+            `wcag-${code}`,
+            code,
+            name,
+            description,
+            chapter_section,
+            wcag_version,
+            level,
+            JSON.stringify(editions),
+            PRODUCT_TYPES,
+            index + 1
+          );
+        }
+      );
+    });
 
-  const insertAll = db.transaction(() => {
-    WCAG_CRITERIA.forEach(
-      ([code, name, level, chapter_section, wcag_version, description], index) => {
-        const editions = getEditions(wcag_version);
-        insert.run(
-          `wcag-${code}`,
+    insertAllWcag();
+  }
+
+  // Seed Section 508 criteria
+  const existing508 = (
+    db.prepare("SELECT COUNT(*) as n FROM criteria WHERE standard = '508'").get() as { n: number }
+  ).n;
+
+  if (existing508 === 0) {
+    const insert508 = db.prepare(`
+      INSERT INTO criteria (id, code, name, description, standard, chapter_section, wcag_version, level, editions, product_types, sort_order)
+      VALUES (?, ?, ?, ?, '508', ?, NULL, NULL, ?, ?, ?)
+    `);
+
+    const editions508 = JSON.stringify(['508', 'INT']);
+
+    const insertAll508 = db.transaction(() => {
+      S508_CHAPTER3.forEach(([code, name, description], index) => {
+        insert508.run(
+          `508-${code}`,
           code,
           name,
           description,
-          chapter_section,
-          wcag_version,
-          level,
-          JSON.stringify(editions),
-          PRODUCT_TYPES,
+          'Chapter3',
+          editions508,
+          PRODUCT_TYPES_EXTENDED,
           index + 1
         );
-      }
-    );
-  });
+      });
+      S508_CHAPTER6.forEach(([code, name, description], index) => {
+        insert508.run(
+          `508-${code}`,
+          code,
+          name,
+          description,
+          'Chapter6',
+          editions508,
+          PRODUCT_TYPES_DOCS,
+          index + 1
+        );
+      });
+    });
 
-  insertAll();
+    insertAll508();
+  }
+
+  // Seed EN 301 549 criteria
+  const existingEn = (
+    db.prepare("SELECT COUNT(*) as n FROM criteria WHERE standard = 'EN301549'").get() as {
+      n: number;
+    }
+  ).n;
+
+  if (existingEn === 0) {
+    const insertEn = db.prepare(`
+      INSERT INTO criteria (id, code, name, description, standard, chapter_section, wcag_version, level, editions, product_types, sort_order)
+      VALUES (?, ?, ?, ?, 'EN301549', ?, NULL, NULL, ?, ?, ?)
+    `);
+
+    const editionsEn = JSON.stringify(['EU', 'INT']);
+
+    const insertAllEn = db.transaction(() => {
+      EN_CLAUSE4.forEach(([code, name, description], index) => {
+        insertEn.run(
+          `en-${code}`,
+          code,
+          name,
+          description,
+          'Clause4',
+          editionsEn,
+          PRODUCT_TYPES_EXTENDED,
+          index + 1
+        );
+      });
+      EN_CLAUSE5.forEach(([code, name, description], index) => {
+        insertEn.run(
+          `en-${code}`,
+          code,
+          name,
+          description,
+          'Clause5',
+          editionsEn,
+          PRODUCT_TYPES_DOCS,
+          index + 1
+        );
+      });
+      EN_CLAUSE12.forEach(([code, name, description], index) => {
+        insertEn.run(
+          `en-${code}`,
+          code,
+          name,
+          description,
+          'Clause12',
+          editionsEn,
+          PRODUCT_TYPES_DOCS,
+          index + 1
+        );
+      });
+    });
+
+    insertAllEn();
+  }
 }

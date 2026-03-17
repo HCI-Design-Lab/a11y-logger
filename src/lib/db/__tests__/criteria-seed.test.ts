@@ -82,4 +82,51 @@ describe('seedCriteria', () => {
     ).n;
     expect(count2).toBe(count1);
   });
+
+  it('populates Section 508 Chapter 3 with 9 criteria', () => {
+    const rows = getDb()
+      .prepare("SELECT * FROM criteria WHERE standard = '508' AND chapter_section = 'Chapter3'")
+      .all();
+    expect(rows).toHaveLength(9);
+  });
+
+  it('populates Section 508 Chapter 6 with 4 criteria', () => {
+    const rows = getDb()
+      .prepare("SELECT * FROM criteria WHERE standard = '508' AND chapter_section = 'Chapter6'")
+      .all();
+    expect(rows).toHaveLength(4);
+  });
+
+  it('populates EN 301 549 Clause 4 with 10 criteria', () => {
+    const rows = getDb()
+      .prepare("SELECT * FROM criteria WHERE standard = 'EN301549' AND chapter_section = 'Clause4'")
+      .all();
+    expect(rows).toHaveLength(10);
+  });
+
+  it('Section 508 criteria have 508 and INT editions only', () => {
+    const rows = getDb().prepare("SELECT editions FROM criteria WHERE standard = '508'").all() as {
+      editions: string;
+    }[];
+    for (const row of rows) {
+      const editions = JSON.parse(row.editions);
+      expect(editions).toContain('508');
+      expect(editions).toContain('INT');
+      expect(editions).not.toContain('WCAG');
+      expect(editions).not.toContain('EU');
+    }
+  });
+
+  it('EN 301 549 criteria have EU and INT editions only', () => {
+    const rows = getDb()
+      .prepare("SELECT editions FROM criteria WHERE standard = 'EN301549'")
+      .all() as { editions: string }[];
+    for (const row of rows) {
+      const editions = JSON.parse(row.editions);
+      expect(editions).toContain('EU');
+      expect(editions).toContain('INT');
+      expect(editions).not.toContain('WCAG');
+      expect(editions).not.toContain('508');
+    }
+  });
 });
