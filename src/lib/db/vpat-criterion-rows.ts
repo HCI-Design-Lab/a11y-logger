@@ -118,14 +118,30 @@ export function getCriterionRowsWithIssueCounts(
   projectId: string
 ): VpatCriterionRow[] {
   const sql = `
-    ${SELECT_JOINED},
-    (
-      SELECT COUNT(*)
-      FROM issues i
-      JOIN assessments a ON i.assessment_id = a.id
-      WHERE a.project_id = ?
-        AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = c.code)
-    ) AS issue_count
+    SELECT
+      r.id,
+      r.vpat_id,
+      r.criterion_id,
+      c.code  AS criterion_code,
+      c.name  AS criterion_name,
+      c.description AS criterion_description,
+      c.level AS criterion_level,
+      c.chapter_section AS criterion_section,
+      r.conformance,
+      r.remarks,
+      r.ai_confidence,
+      r.ai_reasoning,
+      r.last_generated_at,
+      r.updated_at,
+      (
+        SELECT COUNT(*)
+        FROM issues i
+        JOIN assessments a ON i.assessment_id = a.id
+        WHERE a.project_id = ?
+          AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = c.code)
+      ) AS issue_count
+    FROM vpat_criterion_rows r
+    JOIN criteria c ON c.id = r.criterion_id
     WHERE r.vpat_id = ?
     ORDER BY c.sort_order
   `;
