@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 
 export interface PanelIssue {
   id: string;
+  project_id: string;
+  assessment_id: string;
   title: string;
   severity: string;
   description: string;
@@ -100,7 +102,7 @@ export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPa
                 </a>
               )}
               <a
-                href={`/issues/${issue.id}`}
+                href={`/projects/${issue.project_id}/assessments/${issue.assessment_id}/issues/${issue.id}`}
                 className="text-xs font-medium text-primary hover:underline"
                 aria-label={`Open issue: ${issue.title}`}
               >

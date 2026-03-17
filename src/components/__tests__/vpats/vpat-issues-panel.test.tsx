@@ -5,6 +5,8 @@ import { VpatIssuesPanel } from '@/components/vpats/vpat-issues-panel';
 const issues = [
   {
     id: '1',
+    project_id: 'proj-1',
+    assessment_id: 'assess-1',
     title: 'Missing alt text',
     severity: 'high',
     description: 'Image lacks alt attribute.',
@@ -56,7 +58,7 @@ describe('VpatIssuesPanel', () => {
   it('renders Open issue link pointing to the issue page', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
     const link = screen.getByRole('link', { name: /open issue: missing alt text/i });
-    expect(link).toHaveAttribute('href', '/issues/1');
+    expect(link).toHaveAttribute('href', '/projects/proj-1/assessments/assess-1/issues/1');
   });
 
   it('moves focus to the close button when the panel mounts', () => {

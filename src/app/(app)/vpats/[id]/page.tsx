@@ -156,7 +156,27 @@ export default function VpatDetailPage() {
           `/api/issues/by-criterion?wcagCode=${encodeURIComponent(criterionCode)}&projectId=${encodeURIComponent(vpat.project_id)}`
         );
         const json = await res.json();
-        if (json.success) setPanelIssues(json.data);
+        if (json.success)
+          setPanelIssues(
+            json.data.map(
+              (issue: {
+                id: string;
+                assessment_id: string;
+                title: string;
+                severity: string;
+                description: string | null;
+                url: string | null;
+              }) => ({
+                id: issue.id,
+                project_id: vpat.project_id,
+                assessment_id: issue.assessment_id,
+                title: issue.title,
+                severity: issue.severity,
+                description: issue.description ?? '',
+                url: issue.url ?? '',
+              })
+            )
+          );
       } catch {
         // panel shows empty state
       }
