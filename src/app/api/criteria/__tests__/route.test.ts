@@ -42,6 +42,8 @@ describe('GET /api/criteria', () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.success).toBe(false);
+    expect(body.error).toBeDefined();
+    expect(body.code).toBe('VALIDATION_ERROR');
   });
 
   it('returns 400 for invalid edition', async () => {
@@ -49,5 +51,17 @@ describe('GET /api/criteria', () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.success).toBe(false);
+    expect(body.error).toBeDefined();
+    expect(body.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 for invalid wcag_version', async () => {
+    const res = await GET(
+      new Request('http://localhost/api/criteria?edition=WCAG&wcag_version=9.9')
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('VALIDATION_ERROR');
   });
 });
