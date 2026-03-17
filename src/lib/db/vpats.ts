@@ -3,6 +3,22 @@ import { getCriteriaForEdition } from './criteria';
 import { createCriterionRows, countUnresolvedRows } from './vpat-criterion-rows';
 import type { CreateVpatInput, UpdateVpatInput } from '../validators/vpats';
 
+export class VpatNotFoundError extends Error {
+  readonly code = 'VPAT_NOT_FOUND' as const;
+  constructor(id: string) {
+    super(`VPAT not found: ${id}`);
+    this.name = 'VpatNotFoundError';
+  }
+}
+
+export class UnresolvedRowsError extends Error {
+  readonly code = 'UNRESOLVED_ROWS' as const;
+  constructor(count: number) {
+    super(`Cannot publish: ${count} unresolved rows`);
+    this.name = 'UnresolvedRowsError';
+  }
+}
+
 export interface Vpat {
   id: string;
   project_id: string;
@@ -137,10 +153,10 @@ export function deleteVpat(id: string): boolean {
 
 export function publishVpat(id: string): Vpat {
   const existing = getVpat(id);
-  if (!existing) throw new Error(`VPAT not found: ${id}`);
+  if (!existing) throw new VpatNotFoundError(id);
   const unresolved = countUnresolvedRows(id);
   if (unresolved > 0) {
-    throw new Error(`Cannot publish: ${unresolved} unresolved rows`);
+    throw new UnresolvedRowsError(unresolved);
   }
   getDb()
     .prepare(

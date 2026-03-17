@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { publishVpat } from '@/lib/db/vpats';
+import { publishVpat, VpatNotFoundError, UnresolvedRowsError } from '@/lib/db/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -9,16 +9,15 @@ export async function POST(_request: Request, { params }: RouteContext) {
     const published = publishVpat(id);
     return NextResponse.json({ success: true, data: published });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to publish';
-    if (message.startsWith('VPAT not found')) {
+    if (err instanceof VpatNotFoundError) {
       return NextResponse.json(
         { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }
-    if (message.includes('unresolved')) {
+    if (err instanceof UnresolvedRowsError) {
       return NextResponse.json(
-        { success: false, error: message, code: 'UNRESOLVED_ROWS' },
+        { success: false, error: err.message, code: 'UNRESOLVED_ROWS' },
         { status: 422 }
       );
     }
