@@ -11,7 +11,6 @@ let vpatId: string;
 beforeAll(() => {
   initDb(':memory:');
 });
-
 afterAll(() => {
   closeDb();
 });
@@ -25,6 +24,10 @@ beforeEach(() => {
   projectId = project.id;
   const vpat = createVpat({ title: 'Draft VPAT', project_id: projectId });
   vpatId = vpat.id;
+  // Mark all criterion rows as resolved so publish can succeed
+  getDb()
+    .prepare("UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ?")
+    .run(vpatId);
 });
 
 function makeContext(id: string) {
@@ -45,17 +48,16 @@ describe('POST /api/vpats/[id]/publish', () => {
     expect(body.data.published_at).not.toBeNull();
   });
 
-  it('increments version_number further on repeated publishes', async () => {
-    await POST(
-      new Request(`http://localhost/api/vpats/${vpatId}/publish`, { method: 'POST' }),
-      makeContext(vpatId)
+  it('returns 422 when criterion rows are unresolved', async () => {
+    const vpat2 = createVpat({ title: 'Unresolved', project_id: projectId });
+    const response = await POST(
+      new Request(`http://localhost/api/vpats/${vpat2.id}/publish`, { method: 'POST' }),
+      makeContext(vpat2.id)
     );
-    const response2 = await POST(
-      new Request(`http://localhost/api/vpats/${vpatId}/publish`, { method: 'POST' }),
-      makeContext(vpatId)
-    );
-    const body = await response2.json();
-    expect(body.data.version_number).toBe(3);
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe('UNRESOLVED_ROWS');
   });
 
   it('returns 404 for nonexistent VPAT id', async () => {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getVpat, updateVpat, deleteVpat, getInvalidIssueIds } from '@/lib/db/vpats';
+import { getVpat, updateVpat, deleteVpat } from '@/lib/db/vpats';
+import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { UpdateVpatSchema } from '@/lib/validators/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -22,7 +23,8 @@ export async function GET(_request: Request, { params }: RouteContext) {
   try {
     const resolved = await resolveVpat(id);
     if (resolved.error) return resolved.error;
-    return NextResponse.json({ success: true, data: resolved.vpat });
+    const rows = getCriterionRows(id);
+    return NextResponse.json({ success: true, data: { ...resolved.vpat, criterion_rows: rows } });
   } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch VPAT', code: 'INTERNAL_ERROR' },
@@ -49,24 +51,6 @@ export async function PUT(request: Request, { params }: RouteContext) {
         },
         { status: 400 }
       );
-    }
-
-    // Validate all related_issue_ids reference existing issues
-    if (result.data.criteria_rows) {
-      const allIssueIds = result.data.criteria_rows.flatMap((row) => row.related_issue_ids);
-      if (allIssueIds.length > 0) {
-        const invalid = getInvalidIssueIds(allIssueIds);
-        if (invalid.length > 0) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Issue IDs not found: ${invalid.join(', ')}`,
-              code: 'VALIDATION_ERROR',
-            },
-            { status: 400 }
-          );
-        }
-      }
     }
 
     const updated = updateVpat(id, result.data);

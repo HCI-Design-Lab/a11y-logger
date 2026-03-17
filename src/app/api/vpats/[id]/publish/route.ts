@@ -1,30 +1,29 @@
 import { NextResponse } from 'next/server';
-import { getVpat, publishVpat } from '@/lib/db/vpats';
+import { publishVpat } from '@/lib/db/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const existing = getVpat(id);
-    if (!existing) {
+    const published = publishVpat(id);
+    return NextResponse.json({ success: true, data: published });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to publish';
+    if (message.startsWith('VPAT not found')) {
       return NextResponse.json(
         { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }
-
-    const published = publishVpat(id);
-    if (!published) {
+    if (message.includes('unresolved')) {
       return NextResponse.json(
-        { success: false, error: 'Failed to publish VPAT', code: 'INTERNAL_ERROR' },
-        { status: 500 }
+        { success: false, error: message, code: 'UNRESOLVED_ROWS' },
+        { status: 422 }
       );
     }
-    return NextResponse.json({ success: true, data: published });
-  } catch {
     return NextResponse.json(
-      { success: false, error: 'Failed to publish VPAT', code: 'INTERNAL_ERROR' },
+      { success: false, error: 'Failed to publish', code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

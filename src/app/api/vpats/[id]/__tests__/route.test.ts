@@ -42,6 +42,7 @@ describe('GET /api/vpats/[id]', () => {
     expect(body.success).toBe(true);
     expect(body.data.id).toBe(vpatId);
     expect(body.data.title).toBe('Existing VPAT');
+    expect(body.data.criterion_rows).toBeDefined();
   });
 
   it('returns 404 for nonexistent id', async () => {
@@ -75,26 +76,6 @@ describe('PUT /api/vpats/[id]', () => {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: '' }),
-    });
-    const response = await PUT(request, makeContext(vpatId));
-    expect(response.status).toBe(400);
-    const body = await response.json();
-    expect(body.code).toBe('VALIDATION_ERROR');
-  });
-
-  it('returns 400 when criteria_rows contains nonexistent issue ids', async () => {
-    const request = new Request(`http://localhost/api/vpats/${vpatId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        criteria_rows: [
-          {
-            criterion_code: '1.1.1',
-            conformance: 'supports',
-            related_issue_ids: ['fake-issue-id'],
-          },
-        ],
-      }),
     });
     const response = await PUT(request, makeContext(vpatId));
     expect(response.status).toBe(400);

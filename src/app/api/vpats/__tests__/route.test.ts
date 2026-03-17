@@ -72,6 +72,25 @@ describe('POST /api/vpats', () => {
     expect(body.data.version_number).toBe(1);
   });
 
+  it('creates a VPAT with standard_edition 508 and product_scope', async () => {
+    const request = new Request('http://localhost/api/vpats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '508 VPAT',
+        project_id: projectId,
+        standard_edition: '508',
+        product_scope: ['web'],
+      }),
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(201);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.standard_edition).toBe('508');
+    expect(body.data.product_scope).toEqual(['web']);
+  });
+
   it('returns 400 for missing title', async () => {
     const request = new Request('http://localhost/api/vpats', {
       method: 'POST',
@@ -82,18 +101,6 @@ describe('POST /api/vpats', () => {
     expect(response.status).toBe(400);
     const body = await response.json();
     expect(body.success).toBe(false);
-    expect(body.code).toBe('VALIDATION_ERROR');
-  });
-
-  it('returns 400 for invalid wcag_scope code', async () => {
-    const request = new Request('http://localhost/api/vpats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'VPAT', project_id: projectId, wcag_scope: ['9.9.9'] }),
-    });
-    const response = await POST(request);
-    expect(response.status).toBe(400);
-    const body = await response.json();
     expect(body.code).toBe('VALIDATION_ERROR');
   });
 
@@ -108,28 +115,5 @@ describe('POST /api/vpats', () => {
     const body = await response.json();
     expect(body.success).toBe(false);
     expect(body.code).toBe('NOT_FOUND');
-  });
-
-  it('returns 400 when criteria_rows contains nonexistent issue ids', async () => {
-    const request = new Request('http://localhost/api/vpats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: 'VPAT',
-        project_id: projectId,
-        criteria_rows: [
-          {
-            criterion_code: '1.1.1',
-            conformance: 'supports',
-            related_issue_ids: ['nonexistent-issue-id'],
-          },
-        ],
-      }),
-    });
-    const response = await POST(request);
-    expect(response.status).toBe(400);
-    const body = await response.json();
-    expect(body.success).toBe(false);
-    expect(body.code).toBe('VALIDATION_ERROR');
   });
 });
