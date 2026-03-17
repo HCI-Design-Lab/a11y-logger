@@ -190,6 +190,7 @@ describe('core tables schema', () => {
         'wcag_level',
         'standard_edition',
         'product_scope',
+        'description',
       ]);
     });
 
