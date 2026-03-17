@@ -83,6 +83,22 @@ describe('seedCriteria', () => {
     expect(count2).toBe(count1);
   });
 
+  it('populates EN 301 549 Clause 5 with 6 criteria', () => {
+    const rows = getDb()
+      .prepare("SELECT * FROM criteria WHERE standard = 'EN301549' AND chapter_section = 'Clause5'")
+      .all();
+    expect(rows).toHaveLength(6);
+  });
+
+  it('populates EN 301 549 Clause 12 with 5 criteria', () => {
+    const rows = getDb()
+      .prepare(
+        "SELECT * FROM criteria WHERE standard = 'EN301549' AND chapter_section = 'Clause12'"
+      )
+      .all();
+    expect(rows).toHaveLength(5);
+  });
+
   it('populates Section 508 Chapter 3 with 9 criteria', () => {
     const rows = getDb()
       .prepare("SELECT * FROM criteria WHERE standard = '508' AND chapter_section = 'Chapter3'")

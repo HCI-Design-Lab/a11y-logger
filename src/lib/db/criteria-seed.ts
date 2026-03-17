@@ -696,7 +696,6 @@ const WCAG_CRITERIA: CriterionRow[] = [
 const PRODUCT_TYPES = '["web","software-desktop","software-mobile","documents"]';
 const PRODUCT_TYPES_EXTENDED =
   '["web","software-desktop","software-mobile","documents","hardware","telephony"]';
-const PRODUCT_TYPES_DOCS = '["web","software-desktop","software-mobile","documents"]';
 
 type NonWcagCriterionRow = [code: string, name: string, description: string];
 
@@ -924,8 +923,8 @@ export function seedCriteria(): void {
           description,
           'Chapter6',
           editions508,
-          PRODUCT_TYPES_DOCS,
-          index + 1
+          PRODUCT_TYPES,
+          S508_CHAPTER3.length + index + 1
         );
       });
     });
@@ -969,8 +968,8 @@ export function seedCriteria(): void {
           description,
           'Clause5',
           editionsEn,
-          PRODUCT_TYPES_DOCS,
-          index + 1
+          PRODUCT_TYPES,
+          EN_CLAUSE4.length + index + 1
         );
       });
       EN_CLAUSE12.forEach(([code, name, description], index) => {
@@ -981,8 +980,8 @@ export function seedCriteria(): void {
           description,
           'Clause12',
           editionsEn,
-          PRODUCT_TYPES_DOCS,
-          index + 1
+          PRODUCT_TYPES,
+          EN_CLAUSE4.length + EN_CLAUSE5.length + index + 1
         );
       });
     });
