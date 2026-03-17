@@ -57,7 +57,7 @@ describe('VpatCriteriaTable', () => {
         onRowChange={vi.fn()}
       />
     );
-    expect(screen.getByRole('button', { name: /why/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /show reasoning for 1.1.1/i })).toBeInTheDocument();
   });
 
   it('renders read-only when readOnly prop is true', () => {
@@ -134,14 +134,14 @@ describe('VpatCriteriaTable', () => {
     expect(onGenerateRow).toHaveBeenCalledWith('1');
   });
 
-  it('shows reasoning text when Why? button is clicked', () => {
+  it('shows reasoning text when reasoning button is clicked', () => {
     render(
       <VpatCriteriaTable
         rows={[makeRow({ ai_reasoning: 'Step 1: check images.', remarks: 'text' })]}
         onRowChange={vi.fn()}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: /why/i }));
+    fireEvent.click(screen.getByRole('button', { name: /show reasoning for 1.1.1/i }));
     expect(screen.getByText(/Step 1: check images/i)).toBeInTheDocument();
   });
 
@@ -157,5 +157,27 @@ describe('VpatCriteriaTable', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: /generate all/i }));
     expect(onGenerateAll).toHaveBeenCalled();
+  });
+
+  it('shows Generating state and disables Generate button when generatingRowId matches', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
+        generatingRowId="1"
+      />
+    );
+    const btn = screen.getByRole('button', { name: /generating for 1.1.1/i });
+    expect(btn).toBeDisabled();
+  });
+
+  it('calls onRowChange with remarks when textarea changes', () => {
+    const onRowChange = vi.fn();
+    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} />);
+    const textarea = screen.getByRole('textbox', { name: /remarks for 1.1.1/i });
+    fireEvent.change(textarea, { target: { value: 'New remark' } });
+    expect(onRowChange).toHaveBeenCalledWith('1', { remarks: 'New remark' });
   });
 });

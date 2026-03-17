@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -70,21 +70,25 @@ export function VpatCriteriaTable({
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set());
 
   // Group rows by section
-  const sections = rows.reduce<Map<string, VpatCriterionRow[]>>((acc, row) => {
-    const section = row.criterion_section;
-    if (!acc.has(section)) acc.set(section, []);
-    acc.get(section)!.push(row);
-    return acc;
-  }, new Map());
+  const sections = useMemo(
+    () =>
+      rows.reduce<Map<string, VpatCriterionRow[]>>((acc, row) => {
+        const section = row.criterion_section;
+        if (!acc.has(section)) acc.set(section, []);
+        acc.get(section)!.push(row);
+        return acc;
+      }, new Map()),
+    [rows]
+  );
 
-  const toggleReasoning = (rowId: string) => {
+  const toggleReasoning = useCallback((rowId: string) => {
     setExpandedReasoning((prev) => {
       const next = new Set(prev);
       if (next.has(rowId)) next.delete(rowId);
       else next.add(rowId);
       return next;
     });
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -175,7 +179,12 @@ export function VpatCriteriaTable({
                                 size="sm"
                                 className="h-6 px-2 text-xs"
                                 onClick={() => toggleReasoning(row.id)}
-                                aria-label="Why?"
+                                aria-label={
+                                  isExpanded
+                                    ? `Hide reasoning for ${row.criterion_code}`
+                                    : `Show reasoning for ${row.criterion_code}`
+                                }
+                                aria-expanded={isExpanded}
                               >
                                 Why?
                               </Button>
