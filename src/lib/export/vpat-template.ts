@@ -64,8 +64,8 @@ export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriteri
   // Group rows by criterion_section, preserving insertion order
   const bySection = new Map<string, VpatCriterionRow[]>();
   for (const row of rows) {
-    const list = bySection.get(row.criterion_section) ?? [];
-    bySection.set(row.criterion_section, [...list, row]);
+    if (!bySection.has(row.criterion_section)) bySection.set(row.criterion_section, []);
+    bySection.get(row.criterion_section)!.push(row);
   }
 
   const sectionsHtml = Array.from(bySection.entries())
