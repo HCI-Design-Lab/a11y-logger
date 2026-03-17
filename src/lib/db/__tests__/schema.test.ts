@@ -186,12 +186,63 @@ describe('core tables schema', () => {
         'published_at',
         'created_at',
         'updated_at',
+        'wcag_version',
+        'wcag_level',
+        'standard_edition',
+        'product_scope',
       ]);
     });
 
     it('has a foreign key to projects', () => {
       const fks = getForeignKeys(db, 'vpats');
       expect(fks.some((fk) => fk.table === 'projects' && fk.from === 'project_id')).toBe(true);
+    });
+  });
+
+  describe('criteria', () => {
+    it('has the correct columns', () => {
+      const columns = getColumnNames(db, 'criteria');
+      expect(columns).toEqual([
+        'id',
+        'code',
+        'name',
+        'description',
+        'standard',
+        'chapter_section',
+        'wcag_version',
+        'level',
+        'editions',
+        'product_types',
+        'wcag_equivalent_id',
+        'sort_order',
+      ]);
+    });
+  });
+
+  describe('vpat_criterion_rows', () => {
+    it('has the correct columns', () => {
+      const columns = getColumnNames(db, 'vpat_criterion_rows');
+      expect(columns).toEqual([
+        'id',
+        'vpat_id',
+        'criterion_id',
+        'conformance',
+        'remarks',
+        'ai_confidence',
+        'ai_reasoning',
+        'last_generated_at',
+        'updated_at',
+      ]);
+    });
+
+    it('has a foreign key to vpats', () => {
+      const fks = getForeignKeys(db, 'vpat_criterion_rows');
+      expect(fks.some((fk) => fk.table === 'vpats' && fk.from === 'vpat_id')).toBe(true);
+    });
+
+    it('has a foreign key to criteria', () => {
+      const fks = getForeignKeys(db, 'vpat_criterion_rows');
+      expect(fks.some((fk) => fk.table === 'criteria' && fk.from === 'criterion_id')).toBe(true);
     });
   });
 

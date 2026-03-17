@@ -36,3 +36,7 @@ CREATE TABLE vpat_criterion_rows (
 ALTER TABLE vpats ADD COLUMN standard_edition TEXT NOT NULL DEFAULT 'WCAG'
   CHECK (standard_edition IN ('WCAG', '508', 'EU', 'INT'));
 ALTER TABLE vpats ADD COLUMN product_scope TEXT NOT NULL DEFAULT '["web"]';
+
+CREATE INDEX idx_criteria_standard ON criteria(standard);
+CREATE INDEX idx_criteria_code ON criteria(code);
+CREATE INDEX idx_vpat_criterion_rows_vpat_id ON vpat_criterion_rows(vpat_id);
