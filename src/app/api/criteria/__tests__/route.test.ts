@@ -22,6 +22,8 @@ describe('GET /api/criteria', () => {
     expect(body.success).toBe(true);
     expect(body.data.sections).toBeDefined();
     expect(body.data.sections.length).toBeGreaterThan(0);
+    expect(typeof body.data.total).toBe('number');
+    expect(body.data.total).toBeGreaterThan(0);
   });
 
   it('excludes 2.1-only criteria for 508 edition', async () => {
@@ -38,5 +40,14 @@ describe('GET /api/criteria', () => {
   it('returns 400 for missing edition', async () => {
     const res = await GET(new Request('http://localhost/api/criteria'));
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+  });
+
+  it('returns 400 for invalid edition', async () => {
+    const res = await GET(new Request('http://localhost/api/criteria?edition=INVALID'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.success).toBe(false);
   });
 });
