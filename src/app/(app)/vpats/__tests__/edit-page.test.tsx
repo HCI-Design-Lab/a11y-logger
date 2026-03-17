@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import VpatDetailPage from '../[id]/page';
 
@@ -57,10 +58,19 @@ const mockVpat = {
 };
 
 beforeEach(() => {
-  vi.spyOn(global, 'fetch').mockResolvedValue({
-    ok: true,
-    json: async () => ({ success: true, data: mockVpat }),
-  } as unknown as Response);
+  vi.spyOn(global, 'fetch').mockImplementation((input) => {
+    const url = typeof input === 'string' ? input : (input as Request).url;
+    if (url.includes('/api/issues/by-criterion')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: [] }),
+      } as unknown as Response);
+    }
+    return Promise.resolve({
+      ok: true,
+      json: async () => ({ success: true, data: mockVpat }),
+    } as unknown as Response);
+  });
 });
 
 afterEach(() => {
@@ -101,6 +111,44 @@ describe('VpatDetailPage', () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
       expect(screen.getByText('1.1.1')).toBeInTheDocument();
+    });
+  });
+
+  it('opens issues panel when criterion name is clicked', async () => {
+    const user = userEvent.setup();
+    render(<VpatDetailPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /view issues for 1\.1\.1/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: /issues for criterion 1\.1\.1/i })
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('closes issues panel when close button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<VpatDetailPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /view issues for 1\.1\.1/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /close/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });

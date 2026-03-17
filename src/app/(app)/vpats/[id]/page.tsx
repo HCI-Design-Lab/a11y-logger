@@ -139,6 +139,23 @@ export default function VpatDetailPage() {
     }
   }, [vpatId]);
 
+  const handleCriterionClick = useCallback(
+    async (criterionCode: string) => {
+      setPanelRowCode(criterionCode);
+      setPanelIssues([]);
+      try {
+        const res = await fetch(
+          `/api/issues/by-criterion?wcagCode=${encodeURIComponent(criterionCode)}&projectId=${encodeURIComponent(vpat!.project_id)}`
+        );
+        const json = await res.json();
+        if (json.success) setPanelIssues(json.data);
+      } catch {
+        // panel shows empty state
+      }
+    },
+    [vpat]
+  );
+
   const handlePublish = useCallback(async () => {
     setIsPublishing(true);
     try {
@@ -224,6 +241,7 @@ export default function VpatDetailPage() {
         generatingRowId={generatingRowId}
         readOnly={isPublished}
         aiEnabled={true}
+        onCriterionClick={handleCriterionClick}
       />
 
       {/* Issues panel */}

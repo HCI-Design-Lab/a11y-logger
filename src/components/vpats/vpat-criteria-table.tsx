@@ -56,6 +56,7 @@ interface VpatCriteriaTableProps {
   generatingRowId?: string | null;
   readOnly?: boolean;
   aiEnabled?: boolean;
+  onCriterionClick?: (criterionCode: string) => void;
 }
 
 export function VpatCriteriaTable({
@@ -66,6 +67,7 @@ export function VpatCriteriaTable({
   generatingRowId,
   readOnly = false,
   aiEnabled = false,
+  onCriterionClick,
 }: VpatCriteriaTableProps) {
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set());
 
@@ -134,7 +136,18 @@ export function VpatCriteriaTable({
                         {row.criterion_code}
                       </TableCell>
                       <TableCell className="align-top pt-3">
-                        <div className="font-medium text-sm">{row.criterion_name}</div>
+                        {onCriterionClick ? (
+                          <button
+                            type="button"
+                            className="font-medium text-sm text-left hover:underline focus:outline-none focus:ring-1 focus:ring-ring rounded"
+                            onClick={() => onCriterionClick(row.criterion_code)}
+                            aria-label={`View issues for ${row.criterion_code}`}
+                          >
+                            {row.criterion_name}
+                          </button>
+                        ) : (
+                          <div className="font-medium text-sm">{row.criterion_name}</div>
+                        )}
                       </TableCell>
                       <TableCell className="align-top pt-3">
                         {readOnly ? (
