@@ -62,6 +62,7 @@ export function VpatCriteriaTable({
   rows,
   onRowChange,
   onGenerateRow,
+  onGenerateAll,
   generatingRowId,
   readOnly = false,
   aiEnabled = false,
@@ -87,6 +88,13 @@ export function VpatCriteriaTable({
 
   return (
     <div className="space-y-6">
+      {aiEnabled && !readOnly && onGenerateAll && (
+        <div className="flex justify-end">
+          <Button type="button" variant="outline" size="sm" onClick={onGenerateAll}>
+            Generate All
+          </Button>
+        </div>
+      )}
       {Array.from(sections.entries()).map(([section, sectionRows]) => (
         <Card key={section}>
           <CardHeader>

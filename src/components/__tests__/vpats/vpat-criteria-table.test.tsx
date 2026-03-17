@@ -94,4 +94,68 @@ describe('VpatCriteriaTable', () => {
     );
     expect(screen.getByText(/limited evidence/i)).toBeInTheDocument();
   });
+
+  it('shows Generate button per row when aiEnabled and not readOnly', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
+      />
+    );
+    expect(screen.getByRole('button', { name: /generate for 1.1.1/i })).toBeInTheDocument();
+  });
+
+  it('hides Generate button when readOnly', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
+        readOnly
+      />
+    );
+    expect(screen.queryByRole('button', { name: /generate for 1.1.1/i })).not.toBeInTheDocument();
+  });
+
+  it('calls onGenerateRow with row id when Generate button clicked', () => {
+    const onGenerateRow = vi.fn();
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onGenerateRow={onGenerateRow}
+        aiEnabled
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /generate for 1.1.1/i }));
+    expect(onGenerateRow).toHaveBeenCalledWith('1');
+  });
+
+  it('shows reasoning text when Why? button is clicked', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow({ ai_reasoning: 'Step 1: check images.', remarks: 'text' })]}
+        onRowChange={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /why/i }));
+    expect(screen.getByText(/Step 1: check images/i)).toBeInTheDocument();
+  });
+
+  it('shows Generate All button when aiEnabled and not readOnly', () => {
+    const onGenerateAll = vi.fn();
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onGenerateAll={onGenerateAll}
+        aiEnabled
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /generate all/i }));
+    expect(onGenerateAll).toHaveBeenCalled();
+  });
 });
