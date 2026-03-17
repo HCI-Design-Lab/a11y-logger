@@ -58,4 +58,10 @@ describe('VpatIssuesPanel', () => {
     const link = screen.getByRole('link', { name: /open issue: missing alt text/i });
     expect(link).toHaveAttribute('href', '/issues/1');
   });
+
+  it('moves focus to the close button when the panel mounts', () => {
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    expect(document.activeElement).toBe(closeButton);
+  });
 });

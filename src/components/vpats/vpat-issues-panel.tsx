@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,12 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPanelProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -50,7 +56,14 @@ export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPa
             {issues.length} {issues.length === 1 ? 'issue' : 'issues'} found
           </p>
         </div>
-        <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          aria-label="Close"
+          ref={closeButtonRef}
+        >
           <X className="h-4 w-4" />
         </Button>
       </div>

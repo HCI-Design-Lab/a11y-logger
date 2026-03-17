@@ -11,6 +11,7 @@ import {
   deleteIssue,
   resolveIssue,
   getIssuesByProject,
+  getIssuesByProjectAndWcagCode,
 } from '../issues';
 
 let projectId: string;
@@ -323,5 +324,41 @@ describe('getIssuesByProject', () => {
     const results = getIssuesByProject(projectId);
     expect(Array.isArray(results[0]!.wcag_codes)).toBe(true);
     expect(results[0]!.wcag_codes).toEqual(['1.1.1']);
+  });
+});
+
+// ─── getIssuesByProjectAndWcagCode ───────────────────────────────────────────
+
+describe('getIssuesByProjectAndWcagCode', () => {
+  it('returns issues matching the project and wcag code', () => {
+    createIssue(assessmentId, { title: 'Has 1.1.1', wcag_codes: ['1.1.1', '1.4.3'] });
+    createIssue(assessmentId, { title: 'Has 2.1.1', wcag_codes: ['2.1.1'] });
+    const results = getIssuesByProjectAndWcagCode(projectId, '1.1.1');
+    expect(results).toHaveLength(1);
+    expect(results[0]!.title).toBe('Has 1.1.1');
+  });
+
+  it('returns empty array when no issues match the wcag code', () => {
+    createIssue(assessmentId, { title: 'Has 2.1.1', wcag_codes: ['2.1.1'] });
+    const results = getIssuesByProjectAndWcagCode(projectId, '1.1.1');
+    expect(results).toEqual([]);
+  });
+
+  it('does not return issues from another project', () => {
+    const otherProject = createProject({ name: 'Other Project' });
+    const otherAssessment = createAssessment(otherProject.id, { name: 'Other Audit' });
+    createIssue(otherAssessment.id, { title: 'Other 1.1.1', wcag_codes: ['1.1.1'] });
+    createIssue(assessmentId, { title: 'Mine 1.1.1', wcag_codes: ['1.1.1'] });
+    const results = getIssuesByProjectAndWcagCode(projectId, '1.1.1');
+    expect(results).toHaveLength(1);
+    expect(results[0]!.title).toBe('Mine 1.1.1');
+  });
+
+  it('returns deserialized array fields', () => {
+    createIssue(assessmentId, { title: 'T', wcag_codes: ['1.1.1'], tags: ['nav'] });
+    const results = getIssuesByProjectAndWcagCode(projectId, '1.1.1');
+    expect(Array.isArray(results[0]!.wcag_codes)).toBe(true);
+    expect(results[0]!.wcag_codes).toEqual(['1.1.1']);
+    expect(results[0]!.tags).toEqual(['nav']);
   });
 });

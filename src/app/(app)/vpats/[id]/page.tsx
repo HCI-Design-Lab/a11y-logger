@@ -50,6 +50,13 @@ export default function VpatDetailPage() {
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
+    const timers = saveTimers.current;
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, []);
+
+  useEffect(() => {
     async function load() {
       try {
         const res = await fetch(`/api/vpats/${vpatId}`);
@@ -141,11 +148,12 @@ export default function VpatDetailPage() {
 
   const handleCriterionClick = useCallback(
     async (criterionCode: string) => {
+      if (!vpat) return;
       setPanelRowCode(criterionCode);
       setPanelIssues([]);
       try {
         const res = await fetch(
-          `/api/issues/by-criterion?wcagCode=${encodeURIComponent(criterionCode)}&projectId=${encodeURIComponent(vpat!.project_id)}`
+          `/api/issues/by-criterion?wcagCode=${encodeURIComponent(criterionCode)}&projectId=${encodeURIComponent(vpat.project_id)}`
         );
         const json = await res.json();
         if (json.success) setPanelIssues(json.data);

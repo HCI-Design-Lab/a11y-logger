@@ -271,3 +271,18 @@ export function getIssuesByProject(projectId: string): Issue[] {
     .all(projectId) as IssueRow[];
   return rows.map(deserializeIssue);
 }
+
+export function getIssuesByProjectAndWcagCode(projectId: string, wcagCode: string): Issue[] {
+  const rows = getDb()
+    .prepare(
+      `SELECT i.* FROM issues i
+       JOIN assessments a ON i.assessment_id = a.id
+       WHERE a.project_id = ?
+         AND EXISTS (
+           SELECT 1 FROM json_each(i.wcag_codes) WHERE value = ?
+         )
+       ORDER BY i.created_at DESC`
+    )
+    .all(projectId, wcagCode) as IssueRow[];
+  return rows.map(deserializeIssue);
+}
