@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -50,7 +51,10 @@ const CONFIDENCE_COLORS: Record<string, string> = {
 
 interface VpatCriteriaTableProps {
   rows: VpatCriterionRow[];
-  onRowChange: (rowId: string, update: { conformance?: string; remarks?: string }) => void;
+  /** Called immediately for conformance changes (updates progress bar in parent). */
+  onRowChange: (rowId: string, update: { conformance?: string }) => void;
+  /** Called after 500ms debounce when the user finishes typing remarks. */
+  onSaveRemarks: (rowId: string, remarks: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onGenerateAll?: () => void;
   generatingRowId?: string | null;
@@ -59,9 +63,12 @@ interface VpatCriteriaTableProps {
   onCriterionClick?: (criterionCode: string) => void;
 }
 
+type RemarksFormValues = Record<string, string>;
+
 export function VpatCriteriaTable({
   rows,
   onRowChange,
+  onSaveRemarks,
   onGenerateRow,
   onGenerateAll,
   generatingRowId,
@@ -70,6 +77,32 @@ export function VpatCriteriaTable({
   onCriterionClick,
 }: VpatCriteriaTableProps) {
   const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set());
+
+  // RHF manages remarks as uncontrolled inputs — typing never triggers React re-renders.
+  const { register } = useForm<RemarksFormValues>({
+    defaultValues: Object.fromEntries(rows.map((r) => [r.id, r.remarks ?? ''])),
+  });
+
+  // Per-row debounce timers for remarks saves.
+  const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  useEffect(() => {
+    const timers = saveTimers.current;
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, []);
+
+  const scheduleRemarksSave = useCallback(
+    (rowId: string, value: string) => {
+      const existing = saveTimers.current.get(rowId);
+      if (existing) clearTimeout(existing);
+      saveTimers.current.set(
+        rowId,
+        setTimeout(() => onSaveRemarks(rowId, value), 500)
+      );
+    },
+    [onSaveRemarks]
+  );
 
   // Group rows by section
   const sections = useMemo(
@@ -101,6 +134,7 @@ export function VpatCriteriaTable({
           </Button>
         </div>
       )}
+      {/* eslint-disable-next-line react-hooks/refs -- sections is a useMemo Map, not a ref; register() ref callbacks are spread on inputs below */}
       {Array.from(sections.entries()).map(([section, sectionRows]) => (
         <Card key={section}>
           <CardHeader>
@@ -238,8 +272,9 @@ export function VpatCriteriaTable({
                           </span>
                         ) : (
                           <Textarea
-                            value={row.remarks ?? ''}
-                            onChange={(e) => onRowChange(row.id, { remarks: e.target.value })}
+                            {...register(row.id, {
+                              onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
+                            })}
                             rows={2}
                             className="text-sm min-h-0"
                             placeholder="Add remarks…"

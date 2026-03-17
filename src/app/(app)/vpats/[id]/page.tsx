@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -47,14 +47,8 @@ export default function VpatDetailPage() {
   const [generatingRowId, setGeneratingRowId] = useState<string | null>(null);
   const [panelRowCode, setPanelRowCode] = useState<string | null>(null);
   const [panelIssues, setPanelIssues] = useState<PanelIssue[]>([]);
-  const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-
-  useEffect(() => {
-    const timers = saveTimers.current;
-    return () => {
-      timers.forEach(clearTimeout);
-    };
-  }, []);
+  // Incremented after generate-all so VpatCriteriaTable remounts with fresh RHF defaults.
+  const [tableKey, setTableKey] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -78,30 +72,41 @@ export default function VpatDetailPage() {
     load();
   }, [vpatId, router]);
 
+  // Called immediately on conformance change — updates progress bar + saves.
   const handleRowChange = useCallback(
-    (rowId: string, update: { conformance?: string; remarks?: string }) => {
-      // Optimistic update
+    async (rowId: string, update: { conformance?: string }) => {
       setRows((prev) =>
         prev.map((r) => (r.id === rowId ? ({ ...r, ...update } as VpatCriterionRow) : r))
       );
+      try {
+        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(update),
+        });
+        const json = await res.json();
+        if (!json.success) toast.error(json.error ?? 'Failed to save');
+      } catch {
+        toast.error('Failed to save');
+      }
+    },
+    [vpatId]
+  );
 
-      // Debounced save
-      const existing = saveTimers.current.get(rowId);
-      if (existing) clearTimeout(existing);
-      const timer = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(update),
-          });
-          const json = await res.json();
-          if (!json.success) toast.error(json.error ?? 'Failed to save');
-        } catch {
-          toast.error('Failed to save');
-        }
-      }, 500);
-      saveTimers.current.set(rowId, timer);
+  // Called by the table after 500ms debounce — remarks only, no state update needed.
+  const handleSaveRemarks = useCallback(
+    async (rowId: string, remarks: string) => {
+      try {
+        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ remarks }),
+        });
+        const json = await res.json();
+        if (!json.success) toast.error(json.error ?? 'Failed to save');
+      } catch {
+        toast.error('Failed to save');
+      }
     },
     [vpatId]
   );
@@ -136,10 +141,13 @@ export default function VpatDetailPage() {
         toast.error('AI generation failed');
         return;
       }
-      // Reload rows
+      // Reload rows and remount table so RHF picks up new AI-generated remarks.
       const reloadRes = await fetch(`/api/vpats/${vpatId}`);
       const reloadJson = await reloadRes.json();
-      if (reloadJson.success) setRows(reloadJson.data.criterion_rows);
+      if (reloadJson.success) {
+        setRows(reloadJson.data.criterion_rows);
+        setTableKey((k) => k + 1);
+      }
       toast.success(`Generated ${json.data.generated} criteria`);
     } catch {
       toast.error('AI generation failed');
@@ -260,10 +268,12 @@ export default function VpatDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Criteria Table */}
+      {/* Criteria Table — key resets RHF defaults after generate-all */}
       <VpatCriteriaTable
+        key={tableKey}
         rows={rows}
         onRowChange={handleRowChange}
+        onSaveRemarks={handleSaveRemarks}
         onGenerateRow={handleGenerateRow}
         onGenerateAll={handleGenerateAll}
         generatingRowId={generatingRowId}

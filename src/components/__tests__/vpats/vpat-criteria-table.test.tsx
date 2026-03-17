@@ -24,19 +24,23 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
 
 describe('VpatCriteriaTable', () => {
   it('renders criterion code and name', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} />);
+    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.getByText('1.1.1')).toBeInTheDocument();
     expect(screen.getByText('Non-text Content')).toBeInTheDocument();
   });
 
   it('shows amber left border when conformance is not_evaluated', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} />);
+    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.getByTestId('row-1')).toHaveClass('border-amber-400');
   });
 
   it('does not show amber border when conformance is set', () => {
     render(
-      <VpatCriteriaTable rows={[makeRow({ conformance: 'supports' })]} onRowChange={vi.fn()} />
+      <VpatCriteriaTable
+        rows={[makeRow({ conformance: 'supports' })]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+      />
     );
     expect(screen.getByTestId('row-1')).not.toHaveClass('border-amber-400');
   });
@@ -71,7 +75,7 @@ describe('VpatCriteriaTable', () => {
       makeRow({ id: '1', criterion_code: '1.1.1', criterion_level: 'A', criterion_section: 'A' }),
       makeRow({ id: '2', criterion_code: '1.4.3', criterion_level: 'AA', criterion_section: 'AA' }),
     ];
-    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} />);
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.getByText(/Level A/i)).toBeInTheDocument();
     expect(screen.getByText(/Level AA/i)).toBeInTheDocument();
   });
@@ -175,20 +179,38 @@ describe('VpatCriteriaTable', () => {
   });
 
   it('shows issue count after criterion name when issue_count > 0', () => {
-    render(<VpatCriteriaTable rows={[makeRow({ issue_count: 3 })]} onRowChange={vi.fn()} />);
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow({ issue_count: 3 })]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+      />
+    );
     expect(screen.getByText('(3)')).toBeInTheDocument();
   });
 
   it('does not show issue count when issue_count is 0', () => {
-    render(<VpatCriteriaTable rows={[makeRow({ issue_count: 0 })]} onRowChange={vi.fn()} />);
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow({ issue_count: 0 })]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+      />
+    );
     expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
   });
 
-  it('calls onRowChange with remarks when textarea changes', () => {
-    const onRowChange = vi.fn();
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} />);
+  it('calls onSaveRemarks with row id and value after debounce', () => {
+    vi.useFakeTimers();
+    const onSaveRemarks = vi.fn();
+    render(
+      <VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={onSaveRemarks} />
+    );
     const textarea = screen.getByRole('textbox', { name: /remarks for 1.1.1/i });
     fireEvent.change(textarea, { target: { value: 'New remark' } });
-    expect(onRowChange).toHaveBeenCalledWith('1', { remarks: 'New remark' });
+    expect(onSaveRemarks).not.toHaveBeenCalled();
+    vi.runAllTimers();
+    expect(onSaveRemarks).toHaveBeenCalledWith('1', 'New remark');
+    vi.useRealTimers();
   });
 });
