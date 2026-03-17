@@ -1,4 +1,9 @@
-import type { AIProvider, AIAnalysisResult } from './types';
+import type {
+  AIProvider,
+  AIAnalysisResult,
+  VpatGenerationContext,
+  VpatRowGenerationResult,
+} from './types';
 
 const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
 
@@ -121,6 +126,77 @@ export class OpenAIProvider implements AIProvider {
     }
     const data = await res.json();
     return data.choices[0].message.content as string;
+  }
+
+  async generateVpatRow(context: VpatGenerationContext): Promise<VpatRowGenerationResult> {
+    if (!this.apiKey) throw new Error('No API key configured');
+    const { criterion, issues } = context;
+    const issueList =
+      issues.length > 0
+        ? issues.map((i) => `- [${i.severity}] ${i.title} (${i.url || 'no URL'})`).join('\n')
+        : 'No issues mapped to this criterion.';
+
+    const prompt = `You are writing a conformance remark for a VPAT (Voluntary Product Accessibility Template).
+
+Criterion: ${criterion.code} — ${criterion.name}
+Description: ${criterion.description}
+
+Mapped issues (${issues.length} total):
+${issueList}
+
+First, reason step-by-step about the evidence:
+1. How many issues are present and what is their severity?
+2. Are they isolated or systemic?
+3. Do any block task completion for users with disabilities?
+4. Is the evidence sufficient to make a confident determination?
+
+Then provide your output as JSON:
+{
+  "reasoning": "your step-by-step analysis",
+  "remarks": "2-4 sentence professional conformance statement suitable for a client-facing VPAT. Do not include the conformance level. Do not use bullet points.",
+  "confidence": "high | medium | low"
+}
+
+Confidence guide:
+- high: clear evidence (multiple issues, consistent severity, good coverage)
+- medium: partial evidence or mixed signals
+- low: no issues found or insufficient evidence`;
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.apiKey}` },
+      body: JSON.stringify({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+      }),
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData?.error?.message ?? 'API request failed');
+    }
+    const data = await res.json();
+    const content = data.choices[0].message.content;
+    let result: Record<string, unknown>;
+    try {
+      result = JSON.parse(content) as Record<string, unknown>;
+    } catch {
+      throw new Error('Invalid response from AI provider');
+    }
+    const VALID_CONFIDENCE = ['high', 'medium', 'low'];
+    if (
+      typeof result.remarks !== 'string' ||
+      typeof result.confidence !== 'string' ||
+      !VALID_CONFIDENCE.includes(result.confidence) ||
+      typeof result.reasoning !== 'string'
+    ) {
+      throw new Error('AI response missing required fields');
+    }
+    return {
+      remarks: result.remarks,
+      confidence: result.confidence as 'high' | 'medium' | 'low',
+      reasoning: result.reasoning,
+    };
   }
 
   async generateVpatRemarks(issueSummary: string, criterion: string): Promise<string> {

@@ -11,6 +11,11 @@ export function getAIProvider(): AIProvider | null {
   return null;
 }
 
-export type { AIProvider, AIAnalysisResult } from './types';
+export type {
+  AIProvider,
+  AIAnalysisResult,
+  VpatGenerationContext,
+  VpatRowGenerationResult,
+} from './types';
 export { OpenAIProvider } from './openai-provider';
 export { AnthropicProvider } from './anthropic-provider';
