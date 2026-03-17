@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { Vpat } from '@/lib/db/vpats';
+import type { VpatWithProgress } from '@/lib/db/vpats';
 
 function getStatusBadgeClass(status: string): string {
   return status === 'published'
@@ -24,7 +24,7 @@ function getStatusBadgeClass(status: string): string {
 }
 
 interface VpatsListViewProps {
-  vpats: Vpat[];
+  vpats: VpatWithProgress[];
 }
 
 export function VpatsListView({ vpats }: VpatsListViewProps) {
@@ -85,9 +85,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                       </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {vpat.wcag_scope.length > 0
-                        ? `${vpat.wcag_scope.length} criteria`
-                        : 'All criteria'}
+                      {vpat.resolved} of {vpat.total} criteria resolved
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusBadgeClass(vpat.status)} variant="outline">

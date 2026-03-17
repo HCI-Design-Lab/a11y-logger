@@ -1,20 +1,24 @@
 import { render, screen } from '@testing-library/react';
 import { VpatCard } from '@/components/vpats/vpat-card';
-import type { Vpat } from '@/lib/db/vpats';
+import type { VpatWithProgress } from '@/lib/db/vpats';
 
-const mockVpat: Vpat = {
+const mockVpat: VpatWithProgress = {
   id: 'v1',
   project_id: 'p1',
+  project_name: 'Acme App',
   title: 'Product VPAT',
+  description: null,
+  standard_edition: 'WCAG',
+  wcag_version: '2.1',
+  wcag_level: 'AA',
+  product_scope: ['web'],
   status: 'draft',
   version_number: 2,
-  wcag_scope: ['1.1.1', '1.4.3'],
-  criteria_rows: [],
-  ai_generated: 0,
-  created_by: null,
   published_at: null,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
+  resolved: 2,
+  total: 5,
 };
 
 describe('VpatCard', () => {
@@ -26,21 +30,21 @@ describe('VpatCard', () => {
 
   it('renders status badge', () => {
     render(<VpatCard vpat={mockVpat} />);
-    expect(screen.getByText('draft')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
-  it('renders version number', () => {
+  it('renders edition label', () => {
     render(<VpatCard vpat={mockVpat} />);
-    expect(screen.getByText('v2')).toBeInTheDocument();
+    expect(screen.getByText('WCAG 2.1 · AA')).toBeInTheDocument();
   });
 
-  it('renders scope as criteria count when scoped', () => {
+  it('renders progress count', () => {
     render(<VpatCard vpat={mockVpat} />);
-    expect(screen.getByText('2 criteria')).toBeInTheDocument();
+    expect(screen.getByText('2 of 5 criteria resolved')).toBeInTheDocument();
   });
 
-  it('renders all criteria when scope is empty', () => {
-    render(<VpatCard vpat={{ ...mockVpat, wcag_scope: [] }} />);
-    expect(screen.getByText(/all criteria/i)).toBeInTheDocument();
+  it('renders project name', () => {
+    render(<VpatCard vpat={mockVpat} />);
+    expect(screen.getByText('Acme App')).toBeInTheDocument();
   });
 });

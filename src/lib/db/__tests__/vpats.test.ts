@@ -10,6 +10,7 @@ import {
   deleteVpat,
   publishVpat,
   getVpatsWithProject,
+  getVpatsWithProgress,
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
 
@@ -231,5 +232,71 @@ describe('getVpatsWithProject', () => {
     });
     const results = getVpatsWithProject();
     expect(results[0].project_name).toBe('Test Project');
+  });
+});
+
+describe('getVpatsWithProgress', () => {
+  it('returns resolved and total counts', () => {
+    const vpat = createVpat({
+      title: 'Progress Test',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    // Mark some rows as resolved
+    getDb()
+      .prepare(
+        "UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ? AND conformance = 'not_evaluated' LIMIT 3"
+      )
+      .run(vpat.id);
+    const results = getVpatsWithProgress();
+    expect(results).toHaveLength(1);
+    expect(results[0].total).toBeGreaterThan(0);
+    expect(results[0].resolved).toBe(3);
+  });
+
+  it('returns project_name', () => {
+    createVpat({
+      title: 'Progress Test',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      product_scope: ['web'],
+    });
+    const results = getVpatsWithProgress();
+    expect(results[0].project_name).toBe('Test Project');
+  });
+
+  it('filters by projectId when provided', () => {
+    const other = createProject({ name: 'Other Project' });
+    createVpat({
+      title: 'Mine',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      product_scope: ['web'],
+    });
+    createVpat({
+      title: 'Theirs',
+      project_id: other.id,
+      standard_edition: 'WCAG',
+      product_scope: ['web'],
+    });
+    const results = getVpatsWithProgress(projectId);
+    expect(results).toHaveLength(1);
+    expect(results[0].title).toBe('Mine');
+  });
+
+  it('resolved is 0 when all rows are not_evaluated', () => {
+    createVpat({
+      title: 'All Unevaluated',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    const results = getVpatsWithProgress();
+    expect(results[0].resolved).toBe(0);
   });
 });

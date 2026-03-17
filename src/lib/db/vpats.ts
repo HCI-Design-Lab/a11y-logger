@@ -80,6 +80,34 @@ export function getVpats(projectId?: string): Vpat[] {
   return rows.map(parseVpat);
 }
 
+export interface VpatWithProgress extends VpatWithProject {
+  resolved: number;
+  total: number;
+}
+
+export function getVpatsWithProgress(projectId?: string): VpatWithProgress[] {
+  const sql = `
+    SELECT v.*, p.name as project_name,
+      COUNT(r.id) as total,
+      SUM(CASE WHEN r.conformance != 'not_evaluated' THEN 1 ELSE 0 END) as resolved
+    FROM vpats v
+    LEFT JOIN projects p ON v.project_id = p.id
+    LEFT JOIN vpat_criterion_rows r ON r.vpat_id = v.id
+    ${projectId ? 'WHERE v.project_id = ?' : ''}
+    GROUP BY v.id
+    ORDER BY v.created_at DESC
+  `;
+  const rows = (
+    projectId ? getDb().prepare(sql).all(projectId) : getDb().prepare(sql).all()
+  ) as (VpatRow & { project_name: string | null; resolved: number; total: number })[];
+  return rows.map((raw) => ({
+    ...parseVpat(raw),
+    project_name: raw.project_name,
+    resolved: raw.resolved,
+    total: raw.total,
+  }));
+}
+
 export function getVpatsWithProject(projectId?: string): VpatWithProject[] {
   const sql = `
     SELECT v.*, p.name as project_name
