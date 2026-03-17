@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,10 +27,19 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPanelProps) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   return (
     <div
       className="fixed inset-y-0 right-0 w-96 bg-background border-l shadow-xl z-50 flex flex-col"
-      role="complementary"
+      role="dialog"
+      aria-modal="true"
       aria-label={`Issues for criterion ${criterionCode}`}
     >
       {/* Header */}
@@ -79,6 +89,7 @@ export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPa
               <a
                 href={`/issues/${issue.id}`}
                 className="text-xs font-medium text-primary hover:underline"
+                aria-label={`Open issue: ${issue.title}`}
               >
                 Open issue →
               </a>

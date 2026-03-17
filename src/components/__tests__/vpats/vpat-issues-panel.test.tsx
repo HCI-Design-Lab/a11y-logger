@@ -45,4 +45,17 @@ describe('VpatIssuesPanel', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
     expect(screen.getByText('Image lacks alt attribute.')).toBeInTheDocument();
   });
+
+  it('closes panel when Escape key is pressed', () => {
+    const onClose = vi.fn();
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('renders Open issue link pointing to the issue page', () => {
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    const link = screen.getByRole('link', { name: /open issue: missing alt text/i });
+    expect(link).toHaveAttribute('href', '/issues/1');
+  });
 });
