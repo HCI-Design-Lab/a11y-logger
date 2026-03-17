@@ -1,6 +1,9 @@
 -- Clear existing VPAT data (clean slate per design decision)
 DELETE FROM vpats;
 
+-- Note: wcag_version and wcag_level columns on vpats were added in migration 005.
+-- They are part of the normalized VPAT schema and are prerequisites for the data layer introduced here.
+
 -- Unified criteria catalog
 CREATE TABLE criteria (
   id TEXT PRIMARY KEY,

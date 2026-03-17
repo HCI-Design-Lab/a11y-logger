@@ -136,6 +136,8 @@ export function deleteVpat(id: string): boolean {
 }
 
 export function publishVpat(id: string): Vpat {
+  const existing = getVpat(id);
+  if (!existing) throw new Error(`VPAT not found: ${id}`);
   const unresolved = countUnresolvedRows(id);
   if (unresolved > 0) {
     throw new Error(`Cannot publish: ${unresolved} unresolved rows`);

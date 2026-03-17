@@ -188,6 +188,10 @@ describe('deleteVpat', () => {
 });
 
 describe('publishVpat', () => {
+  it('publishVpat throws for non-existent VPAT', () => {
+    expect(() => publishVpat('non-existent')).toThrow('not found');
+  });
+
   it('throws when unresolved rows exist', () => {
     const vpat = createVpat({
       title: 'Test',

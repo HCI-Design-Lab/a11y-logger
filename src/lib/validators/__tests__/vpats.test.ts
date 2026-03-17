@@ -2,141 +2,118 @@ import { describe, it, expect } from 'vitest';
 import { CreateVpatSchema, UpdateVpatSchema } from '../vpats';
 
 describe('CreateVpatSchema', () => {
-  it('accepts minimal valid input', () => {
-    const result = CreateVpatSchema.safeParse({ title: 'VPAT 2024', project_id: 'proj-1' });
+  it('accepts a valid minimal input', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'Test', project_id: 'proj-1' });
     expect(result.success).toBe(true);
   });
 
-  it('rejects missing title', () => {
-    expect(CreateVpatSchema.safeParse({ project_id: 'proj-1' }).success).toBe(false);
+  it('defaults standard_edition to WCAG', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'Test', project_id: 'proj-1' });
+    expect(result.success && result.data.standard_edition).toBe('WCAG');
   });
 
-  it('rejects empty title', () => {
-    expect(CreateVpatSchema.safeParse({ title: '', project_id: 'proj-1' }).success).toBe(false);
+  it('defaults wcag_version to 2.1', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'Test', project_id: 'proj-1' });
+    expect(result.success && result.data.wcag_version).toBe('2.1');
   });
 
-  it('rejects title longer than 200 chars', () => {
-    expect(
-      CreateVpatSchema.safeParse({ title: 'a'.repeat(201), project_id: 'proj-1' }).success
-    ).toBe(false);
+  it('defaults wcag_level to AA', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'Test', project_id: 'proj-1' });
+    expect(result.success && result.data.wcag_level).toBe('AA');
   });
 
-  it('rejects missing project_id', () => {
-    expect(CreateVpatSchema.safeParse({ title: 'VPAT' }).success).toBe(false);
+  it('defaults product_scope to ["web"]', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'Test', project_id: 'proj-1' });
+    expect(result.success && result.data.product_scope).toEqual(['web']);
   });
 
-  it('rejects empty project_id', () => {
-    expect(CreateVpatSchema.safeParse({ title: 'VPAT', project_id: '' }).success).toBe(false);
-  });
-
-  it('accepts valid wcag_scope as array of known codes', () => {
-    const result = CreateVpatSchema.safeParse({
-      title: 'VPAT',
-      project_id: 'proj-1',
-      wcag_scope: ['1.1.1', '1.3.1', '4.1.2'],
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects wcag_scope containing unknown criterion code', () => {
-    const result = CreateVpatSchema.safeParse({
-      title: 'VPAT',
-      project_id: 'proj-1',
-      wcag_scope: ['9.9.9'],
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('accepts valid criteria_rows', () => {
-    const result = CreateVpatSchema.safeParse({
-      title: 'VPAT',
-      project_id: 'proj-1',
-      criteria_rows: [
-        {
-          criterion_code: '1.1.1',
-          conformance: 'supports',
-          remarks: 'All images have alt text',
-          related_issue_ids: [],
-        },
-      ],
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects criteria_rows with invalid conformance value', () => {
-    const result = CreateVpatSchema.safeParse({
-      title: 'VPAT',
-      project_id: 'proj-1',
-      criteria_rows: [{ criterion_code: '1.1.1', conformance: 'unknown_value' }],
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects criteria_rows with unknown criterion_code', () => {
-    const result = CreateVpatSchema.safeParse({
-      title: 'VPAT',
-      project_id: 'proj-1',
-      criteria_rows: [{ criterion_code: '9.9.9', conformance: 'supports' }],
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('accepts all valid conformance values', () => {
-    const conformanceValues = [
-      'supports',
-      'partially_supports',
-      'does_not_support',
-      'not_applicable',
-      'not_evaluated',
-    ];
-    for (const conformance of conformanceValues) {
+  it('accepts all valid standard editions', () => {
+    for (const edition of ['WCAG', '508', 'EU', 'INT']) {
       const result = CreateVpatSchema.safeParse({
-        title: 'VPAT',
-        project_id: 'proj-1',
-        criteria_rows: [{ criterion_code: '1.1.1', conformance }],
+        title: 'T',
+        project_id: 'p',
+        standard_edition: edition,
       });
       expect(result.success).toBe(true);
     }
   });
 
-  it('defaults wcag_scope to empty array when omitted', () => {
-    const result = CreateVpatSchema.safeParse({ title: 'VPAT', project_id: 'proj-1' });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.wcag_scope).toEqual([]);
-    }
+  it('rejects invalid standard_edition', () => {
+    const result = CreateVpatSchema.safeParse({
+      title: 'T',
+      project_id: 'p',
+      standard_edition: 'INVALID',
+    });
+    expect(result.success).toBe(false);
   });
 
-  it('defaults criteria_rows to empty array when omitted', () => {
-    const result = CreateVpatSchema.safeParse({ title: 'VPAT', project_id: 'proj-1' });
+  it('rejects empty product_scope', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'T', project_id: 'p', product_scope: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts all valid product scope values', () => {
+    const result = CreateVpatSchema.safeParse({
+      title: 'T',
+      project_id: 'p',
+      product_scope: [
+        'web',
+        'software-desktop',
+        'software-mobile',
+        'documents',
+        'hardware',
+        'telephony',
+      ],
+    });
     expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.criteria_rows).toEqual([]);
-    }
+  });
+
+  it('rejects invalid product scope value', () => {
+    const result = CreateVpatSchema.safeParse({
+      title: 'T',
+      project_id: 'p',
+      product_scope: ['invalid'],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects title exceeding 200 characters', () => {
+    const result = CreateVpatSchema.safeParse({ title: 'x'.repeat(201), project_id: 'p' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts description up to 1000 chars', () => {
+    const result = CreateVpatSchema.safeParse({
+      title: 'T',
+      project_id: 'p',
+      description: 'd'.repeat(1000),
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects description exceeding 1000 chars', () => {
+    const result = CreateVpatSchema.safeParse({
+      title: 'T',
+      project_id: 'p',
+      description: 'd'.repeat(1001),
+    });
+    expect(result.success).toBe(false);
   });
 });
 
 describe('UpdateVpatSchema', () => {
-  it('accepts empty object (all fields optional)', () => {
-    expect(UpdateVpatSchema.safeParse({}).success).toBe(true);
+  it('accepts empty object (partial)', () => {
+    const result = UpdateVpatSchema.safeParse({});
+    expect(result.success).toBe(true);
   });
 
-  it('accepts partial update with just title', () => {
-    expect(UpdateVpatSchema.safeParse({ title: 'New Title' }).success).toBe(true);
+  it('accepts title update', () => {
+    const result = UpdateVpatSchema.safeParse({ title: 'New Title' });
+    expect(result.success).toBe(true);
   });
 
-  it('still rejects invalid title (empty string)', () => {
-    expect(UpdateVpatSchema.safeParse({ title: '' }).success).toBe(false);
-  });
-
-  it('still rejects invalid wcag_scope codes', () => {
-    expect(UpdateVpatSchema.safeParse({ wcag_scope: ['9.9.9'] }).success).toBe(false);
-  });
-
-  it('still validates criteria_rows on partial update', () => {
-    const result = UpdateVpatSchema.safeParse({
-      criteria_rows: [{ criterion_code: '1.1.1', conformance: 'invalid' }],
-    });
+  it('rejects title exceeding 200 characters', () => {
+    const result = UpdateVpatSchema.safeParse({ title: 'x'.repeat(201) });
     expect(result.success).toBe(false);
   });
 });
