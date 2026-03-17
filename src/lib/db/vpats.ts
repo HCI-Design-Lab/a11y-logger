@@ -89,7 +89,7 @@ export function getVpatsWithProgress(projectId?: string): VpatWithProgress[] {
   const sql = `
     SELECT v.*, p.name as project_name,
       COUNT(r.id) as total,
-      SUM(CASE WHEN r.conformance != 'not_evaluated' THEN 1 ELSE 0 END) as resolved
+      COALESCE(SUM(CASE WHEN r.conformance != 'not_evaluated' THEN 1 ELSE 0 END), 0) as resolved
     FROM vpats v
     LEFT JOIN projects p ON v.project_id = p.id
     LEFT JOIN vpat_criterion_rows r ON r.vpat_id = v.id

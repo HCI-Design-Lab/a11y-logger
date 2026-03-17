@@ -89,7 +89,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusBadgeClass(vpat.status)} variant="outline">
-                        {vpat.status}
+                        {vpat.status === 'published' ? 'Published' : 'Draft'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
