@@ -66,10 +66,12 @@ describe('OpenAIProvider.generateVpatRow', () => {
 });
 
 describe('AnthropicProvider.generateVpatRow', () => {
+  let fetchSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
-      mockAnthropicResponse(validResult) as unknown as Response
-    );
+    fetchSpy = vi
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(mockAnthropicResponse(validResult) as unknown as Response);
   });
 
   it('returns remarks, confidence, and reasoning', async () => {
@@ -85,5 +87,16 @@ describe('AnthropicProvider.generateVpatRow', () => {
     expect(result.remarks).toBe(validResult.remarks);
     expect(result.confidence).toBe('medium');
     expect(result.reasoning).toBe(validResult.reasoning);
+  });
+
+  it('throws on invalid response shape', async () => {
+    fetchSpy.mockResolvedValue(mockAnthropicResponse({ remarks: 'ok' }) as unknown as Response);
+    const provider = new AnthropicProvider('test-key');
+    await expect(
+      provider.generateVpatRow({
+        criterion: { code: '1.1.1', name: 'Test', description: 'Test' },
+        issues: [],
+      })
+    ).rejects.toThrow('AI response missing required fields');
   });
 });
