@@ -1,13 +1,26 @@
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
-import { WCAG_CRITERIA, CONFORMANCE_DISPLAY } from '@/lib/vpats/wcag-criteria';
+import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
-type DbConformance =
-  | 'supports'
-  | 'partially_supports'
-  | 'does_not_support'
-  | 'not_applicable'
-  | 'not_evaluated';
+const SECTION_LABELS: Record<string, string> = {
+  A: 'Table 1: Success Criteria, Level A',
+  AA: 'Table 2: Success Criteria, Level AA',
+  AAA: 'Table 3: Success Criteria, Level AAA',
+  Chapter3: 'Chapter 3: Functional Performance Criteria',
+  Chapter5: 'Chapter 5: Software',
+  Chapter6: 'Chapter 6: Support Documentation and Services',
+  Clause4: 'Clause 4: Functional Performance Statements',
+  Clause5: 'Clause 5: Generic Requirements',
+  Clause12: 'Clauses 11-12: Documentation and Support Services',
+};
+
+const CONFORMANCE_DISPLAY: Record<string, string> = {
+  supports: 'Supports',
+  partially_supports: 'Partially Supports',
+  does_not_support: 'Does Not Support',
+  not_applicable: 'Not Applicable',
+  not_evaluated: 'Not Evaluated',
+};
 
 function escapeHtml(str: string): string {
   return str
@@ -19,7 +32,7 @@ function escapeHtml(str: string): string {
 }
 
 function getConformanceDisplay(conformance: string): string {
-  return CONFORMANCE_DISPLAY[conformance as DbConformance] ?? conformance;
+  return CONFORMANCE_DISPLAY[conformance] ?? conformance;
 }
 
 function getConformanceClass(conformance: string): string {
@@ -41,44 +54,34 @@ function getConformanceClass(conformance: string): string {
  * Generates a complete, standalone HTML document for a VPAT.
  * Suitable for direct download or browser print-to-PDF.
  */
-export function generateVpatHtml(vpat: Vpat, project: Project): string {
+export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriterionRow[]): string {
   const generatedDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
 
-  // Build a map of criterion code → criteria_row for quick lookup
-  const rowMap = new Map(vpat.criteria_rows.map((r) => [r.criterion_code, r]));
-
-  // Determine which criteria to display:
-  // If wcag_scope is set, filter to those criteria; otherwise show all
-  const criteriaToDisplay =
-    vpat.wcag_scope.length > 0
-      ? WCAG_CRITERIA.filter((c) => vpat.wcag_scope.includes(c.criterion))
-      : WCAG_CRITERIA;
-
-  // Group criteria by principle
-  type CriterionItem = (typeof criteriaToDisplay)[number];
-  const byPrinciple = new Map<string, CriterionItem[]>();
-  for (const criterion of criteriaToDisplay) {
-    const list = byPrinciple.get(criterion.principle) ?? [];
-    byPrinciple.set(criterion.principle, [...list, criterion]);
+  // Group rows by criterion_section, preserving insertion order
+  const bySection = new Map<string, VpatCriterionRow[]>();
+  for (const row of rows) {
+    const list = bySection.get(row.criterion_section) ?? [];
+    bySection.set(row.criterion_section, [...list, row]);
   }
 
-  const principlesHtml = Array.from(byPrinciple.entries())
-    .map(([principle, criteria]) => {
-      const rowsHtml = criteria
-        .map((criterion) => {
-          const row = rowMap.get(criterion.criterion);
-          const conformance = row?.conformance ?? 'not_evaluated';
-          const remarks = row?.remarks ?? '';
+  const sectionsHtml = Array.from(bySection.entries())
+    .map(([section, sectionRows]) => {
+      const sectionLabel = SECTION_LABELS[section] ?? section;
+
+      const rowsHtml = sectionRows
+        .map((row) => {
+          const conformance = row.conformance ?? 'not_evaluated';
+          const remarks = row.remarks ?? '';
 
           return `
           <tr>
-            <td class="criterion-code">${escapeHtml(criterion.criterion)}</td>
-            <td class="criterion-name">${escapeHtml(criterion.name)}</td>
-            <td class="criterion-level level-${criterion.level.toLowerCase()}">${escapeHtml(criterion.level)}</td>
+            <td class="criterion-code">${escapeHtml(row.criterion_code)}</td>
+            <td class="criterion-name">${escapeHtml(row.criterion_name)}</td>
+            <td class="criterion-level level-${(row.criterion_level ?? '').toLowerCase()}">${row.criterion_level ? escapeHtml(row.criterion_level) : ''}</td>
             <td class="conformance-cell ${getConformanceClass(conformance)}">${escapeHtml(getConformanceDisplay(conformance))}</td>
             <td class="remarks-cell">${remarks ? escapeHtml(remarks) : '<span class="no-remarks">—</span>'}</td>
           </tr>`;
@@ -87,7 +90,7 @@ export function generateVpatHtml(vpat: Vpat, project: Project): string {
 
       return `
         <section class="principle-section">
-          <h2>${escapeHtml(principle)}</h2>
+          <h2>${escapeHtml(sectionLabel)}</h2>
           <table>
             <thead>
               <tr>
@@ -107,9 +110,7 @@ export function generateVpatHtml(vpat: Vpat, project: Project): string {
     .join('\n');
 
   const noRowsHtml =
-    criteriaToDisplay.length === 0
-      ? '<p class="no-content">No criteria have been added to this VPAT.</p>'
-      : '';
+    rows.length === 0 ? '<p class="no-content">No criteria have been added to this VPAT.</p>' : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -353,7 +354,7 @@ export function generateVpatHtml(vpat: Vpat, project: Project): string {
         </div>
         <div class="meta-pair">
           <dt>Criteria:</dt>
-          <dd>${criteriaToDisplay.length} of ${WCAG_CRITERIA.length} WCAG criteria</dd>
+          <dd>${rows.length} criteria</dd>
         </div>
         <div class="meta-pair">
           <dt>Generated:</dt>
@@ -371,7 +372,7 @@ export function generateVpatHtml(vpat: Vpat, project: Project): string {
     </header>
 
     <main>
-      ${principlesHtml}
+      ${sectionsHtml}
       ${noRowsHtml}
     </main>
 

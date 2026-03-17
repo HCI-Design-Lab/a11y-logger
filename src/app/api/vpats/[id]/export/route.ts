@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getVpat } from '@/lib/db/vpats';
 import { getProject } from '@/lib/db/projects';
+import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { generateVpatHtml } from '@/lib/export/vpat-template';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -53,7 +54,8 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const html = generateVpatHtml(vpat, project);
+    const rows = getCriterionRows(id);
+    const html = generateVpatHtml(vpat, project, rows);
 
     // Sanitize title for use in filename
     const safeTitle = vpat.title

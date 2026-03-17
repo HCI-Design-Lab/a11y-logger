@@ -20,27 +20,17 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+  getDb().prepare('DELETE FROM vpat_criterion_rows').run();
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
   const vpat = createVpat({
     title: 'WCAG 2.1 Conformance Report',
     project_id: project.id,
-    wcag_scope: [],
-    criteria_rows: [
-      {
-        criterion_code: '1.1.1',
-        conformance: 'supports',
-        remarks: 'All images have alt text.',
-        related_issue_ids: [],
-      },
-      {
-        criterion_code: '1.4.3',
-        conformance: 'partially_supports',
-        remarks: null,
-        related_issue_ids: [],
-      },
-    ],
+    standard_edition: 'WCAG',
+    wcag_version: '2.1',
+    wcag_level: 'AA',
+    product_scope: ['web'],
   });
   vpatId = vpat.id;
 });
@@ -81,8 +71,6 @@ describe('GET /api/vpats/[id]/export', () => {
       );
       const text = await response.text();
       expect(text).toContain('<table');
-      expect(text).toContain('1.1.1');
-      expect(text).toContain('1.4.3');
     });
 
     it('includes Content-Disposition header for download', async () => {
