@@ -57,6 +57,7 @@ export default function NewVpatPage() {
   const [description, setDescription] = useState('');
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [projectsError, setProjectsError] = useState(false);
 
   useEffect(() => {
     fetch('/api/projects')
@@ -64,7 +65,9 @@ export default function NewVpatPage() {
       .then((body) => {
         if (body.success) setProjects(body.data);
       })
-      .catch(() => {});
+      .catch(() => {
+        setProjectsError(true);
+      });
   }, []);
 
   function toggleScope(value: string) {
@@ -195,29 +198,27 @@ export default function NewVpatPage() {
 
             {/* Conformance Level — hidden for 508 and EU */}
             {edition !== '508' && edition !== 'EU' && (
-              <div className="space-y-2">
-                <Label>Conformance Level</Label>
-                <div className="space-y-2">
-                  {(['A', 'AA', 'AAA'] as const).map((lvl) => (
-                    <label key={lvl} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="wcag-level"
-                        value={lvl}
-                        checked={wcagLevel === lvl}
-                        onChange={() => setWcagLevel(lvl)}
-                      />
-                      <span className="text-sm">
-                        {lvl === 'A'
-                          ? 'Level A only'
-                          : lvl === 'AA'
-                            ? 'Level A + AA'
-                            : 'Level A + AA + AAA'}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium">Conformance Level</legend>
+                {(['A', 'AA', 'AAA'] as const).map((lvl) => (
+                  <label key={lvl} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="wcag-level"
+                      value={lvl}
+                      checked={wcagLevel === lvl}
+                      onChange={() => setWcagLevel(lvl)}
+                    />
+                    <span className="text-sm">
+                      {lvl === 'A'
+                        ? 'Level A only'
+                        : lvl === 'AA'
+                          ? 'Level A + AA'
+                          : 'Level A + AA + AAA'}
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
             )}
 
             {(edition === '508' || edition === 'EU') && (
@@ -228,8 +229,8 @@ export default function NewVpatPage() {
             )}
 
             {/* Product Scope */}
-            <div className="space-y-2">
-              <Label>Product Scope</Label>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Product Scope</legend>
               <p className="text-sm text-muted-foreground">
                 Select all product types this VPAT covers.
               </p>
@@ -246,7 +247,7 @@ export default function NewVpatPage() {
                   </label>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             <div className="flex justify-between pt-2">
               <Button type="button" variant="outline" onClick={() => setStep(1)}>
@@ -294,6 +295,11 @@ export default function NewVpatPage() {
                     </option>
                   ))}
                 </select>
+                {projectsError && (
+                  <p className="text-sm text-destructive">
+                    Failed to load projects. Please refresh the page.
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description (optional)</Label>

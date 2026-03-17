@@ -2,12 +2,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import NewVpatPage from '../new/page';
 
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushMock }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
 beforeEach(() => {
+  pushMock.mockClear();
   vi.spyOn(global, 'fetch').mockResolvedValue({
     ok: true,
     json: async () => ({ success: true, data: [{ id: 'proj-1', name: 'Test Project' }] }),
@@ -103,6 +106,11 @@ describe('NewVpatPage', () => {
       expect(capturedBody!.standard_edition).toBe('508');
       expect(capturedBody!).not.toHaveProperty('wcag_version');
       expect(capturedBody!).not.toHaveProperty('wcag_level');
+    });
+
+    // Also verify redirect happened
+    await vi.waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/vpats/vpat-1');
     });
   });
 });
