@@ -280,7 +280,7 @@ export default function NewVpatPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="project">Project</Label>
+                <Label htmlFor="project">Project *</Label>
                 <select
                   id="project"
                   value={projectId}
