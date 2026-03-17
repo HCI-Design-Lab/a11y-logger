@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { updateCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import { updateCriterionRow, getCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
 const UpdateRowSchema = z
   .object({
@@ -13,7 +13,7 @@ const UpdateRowSchema = z
         'not_evaluated',
       ])
       .optional(),
-    remarks: z.string().max(5000).nullable().optional(),
+    remarks: z.string().max(5000).optional(),
   })
   .refine(
     (d) => d.conformance !== undefined || d.remarks !== undefined,
@@ -23,7 +23,7 @@ const UpdateRowSchema = z
 type RouteContext = { params: Promise<{ id: string; rowId: string }> };
 
 export async function PATCH(request: Request, { params }: RouteContext) {
-  const { rowId } = await params;
+  const { id: vpatId, rowId } = await params;
   try {
     const body = await request.json();
     const result = UpdateRowSchema.safeParse(body);
@@ -33,12 +33,14 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         { status: 400 }
       );
     }
-    const updated = updateCriterionRow(rowId, result.data);
-    if (!updated)
+    const row = getCriterionRow(rowId);
+    if (!row || row.vpat_id !== vpatId) {
       return NextResponse.json(
         { success: false, error: 'Row not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
+    }
+    const updated = updateCriterionRow(rowId, result.data);
     return NextResponse.json({ success: true, data: updated });
   } catch {
     return NextResponse.json(

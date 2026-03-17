@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
 import { createVpat } from '@/lib/db/vpats';
@@ -29,40 +29,34 @@ beforeEach(() => {
   vpatId = v.id;
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 describe('POST /api/vpats/[id]/rows/generate-all', () => {
   it('returns 422 when no AI provider configured', async () => {
-    const origProvider = process.env.AI_PROVIDER;
-    const origKey = process.env.AI_API_KEY;
-    delete process.env.AI_PROVIDER;
-    delete process.env.AI_API_KEY;
-
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId }),
     });
     expect(res.status).toBe(422);
     const body = await res.json();
     expect(body.code).toBe('NO_AI_PROVIDER');
-
-    process.env.AI_PROVIDER = origProvider;
-    process.env.AI_API_KEY = origKey;
   });
 
   it('returns 404 for unknown VPAT', async () => {
-    process.env.AI_PROVIDER = 'openai';
-    process.env.AI_API_KEY = 'test-key';
+    vi.stubEnv('AI_PROVIDER', 'openai');
+    vi.stubEnv('AI_API_KEY', 'test-key');
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: 'unknown-vpat-id' }),
     });
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.code).toBe('NOT_FOUND');
-    delete process.env.AI_PROVIDER;
-    delete process.env.AI_API_KEY;
   });
 
   it('skips rows that already have remarks and counts them correctly', async () => {
-    process.env.AI_PROVIDER = 'openai';
-    process.env.AI_API_KEY = 'test-key';
+    vi.stubEnv('AI_PROVIDER', 'openai');
+    vi.stubEnv('AI_API_KEY', 'test-key');
 
     // Pre-fill the first row with remarks
     const rows = getCriterionRows(vpatId);
@@ -95,8 +89,42 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
     expect(body.data.skipped).toBe(1); // 1 row was skipped (had remarks)
     expect(body.data.generated).toBe(rows.length - 1); // rest were generated
     expect(body.data.errors).toHaveLength(0);
+  });
 
-    delete process.env.AI_PROVIDER;
-    delete process.env.AI_API_KEY;
+  it('accumulates errors for failed AI calls and counts correctly', async () => {
+    vi.stubEnv('AI_PROVIDER', 'openai');
+    vi.stubEnv('AI_API_KEY', 'test-key');
+
+    const rows = getCriterionRows(vpatId);
+    let callCount = 0;
+    vi.spyOn(global, 'fetch').mockImplementation(async () => {
+      callCount++;
+      if (callCount === 1) throw new Error('Network error');
+      return {
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  reasoning: 'r',
+                  remarks: 'Generated.',
+                  confidence: 'medium',
+                }),
+              },
+            },
+          ],
+        }),
+      } as unknown as Response;
+    });
+
+    const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
+      params: Promise.resolve({ id: vpatId }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.data.errors).toHaveLength(1);
+    expect(body.data.generated).toBe(rows.length - 1);
+    expect(body.data.skipped).toBe(0);
   });
 });

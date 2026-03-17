@@ -18,7 +18,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
   }
 
   const row = getCriterionRow(rowId);
-  if (!row)
+  if (!row || row.vpat_id !== vpatId)
     return NextResponse.json(
       { success: false, error: 'Row not found', code: 'NOT_FOUND' },
       { status: 404 }

@@ -31,17 +31,15 @@ export async function POST(_request: Request, { params }: RouteContext) {
   let generated = 0;
   const errors: string[] = [];
 
+  const stmt = getDb().prepare(`
+    SELECT i.title, i.severity, i.url, i.description
+    FROM issues i JOIN assessments a ON i.assessment_id = a.id
+    WHERE a.project_id = ? AND i.status = 'open'
+      AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = ?)
+  `);
+
   for (const row of rows) {
-    const issues = getDb()
-      .prepare(
-        `
-      SELECT i.title, i.severity, i.url, i.description
-      FROM issues i JOIN assessments a ON i.assessment_id = a.id
-      WHERE a.project_id = ? AND i.status = 'open'
-        AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = ?)
-    `
-      )
-      .all(vpat.project_id, row.criterion_code) as {
+    const issues = stmt.all(vpat.project_id, row.criterion_code) as {
       title: string;
       severity: string;
       url: string;
