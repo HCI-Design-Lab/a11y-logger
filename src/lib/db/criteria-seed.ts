@@ -731,6 +731,34 @@ const S508_CHAPTER3: NonWcagCriterionRow[] = [
   ],
 ];
 
+const S508_CHAPTER5: NonWcagCriterionRow[] = [
+  [
+    '502.2.1',
+    'User Control of Accessibility Features',
+    'Software that is assistive technology shall support the accessibility services of the platform.',
+  ],
+  [
+    '502.2.2',
+    'No Disruption of Accessibility Features',
+    'Software shall not disrupt platform features defined in platform documentation as accessibility features.',
+  ],
+  [
+    '502.3.1',
+    'Object Information',
+    'The object role, state(s), boundary, name, and description shall be programmatically determinable.',
+  ],
+  [
+    '502.3.2',
+    'Modification of Object Information',
+    'States and properties that can be set by the user shall be capable of being set programmatically.',
+  ],
+  [
+    '502.3.3',
+    'Row, Column, and Headers',
+    'If an object is in a data table, the occupied rows and columns shall be programmatically determinable.',
+  ],
+];
+
 const S508_CHAPTER6: NonWcagCriterionRow[] = [
   [
     '602.2',
@@ -930,6 +958,42 @@ export function seedCriteria(): void {
     });
 
     insertAll508();
+  }
+
+  // Seed Section 508 Chapter 5 criteria (software-specific, separate guard for idempotency)
+  const existingCh5 = (
+    db
+      .prepare(
+        "SELECT COUNT(*) as n FROM criteria WHERE standard = '508' AND chapter_section = 'Chapter5'"
+      )
+      .get() as { n: number }
+  ).n;
+
+  if (existingCh5 === 0) {
+    const insert508Ch5 = db.prepare(`
+      INSERT INTO criteria (id, code, name, description, standard, chapter_section, wcag_version, level, editions, product_types, sort_order)
+      VALUES (?, ?, ?, ?, '508', 'Chapter5', NULL, NULL, ?, ?, ?)
+    `);
+
+    const editions508 = JSON.stringify(['508', 'INT']);
+    // Software-only product types — NOT web (key for autoNotApplicable)
+    const softwareOnlyTypes = '["software-desktop","software-mobile"]';
+
+    const insertAllCh5 = db.transaction(() => {
+      S508_CHAPTER5.forEach(([code, name, description], index) => {
+        insert508Ch5.run(
+          `508-${code}`,
+          code,
+          name,
+          description,
+          editions508,
+          softwareOnlyTypes,
+          S508_CHAPTER3.length + S508_CHAPTER6.length + index + 1
+        );
+      });
+    });
+
+    insertAllCh5();
   }
 
   // Seed EN 301 549 criteria

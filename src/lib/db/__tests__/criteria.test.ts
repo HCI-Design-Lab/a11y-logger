@@ -71,6 +71,24 @@ describe('getCriteriaForEdition', () => {
     const aSection = sections.find((s) => s.section === 'A');
     expect(aSection?.label).toBe('Table 1: Success Criteria, Level A');
   });
+
+  it('marks Chapter5 criteria as autoNotApplicable for web-only scope', () => {
+    const sections = getCriteriaForEdition('508', ['web'], '2.1', 'AA');
+    const ch5 = sections.find((s) => s.section === 'Chapter5');
+    expect(ch5).toBeDefined();
+    ch5!.criteria.forEach((c) => {
+      expect(c.autoNotApplicable).toBe(true);
+    });
+  });
+
+  it('does not mark Chapter5 criteria as autoNotApplicable when software is in scope', () => {
+    const sections = getCriteriaForEdition('508', ['web', 'software-desktop'], '2.1', 'AA');
+    const ch5 = sections.find((s) => s.section === 'Chapter5');
+    expect(ch5).toBeDefined();
+    ch5!.criteria.forEach((c) => {
+      expect(c.autoNotApplicable).toBeUndefined();
+    });
+  });
 });
 
 describe('getCriterion', () => {

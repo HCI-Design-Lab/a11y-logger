@@ -23,14 +23,12 @@ export interface CriteriaSection {
   criteria: Criterion[];
 }
 
+// WCAG criteria are grouped by level (A/AA/AAA), not by principle.
+// Perceivable/Operable/Understandable/Robust are not used as section keys.
 const SECTION_LABELS: Record<string, string> = {
   A: 'Table 1: Success Criteria, Level A',
   AA: 'Table 2: Success Criteria, Level AA',
   AAA: 'Table 3: Success Criteria, Level AAA',
-  Perceivable: 'Perceivable',
-  Operable: 'Operable',
-  Understandable: 'Understandable',
-  Robust: 'Robust',
   Chapter3: 'Chapter 3: Functional Performance Criteria',
   Chapter5: 'Chapter 5: Software',
   Chapter6: 'Chapter 6: Support Documentation and Services',
@@ -173,9 +171,12 @@ export function getCriteriaForEdition(
     .map(parseCriterion)
     .filter((c) => c.editions.includes(edition));
 
-  // Step 6: Apply autoNotApplicable detection
+  // Step 6: Apply autoNotApplicable detection — only set when true, leave undefined otherwise
   for (const criterion of filteredNonWcag) {
-    criterion.autoNotApplicable = computeAutoNotApplicable(criterion, productScope);
+    const ana = computeAutoNotApplicable(criterion, productScope);
+    if (ana) {
+      criterion.autoNotApplicable = true;
+    }
   }
 
   // Step 7: Group non-WCAG criteria by chapter_section (preserving sort order)
