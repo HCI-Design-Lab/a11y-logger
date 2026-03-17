@@ -4,6 +4,7 @@ import path from 'path';
 import { runMigrations } from './migrate';
 import { loadMigrations } from './load-migrations';
 import { seedDefaultSettings } from './settings';
+import { seedCriteria } from './criteria-seed';
 
 let db: Database.Database | null = null;
 
@@ -37,6 +38,7 @@ export function initDb(dbPath?: string): Database.Database {
   const migrations = loadMigrations(MIGRATIONS_DIR);
   runMigrations(database, migrations);
   seedDefaultSettings();
+  seedCriteria();
   return database;
 }
 
