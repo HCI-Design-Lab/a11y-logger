@@ -59,6 +59,15 @@ describe('seedCriteria', () => {
     }
   });
 
+  it('seeds exactly 87 WCAG criteria', () => {
+    const count = (
+      getDb().prepare("SELECT COUNT(*) as n FROM criteria WHERE standard = 'WCAG'").get() as {
+        n: number;
+      }
+    ).n;
+    expect(count).toBe(87);
+  });
+
   it('is idempotent', () => {
     const count1 = (
       getDb().prepare("SELECT COUNT(*) as n FROM criteria WHERE standard = 'WCAG'").get() as {

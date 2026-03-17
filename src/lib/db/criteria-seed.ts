@@ -9,44 +9,9 @@ type CriterionRow = [
   description: string,
 ];
 
-const WCAG_21_ONLY_CODES = new Set([
-  '1.3.4',
-  '1.3.5',
-  '1.4.10',
-  '1.4.11',
-  '1.4.12',
-  '1.4.13',
-  '2.1.4',
-  '2.5.1',
-  '2.5.2',
-  '2.5.3',
-  '2.5.4',
-  '2.5.5',
-  '2.5.6',
-  '2.2.6',
-  '2.3.3',
-  '4.1.3',
-]);
-
-const WCAG_22_ONLY_CODES = new Set([
-  '2.4.11',
-  '2.4.12',
-  '2.4.13',
-  '2.5.7',
-  '2.5.8',
-  '3.2.6',
-  '3.3.7',
-  '3.3.8',
-  '3.3.9',
-]);
-
-function getEditions(code: string, wcag_version: string): string[] {
-  if (wcag_version === '2.2' || WCAG_22_ONLY_CODES.has(code)) {
-    return ['WCAG', 'INT'];
-  }
-  if (wcag_version === '2.1' || WCAG_21_ONLY_CODES.has(code)) {
-    return ['WCAG', 'EU', 'INT'];
-  }
+function getEditions(wcag_version: string): string[] {
+  if (wcag_version === '2.2') return ['WCAG', 'INT'];
+  if (wcag_version === '2.1') return ['WCAG', 'EU', 'INT'];
   return ['WCAG', '508', 'EU', 'INT'];
 }
 
@@ -747,7 +712,7 @@ export function seedCriteria(): void {
   const insertAll = db.transaction(() => {
     WCAG_CRITERIA.forEach(
       ([code, name, level, chapter_section, wcag_version, description], index) => {
-        const editions = getEditions(code, wcag_version);
+        const editions = getEditions(wcag_version);
         insert.run(
           `wcag-${code}`,
           code,
