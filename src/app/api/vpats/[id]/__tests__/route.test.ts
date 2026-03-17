@@ -92,6 +92,18 @@ describe('PUT /api/vpats/[id]', () => {
     const response = await PUT(request, makeContext('nonexistent'));
     expect(response.status).toBe(404);
   });
+
+  it('returns 400 for empty body PUT', async () => {
+    const request = new Request(`http://localhost/api/vpats/${vpatId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const response = await PUT(request, makeContext(vpatId));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.code).toBe('VALIDATION_ERROR');
+  });
 });
 
 describe('DELETE /api/vpats/[id]', () => {

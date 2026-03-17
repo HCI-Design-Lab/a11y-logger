@@ -102,9 +102,9 @@ describe('CreateVpatSchema', () => {
 });
 
 describe('UpdateVpatSchema', () => {
-  it('accepts empty object (partial)', () => {
+  it('rejects empty object (at least one field required)', () => {
     const result = UpdateVpatSchema.safeParse({});
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('accepts title update', () => {

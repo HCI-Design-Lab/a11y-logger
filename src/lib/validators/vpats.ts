@@ -24,7 +24,8 @@ export const UpdateVpatSchema = z
   .object({
     title: z.string().min(1).max(200),
   })
-  .partial();
+  .partial()
+  .refine((d) => d.title !== undefined, { message: 'At least one field must be provided' });
 
 export type CreateVpatInput = z.infer<typeof CreateVpatSchema>;
 export type UpdateVpatInput = z.infer<typeof UpdateVpatSchema>;
