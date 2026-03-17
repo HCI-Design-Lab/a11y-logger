@@ -25,7 +25,8 @@ export async function POST(_request: Request, { params }: RouteContext) {
     );
 
   // Skip rows that already have remarks text
-  const rows = getCriterionRows(vpatId).filter((r) => !r.remarks);
+  const allRows = getCriterionRows(vpatId);
+  const rows = allRows.filter((r) => !r.remarks);
 
   let generated = 0;
   const errors: string[] = [];
@@ -69,6 +70,6 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
   return NextResponse.json({
     success: true,
-    data: { generated, skipped: rows.length - generated - errors.length, errors },
+    data: { generated, skipped: allRows.length - rows.length, errors },
   });
 }
