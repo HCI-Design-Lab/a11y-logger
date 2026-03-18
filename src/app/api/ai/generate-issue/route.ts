@@ -8,6 +8,8 @@ interface CurrentFields {
   user_impact?: string | null;
   suggested_fix?: string | null;
   wcag_codes?: string[];
+  section_508_codes?: string[];
+  eu_codes?: string[];
 }
 
 export async function POST(request: Request) {
@@ -56,6 +58,8 @@ export async function POST(request: Request) {
         user_impact: isEmpty(current.user_impact) ? result.user_impact : null,
         suggested_fix: isEmpty(current.suggested_fix) ? result.suggested_fix : null,
         wcag_codes: emptyArray(current.wcag_codes) ? result.wcag_codes : null,
+        section_508_codes: emptyArray(current.section_508_codes) ? result.section_508_codes : null,
+        eu_codes: emptyArray(current.eu_codes) ? result.eu_codes : null,
       },
     });
   } catch (err) {

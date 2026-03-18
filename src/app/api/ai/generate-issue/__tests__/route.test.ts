@@ -23,6 +23,8 @@ const fullAiResult = {
   description: 'The search button cannot be reached via keyboard navigation.',
   severity: 'critical',
   wcag_codes: ['2.1.1'],
+  section_508_codes: ['302.1'],
+  eu_codes: ['4.2.1'],
   user_impact: 'Keyboard-only users cannot use the search feature.',
   suggested_fix: 'Add tabindex="0" and a keydown handler.',
   confidence: 0.9,
@@ -107,6 +109,39 @@ describe('POST /api/ai/generate-issue', () => {
       'The search button cannot be reached via keyboard navigation.'
     );
     expect(body.data.user_impact).toBe('Keyboard-only users cannot use the search feature.');
+  });
+
+  it('returns section_508_codes and eu_codes when current arrays are empty', async () => {
+    mockGetAIProvider.mockReturnValue(mockProvider);
+    mockProvider.analyzeIssue.mockResolvedValue(fullAiResult);
+
+    const req = new Request('http://localhost/api/ai/generate-issue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ai_description: 'button not focusable', current: {} }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(body.data.section_508_codes).toEqual(['302.1']);
+    expect(body.data.eu_codes).toEqual(['4.2.1']);
+  });
+
+  it('does not overwrite section_508_codes or eu_codes when already set', async () => {
+    mockGetAIProvider.mockReturnValue(mockProvider);
+    mockProvider.analyzeIssue.mockResolvedValue(fullAiResult);
+
+    const req = new Request('http://localhost/api/ai/generate-issue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ai_description: 'button not focusable',
+        current: { section_508_codes: ['302.4'], eu_codes: ['5.2'] },
+      }),
+    });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(body.data.section_508_codes).toBeNull();
+    expect(body.data.eu_codes).toBeNull();
   });
 
   it('returns 500 when AI provider throws', async () => {
