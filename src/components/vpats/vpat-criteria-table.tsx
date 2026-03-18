@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
+import type { UseFormRegister } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -49,6 +50,178 @@ const CONFIDENCE_COLORS: Record<string, string> = {
   low: 'bg-red-100 text-red-800',
 };
 
+type RemarksFormValues = Record<string, string>;
+
+interface CriterionTableRowProps {
+  row: VpatCriterionRow;
+  readOnly: boolean;
+  aiEnabled: boolean;
+  isGenerating: boolean;
+  onRowChange: (rowId: string, update: { conformance?: string }) => void;
+  scheduleRemarksSave: (rowId: string, value: string) => void;
+  onGenerateRow?: (rowId: string) => void;
+  onCriterionClick?: (criterionCode: string) => void;
+  register: UseFormRegister<RemarksFormValues>;
+}
+
+// Isolated per-row component — owns isExpanded state so toggling reasoning
+// only re-renders this row, not the entire table.
+const CriterionTableRow = memo(function CriterionTableRow({
+  row,
+  readOnly,
+  aiEnabled,
+  isGenerating,
+  onRowChange,
+  scheduleRemarksSave,
+  onGenerateRow,
+  onCriterionClick,
+  register,
+}: CriterionTableRowProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleReasoning = useCallback(() => setIsExpanded((v) => !v), []);
+
+  const isUnresolved = row.conformance === 'not_evaluated';
+  const conformanceLabel =
+    CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
+
+  return (
+    <TableRow
+      data-testid={`row-${row.id}`}
+      className={`border-l-4 ${isUnresolved ? 'border-amber-400' : 'border-transparent'}`}
+    >
+      <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
+      <TableCell className="align-top pt-3">
+        {onCriterionClick ? (
+          <button
+            type="button"
+            className="font-medium text-sm text-left hover:underline focus:outline-none focus:ring-1 focus:ring-ring rounded"
+            onClick={() => onCriterionClick(row.criterion_code)}
+            aria-label={`View issues for ${row.criterion_code}`}
+          >
+            {row.criterion_name}
+            {row.issue_count > 0 && (
+              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                ({row.issue_count})
+              </span>
+            )}
+          </button>
+        ) : (
+          <div className="font-medium text-sm">
+            {row.criterion_name}
+            {row.issue_count > 0 && (
+              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                ({row.issue_count})
+              </span>
+            )}
+          </div>
+        )}
+      </TableCell>
+      <TableCell className="align-top pt-3">
+        {readOnly ? (
+          <span className="text-sm">{conformanceLabel}</span>
+        ) : (
+          <Select
+            value={row.conformance}
+            onValueChange={(v) => onRowChange(row.id, { conformance: v })}
+          >
+            <SelectTrigger
+              className="h-8 text-sm"
+              aria-label={`Conformance for ${row.criterion_code}`}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CONFORMANCE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </TableCell>
+      <TableCell className="align-top pt-2">
+        {/* AI confidence badge + reasoning toggle */}
+        {(row.ai_confidence || row.ai_reasoning) && (
+          <div className="mb-1 flex items-center gap-2">
+            {row.ai_confidence && (
+              <Badge
+                variant="outline"
+                className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
+              >
+                {row.ai_confidence}
+              </Badge>
+            )}
+            {row.ai_reasoning && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={toggleReasoning}
+                aria-label={
+                  isExpanded
+                    ? `Hide reasoning for ${row.criterion_code}`
+                    : `Show reasoning for ${row.criterion_code}`
+                }
+                aria-expanded={isExpanded}
+              >
+                Why?
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Low confidence warning */}
+        {row.ai_confidence === 'low' && (
+          <p className="text-xs text-amber-600 mb-1">
+            AI flagged limited evidence — consider additional testing before setting conformance.
+          </p>
+        )}
+
+        {/* Reasoning expandable */}
+        {isExpanded && row.ai_reasoning && (
+          <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2 mb-1 whitespace-pre-wrap">
+            {row.ai_reasoning}
+          </div>
+        )}
+
+        {readOnly ? (
+          <span className="text-sm text-muted-foreground">{row.remarks || '—'}</span>
+        ) : (
+          <Textarea
+            {...register(row.id, {
+              onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
+            })}
+            rows={2}
+            className="text-sm min-h-0"
+            placeholder="Add remarks…"
+            aria-label={`Remarks for ${row.criterion_code}`}
+          />
+        )}
+      </TableCell>
+      {aiEnabled && !readOnly && (
+        <TableCell className="align-top pt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onGenerateRow?.(row.id)}
+            disabled={isGenerating}
+            aria-label={
+              isGenerating
+                ? `Generating for ${row.criterion_code}`
+                : `Generate for ${row.criterion_code}`
+            }
+          >
+            {isGenerating ? 'Generating…' : 'Generate'}
+          </Button>
+        </TableCell>
+      )}
+    </TableRow>
+  );
+});
+
 interface VpatCriteriaTableProps {
   rows: VpatCriterionRow[];
   /** Called immediately for conformance changes (updates progress bar in parent). */
@@ -63,8 +236,6 @@ interface VpatCriteriaTableProps {
   onCriterionClick?: (criterionCode: string) => void;
 }
 
-type RemarksFormValues = Record<string, string>;
-
 export function VpatCriteriaTable({
   rows,
   onRowChange,
@@ -76,8 +247,6 @@ export function VpatCriteriaTable({
   aiEnabled = false,
   onCriterionClick,
 }: VpatCriteriaTableProps) {
-  const [expandedReasoning, setExpandedReasoning] = useState<Set<string>>(new Set());
-
   // RHF manages remarks as uncontrolled inputs — typing never triggers React re-renders.
   const { register } = useForm<RemarksFormValues>({
     defaultValues: Object.fromEntries(rows.map((r) => [r.id, r.remarks ?? ''])),
@@ -116,15 +285,6 @@ export function VpatCriteriaTable({
     [rows]
   );
 
-  const toggleReasoning = useCallback((rowId: string) => {
-    setExpandedReasoning((prev) => {
-      const next = new Set(prev);
-      if (next.has(rowId)) next.delete(rowId);
-      else next.add(rowId);
-      return next;
-    });
-  }, []);
-
   return (
     <div className="space-y-6">
       {aiEnabled && !readOnly && onGenerateAll && (
@@ -134,7 +294,6 @@ export function VpatCriteriaTable({
           </Button>
         </div>
       )}
-      {/* eslint-disable-next-line react-hooks/refs -- sections is a useMemo Map, not a ref; register() ref callbacks are spread on inputs below */}
       {Array.from(sections.entries()).map(([section, sectionRows]) => (
         <Card key={section}>
           <CardHeader>
@@ -152,157 +311,20 @@ export function VpatCriteriaTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sectionRows.map((row) => {
-                  const isUnresolved = row.conformance === 'not_evaluated';
-                  const isExpanded = expandedReasoning.has(row.id);
-                  const isGenerating = generatingRowId === row.id;
-                  const conformanceLabel =
-                    CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ??
-                    row.conformance;
-
-                  return (
-                    <TableRow
-                      key={row.id}
-                      data-testid={`row-${row.id}`}
-                      className={`border-l-4 ${isUnresolved ? 'border-amber-400' : 'border-transparent'}`}
-                    >
-                      <TableCell className="font-mono text-sm align-top pt-3">
-                        {row.criterion_code}
-                      </TableCell>
-                      <TableCell className="align-top pt-3">
-                        {onCriterionClick ? (
-                          <button
-                            type="button"
-                            className="font-medium text-sm text-left hover:underline focus:outline-none focus:ring-1 focus:ring-ring rounded"
-                            onClick={() => onCriterionClick(row.criterion_code)}
-                            aria-label={`View issues for ${row.criterion_code}`}
-                          >
-                            {row.criterion_name}
-                            {row.issue_count > 0 && (
-                              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                                ({row.issue_count})
-                              </span>
-                            )}
-                          </button>
-                        ) : (
-                          <div className="font-medium text-sm">
-                            {row.criterion_name}
-                            {row.issue_count > 0 && (
-                              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                                ({row.issue_count})
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="align-top pt-3">
-                        {readOnly ? (
-                          <span className="text-sm">{conformanceLabel}</span>
-                        ) : (
-                          <Select
-                            value={row.conformance}
-                            onValueChange={(v) => onRowChange(row.id, { conformance: v })}
-                          >
-                            <SelectTrigger
-                              className="h-8 text-sm"
-                              aria-label={`Conformance for ${row.criterion_code}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CONFORMANCE_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </TableCell>
-                      <TableCell className="align-top pt-2">
-                        {/* AI confidence badge + reasoning toggle */}
-                        {(row.ai_confidence || row.ai_reasoning) && (
-                          <div className="mb-1 flex items-center gap-2">
-                            {row.ai_confidence && (
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
-                              >
-                                {row.ai_confidence}
-                              </Badge>
-                            )}
-                            {row.ai_reasoning && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs"
-                                onClick={() => toggleReasoning(row.id)}
-                                aria-label={
-                                  isExpanded
-                                    ? `Hide reasoning for ${row.criterion_code}`
-                                    : `Show reasoning for ${row.criterion_code}`
-                                }
-                                aria-expanded={isExpanded}
-                              >
-                                Why?
-                              </Button>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Low confidence warning */}
-                        {row.ai_confidence === 'low' && (
-                          <p className="text-xs text-amber-600 mb-1">
-                            AI flagged limited evidence — consider additional testing before setting
-                            conformance.
-                          </p>
-                        )}
-
-                        {/* Reasoning expandable */}
-                        {isExpanded && row.ai_reasoning && (
-                          <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2 mb-1 whitespace-pre-wrap">
-                            {row.ai_reasoning}
-                          </div>
-                        )}
-
-                        {readOnly ? (
-                          <span className="text-sm text-muted-foreground">
-                            {row.remarks || '—'}
-                          </span>
-                        ) : (
-                          <Textarea
-                            {...register(row.id, {
-                              onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
-                            })}
-                            rows={2}
-                            className="text-sm min-h-0"
-                            placeholder="Add remarks…"
-                            aria-label={`Remarks for ${row.criterion_code}`}
-                          />
-                        )}
-                      </TableCell>
-                      {aiEnabled && !readOnly && (
-                        <TableCell className="align-top pt-3">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onGenerateRow?.(row.id)}
-                            disabled={isGenerating}
-                            aria-label={
-                              isGenerating
-                                ? `Generating for ${row.criterion_code}`
-                                : `Generate for ${row.criterion_code}`
-                            }
-                          >
-                            {isGenerating ? 'Generating…' : 'Generate'}
-                          </Button>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
+                {sectionRows.map((row) => (
+                  <CriterionTableRow
+                    key={row.id}
+                    row={row}
+                    readOnly={readOnly}
+                    aiEnabled={aiEnabled}
+                    isGenerating={generatingRowId === row.id}
+                    onRowChange={onRowChange}
+                    scheduleRemarksSave={scheduleRemarksSave}
+                    onGenerateRow={onGenerateRow}
+                    onCriterionClick={onCriterionClick}
+                    register={register}
+                  />
+                ))}
               </TableBody>
             </Table>
           </CardContent>
