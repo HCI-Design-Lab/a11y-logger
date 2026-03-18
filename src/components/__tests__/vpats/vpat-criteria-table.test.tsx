@@ -57,6 +57,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow({ ai_confidence: 'high', remarks: 'AI text' })]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
       />
     );
     expandSection();
@@ -68,6 +69,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow({ ai_reasoning: 'Step 1: ...', remarks: 'text' })]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
       />
     );
     expandSection();
@@ -75,7 +77,14 @@ describe('VpatCriteriaTable', () => {
   });
 
   it('renders read-only when readOnly prop is true', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} readOnly />);
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+        readOnly
+      />
+    );
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
@@ -125,8 +134,8 @@ describe('VpatCriteriaTable', () => {
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     const tables = screen.getAllByText(/Level A/i);
     // "Level A" text from Table 1 should appear before "Level AA" text from Table 2
-    expect(tables[0].textContent).toMatch(/Level A$/);
-    expect(tables[1].textContent).toMatch(/Level AA/);
+    expect(tables[0]!.textContent).toMatch(/Level A$/);
+    expect(tables[1]!.textContent).toMatch(/Level AA/);
   });
 
   it('renders Section 508 heading for Chapter sections', () => {
@@ -161,7 +170,9 @@ describe('VpatCriteriaTable', () => {
 
   it('calls onRowChange with row id and update when conformance changes', () => {
     const onRowChange = vi.fn();
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} />);
+    render(
+      <VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} onSaveRemarks={vi.fn()} />
+    );
     expandSection();
     const select = screen.getByRole('combobox', { name: /conformance for 1.1.1/i });
     fireEvent.click(select);
@@ -175,6 +186,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow({ ai_confidence: 'low', remarks: 'text' })]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
       />
     );
     expandSection();
@@ -186,6 +198,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow()]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
         onGenerateRow={vi.fn()}
         aiEnabled
       />
@@ -199,6 +212,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow()]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
         onGenerateRow={vi.fn()}
         aiEnabled
         readOnly
@@ -214,6 +228,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow()]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
         onGenerateRow={onGenerateRow}
         aiEnabled
       />
@@ -228,6 +243,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow({ ai_reasoning: 'Step 1: check images.', remarks: 'text' })]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
       />
     );
     expandSection();
@@ -241,6 +257,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow()]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
         onGenerateAll={onGenerateAll}
         aiEnabled
       />
@@ -254,6 +271,7 @@ describe('VpatCriteriaTable', () => {
       <VpatCriteriaTable
         rows={[makeRow()]}
         onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
         onGenerateRow={vi.fn()}
         aiEnabled
         generatingRowId="1"

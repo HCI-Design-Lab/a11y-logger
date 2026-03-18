@@ -1,7 +1,7 @@
 import { getDb } from './index';
 import { getCriteriaForEdition } from './criteria';
 import { createCriterionRows, countUnresolvedRows } from './vpat-criterion-rows';
-import type { CreateVpatInput, UpdateVpatInput } from '../validators/vpats';
+import type { CreateVpatParams, UpdateVpatInput } from '../validators/vpats';
 
 export class VpatNotFoundError extends Error {
   readonly code = 'VPAT_NOT_FOUND' as const;
@@ -122,7 +122,7 @@ export function getVpatsWithProject(projectId?: string): VpatWithProject[] {
   return rows.map((raw) => ({ ...parseVpat(raw), project_name: raw.project_name }));
 }
 
-export function createVpat(input: CreateVpatInput): Vpat {
+export function createVpat(input: CreateVpatParams): Vpat {
   const id = crypto.randomUUID();
   const db = getDb();
   const edition = input.standard_edition ?? 'WCAG';

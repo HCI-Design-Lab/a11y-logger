@@ -22,7 +22,14 @@ beforeEach(() => {
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
   projectId = project.id;
-  const vpat = createVpat({ title: 'Draft VPAT', project_id: projectId });
+  const vpat = createVpat({
+    title: 'Draft VPAT',
+    project_id: projectId,
+    standard_edition: 'WCAG',
+    wcag_version: '2.1',
+    wcag_level: 'AA',
+    product_scope: ['web'],
+  });
   vpatId = vpat.id;
   // Mark all criterion rows as resolved so publish can succeed
   getDb()
@@ -49,7 +56,14 @@ describe('POST /api/vpats/[id]/publish', () => {
   });
 
   it('returns 422 when criterion rows are unresolved', async () => {
-    const vpat2 = createVpat({ title: 'Unresolved', project_id: projectId });
+    const vpat2 = createVpat({
+      title: 'Unresolved',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
     const response = await POST(
       new Request(`http://localhost/api/vpats/${vpat2.id}/publish`, { method: 'POST' }),
       makeContext(vpat2.id)

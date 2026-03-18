@@ -60,7 +60,7 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
 
     // Pre-fill the first row with remarks
     const rows = getCriterionRows(vpatId);
-    updateCriterionRow(rows[0].id, { remarks: 'Already filled.' });
+    updateCriterionRow(rows[0]!.id, { remarks: 'Already filled.' });
 
     // Mock AI to succeed
     vi.spyOn(global, 'fetch').mockResolvedValue({

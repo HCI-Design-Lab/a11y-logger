@@ -29,7 +29,11 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     const result = UpdateRowSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
-        { success: false, error: result.error.issues[0].message, code: 'VALIDATION_ERROR' },
+        {
+          success: false,
+          error: result.error.issues[0]?.message ?? 'Validation error',
+          code: 'VALIDATION_ERROR',
+        },
         { status: 400 }
       );
     }

@@ -27,7 +27,7 @@ beforeEach(() => {
     product_scope: ['web'],
   });
   vpatId = v.id;
-  rowId = getCriterionRows(vpatId)[0].id;
+  rowId = getCriterionRows(vpatId)[0]!.id;
 });
 
 describe('PATCH /api/vpats/[id]/rows/[rowId]', () => {

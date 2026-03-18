@@ -28,6 +28,7 @@ export const UpdateVpatSchema = z
   .refine((d) => d.title !== undefined, { message: 'At least one field must be provided' });
 
 export type CreateVpatInput = z.infer<typeof CreateVpatSchema>;
+export type CreateVpatParams = z.input<typeof CreateVpatSchema>;
 export type UpdateVpatInput = z.infer<typeof UpdateVpatSchema>;
 export type StandardEdition = (typeof STANDARD_EDITIONS)[number];
 export type ProductScope = (typeof PRODUCT_SCOPES)[number];

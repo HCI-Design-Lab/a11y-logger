@@ -28,7 +28,7 @@ beforeEach(() => {
     product_scope: ['web'],
   });
   vpatId = v.id;
-  rowId = getCriterionRows(vpatId)[0].id;
+  rowId = getCriterionRows(vpatId)[0]!.id;
 });
 
 afterEach(() => {
@@ -74,7 +74,7 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
       title: 'Other',
       project_id: createProject({ name: 'Other' }).id,
     });
-    const otherRowId = getCriterionRows(otherVpat.id)[0].id;
+    const otherRowId = getCriterionRows(otherVpat.id)[0]!.id;
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId: otherRowId }),
     });

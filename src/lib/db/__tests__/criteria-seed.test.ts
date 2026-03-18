@@ -23,7 +23,7 @@ describe('seedCriteria', () => {
       .prepare("SELECT editions FROM criteria WHERE wcag_version = '2.1' AND code = '1.3.4'")
       .all() as { editions: string }[];
     expect(rows).toHaveLength(1);
-    const editions = JSON.parse(rows[0].editions);
+    const editions = JSON.parse(rows[0]!.editions);
     expect(editions).toContain('WCAG');
     expect(editions).toContain('EU');
     expect(editions).not.toContain('508');
@@ -34,7 +34,7 @@ describe('seedCriteria', () => {
       .prepare("SELECT editions FROM criteria WHERE wcag_version = '2.0' AND code = '1.1.1'")
       .all() as { editions: string }[];
     expect(rows).toHaveLength(1);
-    const editions = JSON.parse(rows[0].editions);
+    const editions = JSON.parse(rows[0]!.editions);
     expect(editions).toContain('508');
   });
 
@@ -43,7 +43,7 @@ describe('seedCriteria', () => {
       editions: string;
     }[];
     expect(rows).toHaveLength(1);
-    const editions = JSON.parse(rows[0].editions);
+    const editions = JSON.parse(rows[0]!.editions);
     expect(editions).toContain('WCAG');
     expect(editions).toContain('INT');
     expect(editions).not.toContain('508');

@@ -50,8 +50,8 @@ describe('createCriterionRows', () => {
     createCriterionRows(vpatId, [{ criterion_id: criterionId, conformance: 'not_evaluated' }]);
     const rows = getCriterionRows(vpatId);
     expect(rows).toHaveLength(1);
-    expect(rows[0].criterion_code).toBe('1.1.1');
-    expect(rows[0].conformance).toBe('not_evaluated');
+    expect(rows[0]!.criterion_code).toBe('1.1.1');
+    expect(rows[0]!.conformance).toBe('not_evaluated');
   });
 
   it('sets remarks when provided', () => {
@@ -63,7 +63,7 @@ describe('createCriterionRows', () => {
       },
     ]);
     const rows = getCriterionRows(vpatId);
-    expect(rows[0].remarks).toBe('Not applicable — web only.');
+    expect(rows[0]!.remarks).toBe('Not applicable — web only.');
   });
 
   it('inserts multiple rows in one transaction', () => {
@@ -85,7 +85,7 @@ describe('getCriterionRow', () => {
   it('returns a single row by id', () => {
     createCriterionRows(vpatId, [{ criterion_id: criterionId, conformance: 'not_evaluated' }]);
     const rows = getCriterionRows(vpatId);
-    const found = getCriterionRow(rows[0].id);
+    const found = getCriterionRow(rows[0]!.id);
     expect(found).not.toBeNull();
     expect(found!.criterion_code).toBe('1.1.1');
   });
@@ -98,21 +98,21 @@ describe('getCriterionRow', () => {
 describe('updateCriterionRow', () => {
   it('updates conformance', () => {
     createCriterionRows(vpatId, [{ criterion_id: criterionId, conformance: 'not_evaluated' }]);
-    const row = getCriterionRows(vpatId)[0];
+    const row = getCriterionRows(vpatId)[0]!;
     const updated = updateCriterionRow(row.id, { conformance: 'supports' });
     expect(updated!.conformance).toBe('supports');
   });
 
   it('updates remarks', () => {
     createCriterionRows(vpatId, [{ criterion_id: criterionId, conformance: 'not_evaluated' }]);
-    const row = getCriterionRows(vpatId)[0];
+    const row = getCriterionRows(vpatId)[0]!;
     const updated = updateCriterionRow(row.id, { remarks: 'Good.' });
     expect(updated!.remarks).toBe('Good.');
   });
 
   it('sets last_generated_at when ai_reasoning is provided', () => {
     createCriterionRows(vpatId, [{ criterion_id: criterionId, conformance: 'not_evaluated' }]);
-    const row = getCriterionRows(vpatId)[0];
+    const row = getCriterionRows(vpatId)[0]!;
     expect(row.last_generated_at).toBeNull();
     const updated = updateCriterionRow(row.id, {
       remarks: 'AI text.',

@@ -22,6 +22,8 @@ const base = {
   selector: null,
   code_snippet: null,
   suggested_fix: null,
+  section_508_codes: [],
+  eu_codes: [],
   evidence_media: [],
   tags: [],
   created_by: null,

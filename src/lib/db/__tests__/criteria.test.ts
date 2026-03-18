@@ -94,7 +94,7 @@ describe('getCriteriaForEdition', () => {
 describe('getCriterion', () => {
   it('returns a criterion by id', () => {
     const sections = getCriteriaForEdition('WCAG', ['web'], '2.1', 'AA');
-    const firstCriterion = sections[0].criteria[0];
+    const firstCriterion = sections[0]!.criteria[0]!;
     const found = getCriterion(firstCriterion.id);
     expect(found).not.toBeNull();
     expect(found!.code).toBe(firstCriterion.code);
