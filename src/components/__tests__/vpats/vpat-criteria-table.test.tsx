@@ -70,7 +70,7 @@ describe('VpatCriteriaTable', () => {
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
-  it('groups rows by section', () => {
+  it('groups WCAG rows by level, not by principle', () => {
     const rows = [
       makeRow({
         id: '1',
@@ -86,17 +86,38 @@ describe('VpatCriteriaTable', () => {
       }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expect(screen.getByText(/Perceivable/i)).toBeInTheDocument();
-    expect(screen.getByText(/Operable/i)).toBeInTheDocument();
+    // Both A-level rows should appear under a single "Level A" table
+    expect(screen.getByText(/Level A/i)).toBeInTheDocument();
+    // Principle names should NOT appear as section headings
+    expect(screen.queryByText(/^Principle/i)).not.toBeInTheDocument();
   });
 
-  it('renders WCAG standard heading for WCAG principle sections', () => {
-    const rows = [
-      makeRow({ id: '1', criterion_section: 'Perceivable' }),
-      makeRow({ id: '2', criterion_code: '2.1.1', criterion_section: 'Operable' }),
-    ];
+  it('renders WCAG standard heading for WCAG rows', () => {
+    const rows = [makeRow({ id: '1', criterion_section: 'Perceivable', criterion_level: 'A' })];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.getByRole('heading', { name: /wcag/i })).toBeInTheDocument();
+  });
+
+  it('renders Level A before Level AA for WCAG rows', () => {
+    const rows = [
+      makeRow({
+        id: '1',
+        criterion_code: '1.4.3',
+        criterion_level: 'AA',
+        criterion_section: 'Perceivable',
+      }),
+      makeRow({
+        id: '2',
+        criterion_code: '1.1.1',
+        criterion_level: 'A',
+        criterion_section: 'Perceivable',
+      }),
+    ];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    const tables = screen.getAllByText(/Level A/i);
+    // "Level A" text from Table 1 should appear before "Level AA" text from Table 2
+    expect(tables[0].textContent).toMatch(/Level A$/);
+    expect(tables[1].textContent).toMatch(/Level AA/);
   });
 
   it('renders Section 508 heading for Chapter sections', () => {

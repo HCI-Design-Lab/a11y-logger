@@ -33,10 +33,9 @@ const CONFORMANCE_OPTIONS = [
 ] as const;
 
 const SECTION_LABELS: Record<string, string> = {
-  Perceivable: 'Principle 1: Perceivable',
-  Operable: 'Principle 2: Operable',
-  Understandable: 'Principle 3: Understandable',
-  Robust: 'Principle 4: Robust',
+  A: 'Table 1: Success Criteria, Level A',
+  AA: 'Table 2: Success Criteria, Level AA',
+  AAA: 'Table 3: Success Criteria, Level AAA',
   Chapter3: 'Chapter 3: Functional Performance Criteria',
   Chapter5: 'Chapter 5: Software',
   Chapter6: 'Chapter 6: Support Documentation and Services',
@@ -47,10 +46,14 @@ const SECTION_LABELS: Record<string, string> = {
 
 // Canonical standard groups — defines display order and which sections belong to each standard.
 const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
-  { label: 'WCAG', sections: ['Perceivable', 'Operable', 'Understandable', 'Robust'] },
+  { label: 'WCAG', sections: ['A', 'AA', 'AAA'] },
   { label: 'Section 508', sections: ['Chapter3', 'Chapter5', 'Chapter6'] },
   { label: 'EN 301 549', sections: ['Clause4', 'Clause5', 'Clause12'] },
 ];
+
+// WCAG rows are stored with criterion_section = principle name (Perceivable etc.)
+// but must be grouped by criterion_level (A/AA/AAA) to match the standard VPAT table format.
+const WCAG_PRINCIPLE_SECTIONS = new Set(['Perceivable', 'Operable', 'Understandable', 'Robust']);
 
 const CONFIDENCE_COLORS: Record<string, string> = {
   high: 'bg-green-100 text-green-800',
@@ -281,13 +284,15 @@ export function VpatCriteriaTable({
     [onSaveRemarks]
   );
 
-  // Group rows by section
+  // Group rows: WCAG rows by criterion_level (A/AA/AAA), all others by criterion_section.
   const sections = useMemo(
     () =>
       rows.reduce<Map<string, VpatCriterionRow[]>>((acc, row) => {
-        const section = row.criterion_section;
-        if (!acc.has(section)) acc.set(section, []);
-        acc.get(section)!.push(row);
+        const key = WCAG_PRINCIPLE_SECTIONS.has(row.criterion_section)
+          ? (row.criterion_level ?? 'A')
+          : row.criterion_section;
+        if (!acc.has(key)) acc.set(key, []);
+        acc.get(key)!.push(row);
         return acc;
       }, new Map()),
     [rows]
