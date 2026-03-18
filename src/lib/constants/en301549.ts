@@ -16,7 +16,7 @@ export const EN301549_CRITERION_CODES: readonly string[] = [
   '4.2.8',
   '4.2.9',
   '4.2.10',
-  // Clause 5: Generic Requirements
+  // Clause 5: Generic Requirements (5.5–5.6 are hardware-only clauses, omitted)
   '5.2',
   '5.3',
   '5.4',
