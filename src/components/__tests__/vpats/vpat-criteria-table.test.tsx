@@ -22,15 +22,21 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   ...overrides,
 });
 
+// Sections start collapsed — call this to reveal row content in tests that need it.
+const expandSection = (label = /expand Table 1/i) =>
+  fireEvent.click(screen.getByRole('button', { name: label }));
+
 describe('VpatCriteriaTable', () => {
   it('renders criterion code and name', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expandSection();
     expect(screen.getByText('1.1.1')).toBeInTheDocument();
     expect(screen.getByText('Non-text Content')).toBeInTheDocument();
   });
 
   it('shows amber left border when conformance is not_evaluated', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expandSection();
     expect(screen.getByTestId('row-1')).toHaveClass('border-amber-400');
   });
 
@@ -42,6 +48,7 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.getByTestId('row-1')).not.toHaveClass('border-amber-400');
   });
 
@@ -52,6 +59,7 @@ describe('VpatCriteriaTable', () => {
         onRowChange={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.getByText(/high/i)).toBeInTheDocument();
   });
 
@@ -62,6 +70,7 @@ describe('VpatCriteriaTable', () => {
         onRowChange={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.getByRole('button', { name: /show reasoning for 1.1.1/i })).toBeInTheDocument();
   });
 
@@ -153,6 +162,7 @@ describe('VpatCriteriaTable', () => {
   it('calls onRowChange with row id and update when conformance changes', () => {
     const onRowChange = vi.fn();
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} />);
+    expandSection();
     const select = screen.getByRole('combobox', { name: /conformance for 1.1.1/i });
     fireEvent.click(select);
     const option = screen.getByRole('option', { name: /supports$/i });
@@ -167,6 +177,7 @@ describe('VpatCriteriaTable', () => {
         onRowChange={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.getByText(/limited evidence/i)).toBeInTheDocument();
   });
 
@@ -179,6 +190,7 @@ describe('VpatCriteriaTable', () => {
         aiEnabled
       />
     );
+    expandSection();
     expect(screen.getByRole('button', { name: /generate for 1.1.1/i })).toBeInTheDocument();
   });
 
@@ -192,6 +204,7 @@ describe('VpatCriteriaTable', () => {
         readOnly
       />
     );
+    expandSection();
     expect(screen.queryByRole('button', { name: /generate for 1.1.1/i })).not.toBeInTheDocument();
   });
 
@@ -205,6 +218,7 @@ describe('VpatCriteriaTable', () => {
         aiEnabled
       />
     );
+    expandSection();
     fireEvent.click(screen.getByRole('button', { name: /generate for 1.1.1/i }));
     expect(onGenerateRow).toHaveBeenCalledWith('1');
   });
@@ -216,6 +230,7 @@ describe('VpatCriteriaTable', () => {
         onRowChange={vi.fn()}
       />
     );
+    expandSection();
     fireEvent.click(screen.getByRole('button', { name: /show reasoning for 1.1.1/i }));
     expect(screen.getByText(/Step 1: check images/i)).toBeInTheDocument();
   });
@@ -244,6 +259,7 @@ describe('VpatCriteriaTable', () => {
         generatingRowId="1"
       />
     );
+    expandSection();
     const btn = screen.getByRole('button', { name: /generating for 1.1.1/i });
     expect(btn).toBeDisabled();
   });
@@ -256,6 +272,7 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.getByText('(3)')).toBeInTheDocument();
   });
 
@@ -267,35 +284,35 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
+    expandSection();
     expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
   });
 
-  it('sections are expanded by default', () => {
+  it('sections are collapsed by default', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expect(screen.getByTestId('row-1')).toBeVisible();
-  });
-
-  it('collapses a section when the toggle button is clicked', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
     expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
   });
 
-  it('shows resolved/total count in collapsed section header', () => {
+  it('shows resolved/total count when collapsed by default', () => {
     const rows = [
       makeRow({ id: '1', conformance: 'supports' }),
       makeRow({ id: '2', criterion_code: '1.2.1', conformance: 'not_evaluated' }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
     expect(screen.getByText(/1 of 2 resolved/i)).toBeInTheDocument();
   });
 
-  it('expands a collapsed section when toggle is clicked again', () => {
+  it('expands a section when the toggle button is clicked', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
     fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
     expect(screen.getByTestId('row-1')).toBeInTheDocument();
+  });
+
+  it('collapses an expanded section when toggle is clicked again', () => {
+    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
+    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
+    expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
   });
 
   it('calls onSaveRemarks with row id and value after debounce', () => {
@@ -304,6 +321,7 @@ describe('VpatCriteriaTable', () => {
     render(
       <VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={onSaveRemarks} />
     );
+    expandSection();
     const textarea = screen.getByRole('textbox', { name: /remarks for 1.1.1/i });
     fireEvent.change(textarea, { target: { value: 'New remark' } });
     expect(onSaveRemarks).not.toHaveBeenCalled();

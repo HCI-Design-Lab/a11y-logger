@@ -260,7 +260,7 @@ const CriterionSection = memo(function CriterionSection({
   onCriterionClick,
   register,
 }: CriterionSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const label = SECTION_LABELS[section] ?? section;
   const resolved = sectionRows.filter((r) => r.conformance !== 'not_evaluated').length;
   const total = sectionRows.length;
