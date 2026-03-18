@@ -15,8 +15,6 @@ import {
 import type { Assessment } from '@/lib/db/assessments';
 import { AssessmentFormSchema, type AssessmentFormData } from '@/lib/validators/assessments';
 
-export type { AssessmentFormData };
-
 interface AssessmentFormProps {
   assessment?: Assessment;
   onSubmit: (data: AssessmentFormData) => void;
