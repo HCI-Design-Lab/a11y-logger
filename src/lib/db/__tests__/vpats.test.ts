@@ -175,6 +175,8 @@ describe('deleteVpat', () => {
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     expect(getCriterionRows(vpat.id).length).toBeGreaterThan(0);
@@ -198,6 +200,8 @@ describe('publishVpat', () => {
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     expect(() => publishVpat(vpat.id)).toThrow('unresolved');
@@ -208,6 +212,8 @@ describe('publishVpat', () => {
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     // Resolve all rows by setting conformance to supports
@@ -228,10 +234,12 @@ describe('getVpatsWithProject', () => {
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     const results = getVpatsWithProject();
-    expect(results[0].project_name).toBe('Test Project');
+    expect(results[0]!.project_name).toBe('Test Project');
   });
 });
 
@@ -253,8 +261,8 @@ describe('getVpatsWithProgress', () => {
       .run(vpat.id);
     const results = getVpatsWithProgress();
     expect(results).toHaveLength(1);
-    expect(results[0].total).toBeGreaterThan(0);
-    expect(results[0].resolved).toBe(3);
+    expect(results[0]!.total).toBeGreaterThan(0);
+    expect(results[0]!.resolved).toBe(3);
   });
 
   it('returns project_name', () => {
@@ -262,10 +270,12 @@ describe('getVpatsWithProgress', () => {
       title: 'Progress Test',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     const results = getVpatsWithProgress();
-    expect(results[0].project_name).toBe('Test Project');
+    expect(results[0]!.project_name).toBe('Test Project');
   });
 
   it('filters by projectId when provided', () => {
@@ -274,17 +284,21 @@ describe('getVpatsWithProgress', () => {
       title: 'Mine',
       project_id: projectId,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     createVpat({
       title: 'Theirs',
       project_id: other.id,
       standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
       product_scope: ['web'],
     });
     const results = getVpatsWithProgress(projectId);
     expect(results).toHaveLength(1);
-    expect(results[0].title).toBe('Mine');
+    expect(results[0]!.title).toBe('Mine');
   });
 
   it('resolved is 0 when all rows are not_evaluated', () => {
@@ -297,6 +311,6 @@ describe('getVpatsWithProgress', () => {
       product_scope: ['web'],
     });
     const results = getVpatsWithProgress();
-    expect(results[0].resolved).toBe(0);
+    expect(results[0]!.resolved).toBe(0);
   });
 });

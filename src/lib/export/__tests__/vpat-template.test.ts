@@ -47,6 +47,7 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   ai_reasoning: null,
   last_generated_at: null,
   updated_at: '2026-01-01',
+  issue_count: 0,
   ...overrides,
 });
 

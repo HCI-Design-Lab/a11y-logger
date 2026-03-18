@@ -14,6 +14,8 @@ const mockIssue: IssueWithContext = {
   status: 'open',
   url: null,
   wcag_codes: [],
+  section_508_codes: [],
+  eu_codes: [],
   ai_suggested_codes: [],
   ai_confidence_score: null,
   device_type: null,

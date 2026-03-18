@@ -138,9 +138,16 @@ export function unpublishReport(id: string): Report | null {
 export function getReportIssues(reportId: string): IssueWithContext[] {
   type IssueWithContextRow = Omit<
     IssueWithContext,
-    'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags'
+    | 'wcag_codes'
+    | 'ai_suggested_codes'
+    | 'evidence_media'
+    | 'tags'
+    | 'section_508_codes'
+    | 'eu_codes'
   > & {
     wcag_codes: string;
+    section_508_codes: string;
+    eu_codes: string;
     ai_suggested_codes: string;
     evidence_media: string;
     tags: string;

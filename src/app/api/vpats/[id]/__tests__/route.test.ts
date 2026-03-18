@@ -23,7 +23,14 @@ beforeEach(() => {
   getDb().prepare('DELETE FROM projects').run();
   const project = createProject({ name: 'Test Project' });
   projectId = project.id;
-  const vpat = createVpat({ title: 'Existing VPAT', project_id: projectId });
+  const vpat = createVpat({
+    title: 'Existing VPAT',
+    project_id: projectId,
+    standard_edition: 'WCAG',
+    wcag_version: '2.1',
+    wcag_level: 'AA',
+    product_scope: ['web'],
+  });
   vpatId = vpat.id;
 });
 

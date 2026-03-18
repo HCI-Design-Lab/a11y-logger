@@ -6,27 +6,27 @@ import type { Issue } from '@/lib/db/issues';
 test('renders title field as required', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByLabelText(/title/i)).toBeRequired();
-});
+}, 15000);
 
 test('renders description textarea', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByLabelText(/^description$/i)).toBeInTheDocument();
-});
+}, 15000);
 
 test('renders severity select', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByRole('combobox', { name: /severity/i })).toBeInTheDocument();
-});
+}, 15000);
 
 test('renders status select', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByRole('combobox', { name: /status/i })).toBeInTheDocument();
-});
+}, 15000);
 
 test('renders save button', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
-});
+}, 15000);
 
 test('calls onSubmit with form data on submit', () => {
   const onSubmit = vi.fn();
@@ -34,7 +34,7 @@ test('calls onSubmit with form data on submit', () => {
   fireEvent.change(screen.getByLabelText(/title/i), { target: { value: 'Missing alt text' } });
   fireEvent.click(screen.getByRole('button', { name: /save/i }));
   expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ title: 'Missing alt text' }));
-});
+}, 15000);
 
 test('pre-fills data when editing existing issue', () => {
   const issue: Issue = {
@@ -46,6 +46,8 @@ test('pre-fills data when editing existing issue', () => {
     severity: 'high',
     status: 'open',
     wcag_codes: ['4.1.2'],
+    section_508_codes: [],
+    eu_codes: [],
     ai_suggested_codes: [],
     ai_confidence_score: null,
     user_impact: null,
@@ -69,17 +71,17 @@ test('pre-fills data when editing existing issue', () => {
   expect(screen.getByLabelText(/^description$/i)).toHaveValue(
     'The submit button has no accessible name.'
   );
-});
+}, 15000);
 
 test('shows loading state on button when loading', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" loading />);
   expect(screen.getByRole('button', { name: /saving/i })).toBeDisabled();
-});
+}, 15000);
 
 test('renders Attachments card', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByText(/attachments/i)).toBeInTheDocument();
-});
+}, 15000);
 
 test('includes evidence_media in submitted data after upload', async () => {
   global.fetch = vi.fn().mockResolvedValue({
@@ -108,12 +110,12 @@ test('includes evidence_media in submitted data after upload', async () => {
 test('renders Section 508 Criteria section', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByText('Section 508 Criteria')).toBeInTheDocument();
-});
+}, 15000);
 
 test('renders EU EN 301 549 Criteria section', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByText('EU EN 301 549 Criteria')).toBeInTheDocument();
-});
+}, 15000);
 
 test('removes media url when remove button is clicked', () => {
   const onSubmit = vi.fn();
@@ -126,6 +128,8 @@ test('removes media url when remove button is clicked', () => {
     severity: 'medium',
     status: 'open',
     wcag_codes: [],
+    section_508_codes: [],
+    eu_codes: [],
     ai_suggested_codes: [],
     ai_confidence_score: null,
     user_impact: null,

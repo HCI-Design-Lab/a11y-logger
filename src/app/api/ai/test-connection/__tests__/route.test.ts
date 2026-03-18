@@ -22,6 +22,7 @@ describe('POST /api/ai/test-connection', () => {
       analyzeIssue: vi.fn(),
       generateReportSection: vi.fn(),
       generateVpatRemarks: vi.fn(),
+      generateVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
     });
     const res = await POST();
@@ -36,6 +37,7 @@ describe('POST /api/ai/test-connection', () => {
       analyzeIssue: vi.fn(),
       generateReportSection: vi.fn(),
       generateVpatRemarks: vi.fn(),
+      generateVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
     });
     const res = await POST();
