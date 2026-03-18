@@ -1,5 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +20,9 @@ import { Section508Selector } from './section508-selector';
 import { EuSelector } from './eu-selector';
 import { TagInput } from './tag-input';
 import { MediaUploader } from './media-uploader';
-import type { Issue } from '@/lib/db/issues';
+import { CreateIssueSchema } from '@/lib/validators/issues';
 import type { CreateIssueInput, UpdateIssueInput } from '@/lib/validators/issues';
+import type { Issue } from '@/lib/db/issues';
 
 interface IssueFormProps {
   issue?: Issue;
@@ -29,30 +32,43 @@ interface IssueFormProps {
 }
 
 export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProps) {
-  const [title, setTitle] = useState(issue?.title ?? '');
-  const [description, setDescription] = useState(issue?.description ?? '');
-  const [severity, setSeverity] = useState<Issue['severity']>(issue?.severity ?? 'medium');
-  const [userImpact, setUserImpact] = useState(issue?.user_impact ?? '');
-  const [url, setUrl] = useState(issue?.url ?? '');
-  const [selector, setSelector] = useState(issue?.selector ?? '');
-  const [codeSnippet, setCodeSnippet] = useState(issue?.code_snippet ?? '');
-  const [suggestedFix, setSuggestedFix] = useState(issue?.suggested_fix ?? '');
-  const [status, setStatus] = useState<Issue['status']>(issue?.status ?? 'open');
-  const [wcagCodes, setWcagCodes] = useState<string[]>(issue?.wcag_codes ?? []);
-  const [section508Codes, setSection508Codes] = useState<string[]>(issue?.section_508_codes ?? []);
-  const [euCodes, setEuCodes] = useState<string[]>(issue?.eu_codes ?? []);
-  const [tags, setTags] = useState<string[]>(issue?.tags ?? []);
-  const [deviceType, setDeviceType] = useState<Issue['device_type'] | ''>(issue?.device_type ?? '');
-  const [browser, setBrowser] = useState(issue?.browser ?? '');
-  const [os, setOs] = useState(issue?.operating_system ?? '');
-  const [assistiveTech, setAssistiveTech] = useState(issue?.assistive_technology ?? '');
-  const [mediaUrls, setMediaUrls] = useState<string[]>(issue?.evidence_media ?? []);
-  const uploadId = useMemo(() => issue?.id ?? crypto.randomUUID(), [issue?.id]);
-
-  // AI state
+  // AI assistance state — not part of the submitted form
   const [aiDescription, setAiDescription] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  const uploadId = useMemo(() => issue?.id ?? crypto.randomUUID(), [issue?.id]);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<CreateIssueInput>({
+    resolver: zodResolver(CreateIssueSchema),
+    defaultValues: {
+      title: issue?.title ?? '',
+      description: issue?.description ?? '',
+      severity: issue?.severity ?? 'medium',
+      status: issue?.status ?? 'open',
+      url: issue?.url ?? '',
+      selector: issue?.selector ?? '',
+      code_snippet: issue?.code_snippet ?? '',
+      suggested_fix: issue?.suggested_fix ?? '',
+      user_impact: issue?.user_impact ?? '',
+      browser: issue?.browser ?? '',
+      operating_system: issue?.operating_system ?? '',
+      assistive_technology: issue?.assistive_technology ?? '',
+      device_type: issue?.device_type ?? undefined,
+      wcag_codes: issue?.wcag_codes ?? [],
+      section_508_codes: issue?.section_508_codes ?? [],
+      eu_codes: issue?.eu_codes ?? [],
+      tags: issue?.tags ?? [],
+      evidence_media: issue?.evidence_media ?? [],
+    },
+  });
 
   const handleAiGenerate = async () => {
     if (!aiDescription.trim()) return;
@@ -61,20 +77,21 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
     setAiError(null);
 
     try {
+      const current = getValues();
       const res = await fetch('/api/ai/generate-issue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ai_description: aiDescription,
           current: {
-            title: title || null,
-            description: description || null,
-            severity: severity || null,
-            user_impact: userImpact || null,
-            suggested_fix: suggestedFix || null,
-            wcag_codes: wcagCodes,
-            section_508_codes: section508Codes,
-            eu_codes: euCodes,
+            title: current.title || null,
+            description: current.description || null,
+            severity: current.severity || null,
+            user_impact: current.user_impact || null,
+            suggested_fix: current.suggested_fix || null,
+            wcag_codes: current.wcag_codes,
+            section_508_codes: current.section_508_codes,
+            eu_codes: current.eu_codes,
           },
         }),
       });
@@ -97,14 +114,19 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
         eu_codes: string[] | null;
       };
 
-      if (data.title) setTitle(data.title);
-      if (data.description) setDescription(data.description);
-      if (data.severity) setSeverity(data.severity);
-      if (data.user_impact) setUserImpact(data.user_impact);
-      if (data.suggested_fix) setSuggestedFix(data.suggested_fix);
-      if (data.wcag_codes) setWcagCodes(data.wcag_codes);
-      if (data.section_508_codes) setSection508Codes(data.section_508_codes);
-      if (data.eu_codes) setEuCodes(data.eu_codes);
+      if (data.title) setValue('title', data.title);
+      if (data.description) setValue('description', data.description);
+      if (data.severity) setValue('severity', data.severity);
+      if (data.user_impact) setValue('user_impact', data.user_impact);
+      if (data.suggested_fix) setValue('suggested_fix', data.suggested_fix);
+      if (data.wcag_codes)
+        setValue('wcag_codes', data.wcag_codes as CreateIssueInput['wcag_codes']);
+      if (data.section_508_codes)
+        setValue(
+          'section_508_codes',
+          data.section_508_codes as CreateIssueInput['section_508_codes']
+        );
+      if (data.eu_codes) setValue('eu_codes', data.eu_codes as CreateIssueInput['eu_codes']);
     } catch {
       setAiError('Failed to connect to AI service');
     } finally {
@@ -112,33 +134,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data: CreateIssueInput = {
-      title,
-      description: description || undefined,
-      url: url || undefined,
-      severity,
-      status,
-      wcag_codes: wcagCodes as CreateIssueInput['wcag_codes'],
-      section_508_codes: section508Codes as CreateIssueInput['section_508_codes'],
-      eu_codes: euCodes as CreateIssueInput['eu_codes'],
-      tags,
-      user_impact: userImpact || undefined,
-      selector: selector || undefined,
-      code_snippet: codeSnippet || undefined,
-      suggested_fix: suggestedFix || undefined,
-      device_type: (deviceType as Issue['device_type']) || undefined,
-      browser: browser || undefined,
-      operating_system: os || undefined,
-      assistive_technology: assistiveTech || undefined,
-      evidence_media: mediaUrls,
-    };
-    onSubmit(data);
-  };
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column: all form fields */}
         <Card className="lg:col-span-2">
@@ -201,11 +198,15 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
+                {...register('title')}
+                aria-required="true"
                 placeholder="e.g. Image missing alt text"
               />
+              {errors.title && (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
 
             {/* Description */}
@@ -213,8 +214,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register('description')}
                 rows={4}
                 placeholder="Describe the accessibility issue"
               />
@@ -223,17 +223,23 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
             {/* Severity */}
             <div className="space-y-1.5">
               <Label htmlFor="severity">Severity</Label>
-              <Select value={severity} onValueChange={(v) => setSeverity(v as Issue['severity'])}>
-                <SelectTrigger id="severity">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="critical">Critical</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="severity"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="severity">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="critical">Critical</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             {/* User Impact */}
@@ -241,8 +247,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="user_impact">User Impact</Label>
               <Textarea
                 id="user_impact"
-                value={userImpact}
-                onChange={(e) => setUserImpact(e.target.value)}
+                {...register('user_impact')}
                 rows={3}
                 placeholder="Describe how this issue affects users, particularly those with disabilities"
               />
@@ -254,10 +259,14 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Input
                 id="url"
                 type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                {...register('url')}
                 placeholder="https://example.com/page"
               />
+              {errors.url && (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.url.message}
+                </p>
+              )}
             </div>
 
             {/* Selector */}
@@ -265,8 +274,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="selector">Selector</Label>
               <Input
                 id="selector"
-                value={selector}
-                onChange={(e) => setSelector(e.target.value)}
+                {...register('selector')}
                 placeholder="e.g. #search-button or header nav .menu > li:nth-child(3) a"
                 className="font-mono text-sm"
               />
@@ -277,8 +285,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="code_snippet">Code Snippet</Label>
               <Textarea
                 id="code_snippet"
-                value={codeSnippet}
-                onChange={(e) => setCodeSnippet(e.target.value)}
+                {...register('code_snippet')}
                 rows={4}
                 placeholder={`<button class="btn" aria-label="">...</button>`}
                 className="font-mono text-sm"
@@ -290,8 +297,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="suggested_fix">Suggested Fix</Label>
               <Textarea
                 id="suggested_fix"
-                value={suggestedFix}
-                onChange={(e) => setSuggestedFix(e.target.value)}
+                {...register('suggested_fix')}
                 rows={4}
                 placeholder="Describe how to fix this issue"
               />
@@ -304,40 +310,38 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
 
             <div className="space-y-1.5">
               <Label htmlFor="device_type">Device Type</Label>
-              <Select
-                value={deviceType || 'none'}
-                onValueChange={(v) =>
-                  setDeviceType(v === 'none' ? '' : (v as Issue['device_type']))
-                }
-              >
-                <SelectTrigger id="device_type">
-                  <SelectValue placeholder="Select device type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="desktop">Desktop</SelectItem>
-                  <SelectItem value="mobile">Mobile</SelectItem>
-                  <SelectItem value="tablet">Tablet</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="device_type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? 'none'}
+                    onValueChange={(v) => field.onChange(v === 'none' ? undefined : v)}
+                  >
+                    <SelectTrigger id="device_type">
+                      <SelectValue placeholder="Select device type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="desktop">Desktop</SelectItem>
+                      <SelectItem value="mobile">Mobile</SelectItem>
+                      <SelectItem value="tablet">Tablet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="browser">Browser</Label>
-              <Input
-                id="browser"
-                value={browser}
-                onChange={(e) => setBrowser(e.target.value)}
-                placeholder="e.g. Chrome 121"
-              />
+              <Input id="browser" {...register('browser')} placeholder="e.g. Chrome 121" />
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="operating_system">Operating System</Label>
               <Input
                 id="operating_system"
-                value={os}
-                onChange={(e) => setOs(e.target.value)}
+                {...register('operating_system')}
                 placeholder="e.g. macOS 14"
               />
             </div>
@@ -346,8 +350,7 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <Label htmlFor="assistive_technology">Assistive Technology</Label>
               <Input
                 id="assistive_technology"
-                value={assistiveTech}
-                onChange={(e) => setAssistiveTech(e.target.value)}
+                {...register('assistive_technology')}
                 placeholder="e.g. VoiceOver, NVDA"
               />
             </div>
@@ -355,40 +358,79 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
             {/* WCAG Criteria */}
             <div className="space-y-1.5">
               <Label>WCAG Criteria</Label>
-              <WcagSelector selected={wcagCodes} onChange={setWcagCodes} />
+              <Controller
+                name="wcag_codes"
+                control={control}
+                render={({ field }) => (
+                  <WcagSelector
+                    selected={(field.value ?? []) as string[]}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
             </div>
 
             {/* Section 508 Criteria */}
             <div className="space-y-1.5">
               <Label>Section 508 Criteria</Label>
-              <Section508Selector selected={section508Codes} onChange={setSection508Codes} />
+              <Controller
+                name="section_508_codes"
+                control={control}
+                render={({ field }) => (
+                  <Section508Selector
+                    selected={(field.value ?? []) as string[]}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
             </div>
 
             {/* EU EN 301 549 Criteria */}
             <div className="space-y-1.5">
               <Label>EU EN 301 549 Criteria</Label>
-              <EuSelector selected={euCodes} onChange={setEuCodes} />
+              <Controller
+                name="eu_codes"
+                control={control}
+                render={({ field }) => (
+                  <EuSelector
+                    selected={(field.value ?? []) as string[]}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
             </div>
 
             {/* Tags */}
             <div className="space-y-1.5">
               <Label>Tags</Label>
-              <TagInput tags={tags} onChange={setTags} />
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <TagInput tags={(field.value ?? []) as string[]} onChange={field.onChange} />
+                )}
+              />
             </div>
 
             {/* Status */}
             <div className="space-y-1.5">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as Issue['status'])}>
-                <SelectTrigger id="status">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">Open</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                  <SelectItem value="wont_fix">Won&apos;t Fix</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem value="wont_fix">Won&apos;t Fix</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <Button type="submit" disabled={loading}>
@@ -407,12 +449,18 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               <p className="mb-3 text-sm font-medium text-muted-foreground">
                 Screenshots &amp; Videos
               </p>
-              <MediaUploader
-                projectId={projectId}
-                issueId={uploadId}
-                urls={mediaUrls}
-                onUpload={(url) => setMediaUrls((prev) => [...prev, url])}
-                onRemove={(url) => setMediaUrls((prev) => prev.filter((u) => u !== url))}
+              <Controller
+                name="evidence_media"
+                control={control}
+                render={({ field }) => (
+                  <MediaUploader
+                    projectId={projectId}
+                    issueId={uploadId}
+                    urls={(field.value ?? []) as string[]}
+                    onUpload={(url) => field.onChange([...(field.value ?? []), url])}
+                    onRemove={(url) => field.onChange((field.value ?? []).filter((u) => u !== url))}
+                  />
+                )}
               />
             </CardContent>
           </Card>

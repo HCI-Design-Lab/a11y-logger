@@ -1,11 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { Issue } from '@/lib/db/issues';
 
 test('renders title field as required', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
-  expect(screen.getByLabelText(/title/i)).toBeRequired();
+  expect(screen.getByLabelText(/^title \*/i)).toHaveAttribute('aria-required', 'true');
 }, 15000);
 
 test('renders description textarea', () => {
@@ -28,12 +29,17 @@ test('renders save button', () => {
   expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
 }, 15000);
 
-test('calls onSubmit with form data on submit', () => {
+test('calls onSubmit with form data on submit', async () => {
   const onSubmit = vi.fn();
   render(<IssueForm onSubmit={onSubmit} projectId="p1" />);
-  fireEvent.change(screen.getByLabelText(/title/i), { target: { value: 'Missing alt text' } });
+  await userEvent.type(screen.getByLabelText(/^title \*/i), 'Missing alt text');
   fireEvent.click(screen.getByRole('button', { name: /save/i }));
-  expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ title: 'Missing alt text' }));
+  await waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Missing alt text' }),
+      expect.anything()
+    )
+  );
 }, 15000);
 
 test('pre-fills data when editing existing issue', () => {
@@ -99,11 +105,14 @@ test('includes evidence_media in submitted data after upload', async () => {
     expect(global.fetch).toHaveBeenCalledWith('/api/media/upload', expect.anything())
   );
 
-  fireEvent.change(screen.getByLabelText(/title/i), { target: { value: 'Test' } });
+  await userEvent.type(screen.getByLabelText(/^title \*/i), 'Test');
   fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
-  expect(onSubmit).toHaveBeenCalledWith(
-    expect.objectContaining({ evidence_media: ['/api/media/p1/tmp/photo.png'] })
+  await waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ evidence_media: ['/api/media/p1/tmp/photo.png'] }),
+      expect.anything()
+    )
   );
 }, 15000);
 
@@ -117,7 +126,7 @@ test('renders EU EN 301 549 Criteria section', () => {
   expect(screen.getByText('EU EN 301 549 Criteria')).toBeInTheDocument();
 }, 15000);
 
-test('removes media url when remove button is clicked', () => {
+test('removes media url when remove button is clicked', async () => {
   const onSubmit = vi.fn();
   const existingIssue: Issue = {
     id: 'i1',
@@ -154,5 +163,10 @@ test('removes media url when remove button is clicked', () => {
   fireEvent.click(screen.getByRole('button', { name: /remove/i }));
   fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
-  expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ evidence_media: [] }));
+  await waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ evidence_media: [] }),
+      expect.anything()
+    )
+  );
 });
