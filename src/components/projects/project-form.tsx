@@ -30,7 +30,7 @@ export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">Project Name *</Label>
         <Input id="name" {...register('name')} placeholder="e.g. Mobile App Redesign" />

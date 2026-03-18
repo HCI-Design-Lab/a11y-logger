@@ -35,7 +35,10 @@ test('calls onSubmit with form values when valid', async () => {
   await userEvent.type(screen.getByLabelText(/project name/i), 'My App');
   fireEvent.click(screen.getByRole('button', { name: /save project/i }));
   await waitFor(() =>
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ name: 'My App' }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'My App' }),
+      expect.anything()
+    )
   );
 });
 
