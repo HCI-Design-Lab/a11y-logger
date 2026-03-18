@@ -80,6 +80,45 @@ describe('VpatCriteriaTable', () => {
     expect(screen.getByText(/Level AA/i)).toBeInTheDocument();
   });
 
+  it('renders WCAG standard heading for A/AA/AAA sections', () => {
+    const rows = [
+      makeRow({ id: '1', criterion_section: 'A' }),
+      makeRow({ id: '2', criterion_code: '1.4.3', criterion_section: 'AA' }),
+    ];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: /wcag/i })).toBeInTheDocument();
+  });
+
+  it('renders Section 508 heading for Chapter sections', () => {
+    const rows = [makeRow({ id: '1', criterion_section: 'Chapter3', criterion_code: '302.1' })];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: /section 508/i })).toBeInTheDocument();
+  });
+
+  it('renders EN 301 549 heading for Clause sections', () => {
+    const rows = [makeRow({ id: '1', criterion_section: 'Clause4', criterion_code: '4.2.1' })];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: /EN 301 549/i })).toBeInTheDocument();
+  });
+
+  it('does not render Section 508 heading when no 508 rows exist', () => {
+    const rows = [makeRow({ id: '1', criterion_section: 'A' })];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    expect(screen.queryByRole('heading', { name: /section 508/i })).not.toBeInTheDocument();
+  });
+
+  it('renders WCAG sections before Section 508 sections', () => {
+    const rows = [
+      makeRow({ id: '1', criterion_section: 'Chapter3', criterion_code: '302.1' }),
+      makeRow({ id: '2', criterion_section: 'A', criterion_code: '1.1.1' }),
+    ];
+    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    const headings = screen.getAllByRole('heading');
+    const wcagIndex = headings.findIndex((h) => /wcag/i.test(h.textContent ?? ''));
+    const sec508Index = headings.findIndex((h) => /section 508/i.test(h.textContent ?? ''));
+    expect(wcagIndex).toBeLessThan(sec508Index);
+  });
+
   it('calls onRowChange with row id and update when conformance changes', () => {
     const onRowChange = vi.fn();
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} />);

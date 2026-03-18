@@ -44,6 +44,13 @@ const SECTION_LABELS: Record<string, string> = {
   Clause12: 'Clauses 11-12: Documentation and Support Services',
 };
 
+// Canonical standard groups — defines display order and which sections belong to each standard.
+const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
+  { label: 'WCAG', sections: ['A', 'AA', 'AAA'] },
+  { label: 'Section 508', sections: ['Chapter3', 'Chapter5', 'Chapter6'] },
+  { label: 'EN 301 549', sections: ['Clause4', 'Clause5', 'Clause12'] },
+];
+
 const CONFIDENCE_COLORS: Record<string, string> = {
   high: 'bg-green-100 text-green-800',
   medium: 'bg-amber-100 text-amber-800',
@@ -294,42 +301,56 @@ export function VpatCriteriaTable({
           </Button>
         </div>
       )}
-      {Array.from(sections.entries()).map(([section, sectionRows]) => (
-        <Card key={section}>
-          <CardHeader>
-            <CardTitle className="text-base">{SECTION_LABELS[section] ?? section}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-24">Criterion</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="w-48">Conformance</TableHead>
-                  <TableHead>Remarks</TableHead>
-                  {aiEnabled && !readOnly && <TableHead className="w-28">AI</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sectionRows.map((row) => (
-                  <CriterionTableRow
-                    key={row.id}
-                    row={row}
-                    readOnly={readOnly}
-                    aiEnabled={aiEnabled}
-                    isGenerating={generatingRowId === row.id}
-                    onRowChange={onRowChange}
-                    scheduleRemarksSave={scheduleRemarksSave}
-                    onGenerateRow={onGenerateRow}
-                    onCriterionClick={onCriterionClick}
-                    register={register}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      ))}
+      {STANDARD_GROUPS.map((group) => {
+        const groupSections = group.sections.filter((s) => sections.has(s));
+        if (groupSections.length === 0) return null;
+        return (
+          <div key={group.label} className="space-y-4">
+            <h2 className="text-lg font-semibold border-b pb-2">{group.label}</h2>
+            {groupSections.map((section) => {
+              const sectionRows = sections.get(section)!;
+              return (
+                <Card key={section}>
+                  <CardHeader>
+                    <CardTitle className="text-base">
+                      {SECTION_LABELS[section] ?? section}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-24">Criterion</TableHead>
+                          <TableHead>Name</TableHead>
+                          <TableHead className="w-48">Conformance</TableHead>
+                          <TableHead>Remarks</TableHead>
+                          {aiEnabled && !readOnly && <TableHead className="w-28">AI</TableHead>}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {sectionRows.map((row) => (
+                          <CriterionTableRow
+                            key={row.id}
+                            row={row}
+                            readOnly={readOnly}
+                            aiEnabled={aiEnabled}
+                            isGenerating={generatingRowId === row.id}
+                            onRowChange={onRowChange}
+                            scheduleRemarksSave={scheduleRemarksSave}
+                            onGenerateRow={onGenerateRow}
+                            onCriterionClick={onCriterionClick}
+                            register={register}
+                          />
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
