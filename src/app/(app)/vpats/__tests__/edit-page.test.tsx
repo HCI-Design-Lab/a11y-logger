@@ -108,7 +108,20 @@ describe('VpatDetailPage', () => {
   });
 
   it('shows criteria table', async () => {
+    const user = userEvent.setup();
     render(<VpatDetailPage />);
+
+    // Sections start collapsed — expand the Level A section first.
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+      ).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+    );
+
     await waitFor(() => {
       expect(screen.getByText('1.1.1')).toBeInTheDocument();
     });
@@ -117,6 +130,17 @@ describe('VpatDetailPage', () => {
   it('opens issues panel when criterion name is clicked', async () => {
     const user = userEvent.setup();
     render(<VpatDetailPage />);
+
+    // Sections start collapsed — expand the Level A section first.
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+      ).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
@@ -134,6 +158,17 @@ describe('VpatDetailPage', () => {
   it('closes issues panel when close button is clicked', async () => {
     const user = userEvent.setup();
     render(<VpatDetailPage />);
+
+    // Sections start collapsed — expand the Level A section first.
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+      ).toBeInTheDocument();
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
