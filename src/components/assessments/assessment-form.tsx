@@ -1,7 +1,6 @@
 'use client';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,29 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Assessment } from '@/lib/db/assessments';
+import { AssessmentFormSchema, type AssessmentFormData } from '@/lib/validators/assessments';
 
-// Form-local schema: accepts YYYY-MM-DD strings (HTML date input format).
-// API-level date validation (ISO datetime) is handled server-side.
-const AssessmentFormSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required').max(200),
-    description: z.string().max(2000).optional(),
-    status: z.enum(['planning', 'in_progress', 'completed']),
-    test_date_start: z.string().optional(),
-    test_date_end: z.string().optional(),
-    project_id: z.string().optional(),
-  })
-  .refine(
-    (d) => {
-      if (d.test_date_start && d.test_date_end) {
-        return new Date(d.test_date_end) >= new Date(d.test_date_start);
-      }
-      return true;
-    },
-    { message: 'End date must be on or after start date', path: ['test_date_end'] }
-  );
-
-export type AssessmentFormData = z.infer<typeof AssessmentFormSchema>;
+export type { AssessmentFormData };
 
 interface AssessmentFormProps {
   assessment?: Assessment;

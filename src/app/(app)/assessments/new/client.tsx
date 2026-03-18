@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
-import type { AssessmentFormData } from '@/components/assessments/assessment-form';
+import type { AssessmentFormData } from '@/lib/validators/assessments';
 
 interface Props {
   projects: { id: string; name: string }[];

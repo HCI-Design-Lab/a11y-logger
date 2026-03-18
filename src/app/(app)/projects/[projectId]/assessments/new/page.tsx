@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
-import type { AssessmentFormData } from '@/components/assessments/assessment-form';
+import type { AssessmentFormData } from '@/lib/validators/assessments';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 export default function NewAssessmentPage() {

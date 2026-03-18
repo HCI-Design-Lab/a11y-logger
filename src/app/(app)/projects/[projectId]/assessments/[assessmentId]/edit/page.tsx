@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import type { AssessmentFormData } from '@/components/assessments/assessment-form';
+import type { AssessmentFormData } from '@/lib/validators/assessments';
 import type { Assessment } from '@/lib/db/assessments';
 
 export default function EditAssessmentPage() {
