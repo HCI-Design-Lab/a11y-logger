@@ -120,4 +120,64 @@ describe('IssueForm AI Generate', () => {
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it('populates section_508_codes from AI response', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          title: 'Button not accessible',
+          description: 'The button is not accessible',
+          severity: 'high',
+          user_impact: null,
+          suggested_fix: null,
+          wcag_codes: [],
+          section_508_codes: ['302.1'],
+          eu_codes: [],
+        },
+      }),
+    } as Response);
+
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'Button is not accessible' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('302.1')).toBeInTheDocument();
+    });
+  }, 15000);
+
+  it('populates eu_codes from AI response', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          title: 'Button not accessible',
+          description: 'The button is not accessible',
+          severity: 'high',
+          user_impact: null,
+          suggested_fix: null,
+          wcag_codes: [],
+          section_508_codes: [],
+          eu_codes: ['4.2.1'],
+        },
+      }),
+    } as Response);
+
+    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'Button is not accessible' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('4.2.1')).toBeInTheDocument();
+    });
+  }, 15000);
 });

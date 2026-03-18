@@ -105,6 +105,16 @@ test('includes evidence_media in submitted data after upload', async () => {
   );
 }, 15000);
 
+test('renders Section 508 Criteria section', () => {
+  render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+  expect(screen.getByText('Section 508 Criteria')).toBeInTheDocument();
+});
+
+test('renders EU EN 301 549 Criteria section', () => {
+  render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+  expect(screen.getByText('EU EN 301 549 Criteria')).toBeInTheDocument();
+});
+
 test('removes media url when remove button is clicked', () => {
   const onSubmit = vi.fn();
   const existingIssue: Issue = {

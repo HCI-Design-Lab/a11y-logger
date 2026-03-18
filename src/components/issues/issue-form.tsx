@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { WcagSelector } from './wcag-selector';
+import { Section508Selector } from './section508-selector';
+import { EuSelector } from './eu-selector';
 import { TagInput } from './tag-input';
 import { MediaUploader } from './media-uploader';
 import type { Issue } from '@/lib/db/issues';
@@ -37,6 +39,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
   const [suggestedFix, setSuggestedFix] = useState(issue?.suggested_fix ?? '');
   const [status, setStatus] = useState<Issue['status']>(issue?.status ?? 'open');
   const [wcagCodes, setWcagCodes] = useState<string[]>(issue?.wcag_codes ?? []);
+  const [section508Codes, setSection508Codes] = useState<string[]>(issue?.section_508_codes ?? []);
+  const [euCodes, setEuCodes] = useState<string[]>(issue?.eu_codes ?? []);
   const [tags, setTags] = useState<string[]>(issue?.tags ?? []);
   const [deviceType, setDeviceType] = useState<Issue['device_type'] | ''>(issue?.device_type ?? '');
   const [browser, setBrowser] = useState(issue?.browser ?? '');
@@ -69,6 +73,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
             user_impact: userImpact || null,
             suggested_fix: suggestedFix || null,
             wcag_codes: wcagCodes,
+            section_508_codes: section508Codes,
+            eu_codes: euCodes,
           },
         }),
       });
@@ -87,6 +93,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
         user_impact: string | null;
         suggested_fix: string | null;
         wcag_codes: string[] | null;
+        section_508_codes: string[] | null;
+        eu_codes: string[] | null;
       };
 
       if (data.title) setTitle(data.title);
@@ -95,6 +103,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
       if (data.user_impact) setUserImpact(data.user_impact);
       if (data.suggested_fix) setSuggestedFix(data.suggested_fix);
       if (data.wcag_codes) setWcagCodes(data.wcag_codes);
+      if (data.section_508_codes) setSection508Codes(data.section_508_codes);
+      if (data.eu_codes) setEuCodes(data.eu_codes);
     } catch {
       setAiError('Failed to connect to AI service');
     } finally {
@@ -111,6 +121,8 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
       severity,
       status,
       wcag_codes: wcagCodes as CreateIssueInput['wcag_codes'],
+      section_508_codes: section508Codes as CreateIssueInput['section_508_codes'],
+      eu_codes: euCodes as CreateIssueInput['eu_codes'],
       tags,
       user_impact: userImpact || undefined,
       selector: selector || undefined,
@@ -344,6 +356,18 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
             <div className="space-y-1.5">
               <Label>WCAG Criteria</Label>
               <WcagSelector selected={wcagCodes} onChange={setWcagCodes} />
+            </div>
+
+            {/* Section 508 Criteria */}
+            <div className="space-y-1.5">
+              <Label>Section 508 Criteria</Label>
+              <Section508Selector selected={section508Codes} onChange={setSection508Codes} />
+            </div>
+
+            {/* EU EN 301 549 Criteria */}
+            <div className="space-y-1.5">
+              <Label>EU EN 301 549 Criteria</Label>
+              <EuSelector selected={euCodes} onChange={setEuCodes} />
             </div>
 
             {/* Tags */}
