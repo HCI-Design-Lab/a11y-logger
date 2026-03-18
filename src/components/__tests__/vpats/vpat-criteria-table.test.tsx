@@ -11,7 +11,7 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   criterion_name: 'Non-text Content',
   criterion_description: 'All non-text content has a text alternative.',
   criterion_level: 'A',
-  criterion_section: 'A',
+  criterion_section: 'Perceivable',
   conformance: 'not_evaluated',
   remarks: null,
   ai_confidence: null,
@@ -72,18 +72,28 @@ describe('VpatCriteriaTable', () => {
 
   it('groups rows by section', () => {
     const rows = [
-      makeRow({ id: '1', criterion_code: '1.1.1', criterion_level: 'A', criterion_section: 'A' }),
-      makeRow({ id: '2', criterion_code: '1.4.3', criterion_level: 'AA', criterion_section: 'AA' }),
+      makeRow({
+        id: '1',
+        criterion_code: '1.1.1',
+        criterion_level: 'A',
+        criterion_section: 'Perceivable',
+      }),
+      makeRow({
+        id: '2',
+        criterion_code: '2.1.1',
+        criterion_level: 'A',
+        criterion_section: 'Operable',
+      }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expect(screen.getByText(/Level A/i)).toBeInTheDocument();
-    expect(screen.getByText(/Level AA/i)).toBeInTheDocument();
+    expect(screen.getByText(/Perceivable/i)).toBeInTheDocument();
+    expect(screen.getByText(/Operable/i)).toBeInTheDocument();
   });
 
-  it('renders WCAG standard heading for A/AA/AAA sections', () => {
+  it('renders WCAG standard heading for WCAG principle sections', () => {
     const rows = [
-      makeRow({ id: '1', criterion_section: 'A' }),
-      makeRow({ id: '2', criterion_code: '1.4.3', criterion_section: 'AA' }),
+      makeRow({ id: '1', criterion_section: 'Perceivable' }),
+      makeRow({ id: '2', criterion_code: '2.1.1', criterion_section: 'Operable' }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.getByRole('heading', { name: /wcag/i })).toBeInTheDocument();
@@ -102,7 +112,7 @@ describe('VpatCriteriaTable', () => {
   });
 
   it('does not render Section 508 heading when no 508 rows exist', () => {
-    const rows = [makeRow({ id: '1', criterion_section: 'A' })];
+    const rows = [makeRow({ id: '1', criterion_section: 'Perceivable' })];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     expect(screen.queryByRole('heading', { name: /section 508/i })).not.toBeInTheDocument();
   });
@@ -110,7 +120,7 @@ describe('VpatCriteriaTable', () => {
   it('renders WCAG sections before Section 508 sections', () => {
     const rows = [
       makeRow({ id: '1', criterion_section: 'Chapter3', criterion_code: '302.1' }),
-      makeRow({ id: '2', criterion_section: 'A', criterion_code: '1.1.1' }),
+      makeRow({ id: '2', criterion_section: 'Perceivable', criterion_code: '1.1.1' }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
     const headings = screen.getAllByRole('heading');

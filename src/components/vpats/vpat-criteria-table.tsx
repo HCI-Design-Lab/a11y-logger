@@ -33,9 +33,10 @@ const CONFORMANCE_OPTIONS = [
 ] as const;
 
 const SECTION_LABELS: Record<string, string> = {
-  A: 'Table 1: Success Criteria (A)',
-  AA: 'Table 2: Success Criteria Level AA',
-  AAA: 'Table 3: Success Criteria Level AAA',
+  Perceivable: 'Principle 1: Perceivable',
+  Operable: 'Principle 2: Operable',
+  Understandable: 'Principle 3: Understandable',
+  Robust: 'Principle 4: Robust',
   Chapter3: 'Chapter 3: Functional Performance Criteria',
   Chapter5: 'Chapter 5: Software',
   Chapter6: 'Chapter 6: Support Documentation and Services',
@@ -46,7 +47,7 @@ const SECTION_LABELS: Record<string, string> = {
 
 // Canonical standard groups — defines display order and which sections belong to each standard.
 const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
-  { label: 'WCAG', sections: ['A', 'AA', 'AAA'] },
+  { label: 'WCAG', sections: ['Perceivable', 'Operable', 'Understandable', 'Robust'] },
   { label: 'Section 508', sections: ['Chapter3', 'Chapter5', 'Chapter6'] },
   { label: 'EN 301 549', sections: ['Clause4', 'Clause5', 'Clause12'] },
 ];
