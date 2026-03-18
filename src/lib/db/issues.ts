@@ -10,6 +10,8 @@ export interface Issue {
   severity: 'critical' | 'high' | 'medium' | 'low';
   status: 'open' | 'resolved' | 'wont_fix';
   wcag_codes: string[];
+  section_508_codes: string[];
+  eu_codes: string[];
   ai_suggested_codes: string[];
   ai_confidence_score: number | null;
   device_type: 'desktop' | 'mobile' | 'tablet' | null;
@@ -38,9 +40,11 @@ export interface IssueWithContext extends Issue {
 // Raw row from SQLite — JSON fields are strings
 export interface IssueRow extends Omit<
   Issue,
-  'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags'
+  'wcag_codes' | 'ai_suggested_codes' | 'evidence_media' | 'tags' | 'section_508_codes' | 'eu_codes'
 > {
   wcag_codes: string;
+  section_508_codes: string;
+  eu_codes: string;
   ai_suggested_codes: string;
   evidence_media: string;
   tags: string;
@@ -50,6 +54,8 @@ export function deserializeIssue(row: IssueRow): Issue {
   return {
     ...row,
     wcag_codes: JSON.parse(row.wcag_codes || '[]'),
+    section_508_codes: JSON.parse(row.section_508_codes || '[]'),
+    eu_codes: JSON.parse(row.eu_codes || '[]'),
     ai_suggested_codes: JSON.parse(row.ai_suggested_codes || '[]'),
     evidence_media: JSON.parse(row.evidence_media || '[]'),
     tags: JSON.parse(row.tags || '[]'),
@@ -129,10 +135,10 @@ export function createIssue(assessmentId: string, input: CreateIssueInput): Issu
     .prepare(
       `INSERT INTO issues (
         id, assessment_id, title, description, url, severity, status,
-        wcag_codes, device_type, browser, operating_system, assistive_technology,
+        wcag_codes, section_508_codes, eu_codes, device_type, browser, operating_system, assistive_technology,
         user_impact, selector, code_snippet, suggested_fix,
         evidence_media, tags, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       id,
@@ -143,6 +149,8 @@ export function createIssue(assessmentId: string, input: CreateIssueInput): Issu
       input.severity ?? 'medium',
       input.status ?? 'open',
       JSON.stringify(input.wcag_codes ?? []),
+      JSON.stringify(input.section_508_codes ?? []),
+      JSON.stringify(input.eu_codes ?? []),
       input.device_type ?? null,
       input.browser ?? null,
       input.operating_system ?? null,
@@ -188,6 +196,14 @@ export function updateIssue(id: string, input: UpdateIssueInput): Issue | null {
   if (input.wcag_codes !== undefined) {
     fields.push('wcag_codes = ?');
     values.push(JSON.stringify(input.wcag_codes));
+  }
+  if (input.section_508_codes !== undefined) {
+    fields.push('section_508_codes = ?');
+    values.push(JSON.stringify(input.section_508_codes));
+  }
+  if (input.eu_codes !== undefined) {
+    fields.push('eu_codes = ?');
+    values.push(JSON.stringify(input.eu_codes));
   }
   if (input.device_type !== undefined) {
     fields.push('device_type = ?');

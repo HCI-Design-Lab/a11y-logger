@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { WCAG_CRITERION_CODES } from '@/lib/constants/wcag';
+import { SECTION_508_CRITERION_CODES } from '@/lib/constants/section508';
+import { EN301549_CRITERION_CODES } from '@/lib/constants/en301549';
 
 const IssueBaseSchema = z.object({
   title: z.string().min(1).max(300),
@@ -8,6 +10,12 @@ const IssueBaseSchema = z.object({
   severity: z.enum(['critical', 'high', 'medium', 'low']).optional(),
   status: z.enum(['open', 'resolved', 'wont_fix']).optional(),
   wcag_codes: z.array(z.enum(WCAG_CRITERION_CODES as unknown as [string, ...string[]])).optional(),
+  section_508_codes: z
+    .array(z.enum(SECTION_508_CRITERION_CODES as unknown as [string, ...string[]]))
+    .optional(),
+  eu_codes: z
+    .array(z.enum(EN301549_CRITERION_CODES as unknown as [string, ...string[]]))
+    .optional(),
   device_type: z.enum(['desktop', 'mobile', 'tablet']).optional(),
   browser: z.string().max(100).optional(),
   operating_system: z.string().max(100).optional(),
