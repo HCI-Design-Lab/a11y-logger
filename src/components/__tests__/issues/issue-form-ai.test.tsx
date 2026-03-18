@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { IssueForm } from '@/components/issues/issue-form';
 
@@ -29,29 +29,33 @@ describe('IssueForm AI Generate', () => {
       target: { value: 'The search button is not keyboard accessible' },
     });
 
+    // setAiLoading(true) is called synchronously before the first await in handleAiGenerate,
+    // so fireEvent.click (which wraps in act) flushes it before returning.
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /generating/i })).toBeDisabled();
-    });
+    expect(screen.getByRole('button', { name: /generating/i })).toBeDisabled();
 
-    resolvePromise!({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          title: 'Search button not keyboard accessible',
-          description: 'The search button cannot be reached via keyboard',
-          severity: 'high',
-          user_impact: 'Keyboard-only users cannot use search',
-          suggested_fix: 'Add tabindex="0" and keyboard event handlers',
-          wcag_codes: ['2.1.1'],
-        },
-      }),
+    // Resolve the pending fetch so the component can fully clean up.
+    await act(async () => {
+      resolvePromise!({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            title: 'Search button not keyboard accessible',
+            description: 'The search button cannot be reached via keyboard',
+            severity: 'high',
+            user_impact: 'Keyboard-only users cannot use search',
+            suggested_fix: 'Add tabindex="0" and keyboard event handlers',
+            wcag_codes: ['2.1.1'],
+          },
+        }),
+      });
     });
-  });
+  }, 15000);
 
   it('pre-populates fields from AI suggestion', async () => {
+    const onSubmit = vi.fn();
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -67,21 +71,18 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    render(<IssueForm onSubmit={onSubmit} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'The search button is not keyboard accessible on the homepage' },
     });
 
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
 
-    await waitFor(
-      () => {
-        expect(screen.getByLabelText(/title/i)).toHaveValue(
-          'Search button not keyboard accessible'
-        );
-      },
-      { timeout: 14000 }
-    );
+    // WcagSelector is a Controller-backed component that re-renders with the new value,
+    // making the code visible as text — a reliable signal that AI data was applied.
+    await waitFor(() => {
+      expect(screen.getByText('2.1.1')).toBeInTheDocument();
+    });
 
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/ai/generate-issue',
@@ -92,7 +93,16 @@ describe('IssueForm AI Generate', () => {
         ),
       })
     );
-  }, 15000);
+
+    // Submit the form to confirm RHF internal state was updated with the AI title.
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Search button not keyboard accessible' }),
+        expect.anything()
+      );
+    });
+  }, 20000);
 
   it('shows error message when AI is not configured', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
@@ -115,7 +125,7 @@ describe('IssueForm AI Generate', () => {
     await waitFor(() => {
       expect(screen.getByText(/ai not configured/i)).toBeInTheDocument();
     });
-  });
+  }, 15000);
 
   it('does not call fetch when ai description is empty', () => {
     const fetchSpy = vi.spyOn(global, 'fetch');

@@ -100,4 +100,34 @@ describe('ReportEditForm', () => {
     // Resolve to clean up
     resolvePromise!({ json: async () => ({ success: true, data: {} }) } as Response);
   });
+
+  it('adds Top Risks section when placeholder is clicked', () => {
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByText(/add top risks/i));
+    expect(screen.getByText('Top Risks')).toBeInTheDocument();
+  });
+
+  it('adds Quick Wins section when placeholder is clicked', () => {
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByText(/add quick wins/i));
+    expect(screen.getByText('Quick Wins')).toBeInTheDocument();
+  });
+
+  it('adds User Impact section when placeholder is clicked', () => {
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByText(/add user impact/i));
+    expect(screen.getByText('Screen Reader User')).toBeInTheDocument();
+  });
+
+  it('closes delete modal when cancel is clicked', async () => {
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    fireEvent.click(screen.getByText(/add executive summary/i));
+    fireEvent.click(screen.getByRole('button', { name: /delete section/i }));
+    await waitFor(() => screen.getByText(/permanently remove/i));
+
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await waitFor(() => {
+      expect(screen.queryByText(/permanently remove/i)).not.toBeInTheDocument();
+    });
+  });
 });
