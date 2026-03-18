@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ProjectForm } from '@/components/projects/project-form';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { Project } from '@/lib/db/projects';
+import type { CreateProjectInput } from '@/lib/validators/projects';
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function EditProjectPage() {
       .finally(() => setFetching(false));
   }, [projectId, router]);
 
-  const handleSubmit = async (data: { name: string; description: string; product_url: string }) => {
+  const handleSubmit = async (data: CreateProjectInput) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/projects/${projectId}`, {

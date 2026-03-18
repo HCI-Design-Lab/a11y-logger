@@ -1,64 +1,72 @@
 'use client';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { CreateProjectSchema } from '@/lib/validators/projects';
+import type { CreateProjectInput } from '@/lib/validators/projects';
 import type { Project } from '@/lib/db/projects';
-
-interface ProjectFormData {
-  name: string;
-  description: string;
-  product_url: string;
-}
 
 interface ProjectFormProps {
   project?: Project;
-  onSubmit: (data: ProjectFormData) => void;
+  onSubmit: (data: CreateProjectInput) => void;
   loading?: boolean;
 }
 
 export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
-  const [name, setName] = useState(project?.name ?? '');
-  const [description, setDescription] = useState(project?.description ?? '');
-  const [productUrl, setProductUrl] = useState(project?.product_url ?? '');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ name, description, product_url: productUrl });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateProjectInput>({
+    resolver: zodResolver(CreateProjectSchema),
+    defaultValues: {
+      name: project?.name ?? '',
+      description: project?.description ?? '',
+      product_url: project?.product_url ?? '',
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">Project Name *</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          placeholder="e.g. Mobile App Redesign"
-        />
+        <Input id="name" {...register('name')} placeholder="e.g. Mobile App Redesign" />
+        {errors.name && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.name.message}
+          </p>
+        )}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          {...register('description')}
           rows={5}
           placeholder="Brief description of the project"
         />
+        {errors.description && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.description.message}
+          </p>
+        )}
       </div>
       <div className="space-y-1.5 mb-8">
         <Label htmlFor="product_url">Product URL</Label>
         <Input
           id="product_url"
           type="url"
-          value={productUrl}
-          onChange={(e) => setProductUrl(e.target.value)}
+          {...register('product_url')}
           placeholder="https://example.com"
         />
+        {errors.product_url && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.product_url.message}
+          </p>
+        )}
       </div>
       <Button type="submit" disabled={loading}>
         {loading ? 'Saving…' : 'Save Project'}

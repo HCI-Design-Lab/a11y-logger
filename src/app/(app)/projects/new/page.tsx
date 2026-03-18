@@ -5,12 +5,13 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProjectForm } from '@/components/projects/project-form';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import type { CreateProjectInput } from '@/lib/validators/projects';
 
 export default function NewProjectPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (data: { name: string; description: string; product_url: string }) => {
+  const handleSubmit = async (data: CreateProjectInput) => {
     setLoading(true);
     try {
       const res = await fetch('/api/projects', {
