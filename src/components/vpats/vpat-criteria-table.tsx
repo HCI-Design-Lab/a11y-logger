@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormRegister } from 'react-hook-form';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -233,6 +234,97 @@ const CriterionTableRow = memo(function CriterionTableRow({
   );
 });
 
+interface CriterionSectionProps {
+  section: string;
+  sectionRows: VpatCriterionRow[];
+  readOnly: boolean;
+  aiEnabled: boolean;
+  generatingRowId?: string | null;
+  onRowChange: (rowId: string, update: { conformance?: string }) => void;
+  scheduleRemarksSave: (rowId: string, value: string) => void;
+  onGenerateRow?: (rowId: string) => void;
+  onCriterionClick?: (criterionCode: string) => void;
+  register: UseFormRegister<RemarksFormValues>;
+}
+
+// Collapsible section card — owns isExpanded state so toggling only re-renders this section.
+const CriterionSection = memo(function CriterionSection({
+  section,
+  sectionRows,
+  readOnly,
+  aiEnabled,
+  generatingRowId,
+  onRowChange,
+  scheduleRemarksSave,
+  onGenerateRow,
+  onCriterionClick,
+  register,
+}: CriterionSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const label = SECTION_LABELS[section] ?? section;
+  const resolved = sectionRows.filter((r) => r.conformance !== 'not_evaluated').length;
+  const total = sectionRows.length;
+
+  return (
+    <Card>
+      <CardHeader className="py-3">
+        <div className="flex items-center justify-between gap-4">
+          <CardTitle className="text-base">{label}</CardTitle>
+          <div className="flex items-center gap-3 shrink-0">
+            {!isExpanded && (
+              <span className="text-sm text-muted-foreground">
+                {resolved} of {total} resolved
+              </span>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setIsExpanded((v) => !v)}
+              aria-label={isExpanded ? `Collapse ${label}` : `Expand ${label}`}
+              aria-expanded={isExpanded}
+            >
+              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      {isExpanded && (
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-24">Criterion</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="w-48">Conformance</TableHead>
+                <TableHead>Remarks</TableHead>
+                {aiEnabled && !readOnly && <TableHead className="w-28">AI</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sectionRows.map((row) => (
+                <CriterionTableRow
+                  key={row.id}
+                  row={row}
+                  readOnly={readOnly}
+                  aiEnabled={aiEnabled}
+                  isGenerating={generatingRowId === row.id}
+                  onRowChange={onRowChange}
+                  scheduleRemarksSave={scheduleRemarksSave}
+                  onGenerateRow={onGenerateRow}
+                  onCriterionClick={onCriterionClick}
+                  register={register}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      )}
+    </Card>
+  );
+});
+
 interface VpatCriteriaTableProps {
   rows: VpatCriterionRow[];
   /** Called immediately for conformance changes (updates progress bar in parent). */
@@ -313,47 +405,21 @@ export function VpatCriteriaTable({
         return (
           <div key={group.label} className="space-y-4">
             <h2 className="text-lg font-semibold border-b pb-2">{group.label}</h2>
-            {groupSections.map((section) => {
-              const sectionRows = sections.get(section)!;
-              return (
-                <Card key={section}>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      {SECTION_LABELS[section] ?? section}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-24">Criterion</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead className="w-48">Conformance</TableHead>
-                          <TableHead>Remarks</TableHead>
-                          {aiEnabled && !readOnly && <TableHead className="w-28">AI</TableHead>}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {sectionRows.map((row) => (
-                          <CriterionTableRow
-                            key={row.id}
-                            row={row}
-                            readOnly={readOnly}
-                            aiEnabled={aiEnabled}
-                            isGenerating={generatingRowId === row.id}
-                            onRowChange={onRowChange}
-                            scheduleRemarksSave={scheduleRemarksSave}
-                            onGenerateRow={onGenerateRow}
-                            onCriterionClick={onCriterionClick}
-                            register={register}
-                          />
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {groupSections.map((section) => (
+              <CriterionSection
+                key={section}
+                section={section}
+                sectionRows={sections.get(section)!}
+                readOnly={readOnly}
+                aiEnabled={aiEnabled}
+                generatingRowId={generatingRowId}
+                onRowChange={onRowChange}
+                scheduleRemarksSave={scheduleRemarksSave}
+                onGenerateRow={onGenerateRow}
+                onCriterionClick={onCriterionClick}
+                register={register}
+              />
+            ))}
           </div>
         );
       })}
