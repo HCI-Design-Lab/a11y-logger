@@ -114,19 +114,21 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
         eu_codes: string[] | null;
       };
 
-      if (data.title) setValue('title', data.title);
-      if (data.description) setValue('description', data.description);
-      if (data.severity) setValue('severity', data.severity);
-      if (data.user_impact) setValue('user_impact', data.user_impact);
-      if (data.suggested_fix) setValue('suggested_fix', data.suggested_fix);
+      const opts = { shouldValidate: true, shouldDirty: true } as const;
+      if (data.title) setValue('title', data.title, opts);
+      if (data.description) setValue('description', data.description, opts);
+      if (data.severity) setValue('severity', data.severity, opts);
+      if (data.user_impact) setValue('user_impact', data.user_impact, opts);
+      if (data.suggested_fix) setValue('suggested_fix', data.suggested_fix, opts);
       if (data.wcag_codes)
-        setValue('wcag_codes', data.wcag_codes as CreateIssueInput['wcag_codes']);
+        setValue('wcag_codes', data.wcag_codes as CreateIssueInput['wcag_codes'], opts);
       if (data.section_508_codes)
         setValue(
           'section_508_codes',
-          data.section_508_codes as CreateIssueInput['section_508_codes']
+          data.section_508_codes as CreateIssueInput['section_508_codes'],
+          opts
         );
-      if (data.eu_codes) setValue('eu_codes', data.eu_codes as CreateIssueInput['eu_codes']);
+      if (data.eu_codes) setValue('eu_codes', data.eu_codes as CreateIssueInput['eu_codes'], opts);
     } catch {
       setAiError('Failed to connect to AI service');
     } finally {
