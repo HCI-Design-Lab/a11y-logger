@@ -40,7 +40,7 @@ export class OpenAIProvider implements AIProvider {
           {
             role: 'system',
             content:
-              'You are an accessibility expert. Analyze the issue description and return JSON with these fields:\n- title (string): Short summary of the issue\n- description (string): Detailed description of the accessibility problem\n- severity (string): One of "critical", "high", "medium", or "low" using these criteria:\n  * critical: Blocks an assistive tech user from completing a task\n  * high: Causes severe obstacles but user can still complete the task\n  * medium: Causes some difficulty; more of an annoyance\n  * low: An accessibility issue but easily ignored or circumvented\n- wcag_codes (string[]): Relevant WCAG 2.x criterion codes (e.g. ["1.1.1", "4.1.2"])\n- user_impact (string): How this issue affects users with disabilities, especially assistive tech users\n- suggested_fix (string): Concrete, actionable remediation steps\n- confidence (number): Your confidence score from 0 to 1',
+              'You are an accessibility expert. Analyze the issue description and return JSON with these fields:\n- title (string): Short summary of the issue\n- description (string): Detailed description of the accessibility problem\n- severity (string): One of "critical", "high", "medium", or "low" using these criteria:\n  * critical: Blocks an assistive tech user from completing a task\n  * high: Causes severe obstacles but user can still complete the task\n  * medium: Causes some difficulty; more of an annoyance\n  * low: An accessibility issue but easily ignored or circumvented\n- wcag_codes (string[]): Relevant WCAG 2.x criterion codes (e.g. ["1.1.1", "4.1.2"])\n- section_508_codes (string[]): Relevant Section 508 criterion codes. Valid codes: 302.1, 302.2, 302.3, 302.4, 302.5, 302.6, 302.7, 302.8, 302.9, 502.2.1, 502.2.2, 502.3.1, 502.3.2, 502.3.3, 602.2, 602.3, 602.4, 603.2. Return [] if none apply.\n- eu_codes (string[]): Relevant EN 301 549 criterion codes. Valid codes: 4.2.1, 4.2.2, 4.2.3, 4.2.4, 4.2.5, 4.2.6, 4.2.7, 4.2.8, 4.2.9, 4.2.10, 5.2, 5.3, 5.4, 5.7, 5.8, 5.9, 12.1.1, 12.1.2, 12.2.2, 12.2.3, 12.2.4. Return [] if none apply.\n- user_impact (string): How this issue affects users with disabilities, especially assistive tech users\n- suggested_fix (string): Concrete, actionable remediation steps\n- confidence (number): Your confidence score from 0 to 1',
           },
           { role: 'user', content: plainText },
         ],
@@ -64,6 +64,8 @@ export class OpenAIProvider implements AIProvider {
       typeof result.description !== 'string' ||
       !VALID_SEVERITIES.includes(result.severity as (typeof VALID_SEVERITIES)[number]) ||
       !Array.isArray(result.wcag_codes) ||
+      !Array.isArray(result.section_508_codes) ||
+      !Array.isArray(result.eu_codes) ||
       typeof result.user_impact !== 'string' ||
       typeof result.suggested_fix !== 'string' ||
       typeof result.confidence !== 'number'
