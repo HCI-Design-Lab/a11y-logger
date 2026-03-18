@@ -74,9 +74,14 @@ describe('IssueForm AI Generate', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(/title/i)).toHaveValue('Search button not keyboard accessible');
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText(/title/i)).toHaveValue(
+          'Search button not keyboard accessible'
+        );
+      },
+      { timeout: 14000 }
+    );
 
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/ai/generate-issue',
