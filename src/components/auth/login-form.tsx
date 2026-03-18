@@ -1,68 +1,78 @@
 'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoginSchema, type LoginInput } from '@/lib/validators/users';
 
 export function LoginForm() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: { username: '', password: '' },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
+    setServerError(null);
     setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(data),
       });
-      const data = await res.json();
-      if (data.success) {
+      const json = await res.json();
+      if (json.success) {
         router.push('/dashboard');
       } else {
-        setError(data.error ?? 'Login failed');
+        setServerError(json.error ?? 'Login failed');
       }
     } catch {
-      setError('Network error. Please try again.');
+      setServerError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {serverError && (
         <p role="alert" className="text-sm text-destructive">
-          {error}
+          {serverError}
         </p>
       )}
       <div className="space-y-1">
         <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          autoComplete="username"
-        />
+        <Input id="username" type="text" {...register('username')} autoComplete="username" />
+        {errors.username && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.username.message}
+          </p>
+        )}
       </div>
       <div className="space-y-1">
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          {...register('password')}
           autoComplete="current-password"
         />
+        {errors.password && (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.password.message}
+          </p>
+        )}
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'Signing in…' : 'Sign In'}
