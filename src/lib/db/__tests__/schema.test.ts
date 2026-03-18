@@ -134,6 +134,8 @@ describe('core tables schema', () => {
         'selector',
         'code_snippet',
         'suggested_fix',
+        'section_508_codes',
+        'eu_codes',
       ]);
     });
 
