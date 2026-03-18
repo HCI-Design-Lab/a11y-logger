@@ -1,0 +1,2 @@
+ALTER TABLE issues ADD COLUMN section_508_codes TEXT DEFAULT '[]';
+ALTER TABLE issues ADD COLUMN eu_codes TEXT DEFAULT '[]';
