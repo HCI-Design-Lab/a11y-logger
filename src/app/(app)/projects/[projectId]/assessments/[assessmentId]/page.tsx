@@ -16,7 +16,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 export const dynamic = 'force-dynamic';
 
 const statusConfig = {
-  planning: { label: 'Planning', className: 'bg-gray-100 text-gray-700' },
+  ready: { label: 'Ready', className: 'bg-gray-100 text-gray-700' },
   in_progress: { label: 'In Progress', className: 'bg-blue-100 text-blue-700' },
   completed: { label: 'Completed', className: 'bg-green-100 text-green-700' },
 };

@@ -7,17 +7,15 @@ import { Button } from '@/components/ui/button';
 interface StatusTransitionButtonProps {
   projectId: string;
   assessmentId: string;
-  currentStatus: 'planning' | 'in_progress' | 'completed';
+  currentStatus: 'ready' | 'in_progress' | 'completed';
 }
 
-const nextStatus: Record<
-  'planning' | 'in_progress' | 'completed',
-  { status: string; label: string }
-> = {
-  planning: { status: 'in_progress', label: 'Mark as In Progress' },
-  in_progress: { status: 'completed', label: 'Mark as Complete' },
-  completed: { status: 'in_progress', label: 'Mark as Incomplete' },
-};
+const nextStatus: Record<'ready' | 'in_progress' | 'completed', { status: string; label: string }> =
+  {
+    ready: { status: 'in_progress', label: 'Mark as In Progress' },
+    in_progress: { status: 'completed', label: 'Mark as Complete' },
+    completed: { status: 'in_progress', label: 'Mark as Incomplete' },
+  };
 
 export function StatusTransitionButton({
   projectId,

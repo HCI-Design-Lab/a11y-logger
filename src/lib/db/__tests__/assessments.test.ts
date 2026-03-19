@@ -35,7 +35,7 @@ describe('createAssessment', () => {
     expect(assessment.id).toBeDefined();
     expect(assessment.name).toBe('Baseline Audit');
     expect(assessment.project_id).toBe(projectId);
-    expect(assessment.status).toBe('planning');
+    expect(assessment.status).toBe('ready');
     expect(assessment.created_at).toBeDefined();
     expect(assessment.updated_at).toBeDefined();
   });

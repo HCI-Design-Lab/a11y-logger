@@ -31,7 +31,7 @@ describe('CreateAssessmentSchema', () => {
   });
 
   it('accepts valid status values', () => {
-    expect(CreateAssessmentSchema.safeParse({ name: 'A', status: 'planning' }).success).toBe(true);
+    expect(CreateAssessmentSchema.safeParse({ name: 'A', status: 'ready' }).success).toBe(true);
     expect(CreateAssessmentSchema.safeParse({ name: 'A', status: 'in_progress' }).success).toBe(
       true
     );

@@ -33,7 +33,7 @@ describe('getAllAssessments', () => {
       `INSERT INTO projects (id, name, created_at, updated_at) VALUES ('p2', 'Beta Project', '2026-01-01', '2026-01-01')`
     ).run();
     db.prepare(
-      `INSERT INTO assessments (id, project_id, name, status, created_at, updated_at) VALUES ('a1', 'p1', 'First Assessment', 'planning', '2026-01-01', '2026-01-01')`
+      `INSERT INTO assessments (id, project_id, name, status, created_at, updated_at) VALUES ('a1', 'p1', 'First Assessment', 'ready', '2026-01-01', '2026-01-01')`
     ).run();
     db.prepare(
       `INSERT INTO assessments (id, project_id, name, status, created_at, updated_at) VALUES ('a2', 'p2', 'Second Assessment', 'completed', '2026-02-01', '2026-02-01')`
@@ -62,7 +62,7 @@ describe('getAllIssues', () => {
       `INSERT INTO projects (id, name, created_at, updated_at) VALUES ('p1', 'Alpha Project', '2026-01-01', '2026-01-01')`
     ).run();
     db.prepare(
-      `INSERT INTO assessments (id, project_id, name, status, created_at, updated_at) VALUES ('a1', 'p1', 'My Assessment', 'planning', '2026-01-01', '2026-01-01')`
+      `INSERT INTO assessments (id, project_id, name, status, created_at, updated_at) VALUES ('a1', 'p1', 'My Assessment', 'ready', '2026-01-01', '2026-01-01')`
     ).run();
     db.prepare(
       `INSERT INTO issues (id, assessment_id, title, severity, status, created_at, updated_at) VALUES ('i1', 'a1', 'Missing alt text', 'high', 'open', '2026-01-01', '2026-01-01')`

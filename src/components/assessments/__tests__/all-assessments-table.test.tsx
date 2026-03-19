@@ -11,7 +11,7 @@ const assessment: AssessmentWithProject = {
   description: null,
   test_date_start: null,
   test_date_end: null,
-  status: 'planning',
+  status: 'ready',
   assigned_to: null,
   created_by: null,
   created_at: '2026-01-01T00:00:00',
@@ -35,7 +35,7 @@ test('renders project name as link', () => {
 
 test('renders status badge', () => {
   render(<AllAssessmentsTable assessments={[assessment]} />);
-  expect(screen.getByText('Planning')).toBeInTheDocument();
+  expect(screen.getByText('Ready')).toBeInTheDocument();
 });
 
 test('renders issue count', () => {

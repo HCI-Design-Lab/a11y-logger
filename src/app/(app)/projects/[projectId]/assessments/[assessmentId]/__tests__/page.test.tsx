@@ -13,7 +13,7 @@ vi.mock('@/lib/db/assessments', () => ({
     description: null,
     test_date_start: null,
     test_date_end: null,
-    status: 'planning',
+    status: 'ready',
     assigned_to: null,
     created_by: null,
     created_at: '2026-01-01T00:00:00',

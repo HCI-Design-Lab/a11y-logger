@@ -10,7 +10,7 @@ const mockAssessments: AssessmentWithProject[] = [
     project_name: 'My Project',
     name: 'Q1 Audit',
     description: null,
-    status: 'planning',
+    status: 'ready',
     issue_count: 2,
     test_date_start: null,
     test_date_end: null,

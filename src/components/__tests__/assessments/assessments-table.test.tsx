@@ -16,7 +16,7 @@ const assessments: AssessmentWithCounts[] = [
     description: null,
     test_date_start: '2026-01-01T00:00:00',
     test_date_end: null,
-    status: 'planning',
+    status: 'ready',
     assigned_to: null,
     created_by: null,
     created_at: '2026-01-01T00:00:00',
@@ -74,7 +74,7 @@ test('clicking Status header sorts rows by status', () => {
   render(<AssessmentsTable assessments={assessments} projectId="p1" />);
   fireEvent.click(screen.getByRole('button', { name: /status/i }));
   const rows = screen.getAllByRole('row').slice(1);
-  // 'completed' < 'planning' alphabetically
+  // 'completed' < 'ready' alphabetically
   expect(rows[0]).toHaveTextContent('Alpha Assessment');
   expect(rows[1]).toHaveTextContent('Zebra Assessment');
 });

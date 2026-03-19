@@ -15,7 +15,7 @@ const dateRangeRefineOptions = {
 const AssessmentBaseSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
-  status: z.enum(['planning', 'in_progress', 'completed']).optional(),
+  status: z.enum(['ready', 'in_progress', 'completed']).optional(),
   test_date_start: z.string().datetime().optional(),
   test_date_end: z.string().datetime().optional(),
   assigned_to: z.string().optional(),
@@ -39,7 +39,7 @@ export const AssessmentFormSchema = z
   .object({
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().max(2000).optional(),
-    status: z.enum(['planning', 'in_progress', 'completed']),
+    status: z.enum(['ready', 'in_progress', 'completed']),
     test_date_start: z.string().optional(),
     test_date_end: z.string().optional(),
     project_id: z.string().optional(),

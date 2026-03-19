@@ -43,10 +43,10 @@ test('links to assessment detail', () => {
   expect(screen.getByRole('link')).toHaveAttribute('href', '/projects/p1/assessments/1');
 });
 
-test('shows planning status badge with correct style', () => {
-  const planning = { ...mockAssessment, status: 'planning' as const };
-  render(<AssessmentCard assessment={planning} />);
-  expect(screen.getByText(/planning/i)).toBeInTheDocument();
+test('shows ready status badge with correct style', () => {
+  const ready = { ...mockAssessment, status: 'ready' as const };
+  render(<AssessmentCard assessment={ready} />);
+  expect(screen.getByText(/ready/i)).toBeInTheDocument();
 });
 
 test('shows completed status badge', () => {
@@ -55,9 +55,9 @@ test('shows completed status badge', () => {
   expect(screen.getByText(/completed/i)).toBeInTheDocument();
 });
 
-test('planning badge has gray style', () => {
-  const planning = { ...mockAssessment, status: 'planning' as const };
-  render(<AssessmentCard assessment={planning} />);
-  const badge = screen.getByText(/planning/i);
+test('ready badge has gray style', () => {
+  const ready = { ...mockAssessment, status: 'ready' as const };
+  render(<AssessmentCard assessment={ready} />);
+  const badge = screen.getByText(/ready/i);
   expect(badge).toHaveClass('bg-gray-100');
 });

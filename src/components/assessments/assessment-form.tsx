@@ -45,7 +45,7 @@ export function AssessmentForm({
     defaultValues: {
       name: assessment?.name ?? '',
       description: assessment?.description ?? '',
-      status: assessment?.status ?? 'planning',
+      status: assessment?.status ?? 'ready',
       test_date_start: toDateInputValue(assessment?.test_date_start),
       test_date_end: toDateInputValue(assessment?.test_date_end),
       project_id: defaultProjectId ?? '',
@@ -125,7 +125,7 @@ export function AssessmentForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="planning">Planning</SelectItem>
+                <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>

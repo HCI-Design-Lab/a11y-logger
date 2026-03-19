@@ -13,8 +13,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('renders "Mark as In Progress" when currentStatus is planning', () => {
-  render(<StatusTransitionButton projectId="p1" assessmentId="a1" currentStatus="planning" />);
+test('renders "Mark as In Progress" when currentStatus is ready', () => {
+  render(<StatusTransitionButton projectId="p1" assessmentId="a1" currentStatus="ready" />);
   expect(screen.getByRole('button', { name: /mark as in progress/i })).toBeInTheDocument();
 });
 
@@ -53,7 +53,7 @@ test('calls PUT endpoint and router.refresh() after a successful transition', as
     json: async () => ({ success: true }),
   });
 
-  render(<StatusTransitionButton projectId="p1" assessmentId="a1" currentStatus="planning" />);
+  render(<StatusTransitionButton projectId="p1" assessmentId="a1" currentStatus="ready" />);
 
   fireEvent.click(screen.getByRole('button', { name: /mark as in progress/i }));
 

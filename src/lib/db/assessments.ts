@@ -8,7 +8,7 @@ export interface Assessment {
   description: string | null;
   test_date_start: string | null;
   test_date_end: string | null;
-  status: 'planning' | 'in_progress' | 'completed';
+  status: 'ready' | 'in_progress' | 'completed';
   assigned_to: string | null;
   created_by: string | null;
   created_at: string;
@@ -69,7 +69,7 @@ export function createAssessment(projectId: string, input: CreateAssessmentInput
     input.description ?? null,
     input.test_date_start ?? null,
     input.test_date_end ?? null,
-    input.status ?? 'planning',
+    input.status ?? 'ready',
     input.assigned_to ?? null
   );
   return getAssessment(id)!;
