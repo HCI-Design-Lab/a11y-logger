@@ -63,16 +63,12 @@ export default async function IssueDetailPage({
             <SeverityBadge severity={issue.severity} />
             <StatusBadge status={issue.status} />
           </div>
-          {issue.url && (
-            <a
-              href={issue.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline break-all"
-            >
-              {issue.url}
-            </a>
-          )}
+          <Link
+            href={`/projects/${projectId}/assessments/${assessmentId}`}
+            className="text-sm text-primary hover:underline"
+          >
+            {assessment.name}
+          </Link>
         </div>
         <div className="flex gap-2 shrink-0">
           <Button variant="outline" asChild>
@@ -103,6 +99,20 @@ export default async function IssueDetailPage({
                   <p className="text-sm whitespace-pre-wrap text-muted-foreground">
                     {issue.description}
                   </p>
+                </div>
+              )}
+
+              {issue.url && (
+                <div className="py-6">
+                  <h2 className="text-sm font-semibold mb-2">URL</h2>
+                  <a
+                    href={issue.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline break-all"
+                  >
+                    {issue.url}
+                  </a>
                 </div>
               )}
 
