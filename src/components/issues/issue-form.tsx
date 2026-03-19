@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 import { WcagSelector } from './wcag-selector';
 import { Section508Selector } from './section508-selector';
 import { EuSelector } from './eu-selector';
@@ -29,9 +30,10 @@ interface IssueFormProps {
   projectId: string;
   onSubmit: (data: CreateIssueInput | UpdateIssueInput) => void;
   loading?: boolean;
+  cancelHref?: string;
 }
 
-export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProps) {
+export function IssueForm({ issue, projectId, onSubmit, loading, cancelHref }: IssueFormProps) {
   // AI assistance state — not part of the submitted form
   const [aiDescription, setAiDescription] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -435,9 +437,16 @@ export function IssueForm({ issue, projectId, onSubmit, loading }: IssueFormProp
               />
             </div>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Saving…' : 'Save Issue'}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Saving…' : 'Save Issue'}
+              </Button>
+              {cancelHref && (
+                <Button asChild variant="outline">
+                  <Link href={cancelHref}>Cancel</Link>
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
 

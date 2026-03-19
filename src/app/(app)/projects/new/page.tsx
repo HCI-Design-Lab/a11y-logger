@@ -35,7 +35,7 @@ export default function NewProjectPage() {
       <h1 className="text-2xl font-bold">New Project</h1>
       <Card className="max-w-2xl">
         <CardContent>
-          <ProjectForm onSubmit={handleSubmit} loading={loading} />
+          <ProjectForm onSubmit={handleSubmit} loading={loading} cancelHref="/projects" />
         </CardContent>
       </Card>
     </div>

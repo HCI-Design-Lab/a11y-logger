@@ -51,7 +51,12 @@ export default function NewAssessmentClient({ projects }: Props) {
       <h1 className="text-2xl font-bold">New Assessment</h1>
       <Card className="max-w-2xl">
         <CardContent>
-          <AssessmentForm onSubmit={handleSubmit} loading={loading} projects={projects} />
+          <AssessmentForm
+            onSubmit={handleSubmit}
+            loading={loading}
+            projects={projects}
+            cancelHref="/assessments"
+          />
         </CardContent>
       </Card>
     </div>

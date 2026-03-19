@@ -119,6 +119,12 @@ describe('ReportEditForm', () => {
     expect(screen.getByText('Screen Reader User')).toBeInTheDocument();
   });
 
+  it('renders Cancel link pointing to report detail', () => {
+    render(<ReportEditForm report={mockReport} issues={[]} />);
+    const cancelLink = screen.getByRole('link', { name: /cancel/i });
+    expect(cancelLink).toHaveAttribute('href', '/reports/r1');
+  });
+
   it('closes delete modal when cancel is clicked', async () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));

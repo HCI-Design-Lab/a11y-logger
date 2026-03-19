@@ -126,6 +126,18 @@ test('renders EU EN 301 549 Criteria section', () => {
   expect(screen.getByText('EU EN 301 549 Criteria')).toBeInTheDocument();
 }, 15000);
 
+test('renders cancel link when cancelHref is provided', () => {
+  render(<IssueForm onSubmit={vi.fn()} projectId="p1" cancelHref="/projects/p1/assessments/a1" />);
+  const cancelLink = screen.getByRole('link', { name: /cancel/i });
+  expect(cancelLink).toBeInTheDocument();
+  expect(cancelLink).toHaveAttribute('href', '/projects/p1/assessments/a1');
+}, 15000);
+
+test('does not render cancel link when cancelHref is omitted', () => {
+  render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+  expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
+}, 15000);
+
 test('removes media url when remove button is clicked', async () => {
   const onSubmit = vi.fn();
   const existingIssue: Issue = {

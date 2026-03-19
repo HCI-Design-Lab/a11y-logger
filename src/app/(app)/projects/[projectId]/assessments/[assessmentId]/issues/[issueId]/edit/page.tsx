@@ -104,7 +104,13 @@ export default function EditIssuePage() {
         ]}
       />
       <h1 className="text-2xl font-bold">Edit Issue</h1>
-      <IssueForm projectId={projectId} issue={issue} onSubmit={handleSubmit} loading={loading} />
+      <IssueForm
+        projectId={projectId}
+        issue={issue}
+        onSubmit={handleSubmit}
+        loading={loading}
+        cancelHref={`/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`}
+      />
     </div>
   );
 }

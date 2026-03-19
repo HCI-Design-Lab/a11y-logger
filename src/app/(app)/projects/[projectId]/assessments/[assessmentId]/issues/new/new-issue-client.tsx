@@ -36,7 +36,12 @@ export function NewIssueClient({ projectId, assessmentId }: NewIssueClientProps)
   return (
     <>
       <h1 className="text-2xl font-bold">New Issue</h1>
-      <IssueForm projectId={projectId} onSubmit={handleSubmit} loading={loading} />
+      <IssueForm
+        projectId={projectId}
+        onSubmit={handleSubmit}
+        loading={loading}
+        cancelHref={`/projects/${projectId}/assessments/${assessmentId}`}
+      />
     </>
   );
 }

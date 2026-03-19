@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -188,9 +189,14 @@ export function ReportEditForm({ report, issues }: Props) {
         )}
 
         <div className="pt-2">
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving…' : 'Save Report'}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? 'Saving…' : 'Save Report'}
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={`/reports/${report.id}`}>Cancel</Link>
+            </Button>
+          </div>
         </div>
       </div>
 

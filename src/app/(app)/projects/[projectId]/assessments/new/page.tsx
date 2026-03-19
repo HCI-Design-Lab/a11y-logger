@@ -67,7 +67,11 @@ export default function NewAssessmentPage() {
       <h1 className="text-2xl font-bold">New Assessment</h1>
       <Card className="max-w-2xl">
         <CardContent>
-          <AssessmentForm onSubmit={handleSubmit} loading={loading} />
+          <AssessmentForm
+            onSubmit={handleSubmit}
+            loading={loading}
+            cancelHref={`/projects/${projectId}`}
+          />
         </CardContent>
       </Card>
     </div>

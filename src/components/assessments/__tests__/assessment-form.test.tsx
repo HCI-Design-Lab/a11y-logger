@@ -142,3 +142,16 @@ test('submits updated project_id when project is changed', async () => {
     )
   );
 });
+
+// Cancel link
+test('renders cancel link when cancelHref is provided', () => {
+  render(<AssessmentForm onSubmit={vi.fn()} cancelHref="/assessments" />);
+  const link = screen.getByRole('link', { name: /cancel/i });
+  expect(link).toBeInTheDocument();
+  expect(link).toHaveAttribute('href', '/assessments');
+});
+
+test('does not render cancel link when cancelHref is omitted', () => {
+  render(<AssessmentForm onSubmit={vi.fn()} />);
+  expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
+});

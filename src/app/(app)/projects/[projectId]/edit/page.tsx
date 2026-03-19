@@ -77,7 +77,12 @@ export default function EditProjectPage() {
       <h1 className="text-2xl font-bold">Edit Project</h1>
       <Card className="max-w-2xl">
         <CardContent>
-          <ProjectForm project={project} onSubmit={handleSubmit} loading={loading} />
+          <ProjectForm
+            project={project}
+            onSubmit={handleSubmit}
+            loading={loading}
+            cancelHref={`/projects/${projectId}`}
+          />
         </CardContent>
       </Card>
     </div>

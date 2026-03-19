@@ -66,7 +66,7 @@ test('redirects to assessments list on success', async () => {
   fireEvent.click(confirmButton);
 
   await waitFor(() => {
-    expect(mockPush).toHaveBeenCalledWith('/projects/p1/assessments');
+    expect(mockPush).toHaveBeenCalledWith('/assessments');
   });
 });
 

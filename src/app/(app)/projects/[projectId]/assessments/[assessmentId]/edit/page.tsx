@@ -113,6 +113,7 @@ export default function EditAssessmentPage() {
             loading={loading}
             projects={projects}
             defaultProjectId={assessment.project_id}
+            cancelHref={`/projects/${projectId}/assessments/${assessmentId}`}
           />
         </CardContent>
       </Card>

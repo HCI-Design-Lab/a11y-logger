@@ -1,6 +1,7 @@
 'use client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,9 +14,10 @@ interface ProjectFormProps {
   project?: Project;
   onSubmit: (data: CreateProjectInput) => void;
   loading?: boolean;
+  cancelHref?: string;
 }
 
-export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
+export function ProjectForm({ project, onSubmit, loading, cancelHref }: ProjectFormProps) {
   const {
     register,
     handleSubmit,
@@ -68,9 +70,16 @@ export function ProjectForm({ project, onSubmit, loading }: ProjectFormProps) {
           </p>
         )}
       </div>
-      <Button type="submit" disabled={loading}>
-        {loading ? 'Saving…' : 'Save Project'}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={loading}>
+          {loading ? 'Saving…' : 'Save Project'}
+        </Button>
+        {cancelHref && (
+          <Button asChild variant="outline">
+            <Link href={cancelHref}>Cancel</Link>
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

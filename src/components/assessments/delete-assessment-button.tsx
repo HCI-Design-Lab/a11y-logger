@@ -39,7 +39,7 @@ export function DeleteAssessmentButton({
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success('Assessment deleted');
-      router.push(`/projects/${projectId}/assessments`);
+      router.push('/assessments');
     } catch {
       toast.error('Failed to delete assessment');
       setLoading(false);
