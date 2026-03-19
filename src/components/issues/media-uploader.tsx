@@ -42,50 +42,55 @@ export function MediaUploader({
   const [uploading, setUploading] = useState(false);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Client-side type validation
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError(`File type "${file.type}" is not allowed. Please upload an image or video file.`);
-      return;
-    }
-
-    // Client-side size validation
-    if (file.size > MAX_SIZE) {
-      setError('File too large. Maximum size is 10MB.');
-      return;
-    }
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
 
     setError(null);
     setUploading(true);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('projectId', projectId);
-      formData.append('issueId', issueId);
+    const errors: string[] = [];
 
-      const response = await fetch('/api/media/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const body = await response.json();
-
-      if (body.success) {
-        onUpload(body.data.url);
-      } else {
-        setError(body.error ?? 'Upload failed. Please try again.');
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        errors.push(`"${file.name}": file type not allowed.`);
+        continue;
       }
-    } catch {
-      setError('Upload failed. Please check your connection and try again.');
-    } finally {
-      setUploading(false);
-      // Reset the input so the same file can be re-selected after an error
-      if (inputRef.current) {
-        inputRef.current.value = '';
+      if (file.size > MAX_SIZE) {
+        errors.push(`"${file.name}": file too large (max 10MB).`);
+        continue;
       }
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('projectId', projectId);
+        formData.append('issueId', issueId);
+
+        const response = await fetch('/api/media/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const body = await response.json();
+
+        if (body.success) {
+          onUpload(body.data.url);
+        } else {
+          errors.push(`"${file.name}": ${body.error ?? 'upload failed.'}`);
+        }
+      } catch {
+        errors.push(`"${file.name}": upload failed. Please check your connection.`);
+      }
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join(' '));
+    }
+
+    setUploading(false);
+    // Reset the input so the same files can be re-selected after an error
+    if (inputRef.current) {
+      inputRef.current.value = '';
     }
   }
 
@@ -174,6 +179,7 @@ export function MediaUploader({
           id="media-file-input"
           ref={inputRef}
           type="file"
+          multiple
           accept={ALLOWED_TYPES.join(',')}
           disabled={disabled || uploading}
           onChange={handleFileChange}

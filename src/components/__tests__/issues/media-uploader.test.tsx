@@ -140,6 +140,34 @@ describe('MediaUploader', () => {
     expect(screen.queryAllByRole('button', { name: /remove/i })).toHaveLength(0);
   });
 
+  it('file input has multiple attribute to allow selecting multiple files at once', () => {
+    render(<MediaUploader projectId="p1" issueId="i1" onUpload={vi.fn()} urls={[]} />);
+    expect(screen.getByLabelText(/choose file/i)).toHaveAttribute('multiple');
+  });
+
+  it('calls onUpload once for each file when multiple files are selected', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        json: () => Promise.resolve({ success: true, data: { url: '/api/media/p1/i1/a.png' } }),
+      } as Response)
+      .mockResolvedValueOnce({
+        json: () => Promise.resolve({ success: true, data: { url: '/api/media/p1/i1/b.png' } }),
+      } as Response);
+
+    const onUpload = vi.fn();
+    render(<MediaUploader projectId="p1" issueId="i1" onUpload={onUpload} urls={[]} />);
+    const input = screen.getByLabelText(/choose file/i);
+    const files = [
+      new File(['img1'], 'a.png', { type: 'image/png' }),
+      new File(['img2'], 'b.png', { type: 'image/png' }),
+    ];
+    fireEvent.change(input, { target: { files } });
+    await waitFor(() => expect(onUpload).toHaveBeenCalledTimes(2));
+    expect(onUpload).toHaveBeenCalledWith('/api/media/p1/i1/a.png');
+    expect(onUpload).toHaveBeenCalledWith('/api/media/p1/i1/b.png');
+  });
+
   it('calls onRemove with the correct url when remove button is clicked', () => {
     const onRemove = vi.fn();
     render(

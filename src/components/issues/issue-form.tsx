@@ -468,7 +468,10 @@ export function IssueForm({ issue, projectId, onSubmit, loading, cancelHref }: I
                     projectId={projectId}
                     issueId={uploadId}
                     urls={(field.value ?? []) as string[]}
-                    onUpload={(url) => field.onChange([...(field.value ?? []), url])}
+                    onUpload={(url) => {
+                      const current = (getValues('evidence_media') as string[]) ?? [];
+                      field.onChange([...current, url]);
+                    }}
                     onRemove={(url) => field.onChange((field.value ?? []).filter((u) => u !== url))}
                   />
                 )}
