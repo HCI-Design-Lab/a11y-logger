@@ -17,13 +17,26 @@ interface IssuesListViewProps {
 
 export function IssuesListView({ issues }: IssuesListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
+  const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
   const severity = searchParams.get('severity');
 
-  const filtered =
+  const afterSeverity =
     severity && SEVERITIES.includes(severity as (typeof SEVERITIES)[number])
       ? issues.filter((i) => i.severity === severity)
       : issues;
+
+  const filtered = query.trim()
+    ? afterSeverity.filter((i) => {
+        const q = query.toLowerCase();
+        return (
+          i.title.toLowerCase().includes(q) ||
+          i.tags.some((t) => t.toLowerCase().includes(q)) ||
+          i.assessment_name.toLowerCase().includes(q) ||
+          i.project_name.toLowerCase().includes(q)
+        );
+      })
+    : afterSeverity;
 
   return (
     <div className="space-y-6">
@@ -32,32 +45,46 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
         <ViewToggle view={view} onViewChange={setView} />
       </div>
 
-      {/* Severity filter */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Filter by severity:</span>
-        <Link
-          href="/issues"
-          className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-            !severity
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'border-border hover:bg-muted'
-          }`}
-        >
-          All
-        </Link>
-        {SEVERITIES.map((s) => (
+      {/* Severity filter + Search */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-sm flex-wrap">
+          <span className="text-muted-foreground">Filter by severity:</span>
           <Link
-            key={s}
-            href={`/issues?severity=${s}`}
+            href="/issues"
             className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-              severity === s
+              !severity
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'border-border hover:bg-muted'
             }`}
           >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
+            All
           </Link>
-        ))}
+          {SEVERITIES.map((s) => (
+            <Link
+              key={s}
+              href={`/issues?severity=${s}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+                severity === s
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border hover:bg-muted'
+              }`}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </Link>
+          ))}
+        </div>
+
+        <label htmlFor="issues-search" className="sr-only">
+          Search issues
+        </label>
+        <input
+          id="issues-search"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search issues…"
+          className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        />
       </div>
 
       {view === 'grid' ? (

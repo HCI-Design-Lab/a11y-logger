@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import type { IssueWithContext } from '@/lib/db/issues';
 
@@ -47,6 +47,77 @@ const issues: IssueWithContext[] = [
   makeIssue('i2', 'high'),
   makeIssue('i3', 'medium'),
 ];
+
+const searchIssues: IssueWithContext[] = [
+  { ...makeIssue('s1', 'critical'), title: 'Missing alt text', tags: ['images', 'wcag'] },
+  {
+    ...makeIssue('s2', 'high'),
+    title: 'Keyboard trap in modal',
+    tags: ['keyboard'],
+    assessment_name: 'Q2 Audit',
+  },
+  {
+    ...makeIssue('s3', 'medium'),
+    title: 'Low contrast ratio',
+    tags: [],
+    project_name: 'Beta App',
+  },
+];
+
+describe('IssuesListView search', () => {
+  beforeEach(() => {
+    mockSeverity = null;
+  });
+
+  it('renders a search input', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+  });
+
+  it('filters issues by title', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alt text' } });
+    expect(screen.getByText('Missing alt text')).toBeInTheDocument();
+    expect(screen.queryByText('Keyboard trap in modal')).not.toBeInTheDocument();
+    expect(screen.queryByText('Low contrast ratio')).not.toBeInTheDocument();
+  });
+
+  it('filters issues by tag', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'keyboard' } });
+    expect(screen.getByText('Keyboard trap in modal')).toBeInTheDocument();
+    expect(screen.queryByText('Missing alt text')).not.toBeInTheDocument();
+  });
+
+  it('filters issues by assessment name', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Q2 Audit' } });
+    expect(screen.getByText('Keyboard trap in modal')).toBeInTheDocument();
+    expect(screen.queryByText('Missing alt text')).not.toBeInTheDocument();
+  });
+
+  it('filters issues by project name', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Beta App' } });
+    expect(screen.getByText('Low contrast ratio')).toBeInTheDocument();
+    expect(screen.queryByText('Missing alt text')).not.toBeInTheDocument();
+  });
+
+  it('search is case-insensitive', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'ALT TEXT' } });
+    expect(screen.getByText('Missing alt text')).toBeInTheDocument();
+  });
+
+  it('shows all issues when search is cleared', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'alt text' } });
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+    expect(screen.getByText('Missing alt text')).toBeInTheDocument();
+    expect(screen.getByText('Keyboard trap in modal')).toBeInTheDocument();
+    expect(screen.getByText('Low contrast ratio')).toBeInTheDocument();
+  });
+});
 
 describe('IssuesListView severity filter', () => {
   beforeEach(() => {
