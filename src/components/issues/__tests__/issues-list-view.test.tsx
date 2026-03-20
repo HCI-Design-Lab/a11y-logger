@@ -119,6 +119,19 @@ describe('IssuesListView search', () => {
   });
 });
 
+describe('IssuesListView New Issue button', () => {
+  beforeEach(() => {
+    mockSeverity = null;
+  });
+
+  it('renders a New Issue link pointing to /issues/new', () => {
+    render(<IssuesListView issues={[]} />);
+    const link = screen.getByRole('link', { name: /new issue/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/issues/new');
+  });
+});
+
 describe('IssuesListView severity filter', () => {
   beforeEach(() => {
     mockSeverity = null;

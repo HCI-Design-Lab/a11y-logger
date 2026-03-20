@@ -25,15 +25,32 @@ import { CreateIssueSchema } from '@/lib/validators/issues';
 import type { CreateIssueInput, UpdateIssueInput } from '@/lib/validators/issues';
 import type { Issue } from '@/lib/db/issues';
 
+export interface AssessmentOption {
+  id: string;
+  name: string;
+  projectId: string;
+  projectName: string;
+}
+
 interface IssueFormProps {
   issue?: Issue;
   projectId: string;
+  assessmentOptions?: AssessmentOption[];
+  onAssessmentChange?: (assessmentId: string, projectId: string) => void;
   onSubmit: (data: CreateIssueInput | UpdateIssueInput) => void;
   loading?: boolean;
   cancelHref?: string;
 }
 
-export function IssueForm({ issue, projectId, onSubmit, loading, cancelHref }: IssueFormProps) {
+export function IssueForm({
+  issue,
+  projectId,
+  assessmentOptions,
+  onAssessmentChange,
+  onSubmit,
+  loading,
+  cancelHref,
+}: IssueFormProps) {
   // AI assistance state — not part of the submitted form
   const [aiDescription, setAiDescription] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -144,6 +161,30 @@ export function IssueForm({ issue, projectId, onSubmit, loading, cancelHref }: I
         {/* Left column: all form fields */}
         <Card className="lg:col-span-2">
           <CardContent className="space-y-4 pt-6">
+            {/* Assessment selector — shown only on the global new issue route */}
+            {assessmentOptions && (
+              <div className="space-y-1.5">
+                <Label htmlFor="assessment-select">Assessment</Label>
+                <Select
+                  onValueChange={(value) => {
+                    const option = assessmentOptions.find((a) => a.id === value);
+                    if (option) onAssessmentChange?.(option.id, option.projectId);
+                  }}
+                >
+                  <SelectTrigger id="assessment-select" aria-label="Assessment">
+                    <SelectValue placeholder="Select an assessment…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assessmentOptions.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {a.projectName} / {a.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* AI Assistance Section */}
             <div className="rounded-md border border-border bg-muted/30 p-4 space-y-3">
               <p className="text-sm text-muted-foreground">

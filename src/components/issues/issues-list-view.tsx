@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { AllIssuesTable } from '@/components/issues/all-issues-table';
@@ -42,7 +44,15 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Issues</h1>
-        <ViewToggle view={view} onViewChange={setView} />
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm">
+            <Link href="/issues/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Issue
+            </Link>
+          </Button>
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
       </div>
 
       {/* Severity filter + Search */}
