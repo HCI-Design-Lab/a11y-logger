@@ -34,12 +34,12 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">VPATs</h1>
-        <div className="flex items-center gap-2">
-          <ViewToggle view={view} onViewChange={setView} />
-          <Button asChild>
-            <Link href="/vpats/new">New VPAT</Link>
-          </Button>
-        </div>
+        <Button asChild>
+          <Link href="/vpats/new">New VPAT</Link>
+        </Button>
+      </div>
+      <div className="flex justify-end">
+        <ViewToggle view={view} onViewChange={setView} />
       </div>
 
       {vpats.length === 0 ? (

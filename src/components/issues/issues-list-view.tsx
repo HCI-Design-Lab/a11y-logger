@@ -44,15 +44,12 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Issues</h1>
-        <div className="flex items-center gap-2">
-          <Button asChild size="sm">
-            <Link href="/issues/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Issue
-            </Link>
-          </Button>
-          <ViewToggle view={view} onViewChange={setView} />
-        </div>
+        <Button asChild size="sm">
+          <Link href="/issues/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Issue
+          </Link>
+        </Button>
       </div>
 
       {/* Severity filter + Search */}
@@ -84,17 +81,20 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           ))}
         </div>
 
-        <label htmlFor="issues-search" className="sr-only">
-          Search issues
-        </label>
-        <input
-          id="issues-search"
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search issues…"
-          className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
+        <div className="flex items-center gap-2">
+          <label htmlFor="issues-search" className="sr-only">
+            Search issues
+          </label>
+          <input
+            id="issues-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search issues…"
+            className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
       </div>
 
       {view === 'grid' ? (

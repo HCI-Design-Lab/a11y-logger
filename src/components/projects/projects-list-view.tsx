@@ -21,15 +21,15 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Projects</h1>
-        <div className="flex items-center gap-2">
-          <ViewToggle view={view} onViewChange={setView} />
-          <Button asChild>
-            <Link href="/projects/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Link>
-          </Button>
-        </div>
+        <Button asChild>
+          <Link href="/projects/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Link>
+        </Button>
+      </div>
+      <div className="flex justify-end">
+        <ViewToggle view={view} onViewChange={setView} />
       </div>
 
       {projects.length === 0 ? (
