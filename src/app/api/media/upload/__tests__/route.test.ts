@@ -113,6 +113,15 @@ describe('POST /api/media/upload', () => {
     expect(vi.mocked(writeFile)).not.toHaveBeenCalled();
   });
 
+  it('accepts video/quicktime mov files', async () => {
+    const file = new File(['video data'], 'screen.mov', { type: 'video/quicktime' });
+    const res = await POST(makeRequest({ file }) as never);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.url).toMatch(/screen\.mov$/);
+  });
+
   it('returns 400 when issueId is missing', async () => {
     const file = new File(['hello'], 'test.png', { type: 'image/png' });
     const fd = new FormData();

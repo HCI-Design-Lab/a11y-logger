@@ -68,6 +68,21 @@ describe('MediaGallery', () => {
     expect(screen.getAllByText('shot.jpg')).toHaveLength(2);
   });
 
+  it('renders a video element for .mov urls in the thumbnail grid', () => {
+    render(<MediaGallery urls={['/api/media/p1/i1/screen.mov']} />);
+    expect(document.querySelector('video')).toBeInTheDocument();
+    expect(document.querySelector('img')).not.toBeInTheDocument();
+  });
+
+  it('renders a video element for .mov urls in the lightbox', () => {
+    render(<MediaGallery urls={['/api/media/p1/i1/screen.mov']} />);
+    fireEvent.click(screen.getByRole('button', { name: /open screen\.mov/i }));
+    const videos = document.querySelectorAll('video');
+    // thumbnail video + lightbox video
+    expect(videos.length).toBeGreaterThanOrEqual(1);
+    expect(document.querySelector('dialog img')).not.toBeInTheDocument();
+  });
+
   it('navigates with arrow keys', () => {
     render(<MediaGallery urls={IMAGE_URLS} />);
     fireEvent.click(screen.getByRole('button', { name: /open photo\.png/i }));

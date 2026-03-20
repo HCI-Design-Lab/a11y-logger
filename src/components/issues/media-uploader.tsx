@@ -12,9 +12,10 @@ const ALLOWED_TYPES = [
   'image/webp',
   'video/mp4',
   'video/webm',
+  'video/quicktime',
 ];
 
-const VIDEO_EXTENSIONS = ['.mp4', '.webm'];
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov'];
 
 interface MediaUploaderProps {
   projectId: string;
@@ -170,7 +171,9 @@ export function MediaUploader({
           <p className="text-sm font-medium text-muted-foreground">
             {uploading ? 'Uploading…' : 'Upload screenshots or videos'}
           </p>
-          <p className="text-xs text-muted-foreground">PNG, JPG, GIF, WebP, MP4, WebM up to 10MB</p>
+          <p className="text-xs text-muted-foreground">
+            PNG, JPG, GIF, WebP, MP4, WebM, MOV up to 10MB
+          </p>
         </button>
         <label htmlFor="media-file-input" className="sr-only">
           Choose file
