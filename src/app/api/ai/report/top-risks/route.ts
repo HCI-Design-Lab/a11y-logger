@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';
+import { TOP_RISKS_SECTION } from '@/lib/ai/prompts';
 
 export async function POST(request: Request) {
   const ai = getAIProvider();
@@ -38,10 +39,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const raw = await ai.generateReportSection(
-      context,
-      'Top Risks (respond with up to 5 items, one per line, no bullets or numbering)'
-    );
+    const raw = await ai.generateReportSection(context, TOP_RISKS_SECTION);
     const items = raw
       .split('\n')
       .map((line) => line.trim())

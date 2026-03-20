@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';
+import { buildUserImpactPrompt } from '@/lib/ai/prompts';
 
 export async function POST(request: Request) {
   const ai = getAIProvider();
@@ -37,16 +38,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const prompt = `${context}\n\nGenerate a user impact analysis. Respond with JSON only, no markdown, matching exactly this shape:
-{
-  "screen_reader": "...",
-  "low_vision": "...",
-  "color_vision": "...",
-  "keyboard_only": "...",
-  "cognitive": "...",
-  "deaf_hard_of_hearing": "..."
-}`;
-
   const EMPTY_IMPACT = {
     screen_reader: '',
     low_vision: '',
@@ -57,7 +48,7 @@ export async function POST(request: Request) {
   };
 
   try {
-    const raw = await ai.generateReportSection(prompt, 'User Impact');
+    const raw = await ai.generateReportSection(buildUserImpactPrompt(context), 'User Impact');
     let data: Record<string, string>;
     try {
       data = { ...EMPTY_IMPACT, ...JSON.parse(raw) };
