@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -95,82 +96,89 @@ export function ReportWizard({ projects, assessments }: Props) {
     }
   };
 
+  const stepTitle =
+    step === 1 ? 'Select Projects' : step === 2 ? 'Select Assessments' : 'Name Your Report';
+
   return (
-    <div className="max-w-2xl space-y-6">
-      <StepIndicator current={step} />
+    <div className="max-w-2xl">
+      <Card>
+        <CardHeader>
+          <StepIndicator current={step} />
+          <CardTitle className="text-lg">{stepTitle}</CardTitle>
+        </CardHeader>
 
-      {step === 1 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Select Projects</h2>
-          <div className="grid gap-2">
-            {projects.map((p) => (
-              <SelectableCard
-                key={p.id}
-                label={p.name}
-                selected={selectedProjects.has(p.id)}
-                onToggle={() => toggleProject(p.id)}
-              />
-            ))}
-          </div>
-          <div className="flex justify-end">
-            <Button onClick={() => setStep(2)} disabled={selectedProjects.size === 0}>
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+        <CardContent className="space-y-4">
+          {step === 1 && (
+            <>
+              <div className="grid gap-2">
+                {projects.map((p) => (
+                  <SelectableCard
+                    key={p.id}
+                    label={p.name}
+                    selected={selectedProjects.has(p.id)}
+                    onToggle={() => toggleProject(p.id)}
+                  />
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={() => setStep(2)} disabled={selectedProjects.size === 0}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
 
-      {step === 2 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Select Assessments</h2>
-          <div className="grid gap-2">
-            {visibleAssessments.map((a) => (
-              <SelectableCard
-                key={a.id}
-                label={a.name}
-                selected={selectedAssessments.has(a.id)}
-                onToggle={() => toggleAssessment(a.id)}
-              />
-            ))}
-            {visibleAssessments.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No assessments found for selected projects.
-              </p>
-            )}
-          </div>
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={() => setStep(1)}>
-              Back
-            </Button>
-            <Button onClick={() => setStep(3)} disabled={selectedAssessments.size === 0}>
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+          {step === 2 && (
+            <>
+              <div className="grid gap-2">
+                {visibleAssessments.map((a) => (
+                  <SelectableCard
+                    key={a.id}
+                    label={a.name}
+                    selected={selectedAssessments.has(a.id)}
+                    onToggle={() => toggleAssessment(a.id)}
+                  />
+                ))}
+                {visibleAssessments.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No assessments found for selected projects.
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+                <Button onClick={() => setStep(3)} disabled={selectedAssessments.size === 0}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
 
-      {step === 3 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Name Your Report</h2>
-          <div className="space-y-2">
-            <Label htmlFor="report-title">Report Title</Label>
-            <Input
-              id="report-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Report title"
-            />
-          </div>
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={() => setStep(2)}>
-              Back
-            </Button>
-            <Button onClick={handleCreate} disabled={isCreating || !title.trim()}>
-              {isCreating ? 'Creating…' : 'Create Report'}
-            </Button>
-          </div>
-        </div>
-      )}
+          {step === 3 && (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="report-title">Report Title</Label>
+                <Input
+                  id="report-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Report title"
+                />
+              </div>
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={() => setStep(2)}>
+                  Back
+                </Button>
+                <Button onClick={handleCreate} disabled={isCreating || !title.trim()}>
+                  {isCreating ? 'Creating…' : 'Create Report'}
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
