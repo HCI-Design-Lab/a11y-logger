@@ -103,6 +103,14 @@ export function AIConfigSection({
           </Select>
         </div>
 
+        {selectedProvider === 'openai-compatible' && (
+          <p className="text-sm text-muted-foreground">
+            Any API that follows the OpenAI chat format works here. That includes Groq, Together AI,
+            LM Studio, and most self-hosted models. Point it at the base URL, pick a model name, and
+            it will behave the same as OpenAI.
+          </p>
+        )}
+
         {needsApiKey(selectedProvider) && (
           <div className="space-y-1.5">
             <Label htmlFor="api-key">
