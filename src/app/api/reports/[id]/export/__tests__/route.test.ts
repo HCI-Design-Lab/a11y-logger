@@ -228,4 +228,47 @@ describe('GET /api/reports/[id]/export', () => {
       expect(text).toContain(`/issues/${issue.id}`);
     });
   });
+
+  describe('autoprint=true', () => {
+    it('returns 200 with text/html content type', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?autoprint=true`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Content-Type')).toContain('text/html');
+    });
+
+    it('does not include Content-Disposition header', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?autoprint=true`),
+        makeContext(reportId)
+      );
+      expect(response.headers.get('Content-Disposition')).toBeNull();
+    });
+
+    it('forces with-all variant regardless of variant param', async () => {
+      const { createIssue } = await import('@/lib/db/issues');
+      createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
+
+      const response = await GET(
+        new Request(
+          `http://localhost/api/reports/${reportId}/export?autoprint=true&variant=default`
+        ),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('Issue Statistics');
+      expect(text).toContain('Alt text missing');
+    });
+
+    it('includes window.print() script', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?autoprint=true`),
+        makeContext(reportId)
+      );
+      const text = await response.text();
+      expect(text).toContain('window.print()');
+    });
+  });
 });

@@ -11,6 +11,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   const { id } = await params;
   const url = new URL(request.url);
   const format = (url.searchParams.get('format') ?? 'html') as string;
+  const autoPrint = url.searchParams.get('autoprint') === 'true';
 
   // Validate format
   if (format !== 'html' && format !== 'pdf') {
@@ -44,7 +45,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     'with-issues',
     'with-all',
   ] as const satisfies readonly ExportVariant[];
-  const rawVariant = url.searchParams.get('variant') ?? 'default';
+  const rawVariant = autoPrint ? 'with-all' : (url.searchParams.get('variant') ?? 'default');
   if (!(VALID_VARIANTS as readonly string[]).includes(rawVariant)) {
     return NextResponse.json(
       {
@@ -92,7 +93,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       ...(needsIssues ? { issues: getReportIssues(report.id) } : {}),
     };
     const baseUrl = new URL(request.url).origin;
-    const html = generateReportHtml(report, project, variant, extras, baseUrl);
+    const html = generateReportHtml(report, project, variant, extras, baseUrl, autoPrint);
 
     // Sanitize title for use in filename
     const safeTitle =
@@ -107,7 +108,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        ...(autoPrint ? {} : { 'Content-Disposition': `attachment; filename="${filename}"` }),
       },
     });
   } catch {
