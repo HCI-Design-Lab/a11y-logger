@@ -230,4 +230,15 @@ describe('generateReportHtml', () => {
     expect(result).not.toContain('color:#334155');
     expect(result).not.toContain('color: #334155');
   });
+
+  it('does not include auto-print script by default', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).not.toContain('window.print()');
+  });
+
+  it('includes auto-print script when autoPrint is true', () => {
+    const result = generateReportHtml(mockReport, mockProject, 'default', {}, '', true);
+    expect(result).toContain('window.print()');
+    expect(result).toContain('<script>');
+  });
 });
