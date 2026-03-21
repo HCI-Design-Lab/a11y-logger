@@ -6,6 +6,19 @@ import { createVpat } from '@/lib/db/vpats';
 import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { POST } from '../route';
 
+vi.mock('@/lib/db/settings', () => ({
+  getSetting: vi.fn().mockReturnValue(null),
+  setSetting: vi.fn(),
+  getSettings: vi.fn().mockReturnValue({}),
+  deleteSetting: vi.fn(),
+  seedDefaultSettings: vi.fn(),
+}));
+
+vi.mock('ai', async (importOriginal) => {
+  const original = await importOriginal<typeof import('ai')>();
+  return { ...original, generateText: vi.fn() };
+});
+
 let vpatId: string;
 let rowId: string;
 
@@ -87,22 +100,14 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
     vi.stubEnv('AI_PROVIDER', 'openai');
     vi.stubEnv('AI_API_KEY', 'test-key');
 
-    vi.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({
-                reasoning: 'No issues found.',
-                remarks: 'The product supports this criterion.',
-                confidence: 'high',
-              }),
-            },
-          },
-        ],
+    const { generateText } = await import('ai');
+    vi.mocked(generateText).mockResolvedValue({
+      text: JSON.stringify({
+        reasoning: 'No issues found.',
+        remarks: 'The product supports this criterion.',
+        confidence: 'high',
       }),
-    } as unknown as Response);
+    } as Awaited<ReturnType<typeof generateText>>);
 
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId }),
