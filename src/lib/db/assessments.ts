@@ -1,5 +1,16 @@
-import { getDb } from './index';
+import { eq, sql } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { assessments, issues } from './schema';
+import type * as sqliteSchema from './schema';
 import type { CreateAssessmentInput, UpdateAssessmentInput } from '../validators/assessments';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface Assessment {
   id: string;
@@ -23,107 +34,99 @@ export interface AssessmentWithProject extends AssessmentWithCounts {
   project_name: string;
 }
 
-export function getAllAssessments(): AssessmentWithProject[] {
-  return getDb()
-    .prepare(
-      `SELECT a.*, p.name AS project_name, COUNT(DISTINCT i.id) AS issue_count
-       FROM assessments a
-       JOIN projects p ON p.id = a.project_id
-       LEFT JOIN issues i ON i.assessment_id = a.id
-       GROUP BY a.id
-       ORDER BY a.created_at DESC`
-    )
-    .all() as AssessmentWithProject[];
+export async function getAssessment(id: string): Promise<Assessment | null> {
+  const rows = await db().select().from(assessments).where(eq(assessments.id, id)).limit(1);
+  return (rows[0] as Assessment) ?? null;
 }
 
-export function getAssessment(id: string): Assessment | null {
-  return (
-    (getDb().prepare('SELECT * FROM assessments WHERE id = ?').get(id) as Assessment | undefined) ??
-    null
-  );
+export async function getAssessments(projectId: string): Promise<AssessmentWithCounts[]> {
+  const rows = await db()
+    .select({
+      id: assessments.id,
+      project_id: assessments.project_id,
+      name: assessments.name,
+      description: assessments.description,
+      test_date_start: assessments.test_date_start,
+      test_date_end: assessments.test_date_end,
+      status: assessments.status,
+      assigned_to: assessments.assigned_to,
+      created_by: assessments.created_by,
+      created_at: assessments.created_at,
+      updated_at: assessments.updated_at,
+      issue_count: sql<number>`COUNT(DISTINCT ${issues.id})`.as('issue_count'),
+    })
+    .from(assessments)
+    .leftJoin(issues, eq(issues.assessment_id, assessments.id))
+    .where(eq(assessments.project_id, projectId))
+    .groupBy(assessments.id)
+    .orderBy(sql`${assessments.created_at} DESC`);
+  return rows as AssessmentWithCounts[];
 }
 
-export function getAssessments(projectId: string): AssessmentWithCounts[] {
-  return getDb()
-    .prepare(
-      `SELECT a.*, COUNT(DISTINCT i.id) AS issue_count
-       FROM assessments a
-       LEFT JOIN issues i ON i.assessment_id = a.id
-       WHERE a.project_id = ?
-       GROUP BY a.id
-       ORDER BY a.created_at DESC`
-    )
-    .all(projectId) as AssessmentWithCounts[];
-}
-
-export function createAssessment(projectId: string, input: CreateAssessmentInput): Assessment {
+export async function createAssessment(
+  projectId: string,
+  input: CreateAssessmentInput
+): Promise<Assessment> {
   const id = crypto.randomUUID();
-  const db = getDb();
-  db.prepare(
-    `INSERT INTO assessments (id, project_id, name, description, test_date_start, test_date_end, status, assigned_to)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(
-    id,
-    projectId,
-    input.name,
-    input.description ?? null,
-    input.test_date_start ?? null,
-    input.test_date_end ?? null,
-    input.status ?? 'ready',
-    input.assigned_to ?? null
-  );
-  return getAssessment(id)!;
+  const now = new Date().toISOString();
+  await db()
+    .insert(assessments)
+    .values({
+      id,
+      project_id: projectId,
+      name: input.name,
+      description: input.description ?? null,
+      test_date_start: input.test_date_start ?? null,
+      test_date_end: input.test_date_end ?? null,
+      status: (input.status ?? 'ready') as 'ready' | 'in_progress' | 'completed',
+      assigned_to: input.assigned_to ?? null,
+      created_at: now,
+      updated_at: now,
+    });
+  return (await getAssessment(id))!;
 }
 
-export function updateAssessment(id: string, input: UpdateAssessmentInput): Assessment | null {
-  const existing = getAssessment(id);
+export async function updateAssessment(
+  id: string,
+  input: UpdateAssessmentInput
+): Promise<Assessment | null> {
+  const existing = await getAssessment(id);
   if (!existing) return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  type AssessmentUpdate = Partial<
+    Pick<
+      typeof assessments.$inferInsert,
+      | 'name'
+      | 'description'
+      | 'test_date_start'
+      | 'test_date_end'
+      | 'status'
+      | 'assigned_to'
+      | 'project_id'
+    >
+  >;
+  const values: AssessmentUpdate = {};
+  if (input.name !== undefined) values.name = input.name;
+  if (input.description !== undefined) values.description = input.description;
+  if (input.test_date_start !== undefined) values.test_date_start = input.test_date_start;
+  if (input.test_date_end !== undefined) values.test_date_end = input.test_date_end;
+  if (input.status !== undefined) values.status = input.status;
+  if (input.assigned_to !== undefined) values.assigned_to = input.assigned_to;
+  if (input.project_id !== undefined) values.project_id = input.project_id;
 
-  if (input.name !== undefined) {
-    fields.push('name = ?');
-    values.push(input.name);
-  }
-  if (input.description !== undefined) {
-    fields.push('description = ?');
-    values.push(input.description);
-  }
-  if (input.test_date_start !== undefined) {
-    fields.push('test_date_start = ?');
-    values.push(input.test_date_start);
-  }
-  if (input.test_date_end !== undefined) {
-    fields.push('test_date_end = ?');
-    values.push(input.test_date_end);
-  }
-  if (input.status !== undefined) {
-    fields.push('status = ?');
-    values.push(input.status);
-  }
-  if (input.assigned_to !== undefined) {
-    fields.push('assigned_to = ?');
-    values.push(input.assigned_to);
-  }
-  if (input.project_id !== undefined) {
-    fields.push('project_id = ?');
-    values.push(input.project_id);
-  }
+  if (Object.keys(values).length === 0) return existing;
 
-  if (fields.length === 0) return existing;
-
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
-
-  getDb()
-    .prepare(`UPDATE assessments SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
-
+  db()
+    .update(assessments)
+    .set({ ...values, updated_at: new Date().toISOString() })
+    .where(eq(assessments.id, id))
+    .run();
   return getAssessment(id);
 }
 
-export function deleteAssessment(id: string): boolean {
-  const result = getDb().prepare('DELETE FROM assessments WHERE id = ?').run(id);
-  return result.changes > 0;
+export async function deleteAssessment(id: string): Promise<boolean> {
+  const existing = await getAssessment(id);
+  if (!existing) return false;
+  await db().delete(assessments).where(eq(assessments.id, id));
+  return true;
 }

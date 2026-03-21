@@ -1,6 +1,11 @@
 import { getDb } from './index';
 import { encrypt, decrypt, SENSITIVE_KEYS, isEncrypted } from '../crypto';
 
+// NOTE: These functions use getDb() (better-sqlite3) rather than getDbClient() (Drizzle)
+// because seedDefaultSettings() is called inside initDb() before the Drizzle client is
+// initialized. The settings API routes call these functions only after initDb() completes,
+// so the better-sqlite3 connection is always ready when a request arrives.
+
 type SettingValue = string | number | boolean | null;
 
 interface SettingRow {

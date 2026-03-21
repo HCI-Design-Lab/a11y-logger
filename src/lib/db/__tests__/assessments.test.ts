@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { initDb, closeDb, getDb } from '../index';
+import { initDb, closeDb } from '../index';
+import { getDbClient } from '../client';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import type * as sqliteSchema from '../schema';
+import * as schema from '../schema';
 import { createProject } from '../projects';
 import {
   createAssessment,
@@ -12,26 +16,26 @@ import {
 
 let projectId: string;
 
-beforeAll(() => {
-  initDb(':memory:');
+beforeAll(async () => {
+  await initDb(':memory:');
 });
 
 afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   // Clear child tables first due to foreign key constraints
-  getDb().prepare('DELETE FROM assessments').run();
-  getDb().prepare('DELETE FROM projects').run();
+  await (getDbClient() as BetterSQLite3Database<typeof sqliteSchema>).delete(schema.assessments);
+  await (getDbClient() as BetterSQLite3Database<typeof sqliteSchema>).delete(schema.projects);
   // Create a fresh project for each test
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
 });
 
 describe('createAssessment', () => {
-  it('inserts an assessment and returns it', () => {
-    const assessment = createAssessment(projectId, { name: 'Baseline Audit' });
+  it('inserts an assessment and returns it', async () => {
+    const assessment = await createAssessment(projectId, { name: 'Baseline Audit' });
     expect(assessment.id).toBeDefined();
     expect(assessment.name).toBe('Baseline Audit');
     expect(assessment.project_id).toBe(projectId);
@@ -40,14 +44,14 @@ describe('createAssessment', () => {
     expect(assessment.updated_at).toBeDefined();
   });
 
-  it('generates a unique id for each assessment', () => {
-    const a1 = createAssessment(projectId, { name: 'Audit A' });
-    const a2 = createAssessment(projectId, { name: 'Audit B' });
+  it('generates a unique id for each assessment', async () => {
+    const a1 = await createAssessment(projectId, { name: 'Audit A' });
+    const a2 = await createAssessment(projectId, { name: 'Audit B' });
     expect(a1.id).not.toBe(a2.id);
   });
 
-  it('stores optional fields', () => {
-    const assessment = createAssessment(projectId, {
+  it('stores optional fields', async () => {
+    const assessment = await createAssessment(projectId, {
       name: 'Full Audit',
       description: 'A full description',
       status: 'in_progress',
@@ -62,8 +66,8 @@ describe('createAssessment', () => {
     expect(assessment.assigned_to).toBe('Jane');
   });
 
-  it('stores null for omitted optional fields', () => {
-    const assessment = createAssessment(projectId, { name: 'Minimal' });
+  it('stores null for omitted optional fields', async () => {
+    const assessment = await createAssessment(projectId, { name: 'Minimal' });
     expect(assessment.description).toBeNull();
     expect(assessment.test_date_start).toBeNull();
     expect(assessment.test_date_end).toBeNull();
@@ -72,43 +76,43 @@ describe('createAssessment', () => {
 });
 
 describe('getAssessment', () => {
-  it('returns the assessment by id', () => {
-    const created = createAssessment(projectId, { name: 'Find Me' });
-    const found = getAssessment(created.id);
+  it('returns the assessment by id', async () => {
+    const created = await createAssessment(projectId, { name: 'Find Me' });
+    const found = await getAssessment(created.id);
     expect(found).not.toBeNull();
     expect(found?.name).toBe('Find Me');
   });
 
-  it('returns null for nonexistent id', () => {
-    expect(getAssessment('nonexistent')).toBeNull();
+  it('returns null for nonexistent id', async () => {
+    expect(await getAssessment('nonexistent')).toBeNull();
   });
 });
 
 describe('getAssessments', () => {
-  it('returns empty array when no assessments exist for the project', () => {
-    expect(getAssessments(projectId)).toEqual([]);
+  it('returns empty array when no assessments exist for the project', async () => {
+    expect(await getAssessments(projectId)).toEqual([]);
   });
 
-  it('returns only assessments for the given project', () => {
-    const otherProject = createProject({ name: 'Other Project' });
-    createAssessment(projectId, { name: 'Mine' });
-    createAssessment(otherProject.id, { name: 'Not Mine' });
-    const results = getAssessments(projectId);
+  it('returns only assessments for the given project', async () => {
+    const otherProject = await createProject({ name: 'Other Project' });
+    await createAssessment(projectId, { name: 'Mine' });
+    await createAssessment(otherProject.id, { name: 'Not Mine' });
+    const results = await getAssessments(projectId);
     expect(results).toHaveLength(1);
     expect(results[0]!.name).toBe('Mine');
   });
 
-  it('includes issue_count in each result', () => {
-    createAssessment(projectId, { name: 'With Count' });
-    const results = getAssessments(projectId);
+  it('includes issue_count in each result', async () => {
+    await createAssessment(projectId, { name: 'With Count' });
+    const results = await getAssessments(projectId);
     expect(results[0]).toHaveProperty('issue_count');
     expect(results[0]!.issue_count).toBe(0);
   });
 
-  it('returns assessments ordered by created_at descending', () => {
-    createAssessment(projectId, { name: 'First' });
-    createAssessment(projectId, { name: 'Second' });
-    const results = getAssessments(projectId);
+  it('returns assessments ordered by created_at descending', async () => {
+    await createAssessment(projectId, { name: 'First' });
+    await createAssessment(projectId, { name: 'Second' });
+    const results = await getAssessments(projectId);
     expect(results).toHaveLength(2);
     // Both should be present; order check — newest first
     expect(results[0]!.name === 'First' || results[0]!.name === 'Second').toBe(true);
@@ -116,50 +120,50 @@ describe('getAssessments', () => {
 });
 
 describe('updateAssessment', () => {
-  it('updates provided fields and returns the updated assessment', () => {
-    const created = createAssessment(projectId, { name: 'Original' });
-    const updated = updateAssessment(created.id, { name: 'Updated' });
+  it('updates provided fields and returns the updated assessment', async () => {
+    const created = await createAssessment(projectId, { name: 'Original' });
+    const updated = await updateAssessment(created.id, { name: 'Updated' });
     expect(updated).not.toBeNull();
     expect(updated!.name).toBe('Updated');
   });
 
-  it('does not change fields not included in the update', () => {
-    const created = createAssessment(projectId, { name: 'Keep', description: 'Keep this' });
-    const updated = updateAssessment(created.id, { name: 'New Name' });
+  it('does not change fields not included in the update', async () => {
+    const created = await createAssessment(projectId, { name: 'Keep', description: 'Keep this' });
+    const updated = await updateAssessment(created.id, { name: 'New Name' });
     expect(updated!.description).toBe('Keep this');
   });
 
-  it('sets updated_at on update', () => {
-    const created = createAssessment(projectId, { name: 'Time Test' });
-    const updated = updateAssessment(created.id, { name: 'Changed' });
+  it('sets updated_at on update', async () => {
+    const created = await createAssessment(projectId, { name: 'Time Test' });
+    const updated = await updateAssessment(created.id, { name: 'Changed' });
     expect(updated!.updated_at).toBeDefined();
   });
 
-  it('returns null for nonexistent id', () => {
-    expect(updateAssessment('nope', { name: 'X' })).toBeNull();
+  it('returns null for nonexistent id', async () => {
+    expect(await updateAssessment('nope', { name: 'X' })).toBeNull();
   });
 
-  it('returns the existing assessment when no fields change', () => {
-    const created = createAssessment(projectId, { name: 'Unchanged' });
-    const result = updateAssessment(created.id, {});
+  it('returns the existing assessment when no fields change', async () => {
+    const created = await createAssessment(projectId, { name: 'Unchanged' });
+    const result = await updateAssessment(created.id, {});
     expect(result).not.toBeNull();
     expect(result!.name).toBe('Unchanged');
   });
 });
 
 describe('deleteAssessment', () => {
-  it('removes the assessment', () => {
-    const created = createAssessment(projectId, { name: 'Delete Me' });
-    deleteAssessment(created.id);
-    expect(getAssessment(created.id)).toBeNull();
+  it('removes the assessment', async () => {
+    const created = await createAssessment(projectId, { name: 'Delete Me' });
+    await deleteAssessment(created.id);
+    expect(await getAssessment(created.id)).toBeNull();
   });
 
-  it('returns true when assessment existed', () => {
-    const created = createAssessment(projectId, { name: 'Exists' });
-    expect(deleteAssessment(created.id)).toBe(true);
+  it('returns true when assessment existed', async () => {
+    const created = await createAssessment(projectId, { name: 'Exists' });
+    expect(await deleteAssessment(created.id)).toBe(true);
   });
 
-  it('returns false when assessment did not exist', () => {
-    expect(deleteAssessment('ghost-id')).toBe(false);
+  it('returns false when assessment did not exist', async () => {
+    expect(await deleteAssessment('ghost-id')).toBe(false);
   });
 });
