@@ -1,9 +1,20 @@
-import { getDb } from './index';
+import { sql } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { projects, assessments, issues, reports, vpats } from './schema';
+import type * as sqliteSchema from './schema';
 import {
   getPrincipleFromCode,
   getWcagCriterionName,
   type WcagPrinciple,
 } from '@/lib/wcag-criteria';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface DashboardStats {
   total_projects: number;
@@ -21,45 +32,70 @@ export interface ActivityItem {
   created_at: string;
 }
 
-export function getDashboardStats(): DashboardStats {
-  const db = getDb();
-  const count = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
-  const total_projects = count('SELECT COUNT(*) as n FROM projects');
-  const total_assessments = count('SELECT COUNT(*) as n FROM assessments');
-  const total_issues = count('SELECT COUNT(*) as n FROM issues');
-  const total_reports = count('SELECT COUNT(*) as n FROM reports');
-  const total_vpats = count('SELECT COUNT(*) as n FROM vpats');
-  const rows = db.prepare('SELECT severity, COUNT(*) as n FROM issues GROUP BY severity').all() as {
-    severity: string;
-    n: number;
-  }[];
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const [projectCount] = await db()
+    .select({ n: sql<number>`COUNT(*)`.as('n') })
+    .from(projects);
+  const [assessmentCount] = await db()
+    .select({ n: sql<number>`COUNT(*)`.as('n') })
+    .from(assessments);
+  const [issueCount] = await db()
+    .select({ n: sql<number>`COUNT(*)`.as('n') })
+    .from(issues);
+  const [reportCount] = await db()
+    .select({ n: sql<number>`COUNT(*)`.as('n') })
+    .from(reports);
+  const [vpatCount] = await db()
+    .select({ n: sql<number>`COUNT(*)`.as('n') })
+    .from(vpats);
+
+  const severityRows = await db()
+    .select({
+      severity: issues.severity,
+      n: sql<number>`COUNT(*)`.as('n'),
+    })
+    .from(issues)
+    .groupBy(issues.severity);
+
   const severity_breakdown = { critical: 0, high: 0, medium: 0, low: 0 };
-  for (const r of rows) {
+  for (const r of severityRows) {
     severity_breakdown[r.severity as keyof typeof severity_breakdown] = r.n;
   }
+
   return {
-    total_projects,
-    total_assessments,
-    total_issues,
-    total_reports,
-    total_vpats,
+    total_projects: projectCount?.n ?? 0,
+    total_assessments: assessmentCount?.n ?? 0,
+    total_issues: issueCount?.n ?? 0,
+    total_reports: reportCount?.n ?? 0,
+    total_vpats: vpatCount?.n ?? 0,
     severity_breakdown,
   };
 }
 
-export function getRecentActivity(limit = 10): ActivityItem[] {
-  const db = getDb();
-  const projects = db
-    .prepare(
-      `SELECT id, 'project' as type, name as title, created_at FROM projects ORDER BY created_at DESC LIMIT ?`
-    )
-    .all(limit) as ActivityItem[];
-  const issues = db
-    .prepare(
-      `SELECT id, 'issue' as type, title, created_at FROM issues ORDER BY created_at DESC LIMIT ?`
-    )
-    .all(limit) as ActivityItem[];
-  return [...projects, ...issues]
+export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
+  const projectRows = await db()
+    .select({
+      id: projects.id,
+      type: sql<'project'>`'project'`.as('type'),
+      title: projects.name,
+      created_at: projects.created_at,
+    })
+    .from(projects)
+    .orderBy(sql`${projects.created_at} DESC`)
+    .limit(limit);
+
+  const issueRows = await db()
+    .select({
+      id: issues.id,
+      type: sql<'issue'>`'issue'`.as('type'),
+      title: issues.title,
+      created_at: issues.created_at,
+    })
+    .from(issues)
+    .orderBy(sql`${issues.created_at} DESC`)
+    .limit(limit);
+
+  return [...(projectRows as ActivityItem[]), ...(issueRows as ActivityItem[])]
     .sort((a, b) => b.created_at.localeCompare(a.created_at))
     .slice(0, limit);
 }
@@ -98,30 +134,35 @@ function rangeToStartDate(range: TimeRange): string {
   return now.toISOString().slice(0, 10);
 }
 
-export function getTimeSeriesData(range: TimeRange): TimeSeriesEntry[] {
-  const db = getDb();
+export async function getTimeSeriesData(range: TimeRange): Promise<TimeSeriesEntry[]> {
   const startDate = rangeToStartDate(range);
 
-  const projectRows = db
-    .prepare(
-      `SELECT date(created_at) as date, COUNT(*) as n FROM projects
-       WHERE date(created_at) >= ? GROUP BY date(created_at)`
-    )
-    .all(startDate) as { date: string; n: number }[];
+  const projectRows = await db()
+    .select({
+      date: sql<string>`date(${projects.created_at})`.as('date'),
+      n: sql<number>`COUNT(*)`.as('n'),
+    })
+    .from(projects)
+    .where(sql`date(${projects.created_at}) >= ${startDate}`)
+    .groupBy(sql`date(${projects.created_at})`);
 
-  const assessmentRows = db
-    .prepare(
-      `SELECT date(created_at) as date, COUNT(*) as n FROM assessments
-       WHERE date(created_at) >= ? GROUP BY date(created_at)`
-    )
-    .all(startDate) as { date: string; n: number }[];
+  const assessmentRows = await db()
+    .select({
+      date: sql<string>`date(${assessments.created_at})`.as('date'),
+      n: sql<number>`COUNT(*)`.as('n'),
+    })
+    .from(assessments)
+    .where(sql`date(${assessments.created_at}) >= ${startDate}`)
+    .groupBy(sql`date(${assessments.created_at})`);
 
-  const issueRows = db
-    .prepare(
-      `SELECT date(created_at) as date, COUNT(*) as n FROM issues
-       WHERE date(created_at) >= ? GROUP BY date(created_at)`
-    )
-    .all(startDate) as { date: string; n: number }[];
+  const issueRows = await db()
+    .select({
+      date: sql<string>`date(${issues.created_at})`.as('date'),
+      n: sql<number>`COUNT(*)`.as('n'),
+    })
+    .from(issues)
+    .where(sql`date(${issues.created_at}) >= ${startDate}`)
+    .groupBy(sql`date(${issues.created_at})`);
 
   const dateMap = new Map<string, TimeSeriesEntry>();
 
@@ -139,14 +180,15 @@ export function getTimeSeriesData(range: TimeRange): TimeSeriesEntry[] {
   return Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function getWcagCriteriaCounts(principle: WcagPrinciple): WcagCriteriaCount[] {
-  const db = getDb();
-
+export async function getWcagCriteriaCounts(
+  principle: WcagPrinciple
+): Promise<WcagCriteriaCount[]> {
   // Loads all non-empty wcag_codes into memory for JS-side filtering.
   // Acceptable for this single-user offline tool; revisit if issue counts grow very large.
-  const rows = db
-    .prepare(`SELECT wcag_codes FROM issues WHERE wcag_codes IS NOT NULL AND wcag_codes != '[]'`)
-    .all() as { wcag_codes: string }[];
+  const rows = await db()
+    .select({ wcag_codes: issues.wcag_codes })
+    .from(issues)
+    .where(sql`${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`);
 
   const counts = new Map<string, number>();
 
