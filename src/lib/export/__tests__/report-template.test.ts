@@ -183,7 +183,8 @@ describe('generateReportHtml', () => {
   it('escapes HTML-special characters in the report title', () => {
     const xssReport = { ...mockReport, title: '<script>alert("xss")</script>' };
     const result = generateReportHtml(xssReport, mockProject);
-    expect(result).not.toContain('<script>');
+    // The raw XSS payload should not appear verbatim in the title
+    expect(result).not.toContain('<script>alert("xss")</script>');
     expect(result).toContain('&lt;script&gt;');
   });
 
@@ -241,5 +242,28 @@ describe('generateReportHtml', () => {
     expect(result).toContain('window.print()');
     const bodyEnd = result.indexOf('</body>');
     expect(result.substring(0, bodyEnd)).toContain('window.print()');
+  });
+
+  it('always includes beforeprint script to open all details for printing', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('beforeprint');
+    expect(result).toContain('d.open = true');
+  });
+
+  it('includes page-break CSS for print sections', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('break-before: page');
+  });
+
+  it('quick wins section has report-section-continued class to share page with top risks', () => {
+    const reportWithQuickWins = {
+      ...mockReport,
+      content: JSON.stringify({
+        top_risks: { items: ['Risk 1'] },
+        quick_wins: { items: ['Win 1'] },
+      }),
+    };
+    const result = generateReportHtml(reportWithQuickWins, mockProject);
+    expect(result).toContain('report-section-continued');
   });
 });
