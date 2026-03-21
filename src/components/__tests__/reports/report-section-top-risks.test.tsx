@@ -100,4 +100,43 @@ describe('TopRisksSection', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(screen.queryByText('Generating with AI...')).not.toBeInTheDocument();
   });
+
+  it('disables delete button while generating', () => {
+    render(
+      <TopRisksSection
+        items={[]}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={true}
+      />
+    );
+    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+  });
+
+  it('marks fields inert while generating', () => {
+    render(
+      <TopRisksSection
+        items={[]}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={true}
+      />
+    );
+    expect(screen.getByTestId('section-fields')).toHaveAttribute('inert', '');
+  });
+
+  it('does not mark fields inert when not generating', () => {
+    render(
+      <TopRisksSection
+        items={[]}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={false}
+      />
+    );
+    expect(screen.getByTestId('section-fields')).not.toHaveAttribute('inert');
+  });
 });
