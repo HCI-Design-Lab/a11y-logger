@@ -1,4 +1,15 @@
-import { getDb } from './index';
+import { eq, sql } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { vpatCriterionRows, criteria } from './schema';
+import type * as sqliteSchema from './schema';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface VpatCriterionRow {
   id: string;
@@ -64,157 +75,150 @@ function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
   };
 }
 
-const SELECT_JOINED = `
-  SELECT
-    r.id,
-    r.vpat_id,
-    r.criterion_id,
-    c.code  AS criterion_code,
-    c.name  AS criterion_name,
-    c.description AS criterion_description,
-    c.level AS criterion_level,
-    c.chapter_section AS criterion_section,
-    r.conformance,
-    r.remarks,
-    r.ai_confidence,
-    r.ai_reasoning,
-    r.last_generated_at,
-    r.updated_at
-  FROM vpat_criterion_rows r
-  JOIN criteria c ON c.id = r.criterion_id
-`;
+const joinedSelect = {
+  id: vpatCriterionRows.id,
+  vpat_id: vpatCriterionRows.vpat_id,
+  criterion_id: vpatCriterionRows.criterion_id,
+  criterion_code: criteria.code,
+  criterion_name: criteria.name,
+  criterion_description: criteria.description,
+  criterion_level: criteria.level,
+  criterion_section: criteria.chapter_section,
+  conformance: vpatCriterionRows.conformance,
+  remarks: vpatCriterionRows.remarks,
+  ai_confidence: vpatCriterionRows.ai_confidence,
+  ai_reasoning: vpatCriterionRows.ai_reasoning,
+  last_generated_at: vpatCriterionRows.last_generated_at,
+  updated_at: vpatCriterionRows.updated_at,
+};
 
 export function createCriterionRows(vpatId: string, inputs: CreateCriterionRowInput[]): void {
-  const db = getDb();
-  const insert = db.prepare(`
-    INSERT INTO vpat_criterion_rows (id, vpat_id, criterion_id, conformance, remarks)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-
-  const insertMany = db.transaction((rows: CreateCriterionRowInput[]) => {
-    for (const row of rows) {
-      insert.run(
-        crypto.randomUUID(),
-        vpatId,
-        row.criterion_id,
-        row.conformance,
-        row.remarks ?? null
-      );
-    }
-  });
-
-  insertMany(inputs);
+  if (inputs.length === 0) return;
+  const now = new Date().toISOString();
+  db()
+    .insert(vpatCriterionRows)
+    .values(
+      inputs.map((input) => ({
+        id: crypto.randomUUID(),
+        vpat_id: vpatId,
+        criterion_id: input.criterion_id,
+        conformance: input.conformance,
+        remarks: input.remarks ?? null,
+        updated_at: now,
+      }))
+    )
+    .run();
 }
 
-export function getCriterionRows(vpatId: string): VpatCriterionRow[] {
-  const rows = getDb()
-    .prepare(`${SELECT_JOINED} WHERE r.vpat_id = ? ORDER BY c.sort_order`)
-    .all(vpatId) as CriterionRowDbRow[];
+export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow[]> {
+  const rows = db()
+    .select(joinedSelect)
+    .from(vpatCriterionRows)
+    .innerJoin(criteria, eq(criteria.id, vpatCriterionRows.criterion_id))
+    .where(eq(vpatCriterionRows.vpat_id, vpatId))
+    .orderBy(criteria.sort_order)
+    .all() as CriterionRowDbRow[];
   return rows.map(parseRow);
 }
 
-export function getCriterionRowsWithIssueCounts(
+export async function getCriterionRowsWithIssueCounts(
   vpatId: string,
   projectId: string
-): VpatCriterionRow[] {
-  const sql = `
-    SELECT
-      r.id,
-      r.vpat_id,
-      r.criterion_id,
-      c.code  AS criterion_code,
-      c.name  AS criterion_name,
-      c.description AS criterion_description,
-      c.level AS criterion_level,
-      c.chapter_section AS criterion_section,
-      r.conformance,
-      r.remarks,
-      r.ai_confidence,
-      r.ai_reasoning,
-      r.last_generated_at,
-      r.updated_at,
-      (
+): Promise<VpatCriterionRow[]> {
+  // issue_count uses a subquery — keep raw SQL for this complex aggregation
+  type RowWithCount = CriterionRowDbRow & { issue_count: number };
+  const rows = db()
+    .select({
+      ...joinedSelect,
+      issue_count: sql<number>`(
         SELECT COUNT(*)
         FROM issues i
         JOIN assessments a ON i.assessment_id = a.id
-        WHERE a.project_id = ?
-          AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = c.code)
-      ) AS issue_count
-    FROM vpat_criterion_rows r
-    JOIN criteria c ON c.id = r.criterion_id
-    WHERE r.vpat_id = ?
-    ORDER BY c.sort_order
-  `;
-  const rows = getDb().prepare(sql).all(projectId, vpatId) as CriterionRowDbRow[];
+        WHERE a.project_id = ${projectId}
+          AND EXISTS (SELECT 1 FROM json_each(i.wcag_codes) WHERE value = ${criteria.code})
+      )`.as('issue_count'),
+    })
+    .from(vpatCriterionRows)
+    .innerJoin(criteria, eq(criteria.id, vpatCriterionRows.criterion_id))
+    .where(eq(vpatCriterionRows.vpat_id, vpatId))
+    .orderBy(criteria.sort_order)
+    .all() as RowWithCount[];
   return rows.map(parseRow);
 }
 
-export function getCriterionRow(rowId: string): VpatCriterionRow | null {
-  const row = getDb().prepare(`${SELECT_JOINED} WHERE r.id = ?`).get(rowId) as
-    | CriterionRowDbRow
-    | undefined;
+export async function getCriterionRow(rowId: string): Promise<VpatCriterionRow | null> {
+  const row = db()
+    .select(joinedSelect)
+    .from(vpatCriterionRows)
+    .innerJoin(criteria, eq(criteria.id, vpatCriterionRows.criterion_id))
+    .where(eq(vpatCriterionRows.id, rowId))
+    .limit(1)
+    .get() as CriterionRowDbRow | undefined;
   return row ? parseRow(row) : null;
 }
 
-export function updateCriterionRow(
+export async function updateCriterionRow(
   rowId: string,
   input: UpdateCriterionRowInput
-): VpatCriterionRow | null {
-  const existing = getCriterionRow(rowId);
+): Promise<VpatCriterionRow | null> {
+  const existing = await getCriterionRow(rowId);
   if (!existing) return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  type RowUpdate = Partial<
+    Pick<
+      typeof vpatCriterionRows.$inferInsert,
+      | 'conformance'
+      | 'remarks'
+      | 'ai_confidence'
+      | 'ai_reasoning'
+      | 'last_generated_at'
+      | 'updated_at'
+    >
+  >;
+  const values: RowUpdate = {};
 
-  if (input.conformance !== undefined) {
-    fields.push('conformance = ?');
-    values.push(input.conformance);
-  }
-  if (input.remarks !== undefined) {
-    fields.push('remarks = ?');
-    values.push(input.remarks);
-  }
-  if (input.ai_confidence !== undefined) {
-    fields.push('ai_confidence = ?');
-    values.push(input.ai_confidence);
-  }
+  if (input.conformance !== undefined) values.conformance = input.conformance;
+  if (input.remarks !== undefined) values.remarks = input.remarks;
+  if (input.ai_confidence !== undefined) values.ai_confidence = input.ai_confidence;
   if (input.ai_reasoning !== undefined) {
-    fields.push('ai_reasoning = ?');
-    values.push(input.ai_reasoning);
-    fields.push("last_generated_at = datetime('now')");
+    values.ai_reasoning = input.ai_reasoning;
+    values.last_generated_at = new Date().toISOString();
   }
 
-  fields.push("updated_at = datetime('now')");
-  values.push(rowId);
+  values.updated_at = new Date().toISOString();
 
-  getDb()
-    .prepare(`UPDATE vpat_criterion_rows SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
+  db().update(vpatCriterionRows).set(values).where(eq(vpatCriterionRows.id, rowId)).run();
 
   return getCriterionRow(rowId);
 }
 
 export function countUnresolvedRows(vpatId: string): number {
-  const result = getDb()
-    .prepare(
-      `SELECT COUNT(*) AS count FROM vpat_criterion_rows WHERE vpat_id = ? AND conformance = 'not_evaluated'`
+  const notEvaluated = db()
+    .select({ count: sql<number>`COUNT(*)`.as('count') })
+    .from(vpatCriterionRows)
+    .where(
+      sql`${vpatCriterionRows.vpat_id} = ${vpatId} AND ${vpatCriterionRows.conformance} = 'not_evaluated'`
     )
-    .get(vpatId) as { count: number };
-  return result.count;
+    .get() as { count: number };
+  return notEvaluated.count;
 }
 
-export function getVpatProgress(vpatId: string): { resolved: number; total: number } {
-  const result = getDb()
-    .prepare(
-      `SELECT
-        COUNT(*) AS total,
-        SUM(CASE WHEN conformance != 'not_evaluated' THEN 1 ELSE 0 END) AS resolved
-       FROM vpat_criterion_rows
-       WHERE vpat_id = ?`
-    )
-    .get(vpatId) as { total: number; resolved: number | null };
+export async function getVpatProgress(
+  vpatId: string
+): Promise<{ resolved: number; total: number }> {
+  const result = db()
+    .select({
+      total: sql<number>`COUNT(*)`.as('total'),
+      resolved:
+        sql<number>`SUM(CASE WHEN ${vpatCriterionRows.conformance} != 'not_evaluated' THEN 1 ELSE 0 END)`.as(
+          'resolved'
+        ),
+    })
+    .from(vpatCriterionRows)
+    .where(eq(vpatCriterionRows.vpat_id, vpatId))
+    .get() as { total: number; resolved: number | null };
   return {
-    total: result.total,
-    resolved: result.resolved ?? 0,
+    total: result?.total ?? 0,
+    resolved: result?.resolved ?? 0,
   };
 }
