@@ -73,7 +73,8 @@ function buildStatsHtml(stats: ReportStats): string {
 
   let donutSvg = '';
   if (total === 0) {
-    donutSvg = '<p style="color:#666;font-style:italic">No issues linked to this report.</p>';
+    donutSvg =
+      '<p style="color:var(--muted-foreground);font-style:italic">No issues linked to this report.</p>';
   } else {
     const cx = 100,
       cy = 100,
@@ -96,8 +97,8 @@ function buildStatsHtml(stats: ReportStats): string {
             ${paths}
           </svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-            <span style="font-size:28pt;font-weight:bold;line-height:1">${total}</span>
-            <span style="font-size:9pt;color:#64748b">Total</span>
+            <span style="font-size:28pt;font-weight:bold;line-height:1;color:var(--foreground)">${total}</span>
+            <span style="font-size:9pt;color:var(--muted-foreground)">Total</span>
           </div>
         </div>
         <table style="border-collapse:collapse;font-size:11pt">
@@ -121,22 +122,22 @@ function buildStatsHtml(stats: ReportStats): string {
     criteriaTableBody = wcagCriteriaCounts
       .map(
         ({ code, name, count }) =>
-          `<tr style="border-bottom:1px solid #eee">
-          <td style="padding:5px 12px 5px 0;font-size:10pt">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</td>
+          `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:5px 12px 5px 0;font-size:10pt;color:var(--foreground)">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</td>
           <td style="padding:5px 0;font-weight:bold;text-align:right;white-space:nowrap">${count}</td>
         </tr>`
       )
       .join('\n');
   } else {
-    criteriaTableBody = `<tr><td colspan="2" style="padding:5px 0;font-size:10pt;color:#666;font-style:italic">No WCAG criteria linked to issues.</td></tr>`;
+    criteriaTableBody = `<tr><td colspan="2" style="padding:5px 0;font-size:10pt;color:var(--muted-foreground);font-style:italic">No WCAG criteria linked to issues.</td></tr>`;
   }
   const criteriaTable = `
-      <h3 style="font-size:12pt;font-weight:bold;margin:0 0 8px 0;padding-bottom:4px;border-bottom:1px solid #ccc">WCAG Criteria Breakdown</h3>
+      <h3 style="font-size:0.875rem;font-weight:600;margin:0 0 8px 0;padding-bottom:4px;border-bottom:1px solid var(--border);color:var(--foreground)">WCAG Criteria Breakdown</h3>
       <table style="border-collapse:collapse;width:100%;font-size:11pt">
         <thead>
           <tr>
-            <th style="text-align:left;padding:5px 12px 5px 0;color:#555;font-weight:600;border-bottom:2px solid #ccc">Criterion</th>
-            <th style="text-align:right;padding:5px 0;color:#555;font-weight:600;border-bottom:2px solid #ccc">Count</th>
+            <th style="text-align:left;padding:5px 12px 5px 0;color:var(--muted-foreground);font-weight:600;border-bottom:2px solid var(--border)">Criterion</th>
+            <th style="text-align:right;padding:5px 0;color:var(--muted-foreground);font-weight:600;border-bottom:2px solid var(--border)">Count</th>
           </tr>
         </thead>
         <tbody>${criteriaTableBody}</tbody>
@@ -162,7 +163,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
     return `
       <section class="report-section">
         <h2>Issues</h2>
-        <p style="color:#666;font-style:italic">No issues linked to this report.</p>
+        <p style="color:var(--muted-foreground);font-style:italic">No issues linked to this report.</p>
       </section>`;
   }
 
@@ -171,7 +172,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
   const pillStyle =
     'display:inline-block;padding:2px 8px;border-radius:4px;font-size:9pt;font-weight:600;background:#e0e7ff;color:#4f46e5';
   const sectionHeading =
-    'margin:0 0 4px;font-size:8pt;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;font-weight:600';
+    'margin:0 0 4px;font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted-foreground);font-weight:600';
 
   const articles = issues
     .map((issue, i) => {
@@ -186,7 +187,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
       const tagPills = issue.tags
         .map(
           (t) =>
-            `<span style="${badgeStyle};background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">${escapeHtml(t)}</span>`
+            `<span style="${badgeStyle};background:var(--muted);color:var(--muted-foreground);border:1px solid var(--border)">${escapeHtml(t)}</span>`
         )
         .join(' ');
 
@@ -210,7 +211,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
         sections.push(`
         <div style="margin-bottom:16px">
           <h3 style="${sectionHeading}">Description</h3>
-          <p style="margin:0;line-height:1.6;color:#334155;font-size:10pt">${escapeHtml(issue.description)}</p>
+          <p style="margin:0;line-height:1.6;color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.description)}</p>
         </div>`);
       }
 
@@ -218,7 +219,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
         sections.push(`
         <div style="margin-bottom:16px">
           <h3 style="${sectionHeading}">User Impact</h3>
-          <p style="margin:0;line-height:1.6;color:#334155;font-size:10pt">${escapeHtml(issue.user_impact)}</p>
+          <p style="margin:0;line-height:1.6;color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.user_impact)}</p>
         </div>`);
       }
 
@@ -226,7 +227,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
         const items = issue.wcag_codes
           .map((code) => {
             const name = getWcagCriterionName(code);
-            return `<li style="color:#334155;font-size:10pt">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</li>`;
+            return `<li style="color:var(--card-foreground);font-size:0.875rem">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</li>`;
           })
           .join('\n');
         sections.push(`
@@ -240,26 +241,26 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
         sections.push(`
         <div style="margin-bottom:16px">
           <h3 style="${sectionHeading}">Suggested Fix</h3>
-          <p style="margin:0;line-height:1.6;color:#334155;font-size:10pt">${escapeHtml(issue.suggested_fix)}</p>
+          <p style="margin:0;line-height:1.6;color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.suggested_fix)}</p>
         </div>`);
       }
 
       const contextRows: string[] = [];
       if (issue.device_type)
         contextRows.push(
-          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:#64748b;font-weight:600;white-space:nowrap;font-size:10pt">Device</th><td style="color:#334155;font-size:10pt">${escapeHtml(issue.device_type)}</td></tr>`
+          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:var(--muted-foreground);font-weight:600;white-space:nowrap;font-size:0.875rem">Device</th><td style="color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.device_type)}</td></tr>`
         );
       if (issue.browser)
         contextRows.push(
-          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:#64748b;font-weight:600;white-space:nowrap;font-size:10pt">Browser</th><td style="color:#334155;font-size:10pt">${escapeHtml(issue.browser)}</td></tr>`
+          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:var(--muted-foreground);font-weight:600;white-space:nowrap;font-size:0.875rem">Browser</th><td style="color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.browser)}</td></tr>`
         );
       if (issue.operating_system)
         contextRows.push(
-          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:#64748b;font-weight:600;white-space:nowrap;font-size:10pt">OS</th><td style="color:#334155;font-size:10pt">${escapeHtml(issue.operating_system)}</td></tr>`
+          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:var(--muted-foreground);font-weight:600;white-space:nowrap;font-size:0.875rem">OS</th><td style="color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.operating_system)}</td></tr>`
         );
       if (issue.assistive_technology)
         contextRows.push(
-          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:#64748b;font-weight:600;white-space:nowrap;font-size:10pt">Assistive Technology</th><td style="color:#334155;font-size:10pt">${escapeHtml(issue.assistive_technology)}</td></tr>`
+          `<tr><th scope="row" style="text-align:left;padding-right:16px;color:var(--muted-foreground);font-weight:600;white-space:nowrap;font-size:0.875rem">Assistive Technology</th><td style="color:var(--card-foreground);font-size:0.875rem">${escapeHtml(issue.assistive_technology)}</td></tr>`
         );
 
       if (contextRows.length > 0) {
@@ -271,10 +272,10 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
       }
 
       return `
-      <article aria-labelledby="issue-${i + 1}-title" style="margin-bottom:24px;padding:16px 20px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;page-break-inside:avoid">
+      <article aria-labelledby="issue-${i + 1}-title" style="margin-bottom:16px;padding:16px 20px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);page-break-inside:avoid">
         <header style="margin-bottom:12px">
-          <h3 id="issue-${i + 1}-title" style="margin:0 0 8px;font-size:11pt;font-weight:bold;color:#0f172a;line-height:1.4">
-            <span style="color:#94a3b8;font-weight:400;margin-right:6px">#${i + 1}</span>${
+          <h3 id="issue-${i + 1}-title" style="margin:0 0 8px;font-size:0.9375rem;font-weight:600;color:var(--card-foreground);line-height:1.4">
+            <span style="color:var(--muted-foreground);font-weight:400;margin-right:6px">#${i + 1}</span>${
               baseUrl
                 ? `<a href="${escapeHtml(baseUrl)}/projects/${escapeHtml(issue.project_id)}/assessments/${escapeHtml(issue.assessment_id)}/issues/${escapeHtml(issue.id)}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${escapeHtml(issue.title)}</a>`
                 : escapeHtml(issue.title)
@@ -283,7 +284,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">${badges}</div>
         </header>
         ${sections.join('')}
-        <footer style="font-size:8pt;color:#94a3b8;margin-top:8px">Saved ${escapeHtml(savedDate)}</footer>
+        <footer style="font-size:0.75rem;color:var(--muted-foreground);margin-top:8px">Saved ${escapeHtml(savedDate)}</footer>
       </article>`;
     })
     .join('\n');
