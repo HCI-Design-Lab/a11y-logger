@@ -239,6 +239,7 @@ describe('generateReportHtml', () => {
   it('includes auto-print script when autoPrint is true', () => {
     const result = generateReportHtml(mockReport, mockProject, 'default', {}, '', true);
     expect(result).toContain('window.print()');
-    expect(result).toContain('<script>');
+    const bodyEnd = result.indexOf('</body>');
+    expect(result.substring(0, bodyEnd)).toContain('window.print()');
   });
 });
