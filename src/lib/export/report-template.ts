@@ -68,6 +68,48 @@ const SEVERITY_CHART = [
   { key: 'low' as const, label: 'Low', color: '#3b82f6' },
 ];
 
+export type ExportVariant = 'default' | 'with-chart' | 'with-issues' | 'with-all';
+
+const TOC_SECTIONS = [
+  { id: 'section-executive-summary', label: 'Executive Summary' },
+  { id: 'section-top-risks', label: 'Top Risks' },
+  { id: 'section-quick-wins', label: 'Quick Wins' },
+  { id: 'section-user-impact', label: 'User Impact' },
+  { id: 'section-issue-statistics', label: 'Issue Statistics' },
+  { id: 'section-issues', label: 'Issues' },
+] as const;
+
+function buildTocHtml(
+  content: ReportContent,
+  variant: ExportVariant,
+  extras: { stats?: ReportStats; issues?: IssueWithContext[] }
+): string {
+  const present = new Set<string>();
+  if (content.executive_summary) present.add('section-executive-summary');
+  if (content.top_risks) present.add('section-top-risks');
+  if (content.quick_wins) present.add('section-quick-wins');
+  if (content.user_impact) present.add('section-user-impact');
+  if ((variant === 'with-chart' || variant === 'with-all') && extras.stats)
+    present.add('section-issue-statistics');
+  if ((variant === 'with-issues' || variant === 'with-all') && extras.issues)
+    present.add('section-issues');
+
+  const items = TOC_SECTIONS.filter(({ id }) => present.has(id))
+    .map(
+      ({ id, label }, i) =>
+        `<li style="margin-bottom:8px"><a href="#${id}" style="color:var(--foreground);text-decoration:none;font-size:1rem">${i + 1}. ${escapeHtml(label)}</a></li>`
+    )
+    .join('\n        ');
+
+  return `
+    <div class="toc-page" style="page-break-after:always">
+      <h2 style="font-size:1.25rem;font-weight:700;margin:0 0 20px;color:var(--foreground)">Table of Contents</h2>
+      <ol style="list-style:none;padding:0;margin:0">
+        ${items}
+      </ol>
+    </div>`;
+}
+
 function buildStatsHtml(stats: ReportStats): string {
   const { total, severityBreakdown, wcagCriteriaCounts } = stats;
 
@@ -144,7 +186,7 @@ function buildStatsHtml(stats: ReportStats): string {
       </table>`;
 
   return `
-    <details class="report-section" open>
+    <details id="section-issue-statistics" class="report-section" open>
       <summary>Issue Statistics</summary>
       <div class="report-section-body">
         ${donutSvg}
@@ -163,7 +205,7 @@ const SEVERITY_BADGE_STYLES: Record<string, string> = {
 function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
   if (issues.length === 0) {
     return `
-      <details class="report-section">
+      <details id="section-issues" class="report-section">
         <summary>Issues</summary>
         <div class="report-section-body">
           <p style="color:var(--muted-foreground);font-style:italic">No issues linked to this report.</p>
@@ -294,7 +336,7 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
     .join('\n');
 
   return `
-    <details class="report-section">
+    <details id="section-issues" class="report-section">
       <summary>Issues (${issues.length})</summary>
       <div class="report-section-body">
         ${articles}
@@ -316,7 +358,7 @@ function buildSectionsHtml(content: ReportContent): string {
 
   if (content.executive_summary) {
     parts.push(`
-      <details class="report-section" open>
+      <details id="section-executive-summary" class="report-section" open>
         <summary>Executive Summary</summary>
         <div class="report-section-body">
           <div class="section-body">${DOMPurify.sanitize(content.executive_summary.body)}</div>
@@ -329,7 +371,7 @@ function buildSectionsHtml(content: ReportContent): string {
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('\n        ');
     parts.push(`
-      <details class="report-section" open>
+      <details id="section-top-risks" class="report-section" open>
         <summary>Top Risks</summary>
         <div class="report-section-body">
           <ol class="section-list">
@@ -344,7 +386,7 @@ function buildSectionsHtml(content: ReportContent): string {
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('\n        ');
     parts.push(`
-      <details class="report-section report-section-continued" open><!-- report-section-continued: no page break, shares page with Top Risks in print -->
+      <details id="section-quick-wins" class="report-section report-section-continued" open><!-- report-section-continued: no page break, shares page with Top Risks in print -->
         <summary>Quick Wins</summary>
         <div class="report-section-body">
           <ol class="section-list">
@@ -365,7 +407,7 @@ function buildSectionsHtml(content: ReportContent): string {
       )
       .join('\n');
     parts.push(`
-      <details class="report-section" open>
+      <details id="section-user-impact" class="report-section" open>
         <summary>User Impact</summary>
         <div class="report-section-body">
           <dl class="impact-grid">
@@ -382,8 +424,6 @@ function buildSectionsHtml(content: ReportContent): string {
  * Generates a complete, standalone HTML document for a report.
  * Suitable for direct download or browser print-to-PDF.
  */
-export type ExportVariant = 'default' | 'with-chart' | 'with-issues' | 'with-all';
-
 export function generateReportHtml(
   report: Report,
   project: Project,
@@ -402,6 +442,7 @@ export function generateReportHtml(
     extraParts.push(buildIssuesHtml(extras.issues, baseUrl));
   }
   const extrasHtml = extraParts.join('\n');
+  const tocHtml = autoPrint ? buildTocHtml(content, variant, extras) : '';
   const hasContent = Object.keys(content).length > 0;
 
   const generatedDate = new Date().toLocaleDateString('en-US', {
@@ -718,6 +759,7 @@ export function generateReportHtml(
       </div>
     </header>
 
+    ${tocHtml}
     <main>
       ${sectionsHtml}
       ${noSectionsHtml}
