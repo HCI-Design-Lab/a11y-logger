@@ -33,7 +33,7 @@ export default async function AssessmentDetailPage({
   const { projectId, assessmentId } = await params;
   const { severity } = await searchParams;
 
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) notFound();
   const assessment = getAssessment(assessmentId);
   if (!assessment) notFound();

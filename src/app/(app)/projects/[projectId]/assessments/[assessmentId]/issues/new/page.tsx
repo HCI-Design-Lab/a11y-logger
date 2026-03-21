@@ -13,7 +13,7 @@ export default async function NewIssuePage({
 }) {
   const { projectId, assessmentId } = await params;
 
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) notFound();
 
   const assessment = getAssessment(assessmentId);

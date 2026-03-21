@@ -1,5 +1,16 @@
-import { getDb } from './index';
+import { eq, sql } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { projects, assessments, issues } from './schema';
+import type * as sqliteSchema from './schema';
 import type { CreateProjectInput, UpdateProjectInput } from '../validators/projects';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface Project {
   id: string;
@@ -18,85 +29,78 @@ export interface ProjectWithCounts extends Project {
   issue_count: number;
 }
 
-export function getProject(id: string): Project | null {
-  return (
-    (getDb().prepare('SELECT * FROM projects WHERE id = ?').get(id) as Project | undefined) ?? null
-  );
+export async function getProject(id: string): Promise<Project | null> {
+  const rows = await db().select().from(projects).where(eq(projects.id, id)).limit(1);
+  return (rows[0] as Project) ?? null;
 }
 
-export function createProject(input: CreateProjectInput): Project {
+export async function getProjects(): Promise<ProjectWithCounts[]> {
+  const rows = await db()
+    .select({
+      id: projects.id,
+      name: projects.name,
+      description: projects.description,
+      product_url: projects.product_url,
+      status: projects.status,
+      settings: projects.settings,
+      created_by: projects.created_by,
+      created_at: projects.created_at,
+      updated_at: projects.updated_at,
+      assessment_count: sql<number>`COUNT(DISTINCT ${assessments.id})`.as('assessment_count'),
+      issue_count: sql<number>`COUNT(DISTINCT ${issues.id})`.as('issue_count'),
+    })
+    .from(projects)
+    .leftJoin(assessments, eq(assessments.project_id, projects.id))
+    .leftJoin(issues, eq(issues.assessment_id, assessments.id))
+    .groupBy(projects.id)
+    .orderBy(sql`${projects.created_at} DESC`);
+  return rows as ProjectWithCounts[];
+}
+
+export async function createProject(input: CreateProjectInput): Promise<Project> {
   const id = crypto.randomUUID();
-  const db = getDb();
-  db.prepare(
-    `INSERT INTO projects (id, name, description, product_url, status)
-     VALUES (?, ?, ?, ?, ?)`
-  ).run(
-    id,
-    input.name,
-    input.description ?? null,
-    input.product_url ?? null,
-    input.status ?? 'active'
-  );
-  return getProject(id)!;
+  await db()
+    .insert(projects)
+    .values({
+      id,
+      name: input.name,
+      description: input.description ?? null,
+      product_url: input.product_url ?? null,
+      status: (input.status ?? 'active') as 'active' | 'archived',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  return (await getProject(id))!;
 }
 
-export function getProjects(): ProjectWithCounts[] {
-  return getDb()
-    .prepare(
-      `SELECT
-         p.*,
-         COUNT(DISTINCT a.id) AS assessment_count,
-         COUNT(DISTINCT i.id) AS issue_count
-       FROM projects p
-       LEFT JOIN assessments a ON a.project_id = p.id
-       LEFT JOIN issues i ON i.assessment_id = a.id
-       GROUP BY p.id
-       ORDER BY p.created_at DESC`
-    )
-    .all() as ProjectWithCounts[];
-}
-
-export function updateProject(id: string, input: UpdateProjectInput): Project | null {
-  const existing = getProject(id);
+export async function updateProject(
+  id: string,
+  input: UpdateProjectInput
+): Promise<Project | null> {
+  const existing = await getProject(id);
   if (!existing) return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  const values: Record<string, unknown> = {};
+  if (input.name !== undefined) values.name = input.name;
+  if (input.description !== undefined) values.description = input.description;
+  if (input.product_url !== undefined) values.product_url = input.product_url;
+  if (input.status !== undefined) values.status = input.status;
 
-  if (input.name !== undefined) {
-    fields.push('name = ?');
-    values.push(input.name);
-  }
-  if (input.description !== undefined) {
-    fields.push('description = ?');
-    values.push(input.description);
-  }
-  if (input.product_url !== undefined) {
-    fields.push('product_url = ?');
-    values.push(input.product_url);
-  }
-  if (input.status !== undefined) {
-    fields.push('status = ?');
-    values.push(input.status);
-  }
+  if (Object.keys(values).length === 0) return existing;
 
-  if (fields.length === 0) return existing;
+  values.updated_at = sql`datetime('now')` as unknown as string;
 
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
-
-  getDb()
-    .prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
-
+  await db().update(projects).set(values).where(eq(projects.id, id));
   return getProject(id);
 }
 
-export function deleteProject(id: string): boolean {
-  const result = getDb().prepare('DELETE FROM projects WHERE id = ?').run(id);
-  return result.changes > 0;
+export async function deleteProject(id: string): Promise<boolean> {
+  const existing = await getProject(id);
+  if (!existing) return false;
+  await db().delete(projects).where(eq(projects.id, id));
+  return true;
 }
 
-export function archiveProject(id: string): Project | null {
+export async function archiveProject(id: string): Promise<Project | null> {
   return updateProject(id, { status: 'archived' });
 }
