@@ -1,5 +1,17 @@
-import { getDb } from './index';
+import { eq, sql, and } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { issues, assessments, projects } from './schema';
+import type * as sqliteSchema from './schema';
+import { jsonArrayContains } from './sql-helpers';
 import type { CreateIssueInput, UpdateIssueInput } from '../validators/issues';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface Issue {
   id: string;
@@ -69,32 +81,52 @@ export interface IssueFilters {
   tag?: string;
 }
 
-export function getAllIssues(): IssueWithContext[] {
-  type IssueWithContextRow = Omit<
-    IssueWithContext,
-    | 'wcag_codes'
-    | 'ai_suggested_codes'
-    | 'evidence_media'
-    | 'tags'
-    | 'section_508_codes'
-    | 'eu_codes'
-  > & {
-    wcag_codes: string;
-    section_508_codes: string;
-    eu_codes: string;
-    ai_suggested_codes: string;
-    evidence_media: string;
-    tags: string;
+export async function getAllIssues(): Promise<IssueWithContext[]> {
+  type IssueWithContextRow = IssueRow & {
+    project_id: string;
+    project_name: string;
+    assessment_name: string;
   };
-  const rows = getDb()
-    .prepare(
-      `SELECT i.*, p.id AS project_id, p.name AS project_name, a.name AS assessment_name
-       FROM issues i
-       JOIN assessments a ON a.id = i.assessment_id
-       JOIN projects p ON p.id = a.project_id
-       ORDER BY i.created_at DESC`
-    )
+
+  const rows = db()
+    .select({
+      id: issues.id,
+      assessment_id: issues.assessment_id,
+      title: issues.title,
+      description: issues.description,
+      url: issues.url,
+      severity: issues.severity,
+      status: issues.status,
+      wcag_codes: issues.wcag_codes,
+      section_508_codes: issues.section_508_codes,
+      eu_codes: issues.eu_codes,
+      ai_suggested_codes: issues.ai_suggested_codes,
+      ai_confidence_score: issues.ai_confidence_score,
+      device_type: issues.device_type,
+      browser: issues.browser,
+      operating_system: issues.operating_system,
+      assistive_technology: issues.assistive_technology,
+      user_impact: issues.user_impact,
+      selector: issues.selector,
+      code_snippet: issues.code_snippet,
+      suggested_fix: issues.suggested_fix,
+      evidence_media: issues.evidence_media,
+      tags: issues.tags,
+      created_by: issues.created_by,
+      resolved_by: issues.resolved_by,
+      resolved_at: issues.resolved_at,
+      created_at: issues.created_at,
+      updated_at: issues.updated_at,
+      project_id: projects.id,
+      project_name: projects.name,
+      assessment_name: assessments.name,
+    })
+    .from(issues)
+    .innerJoin(assessments, eq(assessments.id, issues.assessment_id))
+    .innerJoin(projects, eq(projects.id, assessments.project_id))
+    .orderBy(sql`${issues.created_at} DESC`)
     .all() as IssueWithContextRow[];
+
   return rows.map((row) => ({
     ...deserializeIssue(row),
     project_id: row.project_id,
@@ -103,209 +135,209 @@ export function getAllIssues(): IssueWithContext[] {
   }));
 }
 
-export function getIssue(id: string): Issue | null {
-  const row = getDb().prepare('SELECT * FROM issues WHERE id = ?').get(id) as IssueRow | undefined;
-  return row ? deserializeIssue(row) : null;
+export async function getIssue(id: string): Promise<Issue | null> {
+  const rows = db().select().from(issues).where(eq(issues.id, id)).limit(1).all();
+  return rows[0] ? deserializeIssue(rows[0] as IssueRow) : null;
 }
 
-export function getIssues(assessmentId: string, filters?: IssueFilters): Issue[] {
-  const conditions: string[] = ['assessment_id = ?'];
-  const values: unknown[] = [assessmentId];
+export async function getIssues(assessmentId: string, filters?: IssueFilters): Promise<Issue[]> {
+  const conditions = [eq(issues.assessment_id, assessmentId)];
 
-  if (filters?.severity) {
-    conditions.push('severity = ?');
-    values.push(filters.severity);
-  }
-  if (filters?.status) {
-    conditions.push('status = ?');
-    values.push(filters.status);
-  }
-  if (filters?.wcag_code) {
-    conditions.push(`EXISTS (SELECT 1 FROM json_each(wcag_codes) WHERE value = ?)`);
-    values.push(filters.wcag_code);
-  }
-  if (filters?.tag) {
-    conditions.push(`EXISTS (SELECT 1 FROM json_each(tags) WHERE value = ?)`);
-    values.push(filters.tag);
-  }
+  if (filters?.severity) conditions.push(eq(issues.severity, filters.severity));
+  if (filters?.status) conditions.push(eq(issues.status, filters.status));
+  if (filters?.wcag_code) conditions.push(jsonArrayContains('wcag_codes', filters.wcag_code));
+  if (filters?.tag) conditions.push(jsonArrayContains('tags', filters.tag));
 
-  const sql = `SELECT * FROM issues WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`;
-  const rows = getDb()
-    .prepare(sql)
-    .all(...values) as IssueRow[];
-  return rows.map(deserializeIssue);
+  const rows = db()
+    .select()
+    .from(issues)
+    .where(and(...conditions))
+    .orderBy(sql`${issues.created_at} DESC`)
+    .all();
+
+  return rows.map((row) => deserializeIssue(row as IssueRow));
 }
 
-export function createIssue(assessmentId: string, input: CreateIssueInput): Issue {
+export async function createIssue(assessmentId: string, input: CreateIssueInput): Promise<Issue> {
   const id = crypto.randomUUID();
-  getDb()
-    .prepare(
-      `INSERT INTO issues (
-        id, assessment_id, title, description, url, severity, status,
-        wcag_codes, section_508_codes, eu_codes, device_type, browser, operating_system, assistive_technology,
-        user_impact, selector, code_snippet, suggested_fix,
-        evidence_media, tags, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(
+  const now = new Date().toISOString();
+  await db()
+    .insert(issues)
+    .values({
       id,
-      assessmentId,
-      input.title,
-      input.description ?? null,
-      input.url ?? null,
-      input.severity ?? 'medium',
-      input.status ?? 'open',
-      JSON.stringify(input.wcag_codes ?? []),
-      JSON.stringify(input.section_508_codes ?? []),
-      JSON.stringify(input.eu_codes ?? []),
-      input.device_type ?? null,
-      input.browser ?? null,
-      input.operating_system ?? null,
-      input.assistive_technology ?? null,
-      input.user_impact ?? null,
-      input.selector ?? null,
-      input.code_snippet ?? null,
-      input.suggested_fix ?? null,
-      JSON.stringify(input.evidence_media ?? []),
-      JSON.stringify(input.tags ?? []),
-      input.created_by ?? null
-    );
-  return getIssue(id)!;
+      assessment_id: assessmentId,
+      title: input.title,
+      description: input.description ?? null,
+      url: input.url ?? null,
+      severity: (input.severity ?? 'medium') as 'critical' | 'high' | 'medium' | 'low',
+      status: (input.status ?? 'open') as 'open' | 'resolved' | 'wont_fix',
+      wcag_codes: JSON.stringify(input.wcag_codes ?? []),
+      section_508_codes: JSON.stringify(input.section_508_codes ?? []),
+      eu_codes: JSON.stringify(input.eu_codes ?? []),
+      ai_suggested_codes: JSON.stringify(input.ai_suggested_codes ?? []),
+      ai_confidence_score: input.ai_confidence_score ?? null,
+      device_type: (input.device_type ?? null) as 'desktop' | 'mobile' | 'tablet' | null,
+      browser: input.browser ?? null,
+      operating_system: input.operating_system ?? null,
+      assistive_technology: input.assistive_technology ?? null,
+      user_impact: input.user_impact ?? null,
+      selector: input.selector ?? null,
+      code_snippet: input.code_snippet ?? null,
+      suggested_fix: input.suggested_fix ?? null,
+      evidence_media: JSON.stringify(input.evidence_media ?? []),
+      tags: JSON.stringify(input.tags ?? []),
+      created_by: input.created_by ?? null,
+      created_at: now,
+      updated_at: now,
+    });
+  return (await getIssue(id))!;
 }
 
-export function updateIssue(id: string, input: UpdateIssueInput): Issue | null {
-  const existing = getIssue(id);
+export async function updateIssue(id: string, input: UpdateIssueInput): Promise<Issue | null> {
+  const existing = await getIssue(id);
   if (!existing) return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  type IssueUpdate = Partial<typeof issues.$inferInsert>;
+  const values: IssueUpdate = {};
 
-  if (input.title !== undefined) {
-    fields.push('title = ?');
-    values.push(input.title);
-  }
-  if (input.description !== undefined) {
-    fields.push('description = ?');
-    values.push(input.description);
-  }
-  if (input.url !== undefined) {
-    fields.push('url = ?');
-    values.push(input.url);
-  }
-  if (input.severity !== undefined) {
-    fields.push('severity = ?');
-    values.push(input.severity);
-  }
-  if (input.status !== undefined) {
-    fields.push('status = ?');
-    values.push(input.status);
-  }
-  if (input.wcag_codes !== undefined) {
-    fields.push('wcag_codes = ?');
-    values.push(JSON.stringify(input.wcag_codes));
-  }
-  if (input.section_508_codes !== undefined) {
-    fields.push('section_508_codes = ?');
-    values.push(JSON.stringify(input.section_508_codes));
-  }
-  if (input.eu_codes !== undefined) {
-    fields.push('eu_codes = ?');
-    values.push(JSON.stringify(input.eu_codes));
-  }
-  if (input.device_type !== undefined) {
-    fields.push('device_type = ?');
-    values.push(input.device_type);
-  }
-  if (input.browser !== undefined) {
-    fields.push('browser = ?');
-    values.push(input.browser);
-  }
-  if (input.operating_system !== undefined) {
-    fields.push('operating_system = ?');
-    values.push(input.operating_system);
-  }
-  if (input.assistive_technology !== undefined) {
-    fields.push('assistive_technology = ?');
-    values.push(input.assistive_technology);
-  }
-  if (input.user_impact !== undefined) {
-    fields.push('user_impact = ?');
-    values.push(input.user_impact);
-  }
-  if (input.selector !== undefined) {
-    fields.push('selector = ?');
-    values.push(input.selector);
-  }
-  if (input.code_snippet !== undefined) {
-    fields.push('code_snippet = ?');
-    values.push(input.code_snippet);
-  }
-  if (input.suggested_fix !== undefined) {
-    fields.push('suggested_fix = ?');
-    values.push(input.suggested_fix);
-  }
-  if (input.evidence_media !== undefined) {
-    fields.push('evidence_media = ?');
-    values.push(JSON.stringify(input.evidence_media));
-  }
-  if (input.tags !== undefined) {
-    fields.push('tags = ?');
-    values.push(JSON.stringify(input.tags));
-  }
+  if (input.title !== undefined) values.title = input.title;
+  if (input.description !== undefined) values.description = input.description;
+  if (input.url !== undefined) values.url = input.url;
+  if (input.severity !== undefined) values.severity = input.severity;
+  if (input.status !== undefined) values.status = input.status;
+  if (input.wcag_codes !== undefined) values.wcag_codes = JSON.stringify(input.wcag_codes);
+  if (input.section_508_codes !== undefined)
+    values.section_508_codes = JSON.stringify(input.section_508_codes);
+  if (input.eu_codes !== undefined) values.eu_codes = JSON.stringify(input.eu_codes);
+  if (input.device_type !== undefined) values.device_type = input.device_type;
+  if (input.browser !== undefined) values.browser = input.browser;
+  if (input.operating_system !== undefined) values.operating_system = input.operating_system;
+  if (input.assistive_technology !== undefined)
+    values.assistive_technology = input.assistive_technology;
+  if (input.user_impact !== undefined) values.user_impact = input.user_impact;
+  if (input.selector !== undefined) values.selector = input.selector;
+  if (input.code_snippet !== undefined) values.code_snippet = input.code_snippet;
+  if (input.suggested_fix !== undefined) values.suggested_fix = input.suggested_fix;
+  if (input.evidence_media !== undefined)
+    values.evidence_media = JSON.stringify(input.evidence_media);
+  if (input.tags !== undefined) values.tags = JSON.stringify(input.tags);
 
-  if (fields.length === 0) return existing;
+  if (Object.keys(values).length === 0) return existing;
 
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
-
-  getDb()
-    .prepare(`UPDATE issues SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
+  db()
+    .update(issues)
+    .set({ ...values, updated_at: new Date().toISOString() })
+    .where(eq(issues.id, id))
+    .run();
 
   return getIssue(id);
 }
 
-export function deleteIssue(id: string): boolean {
-  const result = getDb().prepare('DELETE FROM issues WHERE id = ?').run(id);
-  return result.changes > 0;
+export async function deleteIssue(id: string): Promise<boolean> {
+  const existing = await getIssue(id);
+  if (!existing) return false;
+  await db().delete(issues).where(eq(issues.id, id));
+  return true;
 }
 
-export function resolveIssue(id: string, resolvedBy: string): Issue | null {
-  const existing = getIssue(id);
+export async function resolveIssue(id: string, resolvedBy: string): Promise<Issue | null> {
+  const existing = await getIssue(id);
   if (!existing) return null;
 
-  getDb()
-    .prepare(
-      `UPDATE issues SET status = 'resolved', resolved_by = ?, resolved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`
-    )
-    .run(resolvedBy, id);
+  const now = new Date().toISOString();
+  db()
+    .update(issues)
+    .set({
+      status: 'resolved',
+      resolved_by: resolvedBy,
+      resolved_at: now,
+      updated_at: now,
+    })
+    .where(eq(issues.id, id))
+    .run();
 
   return getIssue(id);
 }
 
-export function getIssuesByProject(projectId: string): Issue[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT i.* FROM issues i
-       JOIN assessments a ON a.id = i.assessment_id
-       WHERE a.project_id = ?
-       ORDER BY i.created_at DESC`
-    )
-    .all(projectId) as IssueRow[];
-  return rows.map(deserializeIssue);
+export async function getIssuesByProject(projectId: string): Promise<Issue[]> {
+  const rows = db()
+    .select({
+      id: issues.id,
+      assessment_id: issues.assessment_id,
+      title: issues.title,
+      description: issues.description,
+      url: issues.url,
+      severity: issues.severity,
+      status: issues.status,
+      wcag_codes: issues.wcag_codes,
+      section_508_codes: issues.section_508_codes,
+      eu_codes: issues.eu_codes,
+      ai_suggested_codes: issues.ai_suggested_codes,
+      ai_confidence_score: issues.ai_confidence_score,
+      device_type: issues.device_type,
+      browser: issues.browser,
+      operating_system: issues.operating_system,
+      assistive_technology: issues.assistive_technology,
+      user_impact: issues.user_impact,
+      selector: issues.selector,
+      code_snippet: issues.code_snippet,
+      suggested_fix: issues.suggested_fix,
+      evidence_media: issues.evidence_media,
+      tags: issues.tags,
+      created_by: issues.created_by,
+      resolved_by: issues.resolved_by,
+      resolved_at: issues.resolved_at,
+      created_at: issues.created_at,
+      updated_at: issues.updated_at,
+    })
+    .from(issues)
+    .innerJoin(assessments, eq(assessments.id, issues.assessment_id))
+    .where(eq(assessments.project_id, projectId))
+    .orderBy(sql`${issues.created_at} DESC`)
+    .all();
+
+  return rows.map((row) => deserializeIssue(row as IssueRow));
 }
 
-export function getIssuesByProjectAndWcagCode(projectId: string, wcagCode: string): Issue[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT i.* FROM issues i
-       JOIN assessments a ON i.assessment_id = a.id
-       WHERE a.project_id = ?
-         AND EXISTS (
-           SELECT 1 FROM json_each(i.wcag_codes) WHERE value = ?
-         )
-       ORDER BY i.created_at DESC`
-    )
-    .all(projectId, wcagCode) as IssueRow[];
-  return rows.map(deserializeIssue);
+export async function getIssuesByProjectAndWcagCode(
+  projectId: string,
+  wcagCode: string
+): Promise<Issue[]> {
+  const rows = db()
+    .select({
+      id: issues.id,
+      assessment_id: issues.assessment_id,
+      title: issues.title,
+      description: issues.description,
+      url: issues.url,
+      severity: issues.severity,
+      status: issues.status,
+      wcag_codes: issues.wcag_codes,
+      section_508_codes: issues.section_508_codes,
+      eu_codes: issues.eu_codes,
+      ai_suggested_codes: issues.ai_suggested_codes,
+      ai_confidence_score: issues.ai_confidence_score,
+      device_type: issues.device_type,
+      browser: issues.browser,
+      operating_system: issues.operating_system,
+      assistive_technology: issues.assistive_technology,
+      user_impact: issues.user_impact,
+      selector: issues.selector,
+      code_snippet: issues.code_snippet,
+      suggested_fix: issues.suggested_fix,
+      evidence_media: issues.evidence_media,
+      tags: issues.tags,
+      created_by: issues.created_by,
+      resolved_by: issues.resolved_by,
+      resolved_at: issues.resolved_at,
+      created_at: issues.created_at,
+      updated_at: issues.updated_at,
+    })
+    .from(issues)
+    .innerJoin(assessments, eq(assessments.id, issues.assessment_id))
+    .where(and(eq(assessments.project_id, projectId), jsonArrayContains('wcag_codes', wcagCode)))
+    .orderBy(sql`${issues.created_at} DESC`)
+    .all();
+
+  return rows.map((row) => deserializeIssue(row as IssueRow));
 }
