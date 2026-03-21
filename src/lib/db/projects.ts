@@ -59,6 +59,7 @@ export async function getProjects(): Promise<ProjectWithCounts[]> {
 
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
   await db()
     .insert(projects)
     .values({
@@ -67,8 +68,8 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
       description: input.description ?? null,
       product_url: input.product_url ?? null,
       status: (input.status ?? 'active') as 'active' | 'archived',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: now,
+      updated_at: now,
     });
   return (await getProject(id))!;
 }
@@ -80,7 +81,10 @@ export async function updateProject(
   const existing = await getProject(id);
   if (!existing) return null;
 
-  const values: Record<string, unknown> = {};
+  type ProjectUpdate = Partial<
+    Pick<typeof projects.$inferInsert, 'name' | 'description' | 'product_url' | 'status'>
+  >;
+  const values: ProjectUpdate = {};
   if (input.name !== undefined) values.name = input.name;
   if (input.description !== undefined) values.description = input.description;
   if (input.product_url !== undefined) values.product_url = input.product_url;
@@ -88,9 +92,11 @@ export async function updateProject(
 
   if (Object.keys(values).length === 0) return existing;
 
-  values.updated_at = sql`datetime('now')` as unknown as string;
-
-  await db().update(projects).set(values).where(eq(projects.id, id));
+  db()
+    .update(projects)
+    .set({ ...values, updated_at: new Date().toISOString() })
+    .where(eq(projects.id, id))
+    .run();
   return getProject(id);
 }
 

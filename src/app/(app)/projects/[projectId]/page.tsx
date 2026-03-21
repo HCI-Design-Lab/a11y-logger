@@ -21,8 +21,8 @@ export default async function ProjectDetailPage({
   const project = await getProject(projectId);
   if (!project) notFound();
 
-  const assessments = getAssessments(projectId);
-  const issues = getIssuesByProject(projectId);
+  const assessments = await getAssessments(projectId);
+  const issues = await getIssuesByProject(projectId);
 
   const severityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
   for (const issue of issues) {
