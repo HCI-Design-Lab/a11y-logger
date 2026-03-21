@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   const wcagLevel = wcagLevelParam as 'A' | 'AA' | 'AAA';
 
   try {
-    const sections = getCriteriaForEdition(
+    const sections = await getCriteriaForEdition(
       edition as 'WCAG' | '508' | 'EU' | 'INT',
       productScope,
       wcagVersion,

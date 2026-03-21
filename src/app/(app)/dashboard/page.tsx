@@ -4,8 +4,8 @@ import { ActivityChart } from '@/components/dashboard/activity-chart';
 import { WcagCriteria } from '@/components/dashboard/wcag-criteria';
 import { getDashboardStats } from '@/lib/db/dashboard';
 
-export default function DashboardPage() {
-  const stats = getDashboardStats();
+export default async function DashboardPage() {
+  const stats = await getDashboardStats();
 
   return (
     <div className="space-y-6 max-w-300">

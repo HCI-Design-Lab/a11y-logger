@@ -8,7 +8,7 @@ export async function GET() {
     const authError = await requireAuth();
     if (authError) return authError;
 
-    return NextResponse.json({ success: true, data: getUsers() });
+    return NextResponse.json({ success: true, data: await getUsers() });
   } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch users', code: 'INTERNAL_ERROR' },

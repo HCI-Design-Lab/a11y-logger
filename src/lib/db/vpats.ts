@@ -205,7 +205,7 @@ export async function createVpat(input: CreateVpatParams): Promise<Vpat> {
     .run();
 
   // Auto-populate criterion rows based on edition and scope
-  const sections = getCriteriaForEdition(edition, productScope, wcagVersion, wcagLevel);
+  const sections = await getCriteriaForEdition(edition, productScope, wcagVersion, wcagLevel);
   const rowInputs = sections.flatMap((s) =>
     s.criteria.map((c) => ({
       criterion_id: c.id,

@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const enabled = Boolean(body.enabled);
 
   if (enabled) {
-    const users = getUsers();
+    const users = await getUsers();
     if (!users || users.length === 0) {
       return NextResponse.json(
         {

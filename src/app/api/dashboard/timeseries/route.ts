@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = getTimeSeriesData(rangeParam as TimeRange);
+    const data = await getTimeSeriesData(rangeParam as TimeRange);
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json(

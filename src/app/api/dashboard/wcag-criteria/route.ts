@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = getWcagCriteriaCounts(principleParam as WcagPrinciple);
+    const data = await getWcagCriteriaCounts(principleParam as WcagPrinciple);
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json(

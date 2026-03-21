@@ -11,7 +11,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
     const authError = await requireAuth();
     if (authError) return authError;
 
-    const user = getUser(id);
+    const user = await getUser(id);
 
     if (!user) {
       return NextResponse.json(
@@ -80,7 +80,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const authError = await requireAuth();
     if (authError) return authError;
 
-    const deleted = deleteUser(id);
+    const deleted = await deleteUser(id);
 
     if (!deleted) {
       return NextResponse.json(

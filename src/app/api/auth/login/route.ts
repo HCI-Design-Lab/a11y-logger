@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const user = getUserByUsername(username);
+  const user = await getUserByUsername(username);
   if (!user) {
     return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
   }
