@@ -183,7 +183,7 @@ describe('generateReportHtml', () => {
   it('escapes HTML-special characters in the report title', () => {
     const xssReport = { ...mockReport, title: '<script>alert("xss")</script>' };
     const result = generateReportHtml(xssReport, mockProject);
-    // The raw XSS payload should not appear verbatim in the title
+    // Checks the specific payload — can't use not.toContain('<script>') since the template always injects a legitimate script tag
     expect(result).not.toContain('<script>alert("xss")</script>');
     expect(result).toContain('&lt;script&gt;');
   });

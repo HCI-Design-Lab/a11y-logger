@@ -344,7 +344,7 @@ function buildSectionsHtml(content: ReportContent): string {
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('\n        ');
     parts.push(`
-      <details class="report-section report-section-continued" open>
+      <details class="report-section report-section-continued" open><!-- report-section-continued: no page break, shares page with Top Risks in print -->
         <summary>Quick Wins</summary>
         <div class="report-section-body">
           <ol class="section-list">
@@ -656,11 +656,11 @@ export function generateReportHtml(
         border-bottom: 1px solid #ccc;
         padding-bottom: 12pt;
         page-break-inside: avoid;
+        break-before: page;
       }
 
       .report-section > summary { padding: 0; cursor: default; }
       .report-section-body { padding: 0; }
-      .report-section { break-before: page; }
       .report-section-continued { break-before: auto; }
 
       .impact-card { border: 1px solid #ccc; background: white; }
