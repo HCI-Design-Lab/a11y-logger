@@ -121,7 +121,7 @@ describe('ExecutiveSummarySection', () => {
         isGenerating={true}
       />
     );
-    expect(screen.getByTestId('section-fields')).toHaveAttribute('inert');
+    expect(screen.getByTestId('section-fields')).toHaveAttribute('inert', '');
   });
 
   it('does not mark fields inert when not generating', () => {
