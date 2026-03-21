@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { initDb, closeDb, getDb } from '../index';
+import { initDb, closeDb } from '../index';
+import { getDbClient } from '../client';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import type * as sqliteSchema from '../schema';
+import * as schema from '../schema';
 import { createProject } from '../projects';
 import {
   createVpat,
@@ -14,25 +18,29 @@ import {
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
 
+function dbc() {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
+
 let projectId: string;
 
-beforeAll(() => {
-  initDb(':memory:');
+beforeAll(async () => {
+  await initDb(':memory:');
 });
 afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
-  getDb().prepare('DELETE FROM vpat_criterion_rows').run();
-  getDb().prepare('DELETE FROM vpats').run();
-  getDb().prepare('DELETE FROM projects').run();
-  projectId = createProject({ name: 'Test Project' }).id;
+beforeEach(async () => {
+  await dbc().delete(schema.vpatCriterionRows);
+  await dbc().delete(schema.vpats);
+  await dbc().delete(schema.projects);
+  projectId = (await createProject({ name: 'Test Project' })).id;
 });
 
 describe('createVpat', () => {
-  it('creates a VPAT with correct fields', () => {
-    const vpat = createVpat({
+  it('creates a VPAT with correct fields', async () => {
+    const vpat = await createVpat({
       title: 'Test VPAT',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -49,8 +57,8 @@ describe('createVpat', () => {
     expect(vpat.status).toBe('draft');
   });
 
-  it('auto-populates criterion rows', () => {
-    const vpat = createVpat({
+  it('auto-populates criterion rows', async () => {
+    const vpat = await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -58,15 +66,15 @@ describe('createVpat', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const rows = getCriterionRows(vpat.id);
+    const rows = await getCriterionRows(vpat.id);
     expect(rows.length).toBeGreaterThan(0);
     const codes = rows.map((r) => r.criterion_code);
     expect(codes).toContain('1.1.1');
     expect(codes).toContain('1.4.3');
   });
 
-  it('excludes 2.1-only criteria for 508 edition', () => {
-    const vpat = createVpat({
+  it('excludes 2.1-only criteria for 508 edition', async () => {
+    const vpat = await createVpat({
       title: '508 VPAT',
       project_id: projectId,
       standard_edition: '508',
@@ -74,14 +82,14 @@ describe('createVpat', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const codes = getCriterionRows(vpat.id).map((r) => r.criterion_code);
+    const codes = (await getCriterionRows(vpat.id)).map((r) => r.criterion_code);
     expect(codes).not.toContain('1.3.4');
     expect(codes).not.toContain('1.4.10');
     expect(codes).toContain('302.1');
   });
 
-  it('marks Chapter5 rows as not_applicable for web-only scope in 508 edition', () => {
-    const vpat = createVpat({
+  it('marks Chapter5 rows as not_applicable for web-only scope in 508 edition', async () => {
+    const vpat = await createVpat({
       title: '508 VPAT',
       project_id: projectId,
       standard_edition: '508',
@@ -89,7 +97,7 @@ describe('createVpat', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const rows = getCriterionRows(vpat.id);
+    const rows = await getCriterionRows(vpat.id);
     const ch5Rows = rows.filter((r) => r.criterion_section === 'Chapter5');
     expect(ch5Rows.length).toBeGreaterThan(0);
     ch5Rows.forEach((r) => {
@@ -100,78 +108,78 @@ describe('createVpat', () => {
 });
 
 describe('getVpat', () => {
-  it('returns null for non-existent id', () => {
-    expect(getVpat('non-existent')).toBeNull();
+  it('returns null for non-existent id', async () => {
+    expect(await getVpat('non-existent')).toBeNull();
   });
 
-  it('returns the vpat by id', () => {
-    const created = createVpat({
+  it('returns the vpat by id', async () => {
+    const created = await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    const found = getVpat(created.id);
+    const found = await getVpat(created.id);
     expect(found).not.toBeNull();
     expect(found!.title).toBe('Test');
   });
 });
 
 describe('getVpats', () => {
-  it('returns all VPATs when no projectId', () => {
-    createVpat({
+  it('returns all VPATs when no projectId', async () => {
+    await createVpat({
       title: 'A',
       project_id: projectId,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    createVpat({
+    await createVpat({
       title: 'B',
       project_id: projectId,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    expect(getVpats()).toHaveLength(2);
+    expect(await getVpats()).toHaveLength(2);
   });
 
-  it('filters by projectId', () => {
-    const other = createProject({ name: 'Other' });
-    createVpat({
+  it('filters by projectId', async () => {
+    const other = await createProject({ name: 'Other' });
+    await createVpat({
       title: 'Mine',
       project_id: projectId,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    createVpat({
+    await createVpat({
       title: 'Theirs',
       project_id: other.id,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    expect(getVpats(projectId)).toHaveLength(1);
+    expect(await getVpats(projectId)).toHaveLength(1);
   });
 });
 
 describe('updateVpat', () => {
-  it('updates title', () => {
-    const vpat = createVpat({
+  it('updates title', async () => {
+    const vpat = await createVpat({
       title: 'Old',
       project_id: projectId,
       standard_edition: 'WCAG',
       product_scope: ['web'],
     });
-    const updated = updateVpat(vpat.id, { title: 'New' });
+    const updated = await updateVpat(vpat.id, { title: 'New' });
     expect(updated!.title).toBe('New');
   });
 
-  it('returns null for non-existent', () => {
-    expect(updateVpat('non-existent', { title: 'New' })).toBeNull();
+  it('returns null for non-existent', async () => {
+    expect(await updateVpat('non-existent', { title: 'New' })).toBeNull();
   });
 });
 
 describe('deleteVpat', () => {
-  it('deletes the VPAT and cascades to criterion rows', () => {
-    const vpat = createVpat({
+  it('deletes the VPAT and cascades to criterion rows', async () => {
+    const vpat = await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -179,24 +187,24 @@ describe('deleteVpat', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    expect(getCriterionRows(vpat.id).length).toBeGreaterThan(0);
-    deleteVpat(vpat.id);
-    expect(getVpat(vpat.id)).toBeNull();
-    expect(getCriterionRows(vpat.id)).toHaveLength(0);
+    expect((await getCriterionRows(vpat.id)).length).toBeGreaterThan(0);
+    await deleteVpat(vpat.id);
+    expect(await getVpat(vpat.id)).toBeNull();
+    expect(await getCriterionRows(vpat.id)).toHaveLength(0);
   });
 
-  it('returns false for non-existent', () => {
-    expect(deleteVpat('non-existent')).toBe(false);
+  it('returns false for non-existent', async () => {
+    expect(await deleteVpat('non-existent')).toBe(false);
   });
 });
 
 describe('publishVpat', () => {
-  it('publishVpat throws for non-existent VPAT', () => {
-    expect(() => publishVpat('non-existent')).toThrow('not found');
+  it('publishVpat throws for non-existent VPAT', async () => {
+    await expect(publishVpat('non-existent')).rejects.toThrow('not found');
   });
 
-  it('throws when unresolved rows exist', () => {
-    const vpat = createVpat({
+  it('throws when unresolved rows exist', async () => {
+    const vpat = await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -204,11 +212,11 @@ describe('publishVpat', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    expect(() => publishVpat(vpat.id)).toThrow('unresolved');
+    await expect(publishVpat(vpat.id)).rejects.toThrow('unresolved');
   });
 
-  it('publishes when all rows are resolved', () => {
-    const vpat = createVpat({
+  it('publishes when all rows are resolved', async () => {
+    const vpat = await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -217,20 +225,25 @@ describe('publishVpat', () => {
       product_scope: ['web'],
     });
     // Resolve all rows by setting conformance to supports
-    getDb()
-      .prepare(
-        "UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ? AND conformance = 'not_evaluated'"
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(
+        (await import('drizzle-orm')).and(
+          (await import('drizzle-orm')).eq(schema.vpatCriterionRows.vpat_id, vpat.id),
+          (await import('drizzle-orm')).eq(schema.vpatCriterionRows.conformance, 'not_evaluated')
+        )
       )
-      .run(vpat.id);
-    const published = publishVpat(vpat.id);
+      .run();
+    const published = await publishVpat(vpat.id);
     expect(published.status).toBe('published');
     expect(published.published_at).not.toBeNull();
   });
 });
 
 describe('getVpatsWithProject', () => {
-  it('returns vpat with project name', () => {
-    createVpat({
+  it('returns vpat with project name', async () => {
+    await createVpat({
       title: 'Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -238,14 +251,14 @@ describe('getVpatsWithProject', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const results = getVpatsWithProject();
+    const results = await getVpatsWithProject();
     expect(results[0]!.project_name).toBe('Test Project');
   });
 });
 
 describe('getVpatsWithProgress', () => {
-  it('returns resolved and total counts', () => {
-    const vpat = createVpat({
+  it('returns resolved and total counts', async () => {
+    const vpat = await createVpat({
       title: 'Progress Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -253,20 +266,34 @@ describe('getVpatsWithProgress', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    // Mark some rows as resolved
-    getDb()
-      .prepare(
-        "UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ? AND conformance = 'not_evaluated' LIMIT 3"
+    // Mark 3 rows as resolved
+    const { eq, and } = await import('drizzle-orm');
+    const rows = dbc()
+      .select({ id: schema.vpatCriterionRows.id })
+      .from(schema.vpatCriterionRows)
+      .where(
+        and(
+          eq(schema.vpatCriterionRows.vpat_id, vpat.id),
+          eq(schema.vpatCriterionRows.conformance, 'not_evaluated')
+        )
       )
-      .run(vpat.id);
-    const results = getVpatsWithProgress();
+      .limit(3)
+      .all();
+    for (const row of rows) {
+      dbc()
+        .update(schema.vpatCriterionRows)
+        .set({ conformance: 'supports' })
+        .where(eq(schema.vpatCriterionRows.id, row.id))
+        .run();
+    }
+    const results = await getVpatsWithProgress();
     expect(results).toHaveLength(1);
     expect(results[0]!.total).toBeGreaterThan(0);
     expect(results[0]!.resolved).toBe(3);
   });
 
-  it('returns project_name', () => {
-    createVpat({
+  it('returns project_name', async () => {
+    await createVpat({
       title: 'Progress Test',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -274,13 +301,13 @@ describe('getVpatsWithProgress', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const results = getVpatsWithProgress();
+    const results = await getVpatsWithProgress();
     expect(results[0]!.project_name).toBe('Test Project');
   });
 
-  it('filters by projectId when provided', () => {
-    const other = createProject({ name: 'Other Project' });
-    createVpat({
+  it('filters by projectId when provided', async () => {
+    const other = await createProject({ name: 'Other Project' });
+    await createVpat({
       title: 'Mine',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -288,7 +315,7 @@ describe('getVpatsWithProgress', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    createVpat({
+    await createVpat({
       title: 'Theirs',
       project_id: other.id,
       standard_edition: 'WCAG',
@@ -296,13 +323,13 @@ describe('getVpatsWithProgress', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const results = getVpatsWithProgress(projectId);
+    const results = await getVpatsWithProgress(projectId);
     expect(results).toHaveLength(1);
     expect(results[0]!.title).toBe('Mine');
   });
 
-  it('resolved is 0 when all rows are not_evaluated', () => {
-    createVpat({
+  it('resolved is 0 when all rows are not_evaluated', async () => {
+    await createVpat({
       title: 'All Unevaluated',
       project_id: projectId,
       standard_edition: 'WCAG',
@@ -310,7 +337,7 @@ describe('getVpatsWithProgress', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
     });
-    const results = getVpatsWithProgress();
+    const results = await getVpatsWithProgress();
     expect(results[0]!.resolved).toBe(0);
   });
 });
