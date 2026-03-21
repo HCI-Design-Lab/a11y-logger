@@ -9,7 +9,7 @@ vi.mock('ai', () => ({
 const mockGenerateText = vi.mocked(generateText);
 
 // Minimal fake LanguageModel — VercelAIProvider only passes this to generateText
-const fakeModel = {} as Parameters<VercelAIProvider['constructor']>[0];
+const fakeModel = {} as ConstructorParameters<typeof VercelAIProvider>[0];
 
 beforeEach(() => {
   vi.clearAllMocks();

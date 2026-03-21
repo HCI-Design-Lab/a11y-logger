@@ -25,7 +25,7 @@ export class VercelAIProvider implements AIProvider {
 
   async testConnection(): Promise<{ ok: boolean; error?: string }> {
     try {
-      await generateText({ model: this.model, prompt: 'ping', maxTokens: 1 });
+      await generateText({ model: this.model, prompt: 'ping', maxOutputTokens: 1 });
       return { ok: true };
     } catch (err) {
       return { ok: false, error: err instanceof Error ? err.message : 'Connection failed' };
