@@ -6,7 +6,7 @@ export const projects = sqliteTable('projects', {
   description: text('description'),
   product_url: text('product_url'),
   status: text('status').notNull().default('active'),
-  settings: text('settings').notNull().default('{}'),
+  settings: text('settings').default('{}'),
   created_by: text('created_by'),
   created_at: text('created_at').notNull(),
   updated_at: text('updated_at').notNull(),
@@ -61,9 +61,12 @@ export const reports = sqliteTable('reports', {
   project_id: text('project_id'),
   title: text('title').notNull(),
   type: text('type').notNull().default('detailed'),
+  status: text('status').notNull().default('draft'),
   content: text('content'),
+  template_id: text('template_id'),
   ai_generated: integer('ai_generated').notNull().default(0),
   created_by: text('created_by'),
+  published_at: text('published_at'),
   created_at: text('created_at').notNull(),
   updated_at: text('updated_at').notNull(),
 });
@@ -77,6 +80,7 @@ export const vpats = sqliteTable('vpats', {
   id: text('id').primaryKey(),
   project_id: text('project_id').notNull(),
   title: text('title').notNull(),
+  description: text('description'),
   wcag_version: text('wcag_version').notNull().default('2.1'),
   wcag_level: text('wcag_level').notNull().default('AA'),
   standard_edition: text('standard_edition').notNull().default('508'),
@@ -92,10 +96,12 @@ export const criteria = sqliteTable('criteria', {
   name: text('name').notNull(),
   description: text('description'),
   standard: text('standard').notNull(),
+  chapter_section: text('chapter_section').notNull(),
   wcag_version: text('wcag_version'),
   level: text('level'),
   editions: text('editions').notNull().default('[]'),
   product_types: text('product_types').notNull().default('[]'),
+  wcag_equivalent_id: text('wcag_equivalent_id'),
   sort_order: integer('sort_order').notNull().default(0),
 });
 
@@ -103,17 +109,17 @@ export const vpatCriterionRows = sqliteTable('vpat_criterion_rows', {
   id: text('id').primaryKey(),
   vpat_id: text('vpat_id').notNull(),
   criterion_id: text('criterion_id').notNull(),
-  conformance: text('conformance').notNull().default('not-evaluated'),
+  conformance: text('conformance').notNull().default('not_evaluated'),
   remarks: text('remarks'),
   ai_confidence: text('ai_confidence'),
   ai_reasoning: text('ai_reasoning'),
-  created_at: text('created_at').notNull(),
+  last_generated_at: text('last_generated_at'),
   updated_at: text('updated_at').notNull(),
 });
 
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
-  value: text('value').notNull(),
+  value: text('value'),
 });
 
 export const users = sqliteTable('users', {
