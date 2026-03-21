@@ -1,6 +1,17 @@
 import bcrypt from 'bcryptjs';
-import { getDb } from './index';
+import { eq } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { users } from './schema';
+import type * as sqliteSchema from './schema';
 import type { CreateUserInput, UpdateUserInput } from '../validators/users';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export interface User {
   id: string;
@@ -17,77 +28,84 @@ export interface UserWithHash extends User {
 
 const BCRYPT_ROUNDS = 12;
 
-const SELECT_WITHOUT_HASH = `
-  SELECT id, username, role, created_at, updated_at FROM users
-`;
-
-export function getUsers(): User[] {
-  return getDb().prepare(`${SELECT_WITHOUT_HASH} ORDER BY created_at DESC`).all() as User[];
+export async function getUsers(): Promise<User[]> {
+  const rows = await db()
+    .select({
+      id: users.id,
+      username: users.username,
+      role: users.role,
+      created_at: users.created_at,
+      updated_at: users.updated_at,
+    })
+    .from(users)
+    .orderBy(users.created_at);
+  return rows as User[];
 }
 
-export function getUser(id: string): User | null {
-  return (
-    (getDb().prepare(`${SELECT_WITHOUT_HASH} WHERE id = ?`).get(id) as User | undefined) ?? null
-  );
+export async function getUser(id: string): Promise<User | null> {
+  const rows = await db()
+    .select({
+      id: users.id,
+      username: users.username,
+      role: users.role,
+      created_at: users.created_at,
+      updated_at: users.updated_at,
+    })
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
+  return (rows[0] as User) ?? null;
 }
 
-export function getUserByUsername(username: string): UserWithHash | null {
-  return (
-    (getDb().prepare('SELECT * FROM users WHERE username = ?').get(username) as
-      | UserWithHash
-      | undefined) ?? null
-  );
+export async function getUserByUsername(username: string): Promise<UserWithHash | null> {
+  const rows = await db().select().from(users).where(eq(users.username, username)).limit(1);
+  return (rows[0] as UserWithHash) ?? null;
 }
 
 export async function createUser(input: CreateUserInput): Promise<User> {
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
   const passwordHash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
 
-  getDb()
-    .prepare(
-      `INSERT INTO users (id, username, password_hash, role)
-       VALUES (?, ?, ?, ?)`
-    )
-    .run(id, input.username, passwordHash, input.role ?? 'member');
+  await db()
+    .insert(users)
+    .values({
+      id,
+      username: input.username,
+      password_hash: passwordHash,
+      role: (input.role ?? 'member') as 'admin' | 'member',
+      created_at: now,
+      updated_at: now,
+    });
 
-  return getUser(id)!;
+  return (await getUser(id))!;
 }
 
 export async function updateUser(id: string, input: UpdateUserInput): Promise<User | null> {
-  const existing = getUser(id);
+  const existing = await getUser(id);
   if (!existing) return null;
 
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  type UserUpdate = Partial<Pick<typeof users.$inferInsert, 'username' | 'password_hash' | 'role'>>;
+  const values: UserUpdate = {};
 
-  if (input.username !== undefined) {
-    fields.push('username = ?');
-    values.push(input.username);
-  }
-
+  if (input.username !== undefined) values.username = input.username;
   if (input.password !== undefined) {
-    fields.push('password_hash = ?');
-    values.push(await bcrypt.hash(input.password, BCRYPT_ROUNDS));
+    values.password_hash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
   }
+  if (input.role !== undefined) values.role = input.role;
 
-  if (input.role !== undefined) {
-    fields.push('role = ?');
-    values.push(input.role);
-  }
+  if (Object.keys(values).length === 0) return existing;
 
-  if (fields.length === 0) return existing;
-
-  fields.push("updated_at = datetime('now')");
-  values.push(id);
-
-  getDb()
-    .prepare(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`)
-    .run(...values);
+  db()
+    .update(users)
+    .set({ ...values, updated_at: new Date().toISOString() })
+    .where(eq(users.id, id))
+    .run();
 
   return getUser(id);
 }
 
-export function deleteUser(id: string): boolean {
-  const result = getDb().prepare('DELETE FROM users WHERE id = ?').run(id);
+export async function deleteUser(id: string): Promise<boolean> {
+  const result = db().delete(users).where(eq(users.id, id)).run();
   return result.changes > 0;
 }
