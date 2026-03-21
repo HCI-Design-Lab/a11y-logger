@@ -39,6 +39,7 @@ export function ExecutiveSummarySection({
             variant="ghost"
             size="icon"
             onClick={onDelete}
+            disabled={isGenerating}
             aria-label="Delete section"
           >
             <Trash2 className="h-4 w-4" />
@@ -56,11 +57,13 @@ export function ExecutiveSummarySection({
             <p className="text-sm text-muted-foreground">Generating with AI...</p>
           </div>
         )}
-        <RichTextEditor
-          value={body}
-          onChange={onChange}
-          placeholder="Write your executive summary…"
-        />
+        <div data-testid="section-fields" inert={isGenerating || undefined}>
+          <RichTextEditor
+            value={body}
+            onChange={onChange}
+            placeholder="Write your executive summary…"
+          />
+        </div>
       </CardContent>
     </Card>
   );
