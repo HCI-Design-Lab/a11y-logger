@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Download, Pencil, ChevronDown } from 'lucide-react';
+import { Download, Pencil, ChevronDown, Printer } from 'lucide-react';
 import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -103,6 +103,16 @@ export default async function ReportDetailPage({ params }: PageProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button asChild variant="outline" size="sm">
+            <a
+              href={`/api/reports/${report.id}/export?autoprint=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Print / Save as PDF
+            </a>
+          </Button>
           {!isPublished && (
             <Button asChild variant="outline" size="sm">
               <Link href={`/reports/${report.id}/edit`}>
