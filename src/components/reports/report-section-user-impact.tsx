@@ -50,6 +50,7 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
             variant="ghost"
             size="icon"
             onClick={onDelete}
+            disabled={isGenerating}
             aria-label="Delete section"
           >
             <Trash2 className="h-4 w-4" />
@@ -67,7 +68,11 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
             <p className="text-sm text-muted-foreground">Generating with AI...</p>
           </div>
         )}
-        <div className="grid grid-cols-2 gap-4">
+        <div
+          data-testid="section-fields"
+          className="grid grid-cols-2 gap-4"
+          inert={isGenerating || undefined}
+        >
           {IMPACT_FIELDS.map(({ key, label }) => (
             <div key={key} className="space-y-1">
               <Label htmlFor={`user-impact-${key}`}>{label}</Label>
