@@ -42,11 +42,17 @@ export function MultiSelect({
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
       <PopoverPrimitive.Trigger asChild>
-        <button
-          type="button"
+        <div
+          role="combobox"
+          aria-expanded={open}
+          aria-haspopup="listbox"
           aria-label="Open options"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') setOpen(true);
+          }}
           className={cn(
-            'flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm',
+            'flex min-h-10 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm',
             'hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
           )}
         >
@@ -71,7 +77,7 @@ export function MultiSelect({
             ))
           )}
           <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-        </button>
+        </div>
       </PopoverPrimitive.Trigger>
 
       <PopoverPrimitive.Portal>

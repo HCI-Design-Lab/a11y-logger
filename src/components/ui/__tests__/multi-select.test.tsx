@@ -10,6 +10,15 @@ const options = [
 ];
 
 describe('MultiSelect', () => {
+  it('trigger has combobox role, not button, to avoid nested button invalid HTML', () => {
+    render(
+      <MultiSelect options={options} selected={[]} onChange={vi.fn()} placeholder="Select…" />
+    );
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    // The combobox should be a div, not a button, so remove-buttons can nest inside without error
+    expect(screen.getByRole('combobox').tagName).toBe('DIV');
+  });
+
   it('shows placeholder when nothing is selected', () => {
     render(
       <MultiSelect
@@ -39,7 +48,7 @@ describe('MultiSelect', () => {
     render(
       <MultiSelect options={options} selected={[]} onChange={vi.fn()} placeholder="Select…" />
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
@@ -47,7 +56,7 @@ describe('MultiSelect', () => {
     render(
       <MultiSelect options={options} selected={[]} onChange={vi.fn()} placeholder="Select…" />
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     expect(screen.getByRole('option', { name: /Project Alpha/ })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: /Project Beta/ })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: /Project Gamma/ })).toBeInTheDocument();
@@ -58,7 +67,7 @@ describe('MultiSelect', () => {
     render(
       <MultiSelect options={options} selected={[]} onChange={onChange} placeholder="Select…" />
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     expect(onChange).toHaveBeenCalledWith(['p1']);
   });
@@ -73,7 +82,7 @@ describe('MultiSelect', () => {
         placeholder="Select…"
       />
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     expect(onChange).toHaveBeenCalledWith(['p2']);
   });
@@ -82,7 +91,7 @@ describe('MultiSelect', () => {
     render(
       <MultiSelect options={options} selected={[]} onChange={vi.fn()} placeholder="Select…" />
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.type(screen.getByRole('textbox'), 'Alpha');
     expect(screen.getByRole('option', { name: /Project Alpha/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Project Beta/ })).not.toBeInTheDocument();

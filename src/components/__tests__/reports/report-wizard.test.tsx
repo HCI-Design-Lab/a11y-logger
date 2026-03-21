@@ -17,7 +17,7 @@ describe('ReportWizard', () => {
 
   it('renders step 1 with a project multi-select', () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    expect(screen.getByRole('button', { name: 'Open options' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
     expect(screen.getByText(/step 1/i)).toBeInTheDocument();
   });
 
@@ -28,14 +28,14 @@ describe('ReportWizard', () => {
 
   it('enables Next when a project is selected', async () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     expect(screen.getByRole('button', { name: /next/i })).not.toBeDisabled();
   });
 
   it('advances to step 2 showing assessments', async () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByText(/step 2/i)).toBeInTheDocument();
@@ -43,10 +43,10 @@ describe('ReportWizard', () => {
 
   it('advances to step 3 after selecting assessment', async () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Assessment 1/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByText(/step 3/i)).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('ReportWizard', () => {
 
   it('Back button returns to previous step', async () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     await userEvent.click(screen.getByRole('button', { name: /back/i }));
@@ -72,20 +72,20 @@ describe('ReportWizard', () => {
       { id: 'a2', project_id: 'p2', name: 'Beta Assessment', status: 'completed' },
     ];
     render(<ReportWizard projects={multiProjects} assessments={multiAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     expect(screen.getByRole('option', { name: /Alpha Assessment/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Beta Assessment/ })).not.toBeInTheDocument();
   });
 
   it('disables Create Report when title is empty', async () => {
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Assessment 1/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     expect(screen.getByRole('button', { name: /create report/i })).toBeDisabled();
@@ -98,10 +98,10 @@ describe('ReportWizard', () => {
 
     const { toast } = await import('sonner');
     render(<ReportWizard projects={mockProjects} assessments={mockAssessments} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Project Alpha/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
-    await userEvent.click(screen.getByRole('button', { name: 'Open options' }));
+    await userEvent.click(screen.getByRole('combobox'));
     await userEvent.click(screen.getByRole('option', { name: /Assessment 1/ }));
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.change(screen.getByPlaceholderText(/report title/i), {
