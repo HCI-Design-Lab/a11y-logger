@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { getDbClient } from './client';
-import { assessments, issues } from './schema';
+import { assessments, issues, projects } from './schema';
 import type * as sqliteSchema from './schema';
 import type { CreateAssessmentInput, UpdateAssessmentInput } from '../validators/assessments';
 
@@ -129,4 +129,29 @@ export async function deleteAssessment(id: string): Promise<boolean> {
   if (!existing) return false;
   await db().delete(assessments).where(eq(assessments.id, id));
   return true;
+}
+
+export async function getAllAssessments(): Promise<AssessmentWithProject[]> {
+  const rows = await db()
+    .select({
+      id: assessments.id,
+      project_id: assessments.project_id,
+      name: assessments.name,
+      description: assessments.description,
+      test_date_start: assessments.test_date_start,
+      test_date_end: assessments.test_date_end,
+      status: assessments.status,
+      assigned_to: assessments.assigned_to,
+      created_by: assessments.created_by,
+      created_at: assessments.created_at,
+      updated_at: assessments.updated_at,
+      issue_count: sql<number>`COUNT(DISTINCT ${issues.id})`.as('issue_count'),
+      project_name: projects.name,
+    })
+    .from(assessments)
+    .leftJoin(issues, eq(issues.assessment_id, assessments.id))
+    .innerJoin(projects, eq(projects.id, assessments.project_id))
+    .groupBy(assessments.id)
+    .orderBy(sql`${assessments.created_at} DESC`);
+  return rows as AssessmentWithProject[];
 }

@@ -1,53 +1,37 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import Database from 'better-sqlite3';
-
-let db: Database.Database;
-
-vi.mock('@/lib/db/index', () => ({
-  getDb: () => db,
-}));
-
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { initDb, closeDb } from '@/lib/db/index';
+import { getDbClient } from '@/lib/db/client';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import type * as sqliteSchema from '@/lib/db/schema';
+import * as schema from '@/lib/db/schema';
+import { createProject } from '@/lib/db/projects';
+import { createAssessment } from '@/lib/db/assessments';
 import { createIssue, updateIssue, deserializeIssue } from '@/lib/db/issues';
 import type { IssueRow } from '@/lib/db/issues';
 
-beforeEach(() => {
-  db = new Database(':memory:');
-  db.exec(`
-    CREATE TABLE issues (
-      id TEXT PRIMARY KEY,
-      assessment_id TEXT NOT NULL,
-      title TEXT NOT NULL,
-      description TEXT,
-      url TEXT,
-      severity TEXT DEFAULT 'medium',
-      status TEXT DEFAULT 'open',
-      wcag_codes TEXT DEFAULT '[]',
-      section_508_codes TEXT DEFAULT '[]',
-      eu_codes TEXT DEFAULT '[]',
-      ai_suggested_codes TEXT DEFAULT '[]',
-      ai_confidence_score REAL,
-      device_type TEXT,
-      browser TEXT,
-      operating_system TEXT,
-      assistive_technology TEXT,
-      user_impact TEXT,
-      selector TEXT,
-      code_snippet TEXT,
-      suggested_fix TEXT,
-      evidence_media TEXT DEFAULT '[]',
-      tags TEXT DEFAULT '[]',
-      created_by TEXT,
-      resolved_by TEXT,
-      resolved_at TEXT,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
-    );
-    INSERT INTO issues (id, assessment_id, title) VALUES ('test-1', 'assess-1', 'Existing Issue');
-  `);
+function db() {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
+
+let assessmentId: string;
+
+beforeAll(async () => {
+  await initDb(':memory:');
 });
 
-afterEach(() => db.close());
+afterAll(() => {
+  closeDb();
+});
+
+beforeEach(async () => {
+  await db().delete(schema.issues);
+  await db().delete(schema.assessments);
+  await db().delete(schema.projects);
+  const project = await createProject({ name: 'Test Project' });
+  const assessment = await createAssessment(project.id, { name: 'Test Assessment' });
+  assessmentId = assessment.id;
+});
 
 describe('deserializeIssue', () => {
   it('deserializes section_508_codes and eu_codes from JSON strings', () => {
@@ -122,8 +106,8 @@ describe('deserializeIssue', () => {
 });
 
 describe('createIssue', () => {
-  it('stores section_508_codes and eu_codes', () => {
-    const issue = createIssue('assess-1', {
+  it('stores section_508_codes and eu_codes', async () => {
+    const issue = await createIssue(assessmentId, {
       title: 'New Issue',
       section_508_codes: ['302.1', '302.4'],
       eu_codes: ['4.2.1'],
@@ -132,21 +116,23 @@ describe('createIssue', () => {
     expect(issue.eu_codes).toEqual(['4.2.1']);
   });
 
-  it('defaults section_508_codes and eu_codes to empty arrays', () => {
-    const issue = createIssue('assess-1', { title: 'No Standards' });
+  it('defaults section_508_codes and eu_codes to empty arrays', async () => {
+    const issue = await createIssue(assessmentId, { title: 'No Standards' });
     expect(issue.section_508_codes).toEqual([]);
     expect(issue.eu_codes).toEqual([]);
   });
 });
 
 describe('updateIssue', () => {
-  it('updates section_508_codes', () => {
-    const updated = updateIssue('test-1', { section_508_codes: ['302.1'] });
+  it('updates section_508_codes', async () => {
+    const issue = await createIssue(assessmentId, { title: 'Existing Issue' });
+    const updated = await updateIssue(issue.id, { section_508_codes: ['302.1'] });
     expect(updated?.section_508_codes).toEqual(['302.1']);
   });
 
-  it('updates eu_codes', () => {
-    const updated = updateIssue('test-1', { eu_codes: ['4.2.1', '5.2'] });
+  it('updates eu_codes', async () => {
+    const issue = await createIssue(assessmentId, { title: 'Existing Issue' });
+    const updated = await updateIssue(issue.id, { eu_codes: ['4.2.1', '5.2'] });
     expect(updated?.eu_codes).toEqual(['4.2.1', '5.2']);
   });
 });
