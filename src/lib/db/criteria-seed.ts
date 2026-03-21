@@ -1,5 +1,10 @@
 import { getDb } from './index';
 
+// NOTE: This file uses getDb() (better-sqlite3) rather than getDbClient() (Drizzle)
+// because seedCriteria() is called inside initDb() before the Drizzle client is
+// initialized. Criteria are read-only seed data; the criteria.ts data access file
+// uses Drizzle for all runtime queries.
+
 type CriterionRow = [
   code: string,
   name: string,

@@ -1,4 +1,15 @@
-import { getDb } from './index';
+import { eq, sql } from 'drizzle-orm';
+import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { getDbClient } from './client';
+import { criteria } from './schema';
+import type * as sqliteSchema from './schema';
+
+// Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
+// share callable overloads in TypeScript, so we cast to the SQLite type for query building.
+// At runtime the correct driver is used transparently by Drizzle.
+function db(): BetterSQLite3Database<typeof sqliteSchema> {
+  return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
 
 export type StandardEdition = 'WCAG' | '508' | 'EU' | 'INT';
 
@@ -105,29 +116,30 @@ function computeAutoNotApplicable(criterion: Criterion, productScope: string[]):
   return false;
 }
 
-export function getCriteriaForEdition(
+export async function getCriteriaForEdition(
   edition: StandardEdition,
   productScope: string[],
   wcagVersion: '2.0' | '2.1' | '2.2',
   wcagLevel: 'A' | 'AA' | 'AAA'
-): CriteriaSection[] {
-  const db = getDb();
+): Promise<CriteriaSection[]> {
   const allowedVersions = getAllowedVersions(edition, wcagVersion);
   const allowedLevels = getAllowedLevels(edition, wcagLevel);
 
-  // Step 3: Query all WCAG criteria and filter in JS
-  const allWcag = db
-    .prepare("SELECT * FROM criteria WHERE standard = 'WCAG' ORDER BY sort_order")
-    .all() as CriterionDbRow[];
+  // Query all WCAG criteria and filter in JS (JSON array fields require JS-side filtering)
+  const allWcagRows = await db()
+    .select()
+    .from(criteria)
+    .where(eq(criteria.standard, 'WCAG'))
+    .orderBy(criteria.sort_order);
 
-  const filteredWcag = allWcag.map(parseCriterion).filter((c) => {
+  const filteredWcag = (allWcagRows as CriterionDbRow[]).map(parseCriterion).filter((c) => {
     const editionMatch = c.editions.includes(edition);
     const versionMatch = c.wcag_version !== null && allowedVersions.includes(c.wcag_version);
     const levelMatch = c.level !== null && allowedLevels.includes(c.level);
     return editionMatch && versionMatch && levelMatch;
   });
 
-  // Step 4: Group WCAG criteria by level (A/AA/AAA)
+  // Group WCAG criteria by level (A/AA/AAA)
   const wcagSectionsMap = new Map<string, Criterion[]>();
   for (const level of allowedLevels) {
     wcagSectionsMap.set(level, []);
@@ -139,39 +151,49 @@ export function getCriteriaForEdition(
   }
 
   const wcagSections: CriteriaSection[] = [];
-  for (const [section, criteria] of wcagSectionsMap) {
-    if (criteria.length > 0) {
+  for (const [section, sectionCriteria] of wcagSectionsMap) {
+    if (sectionCriteria.length > 0) {
       wcagSections.push({
         section,
         label: SECTION_LABELS[section] ?? section,
-        criteria,
+        criteria: sectionCriteria,
       });
     }
   }
 
-  // Step 5: Query non-WCAG criteria for non-WCAG editions
+  // Return only WCAG sections for WCAG edition
   if (edition === 'WCAG') {
     return wcagSections;
   }
 
-  let nonWcagQuery: string;
+  // Query non-WCAG criteria for non-WCAG editions
+  let nonWcagRows: CriterionDbRow[];
   if (edition === '508') {
-    nonWcagQuery = "SELECT * FROM criteria WHERE standard = '508' ORDER BY sort_order";
+    nonWcagRows = (await db()
+      .select()
+      .from(criteria)
+      .where(eq(criteria.standard, '508'))
+      .orderBy(criteria.sort_order)) as CriterionDbRow[];
   } else if (edition === 'EU') {
-    nonWcagQuery = "SELECT * FROM criteria WHERE standard = 'EN301549' ORDER BY sort_order";
+    nonWcagRows = (await db()
+      .select()
+      .from(criteria)
+      .where(eq(criteria.standard, 'EN301549'))
+      .orderBy(criteria.sort_order)) as CriterionDbRow[];
   } else {
-    // INT
-    nonWcagQuery =
-      "SELECT * FROM criteria WHERE standard IN ('508', 'EN301549') ORDER BY sort_order";
+    // INT edition: both 508 and EN301549
+    nonWcagRows = (await db()
+      .select()
+      .from(criteria)
+      .where(sql`${criteria.standard} IN ('508', 'EN301549')`)
+      .orderBy(criteria.sort_order)) as CriterionDbRow[];
   }
 
-  const allNonWcag = db.prepare(nonWcagQuery).all() as CriterionDbRow[];
-
-  const filteredNonWcag = allNonWcag
+  const filteredNonWcag = nonWcagRows
     .map(parseCriterion)
     .filter((c) => c.editions.includes(edition));
 
-  // Step 6: Apply autoNotApplicable detection — only set when true, leave undefined otherwise
+  // Apply autoNotApplicable detection — only set when true, leave undefined otherwise
   for (const criterion of filteredNonWcag) {
     const ana = computeAutoNotApplicable(criterion, productScope);
     if (ana) {
@@ -179,7 +201,7 @@ export function getCriteriaForEdition(
     }
   }
 
-  // Step 7: Group non-WCAG criteria by chapter_section (preserving sort order)
+  // Group non-WCAG criteria by chapter_section (preserving sort order)
   const nonWcagSectionsMap = new Map<string, Criterion[]>();
   for (const criterion of filteredNonWcag) {
     const section = criterion.chapter_section;
@@ -190,22 +212,19 @@ export function getCriteriaForEdition(
   }
 
   const nonWcagSections: CriteriaSection[] = [];
-  for (const [section, criteria] of nonWcagSectionsMap) {
+  for (const [section, sectionCriteria] of nonWcagSectionsMap) {
     nonWcagSections.push({
       section,
       label: SECTION_LABELS[section] ?? section,
-      criteria,
+      criteria: sectionCriteria,
     });
   }
 
-  // Step 8: Return WCAG sections first, then non-WCAG sections
+  // Return WCAG sections first, then non-WCAG sections
   return [...wcagSections, ...nonWcagSections];
 }
 
-export function getCriterion(id: string): Criterion | null {
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM criteria WHERE id = ?').get(id) as
-    | CriterionDbRow
-    | undefined;
-  return row ? parseCriterion(row) : null;
+export async function getCriterion(id: string): Promise<Criterion | null> {
+  const rows = await db().select().from(criteria).where(eq(criteria.id, id)).limit(1);
+  return rows[0] ? parseCriterion(rows[0] as CriterionDbRow) : null;
 }
