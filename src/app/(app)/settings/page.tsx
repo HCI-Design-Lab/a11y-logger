@@ -9,6 +9,8 @@ export default function SettingsPage() {
   // The API key is encrypted at rest — pass a masked placeholder if one exists
   const rawApiKey = getSetting('ai_api_key');
   const aiApiKey = rawApiKey ? '[REDACTED]' : '';
+  const aiModel = (getSetting('ai_model') as string) ?? '';
+  const aiBaseUrl = (getSetting('ai_base_url') as string) ?? '';
   const authEnabled = Boolean(getSetting('auth_enabled'));
 
   const version = process.env.npm_package_version ?? '0.0.0';
@@ -19,6 +21,8 @@ export default function SettingsPage() {
       <SettingsClient
         aiProvider={aiProvider}
         aiApiKey={aiApiKey}
+        aiModel={aiModel}
+        aiBaseUrl={aiBaseUrl}
         dbPath={process.env.DATABASE_PATH ?? './data/a11y-logger.db'}
         mediaPath="./data/media/"
         version={version}

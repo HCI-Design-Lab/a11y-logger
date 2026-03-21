@@ -11,6 +11,8 @@ interface SettingRow {
 const DEFAULT_SETTINGS: Record<string, SettingValue> = {
   ai_provider: 'none',
   ai_api_key: '',
+  ai_model: '',
+  ai_base_url: '',
   media_directory: './data/media',
   auth_enabled: false,
   app_version: '1.0.0',

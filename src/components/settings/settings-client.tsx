@@ -9,6 +9,8 @@ import { AuthToggleSection } from './auth-toggle-section';
 interface SettingsClientProps {
   aiProvider: string;
   aiApiKey: string;
+  aiModel: string;
+  aiBaseUrl: string;
   dbPath: string;
   mediaPath: string;
   version: string;
@@ -18,12 +20,19 @@ interface SettingsClientProps {
 export function SettingsClient({
   aiProvider,
   aiApiKey,
+  aiModel,
+  aiBaseUrl,
   dbPath,
   mediaPath,
   version,
   authEnabled,
 }: SettingsClientProps) {
-  const handleSaveAI = async (data: { provider: string; apiKey: string }) => {
+  const handleSaveAI = async (data: {
+    provider: string;
+    apiKey: string;
+    model: string;
+    baseUrl: string;
+  }) => {
     try {
       const providerRes = await fetch('/api/settings/ai_provider', {
         method: 'PUT',
@@ -44,6 +53,22 @@ export function SettingsClient({
         if (!keyJson.success) throw new Error(keyJson.error);
       }
 
+      const modelRes = await fetch('/api/settings/ai_model', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: data.model }),
+      });
+      const modelJson = await modelRes.json();
+      if (!modelJson.success) throw new Error(modelJson.error);
+
+      const baseUrlRes = await fetch('/api/settings/ai_base_url', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: data.baseUrl }),
+      });
+      const baseUrlJson = await baseUrlRes.json();
+      if (!baseUrlJson.success) throw new Error(baseUrlJson.error);
+
       toast.success('AI configuration saved');
     } catch {
       toast.error('Failed to save AI configuration');
@@ -59,7 +84,13 @@ export function SettingsClient({
         <TabsTrigger value="about">About</TabsTrigger>
       </TabsList>
       <TabsContent value="ai" className="mt-6">
-        <AIConfigSection provider={aiProvider} apiKey={aiApiKey} onSave={handleSaveAI} />
+        <AIConfigSection
+          provider={aiProvider}
+          apiKey={aiApiKey}
+          model={aiModel}
+          baseUrl={aiBaseUrl}
+          onSave={handleSaveAI}
+        />
       </TabsContent>
       <TabsContent value="data" className="mt-6">
         <DataManagementSection dbPath={dbPath} mediaPath={mediaPath} />
