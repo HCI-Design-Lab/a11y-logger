@@ -519,6 +519,7 @@ export function generateReportHtml(
     }
 
     .report-section > summary::-webkit-details-marker { display: none; }
+    .report-section > summary::marker { display: none; }
 
     .report-section > summary::after {
       content: '›';

@@ -35,6 +35,45 @@ const mockReport: Report = {
   updated_at: '2024-03-01T00:00:00Z',
 };
 
+const mockStats: ReportStats = {
+  total: 3,
+  severityBreakdown: { critical: 1, high: 1, medium: 1, low: 0 },
+  wcagCriteriaCounts: [{ code: '1.1.1', name: 'Non-text Content', count: 2 }],
+};
+
+const mockIssue: IssueWithContext = {
+  id: 'issue-1',
+  project_id: 'project-1',
+  project_name: 'Acme Corp Website',
+  assessment_id: 'assessment-1',
+  assessment_name: 'Q1 Audit',
+  title: 'Missing alt text',
+  description: 'Images lack alt attributes.',
+  url: null,
+  severity: 'critical',
+  status: 'open',
+  wcag_codes: ['1.1.1'],
+  section_508_codes: [],
+  eu_codes: [],
+  ai_suggested_codes: [],
+  ai_confidence_score: null,
+  tags: ['images'],
+  user_impact: 'Screen reader users cannot perceive images.',
+  suggested_fix: 'Add descriptive alt text.',
+  selector: null,
+  code_snippet: null,
+  evidence_media: [],
+  device_type: 'desktop',
+  browser: 'Chrome',
+  operating_system: 'macOS',
+  assistive_technology: 'VoiceOver',
+  created_by: null,
+  resolved_by: null,
+  resolved_at: null,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+};
+
 describe('generateReportHtml', () => {
   it('returns a string', () => {
     const result = generateReportHtml(mockReport, mockProject);
@@ -77,10 +116,10 @@ describe('generateReportHtml', () => {
     expect(result).toContain('@media print');
   });
 
-  it('includes semantic heading structure', () => {
+  it('includes h1 title and summary section headers', () => {
     const result = generateReportHtml(mockReport, mockProject);
     expect(result).toContain('<h1');
-    expect(result).toContain('<summary>'); // was '<h2'
+    expect(result).toContain('<summary>');
   });
 
   it('uses details/summary for collapsible sections', () => {
@@ -172,45 +211,6 @@ describe('generateReportHtml', () => {
     const result = generateReportHtml(mockReport, mockProject);
     expect(result).not.toContain('Georgia');
   });
-
-  const mockStats: ReportStats = {
-    total: 3,
-    severityBreakdown: { critical: 1, high: 1, medium: 1, low: 0 },
-    wcagCriteriaCounts: [{ code: '1.1.1', name: 'Non-text Content', count: 2 }],
-  };
-
-  const mockIssue: IssueWithContext = {
-    id: 'issue-1',
-    project_id: 'project-1',
-    project_name: 'Acme Corp Website',
-    assessment_id: 'assessment-1',
-    assessment_name: 'Q1 Audit',
-    title: 'Missing alt text',
-    description: 'Images lack alt attributes.',
-    url: null,
-    severity: 'critical',
-    status: 'open',
-    wcag_codes: ['1.1.1'],
-    section_508_codes: [],
-    eu_codes: [],
-    ai_suggested_codes: [],
-    ai_confidence_score: null,
-    tags: ['images'],
-    user_impact: 'Screen reader users cannot perceive images.',
-    suggested_fix: 'Add descriptive alt text.',
-    selector: null,
-    code_snippet: null,
-    evidence_media: [],
-    device_type: 'desktop',
-    browser: 'Chrome',
-    operating_system: 'macOS',
-    assistive_technology: 'VoiceOver',
-    created_by: null,
-    resolved_by: null,
-    resolved_at: null,
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-  };
 
   it('does not use hardcoded #64748b color in stats section', () => {
     const result = generateReportHtml({ ...mockReport, content: '{}' }, mockProject, 'with-chart', {
