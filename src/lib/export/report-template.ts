@@ -412,17 +412,28 @@ export function generateReportHtml(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(report.title)}</title>
   <style>
-    /* Base styles */
-    *, *::before, *::after {
-      box-sizing: border-box;
+    /* App design tokens */
+    :root {
+      --radius: 0.5rem;
+      --background: oklch(0.977 0 0);
+      --foreground: oklch(0.137 0.036 258.5);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.137 0.036 258.5);
+      --muted: oklch(0.968 0.0068 247.9);
+      --muted-foreground: oklch(0.383 0.0157 257.4);
+      --border: oklch(0.22 0.0076 285.8);
+      --success: oklch(0.527 0.129 151);
     }
 
+    /* Base */
+    *, *::before, *::after { box-sizing: border-box; }
+
     body {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 12pt;
-      line-height: 1.6;
-      color: #1a1a1a;
-      background: #ffffff;
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--foreground);
+      background: var(--background);
       margin: 0;
       padding: 0;
     }
@@ -430,111 +441,117 @@ export function generateReportHtml(
     .container {
       max-width: 800px;
       margin: 0 auto;
-      padding: 40px 48px;
+      padding: 32px 24px;
     }
 
     /* Header */
     .report-header {
-      border-bottom: 3px solid #1a1a1a;
-      padding-bottom: 24px;
-      margin-bottom: 32px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
     }
 
     .report-header h1 {
-      font-size: 24pt;
-      font-weight: bold;
-      margin: 0 0 16px 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      padding: 24px 24px 16px;
       line-height: 1.2;
+      color: var(--card-foreground);
     }
 
     .report-meta {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px 24px;
-      font-size: 10pt;
-      color: #444;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 24px;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      background: var(--muted);
+      padding: 12px 24px;
     }
 
     .report-meta dt {
-      font-weight: bold;
-      color: #1a1a1a;
+      font-weight: 600;
+      color: var(--foreground);
     }
 
-    .report-meta dd {
-      margin: 0;
-    }
+    .report-meta dd { margin: 0; }
 
-    .meta-pair {
-      display: flex;
-      gap: 8px;
-    }
+    .meta-pair { display: flex; gap: 6px; }
 
-    /* Content */
+    /* Sections */
     .report-section {
-      margin-bottom: 32px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
     }
 
     .report-section h2 {
-      font-size: 16pt;
-      font-weight: bold;
-      margin: 0 0 12px 0;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #ccc;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--foreground);
     }
 
     .section-body {
-      font-size: 11pt;
+      font-size: 0.9375rem;
+      color: var(--card-foreground);
+      line-height: 1.6;
     }
 
     .section-list {
-      font-size: 11pt;
+      font-size: 0.9375rem;
       padding-left: 1.5em;
+      margin: 0;
+      color: var(--card-foreground);
+      line-height: 1.8;
     }
 
-    .section-list li {
-      margin-bottom: 6px;
-    }
+    .section-list li { margin-bottom: 4px; }
 
     /* User impact grid */
     .impact-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 12px;
       margin: 0;
     }
 
     .impact-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--muted);
       padding: 12px 16px;
     }
 
     .impact-card dt {
-      font-size: 9pt;
-      font-weight: bold;
+      font-size: 0.6875rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #6b7280;
+      color: var(--muted-foreground);
       margin-bottom: 4px;
     }
 
     .impact-card dd {
       margin: 0;
-      font-size: 11pt;
+      font-size: 0.875rem;
+      color: var(--card-foreground);
     }
 
-    .no-content {
-      color: #666;
-      font-style: italic;
-    }
+    .no-content { color: var(--muted-foreground); font-style: italic; }
 
     /* Footer */
     .report-footer {
-      margin-top: 48px;
+      margin-top: 32px;
       padding-top: 16px;
-      border-top: 1px solid #ccc;
-      font-size: 9pt;
-      color: #666;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
       text-align: center;
     }
 
@@ -542,17 +559,17 @@ export function generateReportHtml(
     .status-badge {
       display: inline-block;
       padding: 2px 8px;
-      border-radius: 3px;
-      font-size: 9pt;
-      font-weight: bold;
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 0.6875rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .status-published {
-      background: #d1fae5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
+      background: oklch(0.527 0.129 151 / 0.15);
+      color: oklch(0.35 0.129 151);
+      border: 1px solid oklch(0.527 0.129 151 / 0.4);
     }
 
     .status-draft {
@@ -561,37 +578,47 @@ export function generateReportHtml(
       border: 1px solid #fde68a;
     }
 
-    /* Print styles */
+    /* Print */
     @media print {
-      body {
-        font-size: 11pt;
-      }
+      body { background: white; font-size: 11pt; }
 
-      .container {
-        max-width: 100%;
+      .container { max-width: 100%; padding: 0; }
+
+      .report-header,
+      .report-section {
+        background: white;
+        border: none;
+        border-radius: 0;
         padding: 0;
+        margin-bottom: 24pt;
       }
 
       .report-header {
+        border-bottom: 2px solid #000;
+        padding-bottom: 12pt;
         page-break-after: avoid;
       }
 
+      .report-header h1 { padding: 0 0 12pt 0; }
+
+      .report-meta { background: transparent; padding: 0; }
+
       .report-section {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 12pt;
         page-break-inside: avoid;
       }
 
-      .report-section h2 {
-        page-break-after: avoid;
-      }
+      .report-section h2 { page-break-after: avoid; }
+
+      .impact-card { border: 1px solid #ccc; background: white; }
 
       .report-footer {
+        border-top: 1px solid #ccc;
         page-break-before: avoid;
       }
 
-      @page {
-        margin: 2cm 2.5cm;
-        size: A4;
-      }
+      @page { margin: 2cm 2.5cm; size: A4; }
     }
   </style>
 </head>

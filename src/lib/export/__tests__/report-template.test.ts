@@ -119,4 +119,29 @@ describe('generateReportHtml', () => {
     expect(result).not.toContain('<script>');
     expect(result).toContain('&lt;script&gt;');
   });
+
+  it('uses system-ui sans-serif font stack', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('system-ui');
+  });
+
+  it('embeds app CSS custom property tokens', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('--background:');
+    expect(result).toContain('--foreground:');
+    expect(result).toContain('--card:');
+    expect(result).toContain('--border:');
+  });
+
+  it('uses CSS custom properties for body and card colors', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('var(--background)');
+    expect(result).toContain('var(--card)');
+    expect(result).toContain('var(--border)');
+  });
+
+  it('does not use Georgia serif font', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).not.toContain('Georgia');
+  });
 });
