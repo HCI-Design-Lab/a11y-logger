@@ -568,7 +568,7 @@ export function generateReportHtml(
 
     .status-published {
       background: oklch(0.527 0.129 151 / 0.15);
-      color: oklch(0.35 0.129 151);
+      color: var(--success);
       border: 1px solid oklch(0.527 0.129 151 / 0.4);
     }
 
@@ -584,6 +584,7 @@ export function generateReportHtml(
 
       .container { max-width: 100%; padding: 0; }
 
+      /* Strip card styling for print — individual rules below re-add specific borders */
       .report-header,
       .report-section {
         background: white;
