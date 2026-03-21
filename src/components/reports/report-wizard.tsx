@@ -2,12 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 interface Project {
   id: string;
@@ -32,41 +31,6 @@ export function ReportWizard({ projects, assessments }: Props) {
   const [selectedAssessments, setSelectedAssessments] = useState<Set<string>>(new Set());
   const [title, setTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-
-  const toggleProject = (id: string) => {
-    setSelectedProjects((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        // Remove assessments that belonged to this project
-        const projectAssessmentIds = new Set(
-          assessments.filter((a) => a.project_id === id).map((a) => a.id)
-        );
-        setSelectedAssessments((prevA) => {
-          const nextA = new Set(prevA);
-          for (const aid of projectAssessmentIds) {
-            nextA.delete(aid);
-          }
-          return nextA;
-        });
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const toggleAssessment = (id: string) => {
-    setSelectedAssessments((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
 
   const visibleAssessments = assessments.filter((a) => selectedProjects.has(a.project_id));
 
@@ -110,15 +74,30 @@ export function ReportWizard({ projects, assessments }: Props) {
         <CardContent className="space-y-4">
           {step === 1 && (
             <>
-              <div className="grid gap-2">
-                {projects.map((p) => (
-                  <SelectableCard
-                    key={p.id}
-                    label={p.name}
-                    selected={selectedProjects.has(p.id)}
-                    onToggle={() => toggleProject(p.id)}
-                  />
-                ))}
+              <div className="space-y-1.5">
+                <Label>Projects</Label>
+                <MultiSelect
+                  options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                  selected={Array.from(selectedProjects)}
+                  onChange={(values) => {
+                    // Remove assessments for deselected projects
+                    const removed = Array.from(selectedProjects).filter(
+                      (id) => !values.includes(id)
+                    );
+                    if (removed.length > 0) {
+                      const removedAssessmentIds = new Set(
+                        assessments.filter((a) => removed.includes(a.project_id)).map((a) => a.id)
+                      );
+                      setSelectedAssessments((prev) => {
+                        const next = new Set(prev);
+                        for (const id of removedAssessmentIds) next.delete(id);
+                        return next;
+                      });
+                    }
+                    setSelectedProjects(new Set(values));
+                  }}
+                  placeholder="Select projects…"
+                />
               </div>
               <div className="flex justify-end">
                 <Button onClick={() => setStep(2)} disabled={selectedProjects.size === 0}>
@@ -130,20 +109,18 @@ export function ReportWizard({ projects, assessments }: Props) {
 
           {step === 2 && (
             <>
-              <div className="grid gap-2">
-                {visibleAssessments.map((a) => (
-                  <SelectableCard
-                    key={a.id}
-                    label={a.name}
-                    selected={selectedAssessments.has(a.id)}
-                    onToggle={() => toggleAssessment(a.id)}
-                  />
-                ))}
-                {visibleAssessments.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No assessments found for selected projects.
-                  </p>
-                )}
+              <div className="space-y-1.5">
+                <Label>Assessments</Label>
+                <MultiSelect
+                  options={visibleAssessments.map((a) => ({ value: a.id, label: a.name }))}
+                  selected={Array.from(selectedAssessments)}
+                  onChange={(values) => setSelectedAssessments(new Set(values))}
+                  placeholder={
+                    visibleAssessments.length === 0
+                      ? 'No assessments for selected projects'
+                      : 'Select assessments…'
+                  }
+                />
               </div>
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setStep(1)}>
@@ -190,39 +167,16 @@ function StepIndicator({ current }: { current: number }) {
         <span key={n} className="flex items-center gap-2">
           {i > 0 && <span className="text-muted-foreground/40">—</span>}
           <span
-            className={cn('flex items-center gap-1', current >= n && 'text-foreground font-medium')}
+            className={
+              current >= n
+                ? 'text-foreground font-medium flex items-center gap-1'
+                : 'flex items-center gap-1'
+            }
           >
-            {current > n ? <Check className="h-3 w-3" /> : null}
             Step {n}
           </span>
         </span>
       ))}
     </div>
-  );
-}
-
-function SelectableCard({
-  label,
-  selected,
-  onToggle,
-}: {
-  label: string;
-  selected: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={cn(
-        'w-full text-left rounded-lg border p-3 text-sm transition-colors',
-        selected ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <span>{label}</span>
-        {selected && <Check className="h-4 w-4 text-primary" />}
-      </div>
-    </button>
   );
 }
