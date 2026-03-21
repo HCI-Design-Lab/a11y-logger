@@ -50,7 +50,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     return NextResponse.json(
       {
         success: false,
-        error: `Unsupported variant "${rawVariant}". Supported variants: default, with-chart, with-issues`,
+        error: `Unsupported variant "${rawVariant}". Supported variants: default, with-chart, with-issues, with-all`,
         code: 'BAD_REQUEST',
       },
       { status: 400 }
