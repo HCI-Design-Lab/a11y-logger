@@ -17,7 +17,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     );
   }
 
-  const vpat = getVpat(vpatId);
+  const vpat = await getVpat(vpatId);
   if (!vpat)
     return NextResponse.json(
       { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
@@ -25,7 +25,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     );
 
   // Skip rows that already have remarks text
-  const allRows = getCriterionRows(vpatId);
+  const allRows = await getCriterionRows(vpatId);
   const rows = allRows.filter((r) => !r.remarks);
 
   let generated = 0;
@@ -55,7 +55,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
         },
         issues,
       });
-      updateCriterionRow(row.id, {
+      await updateCriterionRow(row.id, {
         remarks: result.remarks,
         ai_confidence: result.confidence,
         ai_reasoning: result.reasoning,

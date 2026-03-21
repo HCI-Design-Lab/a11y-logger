@@ -12,20 +12,19 @@ let reportId: string;
 beforeAll(() => {
   initDb(':memory:');
 });
-
 afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
-  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  const project = await createProject({ name: 'Test Project' });
+  const assessment = await createAssessment(project.id, { name: 'Assessment 1' });
   assessmentId = assessment.id;
-  const report = createReport({ title: 'Draft Report', assessment_ids: [assessmentId] });
+  const report = await createReport({ title: 'Draft Report', assessment_ids: [assessmentId] });
   reportId = report.id;
 });
 
@@ -80,7 +79,7 @@ describe('POST /api/reports/[id]/publish', () => {
 
 describe('DELETE /api/reports/[id]/publish', () => {
   it('unpublishes a published report and reverts it to draft', async () => {
-    publishReport(reportId);
+    await publishReport(reportId);
     const response = await DELETE(
       new Request(`http://localhost/api/reports/${reportId}/publish`, { method: 'DELETE' }),
       makeContext(reportId)

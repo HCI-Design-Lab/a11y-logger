@@ -36,10 +36,10 @@ export default async function IssueDetailPage({
   const project = await getProject(projectId);
   if (!project) notFound();
 
-  const assessment = getAssessment(assessmentId);
+  const assessment = await getAssessment(assessmentId);
   if (!assessment) notFound();
 
-  const issue = getIssue(issueId);
+  const issue = await getIssue(issueId);
   if (!issue) notFound();
 
   return (

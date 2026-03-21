@@ -8,7 +8,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   try {
-    const report = getReport(id);
+    const report = await getReport(id);
     if (!report) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -28,7 +28,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   try {
-    const existing = getReport(id);
+    const existing = await getReport(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -57,7 +57,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const updated = updateReport(id, result.data);
+    const updated = await updateReport(id, result.data);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -78,7 +78,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   try {
-    const existing = getReport(id);
+    const existing = await getReport(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -86,7 +86,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
       );
     }
 
-    deleteReport(id);
+    await deleteReport(id);
     return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(

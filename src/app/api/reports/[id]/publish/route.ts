@@ -7,7 +7,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   try {
-    const existing = getReport(id);
+    const existing = await getReport(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -15,7 +15,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
       );
     }
 
-    const published = publishReport(id);
+    const published = await publishReport(id);
     if (!published) {
       return NextResponse.json(
         { success: false, error: 'Failed to publish report', code: 'INTERNAL_ERROR' },
@@ -35,7 +35,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   try {
-    const existing = getReport(id);
+    const existing = await getReport(id);
     if (!existing) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -43,7 +43,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
       );
     }
 
-    const unpublished = unpublishReport(id);
+    const unpublished = await unpublishReport(id);
     if (!unpublished) {
       return NextResponse.json(
         { success: false, error: 'Failed to unpublish report', code: 'INTERNAL_ERROR' },

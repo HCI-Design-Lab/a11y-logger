@@ -28,12 +28,12 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.resetAllMocks();
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM projects').run();
-  const p = createProject({ name: 'Test' });
-  const v = createVpat({
+  const p = await createProject({ name: 'Test' });
+  const v = await createVpat({
     title: 'Test',
     project_id: p.id,
     standard_edition: 'WCAG',
@@ -72,8 +72,8 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
     vi.stubEnv('AI_API_KEY', 'test-key');
 
     // Pre-fill the first row with remarks
-    const rows = getCriterionRows(vpatId);
-    updateCriterionRow(rows[0]!.id, { remarks: 'Already filled.' });
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { remarks: 'Already filled.' });
 
     // Mock generateText to succeed
     const { generateText } = await import('ai');
@@ -100,7 +100,7 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
     vi.stubEnv('AI_PROVIDER', 'openai');
     vi.stubEnv('AI_API_KEY', 'test-key');
 
-    const rows = getCriterionRows(vpatId);
+    const rows = await getCriterionRows(vpatId);
     let callCount = 0;
     const { generateText } = await import('ai');
     vi.mocked(generateText).mockImplementation(async () => {

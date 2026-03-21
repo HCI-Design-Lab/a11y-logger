@@ -6,14 +6,14 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const report = getReport(id);
+    const report = await getReport(id);
     if (!report) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }
-    const issues = getReportIssues(id);
+    const issues = await getReportIssues(id);
     return NextResponse.json({ success: true, data: issues });
   } catch {
     return NextResponse.json(

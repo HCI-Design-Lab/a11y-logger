@@ -35,16 +35,16 @@ export default async function AssessmentDetailPage({
 
   const project = await getProject(projectId);
   if (!project) notFound();
-  const assessment = getAssessment(assessmentId);
+  const assessment = await getAssessment(assessmentId);
   if (!assessment) notFound();
 
-  const allIssues = getIssues(assessmentId);
+  const allIssues = await getIssues(assessmentId);
 
   const filters: IssueFilters = {};
   if (severity && (VALID_SEVERITIES as readonly string[]).includes(severity)) {
     filters.severity = severity as IssueFilters['severity'];
   }
-  const filteredIssues = filters.severity ? getIssues(assessmentId, filters) : allIssues;
+  const filteredIssues = filters.severity ? await getIssues(assessmentId, filters) : allIssues;
 
   const severityCounts = { critical: 0, high: 0, medium: 0, low: 0 };
   for (const issue of allIssues) {

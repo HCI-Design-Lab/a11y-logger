@@ -8,7 +8,7 @@ import { CreateIssueSchema } from '@/lib/validators/issues';
 type RouteContext = { params: Promise<{ projectId: string; assessmentId: string }> };
 
 async function resolveParents(projectId: string, assessmentId: string) {
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) {
     return {
       error: NextResponse.json(
@@ -18,7 +18,7 @@ async function resolveParents(projectId: string, assessmentId: string) {
     };
   }
 
-  const assessment = getAssessment(assessmentId);
+  const assessment = await getAssessment(assessmentId);
   if (!assessment || assessment.project_id !== projectId) {
     return {
       error: NextResponse.json(
@@ -50,7 +50,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     if (wcag_code) filters.wcag_code = wcag_code;
     if (tag) filters.tag = tag;
 
-    const issues = getIssues(assessmentId, filters);
+    const issues = await getIssues(assessmentId, filters);
     return NextResponse.json({ success: true, data: issues });
   } catch {
     return NextResponse.json(
@@ -81,7 +81,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       );
     }
 
-    const issue = createIssue(assessmentId, result.data);
+    const issue = await createIssue(assessmentId, result.data);
     return NextResponse.json({ success: true, data: issue }, { status: 201 });
   } catch {
     return NextResponse.json(

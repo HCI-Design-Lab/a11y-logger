@@ -107,7 +107,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       testConnection: vi.fn(),
     });
 
-    const project = createProject({ name: 'Test Project' });
+    const project = await createProject({ name: 'Test Project' });
 
     const req = new Request('http://localhost/api/ai/generate-vpat-narrative', {
       method: 'POST',
@@ -134,7 +134,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       testConnection: vi.fn(),
     });
 
-    const project = createProject({ name: 'Test Project 2' });
+    const project = await createProject({ name: 'Test Project 2' });
 
     const req = new Request('http://localhost/api/ai/generate-vpat-narrative', {
       method: 'POST',

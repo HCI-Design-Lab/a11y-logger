@@ -9,12 +9,12 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export default async function EditReportPage({ params }: PageProps) {
   const { id } = await params;
-  const report = getReport(id);
+  const report = await getReport(id);
 
   if (!report) notFound();
   if (report.status === 'published') notFound();
 
-  const issues = getReportIssues(id);
+  const issues = await getReportIssues(id);
 
   return (
     <div className="space-y-6">

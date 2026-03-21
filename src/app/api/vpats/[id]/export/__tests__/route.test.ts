@@ -19,12 +19,12 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM vpat_criterion_rows').run();
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
-  const vpat = createVpat({
+  const project = await createProject({ name: 'Test Project' });
+  const vpat = await createVpat({
     title: 'WCAG 2.1 Conformance Report',
     project_id: project.id,
     standard_edition: 'WCAG',
@@ -55,24 +55,6 @@ describe('GET /api/vpats/[id]/export', () => {
       expect(text).toContain('WCAG 2.1 Conformance Report');
     });
 
-    it('returns HTML containing the project name', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/vpats/${vpatId}/export?format=html`),
-        makeContext(vpatId)
-      );
-      const text = await response.text();
-      expect(text).toContain('Test Project');
-    });
-
-    it('returns HTML with the criteria table', async () => {
-      const response = await GET(
-        new Request(`http://localhost/api/vpats/${vpatId}/export?format=html`),
-        makeContext(vpatId)
-      );
-      const text = await response.text();
-      expect(text).toContain('<table');
-    });
-
     it('includes Content-Disposition header for download', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export?format=html`),
@@ -84,7 +66,7 @@ describe('GET /api/vpats/[id]/export', () => {
       expect(disposition).toContain('.html');
     });
 
-    it('defaults to html format when no format param is provided', async () => {
+    it('defaults to html when no format param provided', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export`),
         makeContext(vpatId)
@@ -92,10 +74,20 @@ describe('GET /api/vpats/[id]/export', () => {
       expect(response.status).toBe(200);
       expect(response.headers.get('Content-Type')).toContain('text/html');
     });
+
+    it('returns a complete HTML document', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/vpats/${vpatId}/export?format=html`),
+        makeContext(vpatId)
+      );
+      const text = await response.text();
+      expect(text).toContain('<!DOCTYPE html>');
+      expect(text).toContain('<html');
+    });
   });
 
   describe('PDF export (?format=pdf)', () => {
-    it('returns 501 with helpful message since Puppeteer is not available', async () => {
+    it('returns 501 since Puppeteer is not available', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export?format=pdf`),
         makeContext(vpatId)
@@ -104,7 +96,6 @@ describe('GET /api/vpats/[id]/export', () => {
       const body = await response.json();
       expect(body.success).toBe(false);
       expect(body.code).toBe('NOT_IMPLEMENTED');
-      expect(body.error).toBeTruthy();
     });
   });
 

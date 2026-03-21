@@ -17,15 +17,15 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
-  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  const project = await createProject({ name: 'Test Project' });
+  const assessment = await createAssessment(project.id, { name: 'Assessment 1' });
   assessmentId = assessment.id;
-  const report = createReport({ title: 'Test Report', assessment_ids: [assessmentId] });
+  const report = await createReport({ title: 'Test Report', assessment_ids: [assessmentId] });
   reportId = report.id;
 });
 
@@ -94,7 +94,7 @@ describe('PUT /api/reports/[id]', () => {
   });
 
   it('returns 409 when report is published (immutable)', async () => {
-    publishReport(reportId);
+    await publishReport(reportId);
     const request = new Request(`http://localhost/api/reports/${reportId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

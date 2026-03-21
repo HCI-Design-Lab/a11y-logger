@@ -13,6 +13,6 @@ export async function GET(request: Request) {
     );
   }
 
-  const issues = getIssuesByProjectAndWcagCode(projectId, wcagCode);
+  const issues = await getIssuesByProjectAndWcagCode(projectId, wcagCode);
   return NextResponse.json({ success: true, data: issues });
 }

@@ -27,6 +27,8 @@ const IssueBaseSchema = z.object({
   evidence_media: z.array(z.string()).optional(),
   tags: z.array(z.string().max(50)).optional(),
   created_by: z.string().max(200).optional(),
+  ai_suggested_codes: z.array(z.string()).optional(),
+  ai_confidence_score: z.number().nullable().optional(),
 });
 
 export const CreateIssueSchema = IssueBaseSchema;

@@ -17,13 +17,13 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
-  const assessment = createAssessment(projectId, { name: 'Baseline Audit' });
+  const assessment = await createAssessment(projectId, { name: 'Baseline Audit' });
   assessmentId = assessment.id;
 });
 
@@ -43,7 +43,7 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('returns issues for the assessment', async () => {
-    createIssue(assessmentId, { title: 'Bug One' });
+    await createIssue(assessmentId, { title: 'Bug One' });
     const response = await GET(
       new Request(`http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues`),
       makeContext(projectId, assessmentId)
@@ -55,9 +55,9 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('does not return issues from other assessments', async () => {
-    const other = createAssessment(projectId, { name: 'Other Audit' });
-    createIssue(other.id, { title: 'Not Mine' });
-    createIssue(assessmentId, { title: 'Mine' });
+    const other = await createAssessment(projectId, { name: 'Other Audit' });
+    await createIssue(other.id, { title: 'Not Mine' });
+    await createIssue(assessmentId, { title: 'Mine' });
     const response = await GET(
       new Request(`http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues`),
       makeContext(projectId, assessmentId)
@@ -68,8 +68,8 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('filters by severity query param', async () => {
-    createIssue(assessmentId, { title: 'Critical', severity: 'critical' });
-    createIssue(assessmentId, { title: 'Low', severity: 'low' });
+    await createIssue(assessmentId, { title: 'Critical', severity: 'critical' });
+    await createIssue(assessmentId, { title: 'Low', severity: 'low' });
     const response = await GET(
       new Request(
         `http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues?severity=critical`
@@ -82,8 +82,8 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('filters by status query param', async () => {
-    createIssue(assessmentId, { title: 'Open', status: 'open' });
-    createIssue(assessmentId, { title: 'Wont Fix', status: 'wont_fix' });
+    await createIssue(assessmentId, { title: 'Open', status: 'open' });
+    await createIssue(assessmentId, { title: 'Wont Fix', status: 'wont_fix' });
     const response = await GET(
       new Request(
         `http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues?status=wont_fix`
@@ -96,8 +96,8 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('filters by wcag_code query param', async () => {
-    createIssue(assessmentId, { title: 'Has Code', wcag_codes: ['1.1.1'] });
-    createIssue(assessmentId, { title: 'Other Code', wcag_codes: ['2.1.1'] });
+    await createIssue(assessmentId, { title: 'Has Code', wcag_codes: ['1.1.1'] });
+    await createIssue(assessmentId, { title: 'Other Code', wcag_codes: ['2.1.1'] });
     const response = await GET(
       new Request(
         `http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues?wcag_code=1.1.1`
@@ -110,8 +110,8 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('filters by tag query param', async () => {
-    createIssue(assessmentId, { title: 'Tagged', tags: ['navigation'] });
-    createIssue(assessmentId, { title: 'Other Tag', tags: ['forms'] });
+    await createIssue(assessmentId, { title: 'Tagged', tags: ['navigation'] });
+    await createIssue(assessmentId, { title: 'Other Tag', tags: ['forms'] });
     const response = await GET(
       new Request(
         `http://localhost/api/projects/${projectId}/assessments/${assessmentId}/issues?tag=navigation`
@@ -144,7 +144,7 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues', () =
   });
 
   it('returns 404 when assessment belongs to a different project', async () => {
-    const otherProject = createProject({ name: 'Other' });
+    const otherProject = await createProject({ name: 'Other' });
     const response = await GET(
       new Request(
         `http://localhost/api/projects/${otherProject.id}/assessments/${assessmentId}/issues`

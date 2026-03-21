@@ -6,7 +6,7 @@ import { UpdateVpatSchema } from '@/lib/validators/vpats';
 type RouteContext = { params: Promise<{ id: string }> };
 
 async function resolveVpat(id: string) {
-  const vpat = getVpat(id);
+  const vpat = await getVpat(id);
   if (!vpat) {
     return {
       error: NextResponse.json(
@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
   try {
     const resolved = await resolveVpat(id);
     if (resolved.error) return resolved.error;
-    const rows = getCriterionRowsWithIssueCounts(id, resolved.vpat.project_id);
+    const rows = await getCriterionRowsWithIssueCounts(id, resolved.vpat.project_id);
     return NextResponse.json({ success: true, data: { ...resolved.vpat, criterion_rows: rows } });
   } catch {
     return NextResponse.json(
@@ -53,7 +53,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const updated = updateVpat(id, result.data);
+    const updated = await updateVpat(id, result.data);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
@@ -76,7 +76,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const resolved = await resolveVpat(id);
     if (resolved.error) return resolved.error;
 
-    deleteVpat(id);
+    await deleteVpat(id);
     return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(

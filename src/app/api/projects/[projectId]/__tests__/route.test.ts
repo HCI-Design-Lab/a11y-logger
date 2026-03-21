@@ -24,7 +24,7 @@ function makeParams(projectId: string): RouteParams {
 
 describe('GET /api/projects/[projectId]', () => {
   it('returns the project', async () => {
-    const project = createProject({ name: 'Find Me' });
+    const project = await createProject({ name: 'Find Me' });
     const response = await GET(new Request('http://localhost'), makeParams(project.id));
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -43,7 +43,7 @@ describe('GET /api/projects/[projectId]', () => {
 
 describe('PUT /api/projects/[projectId]', () => {
   it('updates and returns the project', async () => {
-    const project = createProject({ name: 'Old Name' });
+    const project = await createProject({ name: 'Old Name' });
     const request = new Request('http://localhost', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -69,7 +69,7 @@ describe('PUT /api/projects/[projectId]', () => {
   });
 
   it('returns 400 for invalid input', async () => {
-    const project = createProject({ name: 'Valid' });
+    const project = await createProject({ name: 'Valid' });
     const request = new Request('http://localhost', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -84,7 +84,7 @@ describe('PUT /api/projects/[projectId]', () => {
 
 describe('DELETE /api/projects/[projectId]', () => {
   it('deletes the project and returns 200', async () => {
-    const project = createProject({ name: 'Doomed' });
+    const project = await createProject({ name: 'Doomed' });
     const response = await DELETE(new Request('http://localhost'), makeParams(project.id));
     expect(response.status).toBe(200);
     const body = await response.json();

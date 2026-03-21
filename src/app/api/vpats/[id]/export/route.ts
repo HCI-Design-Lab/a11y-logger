@@ -38,7 +38,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   }
 
   try {
-    const vpat = getVpat(id);
+    const vpat = await getVpat(id);
     if (!vpat) {
       return NextResponse.json(
         { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
@@ -46,7 +46,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const project = getProject(vpat.project_id);
+    const project = await getProject(vpat.project_id);
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found', code: 'NOT_FOUND' },
@@ -54,7 +54,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       );
     }
 
-    const rows = getCriterionRows(id);
+    const rows = await getCriterionRows(id);
     const html = generateVpatHtml(vpat, project, rows);
 
     // Sanitize title for use in filename

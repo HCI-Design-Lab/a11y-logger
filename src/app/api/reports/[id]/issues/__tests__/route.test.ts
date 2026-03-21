@@ -11,16 +11,16 @@ let assessmentId: string;
 
 beforeAll(() => initDb(':memory:'));
 afterAll(() => closeDb());
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'P' });
-  const assessment = createAssessment(project.id, { name: 'A' });
+  const project = await createProject({ name: 'P' });
+  const assessment = await createAssessment(project.id, { name: 'A' });
   assessmentId = assessment.id;
-  const report = createReport({ title: 'R', assessment_ids: [assessmentId] });
+  const report = await createReport({ title: 'R', assessment_ids: [assessmentId] });
   reportId = report.id;
 });
 

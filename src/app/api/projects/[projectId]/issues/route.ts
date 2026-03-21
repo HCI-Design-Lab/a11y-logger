@@ -6,6 +6,6 @@ export async function GET(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   const { projectId } = await params;
-  const issues = getIssuesByProject(projectId);
+  const issues = await getIssuesByProject(projectId);
   return NextResponse.json({ success: true, data: issues });
 }

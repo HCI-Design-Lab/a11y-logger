@@ -5,7 +5,7 @@ import { CreateReportSchema } from '@/lib/validators/reports';
 
 export async function GET(_request: Request) {
   try {
-    const reports = getReports();
+    const reports = await getReports();
     return NextResponse.json({ success: true, data: reports });
   } catch {
     return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     // Verify all assessments exist
     for (const aId of result.data.assessment_ids) {
-      const assessment = getAssessment(aId);
+      const assessment = await getAssessment(aId);
       if (!assessment) {
         return NextResponse.json(
           { success: false, error: `Assessment not found: ${aId}`, code: 'NOT_FOUND' },
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const report = createReport(result.data);
+    const report = await createReport(result.data);
     return NextResponse.json({ success: true, data: report }, { status: 201 });
   } catch {
     return NextResponse.json(

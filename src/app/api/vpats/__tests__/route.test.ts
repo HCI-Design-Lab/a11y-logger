@@ -15,12 +15,12 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
 });
 
@@ -33,8 +33,8 @@ describe('GET /api/vpats', () => {
   });
 
   it('returns all VPATs when no projectId filter', async () => {
-    createVpat({ title: 'VPAT A', project_id: projectId });
-    createVpat({ title: 'VPAT B', project_id: projectId });
+    await createVpat({ title: 'VPAT A', project_id: projectId });
+    await createVpat({ title: 'VPAT B', project_id: projectId });
     const response = await GET(new Request('http://localhost/api/vpats'));
     const body = await response.json();
     expect(body.success).toBe(true);
@@ -42,9 +42,9 @@ describe('GET /api/vpats', () => {
   });
 
   it('filters by projectId query param', async () => {
-    const other = createProject({ name: 'Other' });
-    createVpat({ title: 'Mine', project_id: projectId });
-    createVpat({ title: 'Theirs', project_id: other.id });
+    const other = await createProject({ name: 'Other' });
+    await createVpat({ title: 'Mine', project_id: projectId });
+    await createVpat({ title: 'Theirs', project_id: other.id });
 
     const response = await GET(new Request(`http://localhost/api/vpats?projectId=${projectId}`));
     const body = await response.json();

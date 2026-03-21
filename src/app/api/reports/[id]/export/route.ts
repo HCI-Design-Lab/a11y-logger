@@ -59,7 +59,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   const variant = rawVariant as ExportVariant;
 
   try {
-    const report = getReport(id);
+    const report = await getReport(id);
     if (!report) {
       return NextResponse.json(
         { success: false, error: 'Report not found', code: 'NOT_FOUND' },
@@ -77,8 +77,8 @@ export async function GET(request: Request, { params }: RouteContext) {
 
     // Derive the project from the first linked assessment
     const firstId = report.assessment_ids[0];
-    const assessment = firstId ? getAssessment(firstId) : null;
-    const project = assessment ? getProject(assessment.project_id) : null;
+    const assessment = firstId ? await getAssessment(firstId) : null;
+    const project = assessment ? await getProject(assessment.project_id) : null;
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'No project found for linked assessments', code: 'NOT_FOUND' },
@@ -89,8 +89,8 @@ export async function GET(request: Request, { params }: RouteContext) {
     const needsStats = variant === 'with-chart' || variant === 'with-all';
     const needsIssues = variant === 'with-issues' || variant === 'with-all';
     const extras = {
-      ...(needsStats ? { stats: getReportStats(report.id) } : {}),
-      ...(needsIssues ? { issues: getReportIssues(report.id) } : {}),
+      ...(needsStats ? { stats: await getReportStats(report.id) } : {}),
+      ...(needsIssues ? { issues: await getReportIssues(report.id) } : {}),
     };
     const baseUrl = new URL(request.url).origin;
     const html = generateReportHtml(report, project, variant, extras, baseUrl, autoPrint);

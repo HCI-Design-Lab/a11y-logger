@@ -6,7 +6,7 @@ type RouteContext = { params: Promise<{ projectId: string }> };
 
 export async function GET(_request: Request, { params }: RouteContext) {
   const { projectId } = await params;
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
 
   if (!project) {
     return NextResponse.json(
@@ -31,7 +31,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
     );
   }
 
-  const project = updateProject(projectId, result.data);
+  const project = await updateProject(projectId, result.data);
 
   if (!project) {
     return NextResponse.json(
@@ -45,7 +45,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
 
 export async function DELETE(_request: Request, { params }: RouteContext) {
   const { projectId } = await params;
-  const deleted = deleteProject(projectId);
+  const deleted = await deleteProject(projectId);
 
   if (!deleted) {
     return NextResponse.json(

@@ -33,7 +33,7 @@ const PERSONA_LABELS: Record<string, string> = {
 
 export default async function ReportDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const report = getReport(id);
+  const report = await getReport(id);
 
   if (!report) {
     notFound();
@@ -41,7 +41,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
   const content = parseReportContent(report.content);
 
-  const stats = getReportStats(id);
+  const stats = await getReportStats(id);
   const hasContent = Object.keys(content).length > 0;
   const isPublished = report.status === 'published';
 

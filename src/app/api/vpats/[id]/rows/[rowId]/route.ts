@@ -37,14 +37,14 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         { status: 400 }
       );
     }
-    const row = getCriterionRow(rowId);
+    const row = await getCriterionRow(rowId);
     if (!row || row.vpat_id !== vpatId) {
       return NextResponse.json(
         { success: false, error: 'Row not found', code: 'NOT_FOUND' },
         { status: 404 }
       );
     }
-    const updated = updateCriterionRow(rowId, result.data);
+    const updated = await updateCriterionRow(rowId, result.data);
     return NextResponse.json({ success: true, data: updated });
   } catch {
     return NextResponse.json(

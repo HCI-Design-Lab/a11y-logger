@@ -6,7 +6,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function POST(_request: Request, { params }: RouteContext) {
   const { id } = await params;
   try {
-    const published = publishVpat(id);
+    const published = await publishVpat(id);
     return NextResponse.json({ success: true, data: published });
   } catch (err) {
     if (err instanceof VpatNotFoundError) {

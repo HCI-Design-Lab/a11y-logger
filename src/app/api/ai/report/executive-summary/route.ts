@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { report, context } = buildIssueContext(reportId);
+  const { report, context } = await buildIssueContext(reportId);
   if (!report) {
     return NextResponse.json(
       { success: false, error: 'Report not found', code: 'NOT_FOUND' },

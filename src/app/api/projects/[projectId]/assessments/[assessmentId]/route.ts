@@ -6,7 +6,7 @@ import { UpdateAssessmentSchema } from '@/lib/validators/assessments';
 type RouteContext = { params: Promise<{ projectId: string; assessmentId: string }> };
 
 async function resolveAssessment(projectId: string, assessmentId: string) {
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) {
     return {
       error: NextResponse.json(
@@ -16,7 +16,7 @@ async function resolveAssessment(projectId: string, assessmentId: string) {
     };
   }
 
-  const assessment = getAssessment(assessmentId);
+  const assessment = await getAssessment(assessmentId);
   if (!assessment || assessment.project_id !== projectId) {
     return {
       error: NextResponse.json(
@@ -66,7 +66,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
     }
 
     if (result.data.project_id && result.data.project_id !== projectId) {
-      const targetProject = getProject(result.data.project_id);
+      const targetProject = await getProject(result.data.project_id);
       if (!targetProject) {
         return NextResponse.json(
           { success: false, error: 'Target project not found', code: 'NOT_FOUND' },
@@ -75,7 +75,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       }
     }
 
-    const updated = updateAssessment(assessmentId, result.data);
+    const updated = await updateAssessment(assessmentId, result.data);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Assessment not found', code: 'NOT_FOUND' },
@@ -99,7 +99,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const resolved = await resolveAssessment(projectId, assessmentId);
     if (resolved.error) return resolved.error;
 
-    deleteAssessment(assessmentId);
+    await deleteAssessment(assessmentId);
     return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(

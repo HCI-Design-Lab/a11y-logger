@@ -6,16 +6,23 @@ import { getAssessments } from '@/lib/db/assessments';
 import { ReportWizard } from '@/components/reports/report-wizard';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
-export default function NewReportPage() {
-  const projects = getProjects().map((p) => ({ id: p.id, name: p.name }));
-  const assessments = projects.flatMap((p) =>
-    getAssessments(p.id).map((a) => ({
-      id: a.id,
-      project_id: a.project_id,
-      name: a.name,
-      status: a.status,
-    }))
-  );
+export default async function NewReportPage() {
+  const rawProjects = await getProjects();
+  const projects = rawProjects.map((p) => ({ id: p.id, name: p.name }));
+  const assessments = (
+    await Promise.all(
+      projects.map((p) =>
+        getAssessments(p.id).then((list) =>
+          list.map((a) => ({
+            id: a.id,
+            project_id: a.project_id,
+            name: a.name,
+            status: a.status,
+          }))
+        )
+      )
+    )
+  ).flat();
 
   return (
     <div>

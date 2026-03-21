@@ -15,10 +15,10 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
 });
 
@@ -38,7 +38,7 @@ describe('GET /api/projects/[projectId]/assessments', () => {
   });
 
   it('returns assessments for the project', async () => {
-    createAssessment(projectId, { name: 'Audit One' });
+    await createAssessment(projectId, { name: 'Audit One' });
     const response = await GET(
       new Request(`http://localhost/api/projects/${projectId}/assessments`),
       makeContext(projectId)
@@ -50,9 +50,9 @@ describe('GET /api/projects/[projectId]/assessments', () => {
   });
 
   it('does not return assessments belonging to another project', async () => {
-    const other = createProject({ name: 'Other Project' });
-    createAssessment(other.id, { name: 'Other Audit' });
-    createAssessment(projectId, { name: 'My Audit' });
+    const other = await createProject({ name: 'Other Project' });
+    await createAssessment(other.id, { name: 'Other Audit' });
+    await createAssessment(projectId, { name: 'My Audit' });
     const response = await GET(
       new Request(`http://localhost/api/projects/${projectId}/assessments`),
       makeContext(projectId)

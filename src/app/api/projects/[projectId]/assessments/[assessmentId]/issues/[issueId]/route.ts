@@ -9,7 +9,7 @@ type RouteContext = {
 };
 
 async function resolveIssueFromContext(projectId: string, assessmentId: string, issueId: string) {
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) {
     return {
       error: NextResponse.json(
@@ -19,7 +19,7 @@ async function resolveIssueFromContext(projectId: string, assessmentId: string, 
     };
   }
 
-  const assessment = getAssessment(assessmentId);
+  const assessment = await getAssessment(assessmentId);
   if (!assessment || assessment.project_id !== projectId) {
     return {
       error: NextResponse.json(
@@ -29,7 +29,7 @@ async function resolveIssueFromContext(projectId: string, assessmentId: string, 
     };
   }
 
-  const issue = getIssue(issueId);
+  const issue = await getIssue(issueId);
   if (!issue || issue.assessment_id !== assessmentId) {
     return {
       error: NextResponse.json(
@@ -78,7 +78,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const updated = updateIssue(issueId, result.data);
+    const updated = await updateIssue(issueId, result.data);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Issue not found', code: 'NOT_FOUND' },
@@ -102,7 +102,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const resolved = await resolveIssueFromContext(projectId, assessmentId, issueId);
     if (resolved.error) return resolved.error;
 
-    deleteIssue(issueId);
+    await deleteIssue(issueId);
     return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(

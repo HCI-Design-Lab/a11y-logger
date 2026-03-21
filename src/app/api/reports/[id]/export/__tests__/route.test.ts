@@ -21,15 +21,15 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM report_assessments').run();
   getDb().prepare('DELETE FROM reports').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
-  const assessment = createAssessment(project.id, { name: 'Assessment 1' });
+  const project = await createProject({ name: 'Test Project' });
+  const assessment = await createAssessment(project.id, { name: 'Assessment 1' });
   assessmentId = assessment.id;
-  const report = createReport({
+  const report = await createReport({
     title: 'Accessibility Audit Report',
     assessment_ids: [assessment.id],
   });
@@ -88,7 +88,7 @@ describe('GET /api/reports/[id]/export', () => {
 
     it('includes report content in HTML output', async () => {
       // Create a report with executive summary content
-      const reportWithContent = createReport({
+      const reportWithContent = await createReport({
         title: 'Content Report',
         assessment_ids: [assessmentId],
         content: { executive_summary: { body: 'Test summary text' } },
@@ -169,7 +169,7 @@ describe('GET /api/reports/[id]/export', () => {
   describe('variant=with-issues', () => {
     it('returns 200 HTML containing linked issues', async () => {
       const { createIssue } = await import('@/lib/db/issues');
-      createIssue(assessmentId, { title: 'Missing alt text', severity: 'high' });
+      await createIssue(assessmentId, { title: 'Missing alt text', severity: 'high' });
 
       const response = await GET(
         new Request(
@@ -200,7 +200,7 @@ describe('GET /api/reports/[id]/export', () => {
   describe('variant=with-all', () => {
     it('returns 200 HTML containing both issue statistics and issues list', async () => {
       const { createIssue } = await import('@/lib/db/issues');
-      createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
+      await createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
 
       const response = await GET(
         new Request(`http://localhost/api/reports/${reportId}/export?format=html&variant=with-all`),
@@ -216,7 +216,7 @@ describe('GET /api/reports/[id]/export', () => {
   describe('issue title links', () => {
     it('includes app links on issue titles in with-issues export', async () => {
       const { createIssue } = await import('@/lib/db/issues');
-      const issue = createIssue(assessmentId, { title: 'Linked issue', severity: 'low' });
+      const issue = await createIssue(assessmentId, { title: 'Linked issue', severity: 'low' });
 
       const response = await GET(
         new Request(
@@ -249,7 +249,7 @@ describe('GET /api/reports/[id]/export', () => {
 
     it('forces with-all variant regardless of variant param', async () => {
       const { createIssue } = await import('@/lib/db/issues');
-      createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
+      await createIssue(assessmentId, { title: 'Alt text missing', severity: 'critical' });
 
       const response = await GET(
         new Request(

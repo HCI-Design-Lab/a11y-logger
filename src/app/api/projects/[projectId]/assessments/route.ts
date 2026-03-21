@@ -9,7 +9,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
   const { projectId } = await params;
 
   try {
-    const project = getProject(projectId);
+    const project = await getProject(projectId);
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found', code: 'NOT_FOUND' },
@@ -17,7 +17,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
       );
     }
 
-    const assessments = getAssessments(projectId);
+    const assessments = await getAssessments(projectId);
     return NextResponse.json({ success: true, data: assessments });
   } catch {
     return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   const { projectId } = await params;
 
   try {
-    const project = getProject(projectId);
+    const project = await getProject(projectId);
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found', code: 'NOT_FOUND' },
@@ -53,7 +53,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       );
     }
 
-    const assessment = createAssessment(projectId, result.data);
+    const assessment = await createAssessment(projectId, result.data);
     return NextResponse.json({ success: true, data: assessment }, { status: 201 });
   } catch {
     return NextResponse.json(

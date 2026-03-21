@@ -16,18 +16,19 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM projects').run();
-  const p = createProject({ name: 'Test' });
-  const v = createVpat({
+  const p = await createProject({ name: 'Test' });
+  const v = await createVpat({
     title: 'Test',
     project_id: p.id,
     standard_edition: 'WCAG',
     product_scope: ['web'],
   });
   vpatId = v.id;
-  rowId = getCriterionRows(vpatId)[0]!.id;
+  const rows = await getCriterionRows(vpatId);
+  rowId = rows[0]!.id;
 });
 
 describe('PATCH /api/vpats/[id]/rows/[rowId]', () => {

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('projectId') ?? undefined;
-    const vpats = getVpats(projectId);
+    const vpats = await getVpats(projectId);
     return NextResponse.json({ success: true, data: vpats });
   } catch {
     return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const project = getProject(result.data.project_id);
+    const project = await getProject(result.data.project_id);
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found', code: 'NOT_FOUND' },
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const vpat = createVpat(result.data);
+    const vpat = await createVpat(result.data);
     return NextResponse.json({ success: true, data: vpat }, { status: 201 });
   } catch {
     return NextResponse.json(

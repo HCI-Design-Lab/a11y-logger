@@ -41,7 +41,7 @@ describe('POST /api/auth/toggle', () => {
   });
 
   it('enables auth when users exist', async () => {
-    vi.mocked(getUsers).mockReturnValue([
+    vi.mocked(getUsers).mockResolvedValue([
       { id: 'user-1', username: 'admin', role: 'admin', created_at: '', updated_at: '' },
     ]);
     const req = new Request('http://localhost/api/auth/toggle', {
@@ -57,7 +57,7 @@ describe('POST /api/auth/toggle', () => {
   });
 
   it('returns 409 when trying to enable auth with no users', async () => {
-    vi.mocked(getUsers).mockReturnValue([]);
+    vi.mocked(getUsers).mockResolvedValue([]);
     const req = new Request('http://localhost/api/auth/toggle', {
       method: 'POST',
       body: JSON.stringify({ enabled: true }),
@@ -86,7 +86,7 @@ describe('POST /api/auth/toggle', () => {
   });
 
   it('sets the auth_enabled cookie with sameSite lax', async () => {
-    vi.mocked(getUsers).mockReturnValue([
+    vi.mocked(getUsers).mockResolvedValue([
       { id: 'user-1', username: 'admin', role: 'admin', created_at: '', updated_at: '' },
     ]);
     const req = new Request('http://localhost/api/auth/toggle', {

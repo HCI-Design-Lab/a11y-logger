@@ -16,12 +16,12 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
-  const assessment = createAssessment(projectId, { name: 'Test Audit' });
+  const assessment = await createAssessment(projectId, { name: 'Test Audit' });
   assessmentId = assessment.id;
 });
 
@@ -63,7 +63,7 @@ describe('GET /api/projects/[projectId]/assessments/[id]', () => {
   });
 
   it('returns 404 when assessment belongs to a different project', async () => {
-    const otherProject = createProject({ name: 'Other' });
+    const otherProject = await createProject({ name: 'Other' });
     const response = await GET(
       new Request(`http://localhost/api/projects/${otherProject.id}/assessments/${assessmentId}`),
       makeContext(otherProject.id, assessmentId)
@@ -151,7 +151,7 @@ describe('PUT /api/projects/[projectId]/assessments/[id]', () => {
     expect(response.status).toBe(404);
   });
   it('returns 404 when assessment belongs to a different project', async () => {
-    const otherProject = createProject({ name: 'Other' });
+    const otherProject = await createProject({ name: 'Other' });
     const request = new Request(
       `http://localhost/api/projects/${otherProject.id}/assessments/${assessmentId}`,
       {
@@ -210,7 +210,7 @@ describe('DELETE /api/projects/[projectId]/assessments/[id]', () => {
   });
 
   it('returns 404 when assessment belongs to a different project', async () => {
-    const otherProject = createProject({ name: 'Other' });
+    const otherProject = await createProject({ name: 'Other' });
     const response = await DELETE(
       new Request(`http://localhost/api/projects/${otherProject.id}/assessments/${assessmentId}`),
       makeContext(otherProject.id, assessmentId)

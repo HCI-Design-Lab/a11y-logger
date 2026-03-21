@@ -27,7 +27,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('returns 401 for unknown username', async () => {
-    vi.mocked(getUserByUsername).mockReturnValue(null);
+    vi.mocked(getUserByUsername).mockResolvedValue(null);
     const req = new Request('http://localhost/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username: 'unknown', password: 'pass' }),
@@ -38,7 +38,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('returns 401 for wrong password', async () => {
-    vi.mocked(getUserByUsername).mockReturnValue({
+    vi.mocked(getUserByUsername).mockResolvedValue({
       id: '1',
       username: 'testuser',
       password_hash: 'hash',
@@ -57,7 +57,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('returns 200 and creates session on valid credentials', async () => {
-    vi.mocked(getUserByUsername).mockReturnValue({
+    vi.mocked(getUserByUsername).mockResolvedValue({
       id: '1',
       username: 'testuser',
       password_hash: 'hash',

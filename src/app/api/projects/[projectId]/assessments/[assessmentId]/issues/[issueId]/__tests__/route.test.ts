@@ -18,15 +18,15 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
-  const assessment = createAssessment(projectId, { name: 'Baseline Audit' });
+  const assessment = await createAssessment(projectId, { name: 'Baseline Audit' });
   assessmentId = assessment.id;
-  const issue = createIssue(assessmentId, { title: 'Test Issue', severity: 'medium' });
+  const issue = await createIssue(assessmentId, { title: 'Test Issue', severity: 'medium' });
   issueId = issue.id;
 });
 
@@ -48,7 +48,7 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
   });
 
   it('returns JSON array fields as arrays', async () => {
-    const issue = createIssue(assessmentId, {
+    const issue = await createIssue(assessmentId, {
       title: 'With Arrays',
       wcag_codes: ['1.1.1'],
       tags: ['nav'],
@@ -83,7 +83,7 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
   });
 
   it('returns 404 when assessment belongs to a different project', async () => {
-    const otherProject = createProject({ name: 'Other' });
+    const otherProject = await createProject({ name: 'Other' });
     const response = await GET(
       new Request(`http://localhost/.../issues/${issueId}`),
       makeContext(otherProject.id, assessmentId, issueId)
@@ -101,7 +101,7 @@ describe('GET /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
   });
 
   it('returns 404 when issue belongs to a different assessment', async () => {
-    const otherAssessment = createAssessment(projectId, { name: 'Other Audit' });
+    const otherAssessment = await createAssessment(projectId, { name: 'Other Audit' });
     const response = await GET(
       new Request(`http://localhost/.../issues/${issueId}`),
       makeContext(projectId, otherAssessment.id, issueId)
@@ -126,7 +126,11 @@ describe('PUT /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
   });
 
   it('preserves existing JSON array fields when not in update', async () => {
-    const issue = createIssue(assessmentId, { title: 'T', wcag_codes: ['1.1.1'], tags: ['nav'] });
+    const issue = await createIssue(assessmentId, {
+      title: 'T',
+      wcag_codes: ['1.1.1'],
+      tags: ['nav'],
+    });
     const request = new Request(`http://localhost/.../issues/${issue.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -180,7 +184,7 @@ describe('PUT /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
   });
 
   it('returns 404 when issue belongs to a different assessment', async () => {
-    const otherAssessment = createAssessment(projectId, { name: 'Other' });
+    const otherAssessment = await createAssessment(projectId, { name: 'Other' });
     const request = new Request(`http://localhost/.../issues/${issueId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -227,7 +231,7 @@ describe('DELETE /api/projects/[projectId]/assessments/[assessmentId]/issues/[is
   });
 
   it('returns 404 when issue belongs to a different assessment', async () => {
-    const otherAssessment = createAssessment(projectId, { name: 'Other' });
+    const otherAssessment = await createAssessment(projectId, { name: 'Other' });
     const response = await DELETE(
       new Request(`http://localhost/.../issues/${issueId}`),
       makeContext(projectId, otherAssessment.id, issueId)

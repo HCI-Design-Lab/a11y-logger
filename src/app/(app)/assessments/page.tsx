@@ -3,7 +3,7 @@ import { AssessmentsListView } from '@/components/assessments/assessments-list-v
 
 export const dynamic = 'force-dynamic';
 
-export default function AssessmentsPage() {
-  const assessments = getAllAssessments();
+export default async function AssessmentsPage() {
+  const assessments = await getAllAssessments();
   return <AssessmentsListView assessments={assessments} />;
 }

@@ -29,19 +29,20 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.resetAllMocks();
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM projects').run();
-  const p = createProject({ name: 'Test' });
-  const v = createVpat({
+  const p = await createProject({ name: 'Test' });
+  const v = await createVpat({
     title: 'Test',
     project_id: p.id,
     standard_edition: 'WCAG',
     product_scope: ['web'],
   });
   vpatId = v.id;
-  rowId = getCriterionRows(vpatId)[0]!.id;
+  const rows = await getCriterionRows(vpatId);
+  rowId = rows[0]!.id;
 });
 
 afterEach(() => {
@@ -83,11 +84,13 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   it('returns 404 when row belongs to different VPAT', async () => {
     vi.stubEnv('AI_PROVIDER', 'openai');
     vi.stubEnv('AI_API_KEY', 'test-key');
-    const otherVpat = createVpat({
+    const otherProject = await createProject({ name: 'Other' });
+    const otherVpat = await createVpat({
       title: 'Other',
-      project_id: createProject({ name: 'Other' }).id,
+      project_id: otherProject.id,
     });
-    const otherRowId = getCriterionRows(otherVpat.id)[0]!.id;
+    const otherRows = await getCriterionRows(otherVpat.id);
+    const otherRowId = otherRows[0]!.id;
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId: otherRowId }),
     });

@@ -17,14 +17,14 @@ export async function POST(_request: Request, { params }: RouteContext) {
     );
   }
 
-  const row = getCriterionRow(rowId);
+  const row = await getCriterionRow(rowId);
   if (!row || row.vpat_id !== vpatId)
     return NextResponse.json(
       { success: false, error: 'Row not found', code: 'NOT_FOUND' },
       { status: 404 }
     );
 
-  const vpat = getVpat(vpatId);
+  const vpat = await getVpat(vpatId);
   if (!vpat)
     return NextResponse.json(
       { success: false, error: 'VPAT not found', code: 'NOT_FOUND' },
@@ -62,7 +62,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
       issues,
     });
 
-    const updated = updateCriterionRow(rowId, {
+    const updated = await updateCriterionRow(rowId, {
       remarks: result.remarks,
       ai_confidence: result.confidence,
       ai_reasoning: result.reasoning,

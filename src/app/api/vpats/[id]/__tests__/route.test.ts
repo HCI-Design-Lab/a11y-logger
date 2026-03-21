@@ -16,14 +16,14 @@ afterAll(() => {
   closeDb();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   getDb().prepare('DELETE FROM vpats').run();
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
-  const project = createProject({ name: 'Test Project' });
+  const project = await createProject({ name: 'Test Project' });
   projectId = project.id;
-  const vpat = createVpat({
+  const vpat = await createVpat({
     title: 'Existing VPAT',
     project_id: projectId,
     standard_edition: 'WCAG',

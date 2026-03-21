@@ -4,7 +4,7 @@ import { CreateProjectSchema } from '@/lib/validators/projects';
 
 export async function GET() {
   try {
-    const projects = getProjects();
+    const projects = await getProjects();
     return NextResponse.json({ success: true, data: projects });
   } catch {
     return NextResponse.json(
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const project = createProject(result.data);
+    const project = await createProject(result.data);
     return NextResponse.json({ success: true, data: project }, { status: 201 });
   } catch {
     return NextResponse.json(

@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const project = getProject(projectId);
+  const project = await getProject(projectId);
   if (!project) {
     return NextResponse.json(
       { success: false, error: 'Project not found', code: 'NOT_FOUND' },
@@ -47,8 +47,10 @@ export async function POST(request: Request) {
   }
 
   // Gather issues for the project matching the criterion code
-  const assessments = getAssessments(projectId);
-  const matchingIssues = assessments.flatMap((a) => getIssues(a.id, { wcag_code: criterionCode }));
+  const assessments = await getAssessments(projectId);
+  const matchingIssues = (
+    await Promise.all(assessments.map((a) => getIssues(a.id, { wcag_code: criterionCode })))
+  ).flat();
 
   const issueSummary =
     matchingIssues.length > 0
