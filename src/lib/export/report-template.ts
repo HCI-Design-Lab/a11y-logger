@@ -144,11 +144,13 @@ function buildStatsHtml(stats: ReportStats): string {
       </table>`;
 
   return `
-    <section class="report-section">
-      <h2>Issue Statistics</h2>
-      ${donutSvg}
-      ${criteriaTable}
-    </section>`;
+    <details class="report-section" open>
+      <summary>Issue Statistics</summary>
+      <div class="report-section-body">
+        ${donutSvg}
+        ${criteriaTable}
+      </div>
+    </details>`;
 }
 
 const SEVERITY_BADGE_STYLES: Record<string, string> = {
@@ -161,10 +163,12 @@ const SEVERITY_BADGE_STYLES: Record<string, string> = {
 function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
   if (issues.length === 0) {
     return `
-      <section class="report-section">
-        <h2>Issues</h2>
-        <p style="color:var(--muted-foreground);font-style:italic">No issues linked to this report.</p>
-      </section>`;
+      <details class="report-section">
+        <summary>Issues</summary>
+        <div class="report-section-body">
+          <p style="color:var(--muted-foreground);font-style:italic">No issues linked to this report.</p>
+        </div>
+      </details>`;
   }
 
   const badgeStyle =
@@ -290,10 +294,12 @@ function buildIssuesHtml(issues: IssueWithContext[], baseUrl = ''): string {
     .join('\n');
 
   return `
-    <section class="report-section">
-      <h2>Issues (${issues.length})</h2>
-      ${articles}
-    </section>`;
+    <details class="report-section">
+      <summary>Issues (${issues.length})</summary>
+      <div class="report-section-body">
+        ${articles}
+      </div>
+    </details>`;
 }
 
 const USER_IMPACT_LABELS: Record<string, string> = {
@@ -310,10 +316,12 @@ function buildSectionsHtml(content: ReportContent): string {
 
   if (content.executive_summary) {
     parts.push(`
-      <section class="report-section">
-        <h2>Executive Summary</h2>
-        <div class="section-body">${DOMPurify.sanitize(content.executive_summary.body)}</div>
-      </section>`);
+      <details class="report-section" open>
+        <summary>Executive Summary</summary>
+        <div class="report-section-body">
+          <div class="section-body">${DOMPurify.sanitize(content.executive_summary.body)}</div>
+        </div>
+      </details>`);
   }
 
   if (content.top_risks) {
@@ -321,12 +329,14 @@ function buildSectionsHtml(content: ReportContent): string {
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('\n        ');
     parts.push(`
-      <section class="report-section">
-        <h2>Top Risks</h2>
-        <ol class="section-list">
-          ${items}
-        </ol>
-      </section>`);
+      <details class="report-section" open>
+        <summary>Top Risks</summary>
+        <div class="report-section-body">
+          <ol class="section-list">
+            ${items}
+          </ol>
+        </div>
+      </details>`);
   }
 
   if (content.quick_wins) {
@@ -334,12 +344,14 @@ function buildSectionsHtml(content: ReportContent): string {
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('\n        ');
     parts.push(`
-      <section class="report-section">
-        <h2>Quick Wins</h2>
-        <ol class="section-list">
-          ${items}
-        </ol>
-      </section>`);
+      <details class="report-section" open>
+        <summary>Quick Wins</summary>
+        <div class="report-section-body">
+          <ol class="section-list">
+            ${items}
+          </ol>
+        </div>
+      </details>`);
   }
 
   if (content.user_impact) {
@@ -353,12 +365,14 @@ function buildSectionsHtml(content: ReportContent): string {
       )
       .join('\n');
     parts.push(`
-      <section class="report-section">
-        <h2>User Impact</h2>
-        <dl class="impact-grid">
-          ${grid}
-        </dl>
-      </section>`);
+      <details class="report-section" open>
+        <summary>User Impact</summary>
+        <div class="report-section-body">
+          <dl class="impact-grid">
+            ${grid}
+          </dl>
+        </div>
+      </details>`);
   }
 
   return parts.join('\n');
@@ -487,15 +501,43 @@ export function generateReportHtml(
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
       margin-bottom: 16px;
+      overflow: hidden;
     }
 
-    .report-section h2 {
+    .report-section > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
       font-size: 1rem;
       font-weight: 600;
-      margin: 0 0 16px 0;
       color: var(--foreground);
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    .report-section > summary::-webkit-details-marker { display: none; }
+
+    .report-section > summary::after {
+      content: '›';
+      font-size: 1.25rem;
+      color: var(--muted-foreground);
+      transition: transform 0.15s ease;
+      display: inline-block;
+    }
+
+    .report-section[open] > summary::after {
+      transform: rotate(90deg);
+    }
+
+    .report-section[open] > summary {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .report-section-body {
+      padding: 20px 24px 24px;
     }
 
     .section-body {
@@ -581,6 +623,9 @@ export function generateReportHtml(
 
     /* Print */
     @media print {
+      details { display: block; }
+      details > * { display: block; }
+
       body { background: white; font-size: 11pt; }
 
       .container { max-width: 100%; padding: 0; }
@@ -611,7 +656,8 @@ export function generateReportHtml(
         page-break-inside: avoid;
       }
 
-      .report-section h2 { page-break-after: avoid; }
+      .report-section > summary { padding: 0; cursor: default; }
+      .report-section-body { padding: 0; }
 
       .impact-card { border: 1px solid #ccc; background: white; }
 

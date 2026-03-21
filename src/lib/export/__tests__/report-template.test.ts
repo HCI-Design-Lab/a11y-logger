@@ -80,7 +80,34 @@ describe('generateReportHtml', () => {
   it('includes semantic heading structure', () => {
     const result = generateReportHtml(mockReport, mockProject);
     expect(result).toContain('<h1');
-    expect(result).toContain('<h2');
+    expect(result).toContain('<summary>'); // was '<h2'
+  });
+
+  it('uses details/summary for collapsible sections', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('<details');
+    expect(result).toContain('<summary>');
+  });
+
+  it('expands content sections by default', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('<details class="report-section" open>');
+  });
+
+  it('collapses issues section by default', () => {
+    const result = generateReportHtml(
+      { ...mockReport, content: '{}' },
+      mockProject,
+      'with-issues',
+      { issues: [mockIssue] }
+    );
+    expect(result).toContain('<summary>Issues (');
+    expect(result).not.toMatch(/<details class="report-section" open>[^<]*<summary>Issues/);
+  });
+
+  it('includes print CSS to force all details open', () => {
+    const result = generateReportHtml(mockReport, mockProject);
+    expect(result).toContain('details { display: block');
   });
 
   it('handles a report with empty content gracefully', () => {
