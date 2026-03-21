@@ -394,14 +394,14 @@ describe('getAIProvider', () => {
     process.env.AI_PROVIDER = 'openai';
     process.env.AI_API_KEY = 'sk-test';
     const provider = getAIProvider();
-    expect(provider).toBeInstanceOf(OpenAIProvider);
+    expect(provider).toBeInstanceOf(VercelAIProvider);
   });
 
   it('returns AnthropicProvider when provider is anthropic', () => {
     process.env.AI_PROVIDER = 'anthropic';
     process.env.AI_API_KEY = 'sk-ant-test';
     const provider = getAIProvider();
-    expect(provider).toBeInstanceOf(AnthropicProvider);
+    expect(provider).toBeInstanceOf(VercelAIProvider);
   });
 
   it('returns null for unknown provider string', () => {
