@@ -81,4 +81,46 @@ describe('UserImpactSection', () => {
     );
     expect(screen.getByRole('button', { name: /generat/i })).toBeDisabled();
   });
+
+  it('shows generating overlay when isGenerating is true', () => {
+    render(
+      <UserImpactSection
+        data={{
+          screen_reader: '',
+          low_vision: '',
+          color_vision: '',
+          keyboard_only: '',
+          cognitive: '',
+          deaf_hard_of_hearing: '',
+        }}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={true}
+      />
+    );
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText('Generating with AI...')).toBeInTheDocument();
+  });
+
+  it('does not show generating overlay when isGenerating is false', () => {
+    render(
+      <UserImpactSection
+        data={{
+          screen_reader: '',
+          low_vision: '',
+          color_vision: '',
+          keyboard_only: '',
+          cognitive: '',
+          deaf_hard_of_hearing: '',
+        }}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={false}
+      />
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByText('Generating with AI...')).not.toBeInTheDocument();
+  });
 });
