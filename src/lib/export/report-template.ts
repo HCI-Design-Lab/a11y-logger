@@ -97,11 +97,11 @@ function buildStatsHtml(stats: ReportStats): string {
             ${paths}
           </svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-            <span style="font-size:28pt;font-weight:bold;line-height:1;color:var(--foreground)">${total}</span>
-            <span style="font-size:9pt;color:var(--muted-foreground)">Total</span>
+            <span style="font-size:1.75rem;font-weight:bold;line-height:1;color:var(--foreground)">${total}</span>
+            <span style="font-size:0.6875rem;color:var(--muted-foreground)">Total</span>
           </div>
         </div>
-        <table style="border-collapse:collapse;font-size:11pt">
+        <table style="border-collapse:collapse;font-size:0.9375rem">
           <tbody>
             ${SEVERITY_CHART.map(
               ({ key, label, color }) => `
@@ -123,17 +123,17 @@ function buildStatsHtml(stats: ReportStats): string {
       .map(
         ({ code, name, count }) =>
           `<tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:5px 12px 5px 0;font-size:10pt;color:var(--foreground)">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</td>
+          <td style="padding:5px 12px 5px 0;font-size:0.875rem;color:var(--foreground)">${escapeHtml(code)}${name ? ` — ${escapeHtml(name)}` : ''}</td>
           <td style="padding:5px 0;font-weight:bold;text-align:right;white-space:nowrap">${count}</td>
         </tr>`
       )
       .join('\n');
   } else {
-    criteriaTableBody = `<tr><td colspan="2" style="padding:5px 0;font-size:10pt;color:var(--muted-foreground);font-style:italic">No WCAG criteria linked to issues.</td></tr>`;
+    criteriaTableBody = `<tr><td colspan="2" style="padding:5px 0;font-size:0.875rem;color:var(--muted-foreground);font-style:italic">No WCAG criteria linked to issues.</td></tr>`;
   }
   const criteriaTable = `
       <h3 style="font-size:0.875rem;font-weight:600;margin:0 0 8px 0;padding-bottom:4px;border-bottom:1px solid var(--border);color:var(--foreground)">WCAG Criteria Breakdown</h3>
-      <table style="border-collapse:collapse;width:100%;font-size:11pt">
+      <table style="border-collapse:collapse;width:100%;font-size:0.9375rem">
         <thead>
           <tr>
             <th style="text-align:left;padding:5px 12px 5px 0;color:var(--muted-foreground);font-weight:600;border-bottom:2px solid var(--border)">Criterion</th>
