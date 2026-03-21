@@ -1,5 +1,5 @@
 'use client';
-import { Sparkles, Trash2 } from 'lucide-react';
+import { Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
@@ -45,7 +45,17 @@ export function ExecutiveSummarySection({
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
+        {isGenerating && (
+          <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/80 backdrop-blur-sm rounded-b-lg"
+            role="status"
+            aria-live="polite"
+          >
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Generating with AI...</p>
+          </div>
+        )}
         <RichTextEditor
           value={body}
           onChange={onChange}
