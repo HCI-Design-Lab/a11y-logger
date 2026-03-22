@@ -46,7 +46,7 @@ function headerRow(labels: string[]): TableRow {
 }
 
 function cell(text: string): TableCell {
-  return new TableCell({ children: [new Paragraph(text)] });
+  return new TableCell({ children: [new Paragraph({ text })] });
 }
 
 export async function generateVpatDocx(
