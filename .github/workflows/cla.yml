@@ -21,9 +21,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_TOKEN }}
         with:
-          # Replace GIST_ID with the ID of an empty Gist you create at https://gist.github.com
           # Create a file named cla-signatures.json with content [] and copy the Gist ID from the URL
-          path-to-signatures: 'https://gist.github.com/GIST_ID/cla-signatures.json'
+          path-to-signatures: 'https://gist.github.com/bf84f88035cada9005177dfa61ad93db/cla-signatures.json'
           path-to-document: 'https://github.com/YOUR_ORG/a11y-pm/blob/main/CLA.md'
           branch: 'main'
           # Bots and the repo owner don't need to sign
