@@ -2,6 +2,18 @@ import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
+const SECTION_ORDER = [
+  'A',
+  'AA',
+  'AAA',
+  'Chapter3',
+  'Chapter5',
+  'Chapter6',
+  'Clause4',
+  'Clause5',
+  'Clause12',
+];
+
 const SECTION_LABELS: Record<string, string> = {
   A: 'Table 1: Success Criteria, Level A',
   AA: 'Table 2: Success Criteria, Level AA',
@@ -13,6 +25,16 @@ const SECTION_LABELS: Record<string, string> = {
   Clause5: 'Clause 5: Generic Requirements',
   Clause12: 'Clauses 11-12: Documentation and Support Services',
 };
+
+function compareCode(a: string, b: string): number {
+  const pa = a.split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = b.split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
 
 const CONFORMANCE_DISPLAY: Record<string, string> = {
   supports: 'Supports',
@@ -61,27 +83,38 @@ export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriteri
     day: 'numeric',
   });
 
-  // Group rows by criterion_section, preserving insertion order
+  // Group rows by criterion level (A/AA/AAA) in canonical VPAT order
   const bySection = new Map<string, VpatCriterionRow[]>();
   for (const row of rows) {
-    if (!bySection.has(row.criterion_section)) bySection.set(row.criterion_section, []);
-    bySection.get(row.criterion_section)!.push(row);
+    const key = row.criterion_level ?? 'Other';
+    if (!bySection.has(key)) bySection.set(key, []);
+    bySection.get(key)!.push(row);
   }
 
-  const sectionsHtml = Array.from(bySection.entries())
-    .map(([section, sectionRows]) => {
+  // Sort each section's rows numerically by criterion code
+  for (const sectionRows of bySection.values()) {
+    sectionRows.sort((a, b) => compareCode(a.criterion_code, b.criterion_code));
+  }
+
+  // Render sections in canonical order
+  const knownSections = SECTION_ORDER.filter((s) => bySection.has(s));
+  const unknownSections = [...bySection.keys()].filter((s) => !SECTION_ORDER.includes(s));
+  const orderedSections = [...knownSections, ...unknownSections];
+
+  const sectionsHtml = orderedSections
+    .map((section) => {
+      const sectionRows = bySection.get(section)!;
       const sectionLabel = SECTION_LABELS[section] ?? section;
 
       const rowsHtml = sectionRows
         .map((row) => {
           const conformance = row.conformance ?? 'not_evaluated';
           const remarks = row.remarks ?? '';
+          const criteriaLabel = `${escapeHtml(row.criterion_code)} ${escapeHtml(row.criterion_name)}${row.criterion_level ? ` (Level ${escapeHtml(row.criterion_level)})` : ''}`;
 
           return `
           <tr>
-            <td class="criterion-code">${escapeHtml(row.criterion_code)}</td>
-            <td class="criterion-name">${escapeHtml(row.criterion_name)}</td>
-            <td class="criterion-level level-${(row.criterion_level ?? '').toLowerCase()}">${row.criterion_level ? escapeHtml(row.criterion_level) : ''}</td>
+            <td class="criterion-cell">${criteriaLabel}</td>
             <td class="conformance-cell ${getConformanceClass(conformance)}">${escapeHtml(getConformanceDisplay(conformance))}</td>
             <td class="remarks-cell">${remarks ? escapeHtml(remarks) : '<span class="no-remarks">—</span>'}</td>
           </tr>`;
@@ -94,11 +127,9 @@ export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriteri
           <table>
             <thead>
               <tr>
-                <th scope="col">Criterion</th>
-                <th scope="col">Name</th>
-                <th scope="col">Level</th>
-                <th scope="col">Conformance</th>
-                <th scope="col">Remarks</th>
+                <th scope="col" style="width:45%">Criteria</th>
+                <th scope="col" style="width:20%">Conformance Level</th>
+                <th scope="col" style="width:35%">Remarks and Explanations</th>
               </tr>
             </thead>
             <tbody>
