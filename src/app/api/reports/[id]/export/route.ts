@@ -101,7 +101,11 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     if ((format as SupportedFormat) === 'docx') {
-      const buffer = await generateReportDocx(report, project);
+      const [stats, issues] = await Promise.all([
+        getReportStats(report.id),
+        getReportIssues(report.id),
+      ]);
+      const buffer = await generateReportDocx(report, project, stats, issues);
       return new Response(new Uint8Array(buffer), {
         status: 200,
         headers: {

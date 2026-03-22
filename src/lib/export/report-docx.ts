@@ -9,7 +9,8 @@ import {
   Packer,
   WidthType,
 } from 'docx';
-import type { Report } from '@/lib/db/reports';
+import type { Report, ReportStats } from '@/lib/db/reports';
+import type { IssueWithContext } from '@/lib/db/issues';
 import type { Project } from '@/lib/db/projects';
 
 // Define locally since ReportContent may not be exported from validators
@@ -60,7 +61,43 @@ const USER_IMPACT_LABELS: Record<string, string> = {
   deaf_hard_of_hearing: 'Deaf / Hard of Hearing',
 };
 
-export async function generateReportDocx(report: Report, project: Project): Promise<Buffer> {
+const SEVERITY_LABELS: Record<string, string> = {
+  critical: 'Critical',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  open: 'Open',
+  resolved: 'Resolved',
+  wont_fix: "Won't Fix",
+};
+
+function labelCell(text: string): TableCell {
+  return new TableCell({
+    children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
+    width: { size: 25, type: WidthType.PERCENTAGE },
+  });
+}
+
+function valueCell(text: string): TableCell {
+  return new TableCell({
+    children: [new Paragraph({ text })],
+    width: { size: 75, type: WidthType.PERCENTAGE },
+  });
+}
+
+function issueDetailRow(label: string, value: string): TableRow {
+  return new TableRow({ children: [labelCell(label), valueCell(value)] });
+}
+
+export async function generateReportDocx(
+  report: Report,
+  project: Project,
+  stats?: ReportStats,
+  issues?: IssueWithContext[]
+): Promise<Buffer> {
   const content = parseContent(report.content);
 
   const children: (Paragraph | Table)[] = [
@@ -124,6 +161,96 @@ export async function generateReportDocx(report: Report, project: Project): Prom
         new Table({
           width: { size: 100, type: WidthType.PERCENTAGE },
           rows: impactRows,
+        }),
+        new Paragraph({ text: '' })
+      );
+    }
+  }
+
+  // WCAG by Criteria table
+  if (stats?.wcagCriteriaCounts?.length) {
+    children.push(
+      new Paragraph({ text: 'WCAG Criteria', heading: HeadingLevel.HEADING_2 }),
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            tableHeader: true,
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({ children: [new TextRun({ text: 'Code', bold: true })] }),
+                ],
+                width: { size: 15, type: WidthType.PERCENTAGE },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({ children: [new TextRun({ text: 'Criterion', bold: true })] }),
+                ],
+                width: { size: 70, type: WidthType.PERCENTAGE },
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({ children: [new TextRun({ text: 'Issues', bold: true })] }),
+                ],
+                width: { size: 15, type: WidthType.PERCENTAGE },
+              }),
+            ],
+          }),
+          ...stats.wcagCriteriaCounts.map(
+            ({ code, name, count }) =>
+              new TableRow({
+                children: [
+                  new TableCell({ children: [new Paragraph({ text: code })] }),
+                  new TableCell({ children: [new Paragraph({ text: name ?? '' })] }),
+                  new TableCell({ children: [new Paragraph({ text: String(count) })] }),
+                ],
+              })
+          ),
+        ],
+      }),
+      new Paragraph({ text: '' })
+    );
+  }
+
+  // Issues — each on its own page
+  if (issues?.length) {
+    children.push(new Paragraph({ text: 'Issues', heading: HeadingLevel.HEADING_2 }));
+
+    for (const issue of issues) {
+      const rows: TableRow[] = [
+        issueDetailRow('Severity', SEVERITY_LABELS[issue.severity] ?? issue.severity),
+        issueDetailRow('Status', STATUS_LABELS[issue.status] ?? issue.status),
+      ];
+
+      if (issue.wcag_codes.length) {
+        rows.push(issueDetailRow('WCAG', issue.wcag_codes.join(', ')));
+      }
+      if (issue.url) {
+        rows.push(issueDetailRow('URL', issue.url));
+      }
+      if (issue.description) {
+        rows.push(issueDetailRow('Description', stripHtml(issue.description)));
+      }
+      if (issue.user_impact) {
+        rows.push(issueDetailRow('User Impact', issue.user_impact));
+      }
+      if (issue.suggested_fix) {
+        rows.push(issueDetailRow('Suggested Fix', stripHtml(issue.suggested_fix)));
+      }
+      if (issue.selector) {
+        rows.push(issueDetailRow('Selector', issue.selector));
+      }
+
+      children.push(
+        new Paragraph({
+          text: issue.title,
+          heading: HeadingLevel.HEADING_3,
+          pageBreakBefore: true,
+        }),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows,
         }),
         new Paragraph({ text: '' })
       );
