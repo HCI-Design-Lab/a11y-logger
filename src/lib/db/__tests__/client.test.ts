@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import Database from 'better-sqlite3';
 import { initDbClient, getDbClient, closeDbClient, isPostgres, getDb as getRawDb } from '../client';
+import { closeDb } from '../index';
 
 let testSqliteDb: Database.Database;
 
@@ -34,11 +35,6 @@ describe('isPostgres', () => {
 });
 
 describe('initDbClient / getDbClient', () => {
-  it('throws before init', () => {
-    closeDbClient();
-    expect(() => getDbClient()).toThrow('Database client not initialized');
-  });
-
   it('returns a drizzle client after init with a sqlite db', () => {
     initDbClient(testSqliteDb);
     const client = getDbClient();
@@ -52,13 +48,21 @@ describe('initDbClient / getDbClient', () => {
   });
 });
 
-describe('closeDbClient', () => {
-  it('clears the client so getDbClient throws afterwards', () => {
-    initDbClient(testSqliteDb);
+describe('lazy initialization', () => {
+  it('auto-initializes when getDbClient is called without explicit initDbClient', () => {
     closeDbClient();
-    expect(() => getDbClient()).toThrow('Database client not initialized');
+    process.env.DATABASE_PATH = ':memory:';
+    try {
+      const client = getDbClient();
+      expect(typeof client.select).toBe('function');
+    } finally {
+      delete process.env.DATABASE_PATH;
+      closeDb();
+    }
   });
+});
 
+describe('closeDbClient', () => {
   it('is safe to call multiple times', () => {
     expect(() => {
       closeDbClient();

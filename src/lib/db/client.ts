@@ -4,6 +4,10 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as sqliteSchema from './schema';
 import * as pgSchema from './schema.pg';
+// Circular dep (index.ts imports client.ts): safe because TypeScript compiles named imports
+// as live property accesses on the module object. By the time getDbClient() is called,
+// both modules are fully loaded. initDbSync is only accessed inside function bodies.
+import * as indexMod from './index';
 
 type SQLiteClient = BetterSQLite3Database<typeof sqliteSchema>;
 type PgClient = PostgresJsDatabase<typeof pgSchema>;
@@ -46,6 +50,11 @@ export function initDbClient(sqliteDb?: Database.Database): void {
  * Returns the Drizzle client. Throws if initDbClient() has not been called.
  */
 export function getDbClient(): SQLiteClient | PgClient {
+  if (!state) {
+    // Instrumentation may not have run (e.g. Turbopack dev mode). Lazy-init synchronously.
+    // indexMod is fully loaded by the time any function is called (circular dep is safe).
+    indexMod.initDbSync();
+  }
   if (!state) throw new Error('Database client not initialized. Call initDbClient() first.');
   return state.db;
 }
