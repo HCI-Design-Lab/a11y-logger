@@ -1,5 +1,10 @@
+import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { AssessmentIssuesCard } from '../assessment-issues-card';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 import type { Issue } from '@/lib/db/issues';
 
 const issue: Issue = {

@@ -16,19 +16,19 @@ const mapping = {
 describe('mapRows', () => {
   it('maps CSV columns to issue fields using the mapping', () => {
     const { issues } = mapRows(rows, mapping);
-    expect(issues[0].title).toBe('Missing alt text');
-    expect(issues[0].description).toBe('Images lack alt attributes');
-    expect(issues[0].severity).toBe('critical');
+    expect(issues[0]!.title).toBe('Missing alt text');
+    expect(issues[0]!.description).toBe('Images lack alt attributes');
+    expect(issues[0]!.severity).toBe('critical');
   });
 
   it('replaces empty title with "Untitled"', () => {
     const { issues } = mapRows(rows, mapping);
-    expect(issues[2].title).toBe('Untitled');
+    expect(issues[2]!.title).toBe('Untitled');
   });
 
   it('omits invalid enum values and records a warning', () => {
     const { issues, warnings } = mapRows(rows, mapping);
-    expect(issues[1].severity).toBeUndefined();
+    expect(issues[1]!.severity).toBeUndefined();
     expect(warnings.some((w) => w.includes('severity'))).toBe(true);
   });
 
@@ -36,12 +36,12 @@ describe('mapRows', () => {
     const arrayRows = [{ codes: '1.1.1, 1.3.1, 2.4.4' }];
     const arrayMapping = { wcag_codes: 'codes' };
     const { issues } = mapRows(arrayRows, arrayMapping);
-    expect(issues[0].wcag_codes).toEqual(['1.1.1', '1.3.1', '2.4.4']);
+    expect(issues[0]!.wcag_codes).toEqual(['1.1.1', '1.3.1', '2.4.4']);
   });
 
   it('omits unmapped fields from the result', () => {
     const { issues } = mapRows(rows, mapping);
-    expect(issues[0].url).toBeUndefined();
+    expect(issues[0]!.url).toBeUndefined();
   });
 
   it('warns about unmapped title field', () => {

@@ -83,7 +83,7 @@ describe('POST /issues/import', () => {
     const body = await res.json();
     expect(body.data.imported).toBe(1);
     const issues = await getIssues(assessmentId);
-    expect(issues[0].title).toBe('Untitled');
+    expect(issues[0]!.title).toBe('Untitled');
   });
 
   it('returns 400 for missing rows or mapping', async () => {
