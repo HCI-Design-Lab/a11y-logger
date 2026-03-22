@@ -83,4 +83,25 @@ describe('ImportIssuesModal', () => {
       expect(defaultProps.onImportComplete).toHaveBeenCalled();
     });
   });
+
+  it('shows error message when import fails', async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ success: false, error: 'Import failed', code: 'INTERNAL_ERROR' }),
+    } as Response);
+
+    render(<ImportIssuesModal {...defaultProps} />);
+    await userEvent.click(screen.getByRole('button', { name: /import/i }));
+
+    const file = new File(['title\nIssue 1'], 'issues.csv', { type: 'text/csv' });
+    const input = screen.getByLabelText(/csv file/i);
+    await userEvent.upload(input, file);
+    await userEvent.click(screen.getByRole('button', { name: /next/i }));
+    await userEvent.click(screen.getByRole('button', { name: /import 2 rows/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/import failed/i)).toBeInTheDocument();
+    });
+    expect(defaultProps.onImportComplete).not.toHaveBeenCalled();
+  });
 });

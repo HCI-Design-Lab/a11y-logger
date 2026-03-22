@@ -42,6 +42,7 @@ export function ImportIssuesModal({
   const [previewRows, setPreviewRows] = useState<Record<string, string>[]>([]);
   const [mapping, setMapping] = useState<Partial<Record<ImportableFieldKey, string>>>({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function reset() {
@@ -50,6 +51,7 @@ export function ImportIssuesModal({
     setCsvRows([]);
     setPreviewRows([]);
     setMapping({});
+    setError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
@@ -98,6 +100,9 @@ export function ImportIssuesModal({
       if (res.ok) {
         handleClose();
         onImportComplete();
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? 'Import failed. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -204,6 +209,8 @@ export function ImportIssuesModal({
               ))}
             </div>
           )}
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <DialogFooter>
             <Button variant="ghost" onClick={handleClose}>
