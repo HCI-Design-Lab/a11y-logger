@@ -279,6 +279,57 @@ describe('updateIssue', () => {
     const result = await updateIssue(created.id, {});
     expect(result!.title).toBe('No-op');
   });
+
+  it('sets resolved_at and resolved_by when status transitions to resolved', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug', status: 'open' });
+    const updated = await updateIssue(created.id, { status: 'resolved' }, 'user-123');
+    expect(updated!.status).toBe('resolved');
+    expect(updated!.resolved_at).not.toBeNull();
+    expect(updated!.resolved_by).toBe('user-123');
+  });
+
+  it('sets resolved_by to null when no user provided', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug' });
+    const updated = await updateIssue(created.id, { status: 'resolved' });
+    expect(updated!.resolved_at).not.toBeNull();
+    expect(updated!.resolved_by).toBeNull();
+  });
+
+  it('clears resolved_at and resolved_by when transitioning away from resolved', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug' });
+    await updateIssue(created.id, { status: 'resolved' }, 'user-123');
+    const reopened = await updateIssue(created.id, { status: 'open' });
+    expect(reopened!.status).toBe('open');
+    expect(reopened!.resolved_at).toBeNull();
+    expect(reopened!.resolved_by).toBeNull();
+  });
+
+  it('does not overwrite resolved_at when already resolved', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug' });
+    const first = await updateIssue(created.id, { status: 'resolved' }, 'user-123');
+    const firstResolvedAt = first!.resolved_at;
+    await new Promise((r) => setTimeout(r, 5));
+    const second = await updateIssue(created.id, { title: 'Updated title' });
+    expect(second!.resolved_at).toBe(firstResolvedAt);
+  });
+
+  it('does not touch resolved fields when status does not change', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug' });
+    await updateIssue(created.id, { status: 'resolved' }, 'user-123');
+    const resolved = await getIssue(created.id);
+    const updated = await updateIssue(created.id, { title: 'New title' });
+    expect(updated!.resolved_at).toBe(resolved!.resolved_at);
+    expect(updated!.resolved_by).toBe(resolved!.resolved_by);
+  });
+
+  it('clears resolved_at and resolved_by when transitioning from resolved to wont_fix', async () => {
+    const created = await createIssue(assessmentId, { title: 'Bug' });
+    await updateIssue(created.id, { status: 'resolved' }, 'user-123');
+    const wonFix = await updateIssue(created.id, { status: 'wont_fix' });
+    expect(wonFix!.status).toBe('wont_fix');
+    expect(wonFix!.resolved_at).toBeNull();
+    expect(wonFix!.resolved_by).toBeNull();
+  });
 });
 
 // ─── deleteIssue ─────────────────────────────────────────────────────────────

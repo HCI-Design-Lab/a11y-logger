@@ -193,7 +193,11 @@ export async function createIssue(assessmentId: string, input: CreateIssueInput)
   return (await getIssue(id))!;
 }
 
-export async function updateIssue(id: string, input: UpdateIssueInput): Promise<Issue | null> {
+export async function updateIssue(
+  id: string,
+  input: UpdateIssueInput,
+  resolvedBy?: string | null
+): Promise<Issue | null> {
   const existing = await getIssue(id);
   if (!existing) return null;
 
@@ -221,6 +225,20 @@ export async function updateIssue(id: string, input: UpdateIssueInput): Promise<
   if (input.evidence_media !== undefined)
     values.evidence_media = JSON.stringify(input.evidence_media);
   if (input.tags !== undefined) values.tags = JSON.stringify(input.tags);
+
+  // Status transition audit fields
+  if (input.status !== undefined) {
+    const toResolved = input.status === 'resolved' && existing.status !== 'resolved';
+    const fromResolved = input.status !== 'resolved' && existing.status === 'resolved';
+    if (toResolved) {
+      values.resolved_at = new Date().toISOString();
+      values.resolved_by = resolvedBy ?? null;
+    } else if (fromResolved) {
+      values.resolved_at = null;
+      values.resolved_by = null;
+    }
+    // staying resolved: leave existing resolved_at / resolved_by untouched
+  }
 
   if (Object.keys(values).length === 0) return existing;
 
