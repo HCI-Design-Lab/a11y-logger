@@ -71,7 +71,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 
     if ((format as SupportedFormat) === 'docx') {
       const buffer = await generateVpatDocx(vpat, project, rows);
-      return new Response(buffer, {
+      return new Response(new Uint8Array(buffer), {
         status: 200,
         headers: {
           'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

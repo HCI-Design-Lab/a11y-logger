@@ -98,14 +98,14 @@ describe('generateOpenAcr', () => {
 
   it('converts criterion codes to OpenACR id format', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0].id).toBe('success-criterion-1-1-1');
-    expect(result.report_items[1].id).toBe('success-criterion-1-4-3');
+    expect(result.report_items[0]!.id).toBe('success-criterion-1-1-1');
+    expect(result.report_items[1]!.id).toBe('success-criterion-1-4-3');
   });
 
   it('maps all conformance values to OpenACR display strings', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0].conformance_level).toBe('Supports');
-    expect(result.report_items[1].conformance_level).toBe('Partially Supports');
+    expect(result.report_items[0]!.conformance_level).toBe('Supports');
+    expect(result.report_items[1]!.conformance_level).toBe('Partially Supports');
   });
 
   it('includes one report_item per criterion row', () => {
@@ -115,7 +115,7 @@ describe('generateOpenAcr', () => {
 
   it('preserves remarks in report items', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0].remarks).toBe('All images have alt text');
+    expect(result.report_items[0]!.remarks).toBe('All images have alt text');
   });
 
   it('works with empty criterion rows', () => {
