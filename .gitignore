@@ -59,4 +59,6 @@ CLAUDE.md
 # Playwright
 playwright-report/
 test-results/
-/docs/
+/docs/*
+!/docs/screenshots/
+!/docs/screenshots/**

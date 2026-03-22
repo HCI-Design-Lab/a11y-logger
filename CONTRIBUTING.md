@@ -49,7 +49,7 @@ npm run type-check   # TypeScript
 
 ## Adding a Database Migration
 
-1. Create a new file in `migrations/` — filename must sort after all existing files (e.g. `0015_add_column.sql`)
+1. Create a new file in `migrations/` — filename must sort after all existing files (e.g. `010_add_column.sql`)
 2. Write standard SQLite SQL — the migration runs automatically on next startup
 3. Never modify an existing migration file
 
