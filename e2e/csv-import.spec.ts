@@ -49,22 +49,23 @@ test.describe('CSV Import', () => {
 
       // Step 1: Upload file — dialog should show "Upload CSV"
       await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
-      await page.locator('#csv-file-input').setInputFiles(csvPath);
+      const dialog = page.getByRole('dialog');
+      await page.getByLabel(/csv file/i).setInputFiles(csvPath);
 
       // Preview should appear after parsing
       await expect(page.getByText(/preview/i)).toBeVisible();
 
       // Advance to column mapping step
-      const dialog = page.getByRole('dialog');
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
 
       // Step 2: Map Columns dialog
       await expect(page.getByRole('heading', { name: /map columns/i })).toBeVisible();
 
       // Confirm import
-      await page.getByRole('button', { name: /import 2 rows/i }).click();
+      await dialog.getByRole('button', { name: /import 2 rows/i }).click();
 
       // Dialog should close and issues should appear in the list
+      await expect(dialog).not.toBeVisible();
       await expect(page.getByText('Missing alt text')).toBeVisible();
       await expect(page.getByText('Low contrast')).toBeVisible();
     } finally {
@@ -84,17 +85,18 @@ test.describe('CSV Import', () => {
       await page.getByRole('button', { name: /import/i }).click();
       await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
 
-      await page.locator('#csv-file-input').setInputFiles(csvPath);
+      const dialog = page.getByRole('dialog');
+      await page.getByLabel(/csv file/i).setInputFiles(csvPath);
       await expect(page.getByText(/preview/i)).toBeVisible();
 
-      const dialog = page.getByRole('dialog');
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(page.getByRole('heading', { name: /map columns/i })).toBeVisible();
 
       // Import without mapping the title column
-      await page.getByRole('button', { name: /import 1 row/i }).click();
+      await dialog.getByRole('button', { name: /import 1 row/i }).click();
 
-      // Issue should be created with the fallback "Untitled" title
+      // Dialog should close and issue created with "Untitled" fallback
+      await expect(dialog).not.toBeVisible();
       await expect(page.getByText('Untitled')).toBeVisible();
     } finally {
       fs.unlinkSync(csvPath);
