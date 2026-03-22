@@ -131,13 +131,36 @@ describe('GET /api/reports/[id]/export', () => {
 
     it('returns 400 for an unsupported format', async () => {
       const response = await GET(
-        new Request(`http://localhost/api/reports/${reportId}/export?format=docx`),
+        new Request(`http://localhost/api/reports/${reportId}/export?format=csv`),
         makeContext(reportId)
       );
       expect(response.status).toBe(400);
       const body = await response.json();
       expect(body.success).toBe(false);
       expect(body.code).toBe('BAD_REQUEST');
+    });
+  });
+
+  describe('Word export (?format=docx)', () => {
+    it('returns 200 with docx content type', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=docx`),
+        makeContext(reportId)
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Content-Type')).toContain(
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      );
+    });
+
+    it('includes Content-Disposition header with .docx filename', async () => {
+      const response = await GET(
+        new Request(`http://localhost/api/reports/${reportId}/export?format=docx`),
+        makeContext(reportId)
+      );
+      const disposition = response.headers.get('Content-Disposition');
+      expect(disposition).toContain('attachment');
+      expect(disposition).toContain('.docx');
     });
   });
 

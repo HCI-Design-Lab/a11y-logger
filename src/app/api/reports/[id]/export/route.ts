@@ -4,8 +4,10 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { generateReportHtml } from '@/lib/export/report-template';
 import type { ExportVariant } from '@/lib/export/report-template';
+import { generateReportDocx } from '@/lib/export/report-docx';
 
 type RouteContext = { params: Promise<{ id: string }> };
+type SupportedFormat = 'html' | 'pdf' | 'docx';
 
 export async function GET(request: Request, { params }: RouteContext) {
   const { id } = await params;
@@ -14,11 +16,11 @@ export async function GET(request: Request, { params }: RouteContext) {
   const autoPrint = url.searchParams.get('autoprint') === 'true';
 
   // Validate format
-  if (format !== 'html' && format !== 'pdf') {
+  if (format !== 'html' && format !== 'pdf' && format !== 'docx') {
     return NextResponse.json(
       {
         success: false,
-        error: `Unsupported format "${format}". Supported formats: html, pdf`,
+        error: `Unsupported format "${format}". Supported formats: html, pdf, docx`,
         code: 'BAD_REQUEST',
       },
       { status: 400 }
@@ -84,6 +86,24 @@ export async function GET(request: Request, { params }: RouteContext) {
         { success: false, error: 'No project found for linked assessments', code: 'NOT_FOUND' },
         { status: 404 }
       );
+    }
+
+    if ((format as SupportedFormat) === 'docx') {
+      const safeTitle =
+        report.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 80) || 'untitled';
+
+      const buffer = await generateReportDocx(report, project);
+      return new Response(new Uint8Array(buffer), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'Content-Disposition': `attachment; filename="report-${safeTitle}.docx"`,
+        },
+      });
     }
 
     const needsStats = variant === 'with-chart' || variant === 'with-all';
