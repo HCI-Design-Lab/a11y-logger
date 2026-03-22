@@ -3,20 +3,32 @@ import { getVpat } from '@/lib/db/vpats';
 import { getProject } from '@/lib/db/projects';
 import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { generateVpatHtml } from '@/lib/export/vpat-template';
+import { generateVpatDocx } from '@/lib/export/vpat-docx';
+import { generateOpenAcr } from '@/lib/export/openacr';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const SUPPORTED_FORMATS = ['html', 'pdf', 'docx', 'openacr'] as const;
+type SupportedFormat = (typeof SUPPORTED_FORMATS)[number];
+
+function safeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80);
+}
 
 export async function GET(request: Request, { params }: RouteContext) {
   const { id } = await params;
   const url = new URL(request.url);
   const format = (url.searchParams.get('format') ?? 'html') as string;
 
-  // Validate format
-  if (format !== 'html' && format !== 'pdf') {
+  if (!(SUPPORTED_FORMATS as readonly string[]).includes(format)) {
     return NextResponse.json(
       {
         success: false,
-        error: `Unsupported format "${format}". Supported formats: html, pdf`,
+        error: `Unsupported format "${format}". Supported formats: html, pdf, docx, openacr`,
         code: 'BAD_REQUEST',
       },
       { status: 400 }
@@ -24,7 +36,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   }
 
   // PDF requires Puppeteer which is not a production dependency
-  if (format === 'pdf') {
+  if ((format as SupportedFormat) === 'pdf') {
     return NextResponse.json(
       {
         success: false,
@@ -55,15 +67,33 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     const rows = await getCriterionRows(id);
-    const html = generateVpatHtml(vpat, project, rows);
+    const slug = safeTitle(vpat.title);
 
-    // Sanitize title for use in filename
-    const safeTitle = vpat.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 80);
-    const filename = `vpat-${safeTitle}.html`;
+    if ((format as SupportedFormat) === 'docx') {
+      const buffer = await generateVpatDocx(vpat, project, rows);
+      return new Response(buffer, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'Content-Disposition': `attachment; filename="vpat-${slug}.docx"`,
+        },
+      });
+    }
+
+    if ((format as SupportedFormat) === 'openacr') {
+      const openacr = generateOpenAcr(vpat, project, rows);
+      return new Response(JSON.stringify(openacr, null, 2), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Disposition': `attachment; filename="vpat-${slug}.json"`,
+        },
+      });
+    }
+
+    // html (default)
+    const html = generateVpatHtml(vpat, project, rows);
+    const filename = `vpat-${slug}.html`;
 
     return new Response(html, {
       status: 200,
