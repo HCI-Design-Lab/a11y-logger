@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Download, ChevronDown } from 'lucide-react';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { DeleteVpatButton } from '@/components/vpats/delete-vpat-button';
@@ -249,6 +256,32 @@ export default function VpatDetailPage() {
               {isPublishing ? 'Publishing…' : 'Publish'}
             </Button>
           )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <a
+                  href={`/api/vpats/${vpat.id}/export?format=html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  HTML
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href={`/api/vpats/${vpat.id}/export?format=docx`}>Word (.docx)</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href={`/api/vpats/${vpat.id}/export?format=openacr`}>OpenACR (JSON)</a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DeleteVpatButton vpatId={vpat.id} vpatTitle={vpat.title} />
         </div>
       </div>

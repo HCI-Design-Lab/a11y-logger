@@ -60,7 +60,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Download className="mr-2 h-4 w-4" />
-                Export HTML
+                Export
                 <ChevronDown className="ml-1 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -71,7 +71,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Default
+                  HTML — Default
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -80,7 +80,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  With Chart
+                  HTML — With Chart
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -89,7 +89,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  With Issues
+                  HTML — With Issues
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -98,8 +98,11 @@ export default async function ReportDetailPage({ params }: PageProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  All (Chart + Issues)
+                  HTML — All (Chart + Issues)
                 </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href={`/api/reports/${report.id}/export?format=docx`}>Word (.docx)</a>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
