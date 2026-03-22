@@ -98,4 +98,12 @@ describe('POST /issues/import', () => {
     );
     expect(res.status).toBe(404);
   });
+
+  it('returns 404 for unknown project', async () => {
+    const res = await POST(
+      makeRequest({ rows: [], mapping: {} }),
+      makeContext('nonexistent-project', assessmentId)
+    );
+    expect(res.status).toBe(404);
+  });
 });
