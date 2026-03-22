@@ -112,11 +112,12 @@ export async function generateVpatDocx(
     day: 'numeric',
   });
 
-  // Group rows by section
+  // Group rows by WCAG level (A, AA, AAA) — the real VPAT table grouping
   const bySection = new Map<string, VpatCriterionRow[]>();
   for (const row of rows) {
-    if (!bySection.has(row.criterion_section)) bySection.set(row.criterion_section, []);
-    bySection.get(row.criterion_section)!.push(row);
+    const key = row.criterion_level ?? 'Other';
+    if (!bySection.has(key)) bySection.set(key, []);
+    bySection.get(key)!.push(row);
   }
 
   // Sort each section's rows numerically by criterion code
