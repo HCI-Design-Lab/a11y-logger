@@ -53,6 +53,14 @@ npm run type-check   # TypeScript
 2. Write standard SQLite SQL — the migration runs automatically on next startup
 3. Never modify an existing migration file
 
+## Contributor License Agreement
+
+Before your first pull request can be merged, you'll need to sign the [Individual Contributor License Agreement](CLA.md).
+
+The CLA is handled automatically: when you open a PR, a bot will post a comment with a signing link. Click it, authenticate with GitHub, and the check will pass. You only need to sign once.
+
+**Why a CLA?** A11y Logger is open source under AGPL-3.0, but also has a commercial licensing model. The CLA ensures we have the legal right to include your contributions in both. This is standard practice for open-core projects (MongoDB, Grafana, and others use the same approach).
+
 ## Submitting a Pull Request
 
 1. Fork the repo and create a branch: `git checkout -b feat/your-feature`
