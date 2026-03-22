@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { IssuesTable } from '@/components/issues/issues-table';
+import { ImportIssuesButton } from '@/components/issues/import-issues-button';
 import type { Issue } from '@/lib/db/issues';
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
@@ -48,6 +49,7 @@ export function AssessmentIssuesCard({
               Add Issue
             </Link>
           </Button>
+          <ImportIssuesButton projectId={projectId} assessmentId={assessmentId} />
         </div>
       </CardHeader>
       <CardContent>
