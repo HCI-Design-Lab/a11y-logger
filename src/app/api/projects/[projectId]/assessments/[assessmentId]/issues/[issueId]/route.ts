@@ -3,6 +3,7 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssue, updateIssue, deleteIssue } from '@/lib/db/issues';
 import { UpdateIssueSchema } from '@/lib/validators/issues';
+import { getSession } from '@/lib/auth/session';
 
 type RouteContext = {
   params: Promise<{ projectId: string; assessmentId: string; issueId: string }>;
@@ -59,6 +60,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
 export async function PUT(request: Request, { params }: RouteContext) {
   const { projectId, assessmentId, issueId } = await params;
+  const userId = await getSession();
 
   try {
     const resolved = await resolveIssueFromContext(projectId, assessmentId, issueId);
@@ -78,7 +80,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const updated = await updateIssue(issueId, result.data);
+    const updated = await updateIssue(issueId, result.data, userId);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Issue not found', code: 'NOT_FOUND' },

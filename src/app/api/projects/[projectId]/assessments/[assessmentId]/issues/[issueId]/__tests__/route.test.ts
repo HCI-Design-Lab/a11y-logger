@@ -1,10 +1,13 @@
 // @vitest-environment node
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
 import { createIssue } from '@/lib/db/issues';
 import { GET, PUT, DELETE } from '../route';
+
+vi.mock('@/lib/auth/session', () => ({ getSession: vi.fn() }));
+import { getSession } from '@/lib/auth/session';
 
 let projectId: string;
 let assessmentId: string;
@@ -19,6 +22,7 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
+  vi.mocked(getSession).mockResolvedValue(null);
   getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
@@ -192,6 +196,42 @@ describe('PUT /api/projects/[projectId]/assessments/[assessmentId]/issues/[issue
     });
     const response = await PUT(request, makeContext(projectId, otherAssessment.id, issueId));
     expect(response.status).toBe(404);
+  });
+
+  it('passes the session user id to updateIssue when authenticated', async () => {
+    vi.mocked(getSession).mockResolvedValue('user-abc');
+    const updateIssueSpy = vi.spyOn(await import('@/lib/db/issues'), 'updateIssue');
+
+    const req = new Request('http://localhost/api/test', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'resolved' }),
+    });
+    const res = await PUT(req, makeContext(projectId, assessmentId, issueId));
+    const body = await res.json();
+
+    expect(updateIssueSpy).toHaveBeenCalledWith(
+      issueId,
+      expect.objectContaining({ status: 'resolved' }),
+      'user-abc'
+    );
+    expect(body.data.resolved_by).toBe('user-abc');
+    updateIssueSpy.mockRestore();
+  });
+
+  it('passes null as resolvedBy when no session', async () => {
+    vi.mocked(getSession).mockResolvedValue(null);
+    const updateIssueSpy = vi.spyOn(await import('@/lib/db/issues'), 'updateIssue');
+
+    const req = new Request('http://localhost/api/test', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'resolved' }),
+    });
+    await PUT(req, makeContext(projectId, assessmentId, issueId));
+
+    expect(updateIssueSpy).toHaveBeenCalledWith(issueId, expect.anything(), null);
+    updateIssueSpy.mockRestore();
   });
 });
 
