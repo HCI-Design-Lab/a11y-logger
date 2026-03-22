@@ -71,7 +71,15 @@ export function ImportIssuesModal({
         setCsvRows(result.data);
         setPreviewRows(result.data.slice(0, 3));
 
-        setMapping({});
+        // Auto-match by name
+        const autoMapping: Partial<Record<ImportableFieldKey, string>> = {};
+        for (const field of IMPORTABLE_ISSUE_FIELDS) {
+          const match = headers.find(
+            (h) => h.toLowerCase().replace(/[^a-z0-9]/g, '_') === field.key
+          );
+          if (match) autoMapping[field.key] = match;
+        }
+        setMapping(autoMapping);
       },
     });
   }

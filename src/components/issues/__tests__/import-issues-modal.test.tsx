@@ -58,7 +58,13 @@ describe('ImportIssuesModal', () => {
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
 
     expect(screen.getByText(/map columns/i)).toBeInTheDocument();
-    expect(screen.getByText(/title/i)).toBeInTheDocument();
+    // "Title" label appears and auto-mapping selects "title" CSV column — both contain /title/i
+    expect(screen.getAllByText(/title/i).length).toBeGreaterThanOrEqual(1);
+
+    // Auto-mapping should have selected the "title" CSV column for the Title field
+    const combos = screen.getAllByRole('combobox');
+    const titleCombo = combos.find((c) => c.textContent?.toLowerCase().includes('title'));
+    expect(titleCombo).toBeDefined();
   });
 
   it('calls onImportComplete after successful import', async () => {
