@@ -259,22 +259,7 @@ export async function deleteIssue(id: string): Promise<boolean> {
 }
 
 export async function resolveIssue(id: string, resolvedBy: string): Promise<Issue | null> {
-  const existing = await getIssue(id);
-  if (!existing) return null;
-
-  const now = new Date().toISOString();
-  db()
-    .update(issues)
-    .set({
-      status: 'resolved',
-      resolved_by: resolvedBy,
-      resolved_at: now,
-      updated_at: now,
-    })
-    .where(eq(issues.id, id))
-    .run();
-
-  return getIssue(id);
+  return updateIssue(id, { status: 'resolved' }, resolvedBy);
 }
 
 export async function getIssuesByProject(projectId: string): Promise<Issue[]> {
