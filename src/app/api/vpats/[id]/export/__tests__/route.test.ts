@@ -147,35 +147,35 @@ describe('GET /api/vpats/[id]/export', () => {
   });
 
   describe('OpenACR export (?format=openacr)', () => {
-    it('returns 200 with application/json content type', async () => {
+    it('returns 200 with application/yaml content type', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export?format=openacr`),
         makeContext(vpatId)
       );
       expect(response.status).toBe(200);
-      expect(response.headers.get('Content-Type')).toContain('application/json');
+      expect(response.headers.get('Content-Type')).toContain('application/yaml');
     });
 
-    it('includes Content-Disposition header with .json filename', async () => {
+    it('includes Content-Disposition header with .yaml filename', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export?format=openacr`),
         makeContext(vpatId)
       );
       const disposition = response.headers.get('Content-Disposition');
       expect(disposition).toContain('attachment');
-      expect(disposition).toContain('.json');
+      expect(disposition).toContain('.yaml');
     });
 
-    it('returns valid OpenACR JSON with required fields', async () => {
+    it('returns valid OpenACR YAML with required fields', async () => {
       const response = await GET(
         new Request(`http://localhost/api/vpats/${vpatId}/export?format=openacr`),
         makeContext(vpatId)
       );
-      const body = await response.json();
-      expect(body).toHaveProperty('title');
-      expect(body).toHaveProperty('product');
-      expect(body).toHaveProperty('standard_version');
-      expect(body).toHaveProperty('report_items');
+      const text = await response.text();
+      expect(text).toContain('title:');
+      expect(text).toContain('product:');
+      expect(text).toContain('catalog:');
+      expect(text).toContain('chapters:');
     });
   });
 });

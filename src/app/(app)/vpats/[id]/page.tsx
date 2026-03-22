@@ -278,7 +278,7 @@ export default function VpatDetailPage() {
                 <a href={`/api/vpats/${vpat.id}/export?format=docx`}>Word (.docx)</a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <a href={`/api/vpats/${vpat.id}/export?format=openacr`}>OpenACR (JSON)</a>
+                <a href={`/api/vpats/${vpat.id}/export?format=openacr`}>OpenACR (YAML)</a>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { generateOpenAcr } from '../openacr';
+import { generateOpenAcr, generateOpenAcrYaml } from '../openacr';
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -42,7 +42,7 @@ const mockRows: VpatCriterionRow[] = [
     criterion_name: 'Non-text Content',
     criterion_description: 'All non-text content...',
     criterion_level: 'A',
-    criterion_section: 'A',
+    criterion_section: 'Perceivable',
     conformance: 'supports',
     remarks: 'All images have alt text',
     ai_confidence: null,
@@ -59,7 +59,7 @@ const mockRows: VpatCriterionRow[] = [
     criterion_name: 'Contrast (Minimum)',
     criterion_description: 'Text contrast...',
     criterion_level: 'AA',
-    criterion_section: 'AA',
+    criterion_section: 'Perceivable',
     conformance: 'partially_supports',
     remarks: 'Some low contrast areas',
     ai_confidence: null,
@@ -77,13 +77,12 @@ describe('generateOpenAcr', () => {
     expect(result).toHaveProperty('product');
     expect(result).toHaveProperty('author');
     expect(result).toHaveProperty('vendor');
-    expect(result).toHaveProperty('date');
-    expect(result).toHaveProperty('url');
+    expect(result).toHaveProperty('report_date');
+    expect(result).toHaveProperty('catalog');
     expect(result).toHaveProperty('notes');
     expect(result).toHaveProperty('evaluation_methods_used');
     expect(result).toHaveProperty('legal_disclaimer');
-    expect(result).toHaveProperty('standard_version');
-    expect(result).toHaveProperty('report_items');
+    expect(result).toHaveProperty('chapters');
   });
 
   it('sets product name from the project', () => {
@@ -91,35 +90,59 @@ describe('generateOpenAcr', () => {
     expect(result.product.name).toBe('Test Project');
   });
 
-  it('derives standard_version from wcag_version', () => {
+  it('derives catalog from wcag_version', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.standard_version).toBe('wcag-2.1');
+    expect(result.catalog).toBe('wcag-2.1-edition');
   });
 
-  it('converts criterion codes to OpenACR id format', () => {
+  it('groups criteria into chapters by level', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0]!.id).toBe('success-criterion-1-1-1');
-    expect(result.report_items[1]!.id).toBe('success-criterion-1-4-3');
+    expect(result.chapters).toHaveProperty('success_criteria_level_a');
+    expect(result.chapters).toHaveProperty('success_criteria_level_aa');
+    expect(result.chapters.success_criteria_level_a!.criteria).toHaveLength(1);
+    expect(result.chapters.success_criteria_level_aa!.criteria).toHaveLength(1);
   });
 
-  it('maps all conformance values to OpenACR display strings', () => {
+  it('uses criterion code as num', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0]!.conformance_level).toBe('Supports');
-    expect(result.report_items[1]!.conformance_level).toBe('Partially Supports');
+    expect(result.chapters.success_criteria_level_a!.criteria![0]!.num).toBe('1.1.1');
   });
 
-  it('includes one report_item per criterion row', () => {
+  it('maps conformance values to hyphenated OpenACR format', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items).toHaveLength(2);
+    expect(
+      result.chapters.success_criteria_level_a!.criteria![0]!.components[0]!.adherence.level
+    ).toBe('supports');
+    expect(
+      result.chapters.success_criteria_level_aa!.criteria![0]!.components[0]!.adherence.level
+    ).toBe('partially-supports');
   });
 
-  it('preserves remarks in report items', () => {
+  it('preserves remarks in adherence notes', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.report_items[0]!.remarks).toBe('All images have alt text');
+    expect(
+      result.chapters.success_criteria_level_a!.criteria![0]!.components[0]!.adherence.notes
+    ).toBe('All images have alt text');
   });
 
   it('works with empty criterion rows', () => {
     const result = generateOpenAcr(mockVpat, mockProject, []);
-    expect(result.report_items).toHaveLength(0);
+    expect(result.chapters.success_criteria_level_a).toBeUndefined();
+  });
+});
+
+describe('generateOpenAcrYaml', () => {
+  it('returns a non-empty YAML string', () => {
+    const yaml = generateOpenAcrYaml(mockVpat, mockProject, mockRows);
+    expect(typeof yaml).toBe('string');
+    expect(yaml.length).toBeGreaterThan(0);
+  });
+
+  it('contains required YAML keys', () => {
+    const yaml = generateOpenAcrYaml(mockVpat, mockProject, mockRows);
+    expect(yaml).toContain('title:');
+    expect(yaml).toContain('catalog:');
+    expect(yaml).toContain('chapters:');
+    expect(yaml).toContain('success_criteria_level_a:');
   });
 });

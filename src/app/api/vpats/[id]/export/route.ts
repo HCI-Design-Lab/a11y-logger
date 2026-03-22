@@ -4,7 +4,7 @@ import { getProject } from '@/lib/db/projects';
 import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { generateVpatHtml } from '@/lib/export/vpat-template';
 import { generateVpatDocx } from '@/lib/export/vpat-docx';
-import { generateOpenAcr } from '@/lib/export/openacr';
+import { generateOpenAcrYaml } from '@/lib/export/openacr';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -81,12 +81,12 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     if ((format as SupportedFormat) === 'openacr') {
-      const openacr = generateOpenAcr(vpat, project, rows);
-      return new Response(JSON.stringify(openacr, null, 2), {
+      const yaml = generateOpenAcrYaml(vpat, project, rows);
+      return new Response(yaml, {
         status: 200,
         headers: {
-          'Content-Type': 'application/json',
-          'Content-Disposition': `attachment; filename="vpat-${slug}.json"`,
+          'Content-Type': 'application/yaml',
+          'Content-Disposition': `attachment; filename="vpat-${slug}.yaml"`,
         },
       });
     }
