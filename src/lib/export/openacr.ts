@@ -1,4 +1,4 @@
-import { stringify } from 'yaml';
+import { Document, visit } from 'yaml';
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -36,8 +36,8 @@ interface OpenAcrChapter {
 export interface OpenAcrReport {
   title: string;
   product: { name: string; version: string };
-  author: { name: string };
-  vendor: { name: string };
+  author: { name: string; email: string };
+  vendor: { name: string; email: string };
   report_date: string;
   version: number;
   license: string;
@@ -92,8 +92,8 @@ export function generateOpenAcr(
   return {
     title: vpat.title,
     product: { name: project.name, version: String(vpat.version_number) },
-    author: { name: '' },
-    vendor: { name: '' },
+    author: { name: '', email: '' },
+    vendor: { name: '', email: '' },
     report_date: date,
     version: 1,
     license: 'CC-BY-4.0',
@@ -110,5 +110,15 @@ export function generateOpenAcrYaml(
   project: Project,
   rows: VpatCriterionRow[]
 ): string {
-  return stringify(generateOpenAcr(vpat, project, rows), { lineWidth: 0 });
+  const report = generateOpenAcr(vpat, project, rows);
+  const doc = new Document(report);
+  // Force date strings to be quoted so YAML 1.1 parsers don't interpret them as timestamps
+  visit(doc, {
+    Scalar(_key, node) {
+      if (typeof node.value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(node.value)) {
+        node.type = 'QUOTE_DOUBLE';
+      }
+    },
+  });
+  return doc.toString({ lineWidth: 0 });
 }

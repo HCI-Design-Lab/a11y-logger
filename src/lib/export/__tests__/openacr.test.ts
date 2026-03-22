@@ -129,6 +129,12 @@ describe('generateOpenAcr', () => {
     const result = generateOpenAcr(mockVpat, mockProject, []);
     expect(result.chapters.success_criteria_level_a).toBeUndefined();
   });
+
+  it('includes email field on author and vendor', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows);
+    expect(result.author).toHaveProperty('email');
+    expect(result.vendor).toHaveProperty('email');
+  });
 });
 
 describe('generateOpenAcrYaml', () => {
@@ -144,5 +150,11 @@ describe('generateOpenAcrYaml', () => {
     expect(yaml).toContain('catalog:');
     expect(yaml).toContain('chapters:');
     expect(yaml).toContain('success_criteria_level_a:');
+  });
+
+  it('serializes report_date as a quoted string so YAML 1.1 parsers treat it as string not date', () => {
+    const yaml = generateOpenAcrYaml(mockVpat, mockProject, mockRows);
+    // Quoted form: report_date: "2026-03-22" — not unquoted bare scalar
+    expect(yaml).toMatch(/report_date: "\d{4}-\d{2}-\d{2}"/);
   });
 });
