@@ -90,9 +90,14 @@ describe('generateOpenAcr', () => {
     expect(result.product.name).toBe('Test Project');
   });
 
-  it('derives catalog from wcag_version', () => {
+  it('derives catalog from standard_edition and wcag_version', () => {
     const result = generateOpenAcr(mockVpat, mockProject, mockRows);
-    expect(result.catalog).toBe('wcag-2.1-edition');
+    expect(result.catalog).toBe('2.4-edition-wcag-2.1-en');
+  });
+
+  it('uses 508 catalog when standard_edition is 508', () => {
+    const result = generateOpenAcr({ ...mockVpat, standard_edition: '508' }, mockProject, mockRows);
+    expect(result.catalog).toBe('2.4-edition-wcag-2.1-508-en');
   });
 
   it('groups criteria into chapters by level', () => {

@@ -12,6 +12,15 @@ const ADHERENCE_MAP: Record<string, string> = {
   not_evaluated: 'not-evaluated',
 };
 
+// Maps (standard_edition, wcag_version) to the OpenACR catalog ID.
+// Catalog IDs correspond to files in https://github.com/GSA/openacr/tree/main/catalog
+function resolveCatalog(edition: string, wcagVersion: string): string {
+  const vpat = wcagVersion === '2.2' ? '2.5' : '2.4';
+  if (edition === '508') return `${vpat}-edition-wcag-${wcagVersion}-508-en`;
+  if (edition === 'EU') return `${vpat}-edition-wcag-${wcagVersion}-508-eu-en`;
+  return `${vpat}-edition-wcag-${wcagVersion}-en`;
+}
+
 // Chapter keys per OpenACR spec
 const LEVEL_TO_CHAPTER: Record<string, string> = {
   A: 'success_criteria_level_a',
@@ -97,7 +106,7 @@ export function generateOpenAcr(
     report_date: date,
     version: 1,
     license: 'CC-BY-4.0',
-    catalog: `wcag-${vpat.wcag_version}-edition`,
+    catalog: resolveCatalog(vpat.standard_edition, vpat.wcag_version),
     notes: vpat.description ?? '',
     evaluation_methods_used: '',
     legal_disclaimer: '',
