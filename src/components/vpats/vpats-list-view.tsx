@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ImportOpenAcrModal } from '@/components/vpats/import-openacr-modal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ViewToggle } from '@/components/ui/view-toggle';
@@ -29,14 +31,18 @@ interface VpatsListViewProps {
 
 export function VpatsListView({ vpats }: VpatsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
+  const router = useRouter();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">VPATs</h1>
-        <Button asChild>
-          <Link href="/vpats/new">New VPAT</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportOpenAcrModal onImportComplete={(id) => router.push(`/vpats/${id}`)} />
+          <Button asChild>
+            <Link href="/vpats/new">New VPAT</Link>
+          </Button>
+        </div>
       </div>
       <div className="flex justify-end">
         <ViewToggle view={view} onViewChange={setView} />

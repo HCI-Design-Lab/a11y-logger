@@ -1,7 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { VpatsListView } from '@/components/vpats/vpats-list-view';
 import type { VpatWithProgress } from '@/lib/db/vpats';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock('@/components/vpats/import-openacr-modal', () => ({
+  ImportOpenAcrModal: () => <button>Import from OpenACR</button>,
+}));
 
 const mockVpats: VpatWithProgress[] = [
   {

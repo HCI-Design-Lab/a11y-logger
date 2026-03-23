@@ -1,8 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock('@/components/vpats/vpat-card', () => ({
   VpatCard: () => <div data-testid="vpat-card" />,
+}));
+
+vi.mock('@/components/vpats/import-openacr-modal', () => ({
+  ImportOpenAcrModal: () => <button>Import from OpenACR</button>,
 }));
 
 import { VpatsListView } from '../vpats-list-view';
