@@ -3,8 +3,12 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { initDb, closeDb } from '@/lib/db/index';
 import { getCriteriaByCode } from '@/lib/db/criteria';
 
-beforeAll(() => { initDb(':memory:'); });
-afterAll(() => { closeDb(); });
+beforeAll(() => {
+  initDb(':memory:');
+});
+afterAll(() => {
+  closeDb();
+});
 
 describe('getCriteriaByCode', () => {
   it('returns a map of code to id for known WCAG codes', async () => {
