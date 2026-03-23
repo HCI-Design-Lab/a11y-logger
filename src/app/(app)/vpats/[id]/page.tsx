@@ -14,7 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Download, ChevronDown } from 'lucide-react';
+import { Download, ChevronDown, History } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { DeleteVpatButton } from '@/components/vpats/delete-vpat-button';
@@ -60,6 +61,9 @@ export default function VpatDetailPage() {
   const [generateProgress, setGenerateProgress] = useState(0);
   const [generateTotal, setGenerateTotal] = useState(0);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [snapshots, setSnapshots] = useState<
+    { id: string; version_number: number; published_at: string }[]
+  >([]);
 
   useEffect(() => {
     async function load() {
@@ -73,6 +77,14 @@ export default function VpatDetailPage() {
         }
         setVpat(json.data);
         setRows(json.data.criterion_rows);
+        // Load version history
+        try {
+          const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
+          const snapJson = await snapRes.json();
+          if (snapJson.success) setSnapshots(snapJson.data);
+        } catch {
+          // non-fatal — version history tab shows empty state
+        }
       } catch {
         toast.error('Failed to load VPAT');
         router.push('/vpats');
@@ -223,6 +235,14 @@ export default function VpatDetailPage() {
         return;
       }
       setVpat(json.data);
+      // Refresh snapshots after publish
+      try {
+        const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
+        const snapJson = await snapRes.json();
+        if (snapJson.success) setSnapshots(snapJson.data);
+      } catch {
+        // non-fatal
+      }
       toast.success('VPAT published');
     } catch {
       toast.error('Failed to publish');
@@ -300,34 +320,87 @@ export default function VpatDetailPage() {
         </div>
       </div>
 
-      {/* Progress */}
-      <Card>
-        <CardContent className="pt-4">
-          <p className="text-sm font-medium">
-            {resolved} of {total} criteria resolved
-          </p>
-          <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="criteria">
+        <TabsList>
+          <TabsTrigger value="criteria">Criteria</TabsTrigger>
+          <TabsTrigger value="history">
+            <History className="mr-1 h-4 w-4" />
+            Version History
+            {snapshots.length > 0 && (
+              <span className="ml-1 text-xs text-muted-foreground">({snapshots.length})</span>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Criteria Table — key resets RHF defaults after generate-all */}
-      <VpatCriteriaTable
-        key={tableKey}
-        rows={rows}
-        onRowChange={handleRowChange}
-        onSaveRemarks={handleSaveRemarks}
-        onGenerateRow={handleGenerateRow}
-        onGenerateAll={handleGenerateAll}
-        generatingRowId={generatingRowId}
-        readOnly={isPublished}
-        aiEnabled={true}
-        onCriterionClick={handleCriterionClick}
-      />
+        <TabsContent value="criteria" className="space-y-6">
+          {/* Progress */}
+          <Card>
+            <CardContent className="pt-4">
+              <p className="text-sm font-medium">
+                {resolved} of {total} criteria resolved
+              </p>
+              <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Criteria Table — key resets RHF defaults after generate-all */}
+          <VpatCriteriaTable
+            key={tableKey}
+            rows={rows}
+            onRowChange={handleRowChange}
+            onSaveRemarks={handleSaveRemarks}
+            onGenerateRow={handleGenerateRow}
+            onGenerateAll={handleGenerateAll}
+            generatingRowId={generatingRowId}
+            readOnly={isPublished}
+            aiEnabled={true}
+            onCriterionClick={handleCriterionClick}
+          />
+        </TabsContent>
+
+        <TabsContent value="history">
+          {snapshots.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">
+              No published versions yet. Publish this VPAT to create a snapshot.
+            </p>
+          ) : (
+            <div className="rounded-md border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="px-4 py-2 text-left font-medium">Version</th>
+                    <th className="px-4 py-2 text-left font-medium">Published</th>
+                    <th className="px-4 py-2 text-right font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {snapshots.map((snap) => (
+                    <tr key={snap.id} className="border-b last:border-0">
+                      <td className="px-4 py-2">v{snap.version_number}</td>
+                      <td className="px-4 py-2 text-muted-foreground">
+                        {new Date(snap.published_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <a
+                          href={`/vpats/${vpatId}/versions/${snap.version_number}`}
+                          className="text-sm font-medium underline-offset-4 hover:underline"
+                        >
+                          View
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Generate All progress modal */}
       <Dialog open={isGeneratingAll}>
