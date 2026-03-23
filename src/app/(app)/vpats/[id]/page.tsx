@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +57,9 @@ export default function VpatDetailPage() {
   const [panelIssues, setPanelIssues] = useState<PanelIssue[]>([]);
   // Incremented after generate-all so VpatCriteriaTable remounts with fresh RHF defaults.
   const [tableKey, setTableKey] = useState(0);
+  const [generateProgress, setGenerateProgress] = useState(0);
+  const [generateTotal, setGenerateTotal] = useState(0);
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -141,25 +145,35 @@ export default function VpatDetailPage() {
   );
 
   const handleGenerateAll = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/vpats/${vpatId}/rows/generate-all`, { method: 'POST' });
-      const json = await res.json();
-      if (!json.success) {
-        toast.error('AI generation failed');
-        return;
-      }
-      // Reload rows and remount table so RHF picks up new AI-generated remarks.
-      const reloadRes = await fetch(`/api/vpats/${vpatId}`);
-      const reloadJson = await reloadRes.json();
-      if (reloadJson.success) {
-        setRows(reloadJson.data.criterion_rows);
-        setTableKey((k) => k + 1);
-      }
-      toast.success(`Generated ${json.data.generated} criteria`);
-    } catch {
-      toast.error('AI generation failed');
+    const pending = rows.filter((r) => !r.remarks);
+    if (pending.length === 0) {
+      toast('All criteria already have remarks');
+      return;
     }
-  }, [vpatId]);
+
+    setGenerateTotal(pending.length);
+    setGenerateProgress(0);
+    setIsGeneratingAll(true);
+
+    let generated = 0;
+    for (const row of pending) {
+      try {
+        const res = await fetch(`/api/vpats/${vpatId}/rows/${row.id}/generate`, { method: 'POST' });
+        const json = await res.json();
+        if (json.success) {
+          setRows((prev) => prev.map((r) => (r.id === row.id ? json.data : r)));
+          generated++;
+        }
+      } catch {
+        // continue on error — best effort
+      }
+      setGenerateProgress((p) => p + 1);
+    }
+
+    setIsGeneratingAll(false);
+    setTableKey((k) => k + 1);
+    toast.success(`Generated ${generated} of ${pending.length} criteria`);
+  }, [vpatId, rows]);
 
   const handleCriterionClick = useCallback(
     async (criterionCode: string) => {
@@ -314,6 +328,28 @@ export default function VpatDetailPage() {
         aiEnabled={true}
         onCriterionClick={handleCriterionClick}
       />
+
+      {/* Generate All progress modal */}
+      <Dialog open={isGeneratingAll}>
+        <DialogContent className="max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Generating Criteria</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {generateProgress} of {generateTotal} criteria generated
+            </p>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{
+                  width: generateTotal > 0 ? `${(generateProgress / generateTotal) * 100}%` : '0%',
+                }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Issues panel */}
       {panelRowCode && (
