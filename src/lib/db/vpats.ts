@@ -237,7 +237,7 @@ export interface ImportVpatInput {
       | 'does_not_support'
       | 'not_applicable'
       | 'not_evaluated';
-    remarks?: string | null; // align with CreateCriterionRowInput
+    remarks?: string | null;
   }>;
 }
 
@@ -261,7 +261,10 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
     })
     .run();
 
-  createCriterionRows(id, input.rows);
+  createCriterionRows(
+    id,
+    input.rows.map((r) => ({ ...r, remarks: r.remarks ?? undefined }))
+  );
 
   return (await getVpat(id))!;
 }
