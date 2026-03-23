@@ -19,6 +19,8 @@ import {
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
 import { getCriteriaByCode } from '../criteria';
+import { listVpatSnapshots } from '../vpat-snapshots';
+import { eq } from 'drizzle-orm';
 
 function dbc() {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
@@ -34,6 +36,7 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
+  await dbc().delete(schema.vpatSnapshots);
   await dbc().delete(schema.vpatCriterionRows);
   await dbc().delete(schema.vpats);
   await dbc().delete(schema.projects);
@@ -341,6 +344,29 @@ describe('getVpatsWithProgress', () => {
     });
     const results = await getVpatsWithProgress();
     expect(results[0]!.resolved).toBe(0);
+  });
+});
+
+describe('publishVpat snapshot creation', () => {
+  it('creates a snapshot when publishing', async () => {
+    const vpat = await createVpat({
+      title: 'Snap Test',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    // Mark all rows as resolved
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpat.id))
+      .run();
+    await publishVpat(vpat.id);
+    const snapshots = await listVpatSnapshots(vpat.id);
+    expect(snapshots).toHaveLength(1);
+    expect(snapshots[0].version_number).toBe(2);
   });
 });
 

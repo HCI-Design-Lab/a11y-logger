@@ -4,7 +4,9 @@ import { getDbClient } from './client';
 import { vpats, projects, vpatCriterionRows } from './schema';
 import type * as sqliteSchema from './schema';
 import { getCriteriaForEdition } from './criteria';
-import { createCriterionRows, countUnresolvedRows } from './vpat-criterion-rows';
+import { createCriterionRows, countUnresolvedRows, getCriterionRows } from './vpat-criterion-rows';
+import { createVpatSnapshot } from './vpat-snapshots';
+import type { VpatSnapshotData } from './vpat-snapshots';
 import type { CreateVpatParams, UpdateVpatInput } from '../validators/vpats';
 
 // Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
@@ -295,15 +297,37 @@ export async function publishVpat(id: string): Promise<Vpat> {
   if (unresolved > 0) {
     throw new UnresolvedRowsError(unresolved);
   }
+  // Capture criterion rows before status update (rows don't change during publish)
+  const criterionRows = await getCriterionRows(id);
+  const publishedAt = new Date().toISOString();
   db()
     .update(vpats)
     .set({
       status: 'published',
-      published_at: new Date().toISOString(),
+      published_at: publishedAt,
       version_number: sql`${vpats.version_number} + 1`,
-      updated_at: new Date().toISOString(),
+      updated_at: publishedAt,
     })
     .where(eq(vpats.id, id))
     .run();
-  return (await getVpat(id))!;
+  const published = (await getVpat(id))!;
+  const snapshotData: VpatSnapshotData = {
+    title: published.title,
+    description: published.description,
+    standard_edition: published.standard_edition,
+    wcag_version: published.wcag_version,
+    wcag_level: published.wcag_level,
+    product_scope: published.product_scope,
+    criterion_rows: criterionRows.map((r) => ({
+      criterion_code: r.criterion_code,
+      criterion_name: r.criterion_name,
+      criterion_description: r.criterion_description,
+      criterion_level: r.criterion_level,
+      criterion_section: r.criterion_section,
+      conformance: r.conformance,
+      remarks: r.remarks,
+    })),
+  };
+  await createVpatSnapshot(published.id, published.version_number, publishedAt, snapshotData);
+  return published;
 }
