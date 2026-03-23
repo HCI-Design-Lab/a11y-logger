@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { getDbClient } from './client';
 import { criteria } from './schema';
@@ -227,4 +227,17 @@ export async function getCriteriaForEdition(
 export async function getCriterion(id: string): Promise<Criterion | null> {
   const rows = await db().select().from(criteria).where(eq(criteria.id, id)).limit(1);
   return rows[0] ? parseCriterion(rows[0] as CriterionDbRow) : null;
+}
+
+/**
+ * Returns a Map of criterion code → criterion id for the given codes.
+ * Codes not found in the criteria table are omitted from the result.
+ */
+export async function getCriteriaByCode(codes: string[]): Promise<Map<string, string>> {
+  if (codes.length === 0) return new Map();
+  const rows = await db()
+    .select({ id: criteria.id, code: criteria.code })
+    .from(criteria)
+    .where(inArray(criteria.code, codes));
+  return new Map(rows.map((r) => [r.code, r.id]));
 }
