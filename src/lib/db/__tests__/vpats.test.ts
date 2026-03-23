@@ -366,7 +366,7 @@ describe('publishVpat snapshot creation', () => {
     await publishVpat(vpat.id);
     const snapshots = await listVpatSnapshots(vpat.id);
     expect(snapshots).toHaveLength(1);
-    expect(snapshots[0].version_number).toBe(2);
+    expect(snapshots[0]!.version_number).toBe(2);
   });
 });
 

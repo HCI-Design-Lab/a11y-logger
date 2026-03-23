@@ -83,10 +83,10 @@ describe('listVpatSnapshots', () => {
     await createVpatSnapshot(vpatId, 2, now, data);
     const list = await listVpatSnapshots(vpatId);
     expect(list).toHaveLength(2);
-    expect(list[0].version_number).toBe(2);
-    expect(list[1].version_number).toBe(1);
+    expect(list[0]!.version_number).toBe(2);
+    expect(list[1]!.version_number).toBe(1);
     // Should NOT include the snapshot blob
-    expect((list[0] as unknown as Record<string, unknown>).snapshot).toBeUndefined();
+    expect((list[0]! as unknown as Record<string, unknown>).snapshot).toBeUndefined();
   });
 });
 

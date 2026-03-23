@@ -84,7 +84,7 @@ export async function getVpatSnapshot(
     .where(and(eq(vpatSnapshots.vpat_id, vpatId), eq(vpatSnapshots.version_number, versionNumber)))
     .all();
   if (rows.length === 0) return null;
-  const row = rows[0];
+  const row = rows[0]!;
   return {
     id: row.id,
     vpat_id: row.vpat_id,
