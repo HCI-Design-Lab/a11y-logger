@@ -86,7 +86,7 @@ describe('listVpatSnapshots', () => {
     expect(list[0].version_number).toBe(2);
     expect(list[1].version_number).toBe(1);
     // Should NOT include the snapshot blob
-    expect((list[0] as Record<string, unknown>).snapshot).toBeUndefined();
+    expect((list[0] as unknown as Record<string, unknown>).snapshot).toBeUndefined();
   });
 });
 

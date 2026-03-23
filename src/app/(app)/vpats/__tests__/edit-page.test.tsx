@@ -60,7 +60,7 @@ const mockVpat = {
 beforeEach(() => {
   vi.spyOn(global, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : (input as Request).url;
-    if (url.includes('/api/issues/by-criterion')) {
+    if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
       return Promise.resolve({
         ok: true,
         json: async () => ({ success: true, data: [] }),
