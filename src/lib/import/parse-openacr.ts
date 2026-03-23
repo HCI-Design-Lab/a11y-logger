@@ -1,10 +1,17 @@
+export type ConformanceLevel =
+  | 'supports'
+  | 'partially_supports'
+  | 'does_not_support'
+  | 'not_applicable'
+  | 'not_evaluated';
+
 export interface OpenAcrParseResult {
   title: string;
   description: string | null;
   standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
   wcag_version: '2.1' | '2.2';
   wcag_level: 'A' | 'AA' | 'AAA';
-  criteria: Array<{ code: string; conformance: string; remarks: string | null }>;
+  criteria: Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }>;
 }
 
 const CATALOG_MAP: Record<
@@ -20,7 +27,7 @@ const CATALOG_MAP: Record<
   '2.5-edition-wcag-2.2-en301549-en': { standard_edition: 'EU', wcag_version: '2.2' },
 };
 
-const CONFORMANCE_MAP: Record<string, string> = {
+const CONFORMANCE_MAP: Record<string, ConformanceLevel> = {
   supports: 'supports',
   'partially-supports': 'partially_supports',
   'does-not-support': 'does_not_support',
@@ -40,14 +47,14 @@ export function inferWcagLevel(chapters: Record<string, unknown>): 'A' | 'AA' | 
   return 'A';
 }
 
-export function mapConformance(level: string): string {
+export function mapConformance(level: string): ConformanceLevel {
   return CONFORMANCE_MAP[level] ?? 'not_evaluated';
 }
 
 export function extractCriteria(
   chapters: Record<string, unknown>
-): Array<{ code: string; conformance: string; remarks: string | null }> {
-  const result: Array<{ code: string; conformance: string; remarks: string | null }> = [];
+): Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }> {
+  const result: Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }> = [];
   const levelKeys = [
     'success_criteria_level_a',
     'success_criteria_level_aa',
