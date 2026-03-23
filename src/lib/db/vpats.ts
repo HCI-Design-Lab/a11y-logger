@@ -222,6 +222,52 @@ export async function createVpat(input: CreateVpatParams): Promise<Vpat> {
   return (await getVpat(id))!;
 }
 
+export interface ImportVpatInput {
+  project_id: string;
+  title: string;
+  description: string | null;
+  standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
+  wcag_version: '2.1' | '2.2';
+  wcag_level: 'A' | 'AA' | 'AAA';
+  rows: Array<{
+    criterion_id: string;
+    conformance:
+      | 'supports'
+      | 'partially_supports'
+      | 'does_not_support'
+      | 'not_applicable'
+      | 'not_evaluated';
+    remarks: string | null;
+  }>;
+}
+
+export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpat> {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  db()
+    .insert(vpats)
+    .values({
+      id,
+      project_id: input.project_id,
+      title: input.title,
+      description: input.description,
+      standard_edition: input.standard_edition,
+      wcag_version: input.wcag_version,
+      wcag_level: input.wcag_level,
+      product_scope: JSON.stringify(['web']),
+      created_at: now,
+      updated_at: now,
+    })
+    .run();
+
+  if (input.rows.length > 0) {
+    createCriterionRows(id, input.rows);
+  }
+
+  return (await getVpat(id))!;
+}
+
 export async function updateVpat(id: string, input: UpdateVpatInput): Promise<Vpat | null> {
   const existing = await getVpat(id);
   if (!existing) return null;

@@ -15,8 +15,10 @@ import {
   publishVpat,
   getVpatsWithProject,
   getVpatsWithProgress,
+  importVpatFromOpenAcr,
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
+import { getCriteriaByCode } from '../criteria';
 
 function dbc() {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
@@ -339,5 +341,64 @@ describe('getVpatsWithProgress', () => {
     });
     const results = await getVpatsWithProgress();
     expect(results[0]!.resolved).toBe(0);
+  });
+});
+
+describe('importVpatFromOpenAcr', () => {
+  it('creates a VPAT with the given metadata', async () => {
+    const project = await createProject({ name: 'Import Test' });
+    const vpat = await importVpatFromOpenAcr({
+      project_id: project.id,
+      title: 'Imported VPAT',
+      description: 'From OpenACR',
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      rows: [],
+    });
+    expect(vpat.title).toBe('Imported VPAT');
+    expect(vpat.description).toBe('From OpenACR');
+    expect(vpat.standard_edition).toBe('WCAG');
+    expect(vpat.wcag_version).toBe('2.1');
+    expect(vpat.wcag_level).toBe('AA');
+    expect(vpat.status).toBe('draft');
+  });
+
+  it('creates only the criterion rows passed in (no auto-population)', async () => {
+    const project = await createProject({ name: 'Import Test 2' });
+    const codeMap = await getCriteriaByCode(['1.1.1', '1.4.3']);
+    const criterionId = codeMap.get('1.1.1')!;
+
+    const vpat = await importVpatFromOpenAcr({
+      project_id: project.id,
+      title: 'Sparse VPAT',
+      description: null,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      rows: [
+        { criterion_id: criterionId, conformance: 'supports', remarks: 'All images have alt text' },
+      ],
+    });
+
+    const rows = await getCriterionRows(vpat.id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.conformance).toBe('supports');
+    expect(rows[0]!.remarks).toBe('All images have alt text');
+  });
+
+  it('creates a VPAT with zero rows when rows array is empty', async () => {
+    const project = await createProject({ name: 'Import Test 3' });
+    const vpat = await importVpatFromOpenAcr({
+      project_id: project.id,
+      title: 'Empty VPAT',
+      description: null,
+      standard_edition: '508',
+      wcag_version: '2.1',
+      wcag_level: 'A',
+      rows: [],
+    });
+    const rows = await getCriterionRows(vpat.id);
+    expect(rows).toHaveLength(0);
   });
 });
