@@ -120,6 +120,16 @@ export const vpatCriterionRows = sqliteTable('vpat_criterion_rows', {
   updated_at: text('updated_at').notNull(),
 });
 
+export const vpatSnapshots = sqliteTable('vpat_snapshots', {
+  id: text('id').primaryKey(),
+  vpat_id: text('vpat_id').notNull(),
+  version_number: integer('version_number').notNull(),
+  published_at: text('published_at').notNull(),
+  snapshot: text('snapshot').notNull(),
+});
+
+export type VpatSnapshotRow = typeof vpatSnapshots.$inferSelect;
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value'),

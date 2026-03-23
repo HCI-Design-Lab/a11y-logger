@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import { runMigrations } from '../migrate';
 import { loadMigrations } from '../load-migrations';
 import path from 'path';
+import * as schema from '../schema';
 
 interface TableInfo {
   cid: number;
@@ -246,6 +247,17 @@ describe('core tables schema', () => {
     it('has a foreign key to criteria', () => {
       const fks = getForeignKeys(db, 'vpat_criterion_rows');
       expect(fks.some((fk) => fk.table === 'criteria' && fk.from === 'criterion_id')).toBe(true);
+    });
+  });
+
+  describe('vpat_snapshots', () => {
+    it('has the correct columns', () => {
+      const columns = getColumnNames(db, 'vpat_snapshots');
+      expect(columns).toEqual(['id', 'vpat_id', 'version_number', 'published_at', 'snapshot']);
+    });
+
+    it('includes vpat_snapshots table', () => {
+      expect(schema.vpatSnapshots).toBeDefined();
     });
   });
 
