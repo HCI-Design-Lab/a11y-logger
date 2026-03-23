@@ -237,7 +237,7 @@ export interface ImportVpatInput {
       | 'does_not_support'
       | 'not_applicable'
       | 'not_evaluated';
-    remarks: string | null;
+    remarks?: string | null; // align with CreateCriterionRowInput
   }>;
 }
 
@@ -255,15 +255,13 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
       standard_edition: input.standard_edition,
       wcag_version: input.wcag_version,
       wcag_level: input.wcag_level,
-      product_scope: JSON.stringify(['web']),
+      product_scope: JSON.stringify(['web']), // OpenACR YAML has no product_scope concept; default to web
       created_at: now,
       updated_at: now,
     })
     .run();
 
-  if (input.rows.length > 0) {
-    createCriterionRows(id, input.rows);
-  }
+  createCriterionRows(id, input.rows);
 
   return (await getVpat(id))!;
 }

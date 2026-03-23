@@ -346,9 +346,8 @@ describe('getVpatsWithProgress', () => {
 
 describe('importVpatFromOpenAcr', () => {
   it('creates a VPAT with the given metadata', async () => {
-    const project = await createProject({ name: 'Import Test' });
     const vpat = await importVpatFromOpenAcr({
-      project_id: project.id,
+      project_id: projectId,
       title: 'Imported VPAT',
       description: 'From OpenACR',
       standard_edition: 'WCAG',
@@ -365,12 +364,11 @@ describe('importVpatFromOpenAcr', () => {
   });
 
   it('creates only the criterion rows passed in (no auto-population)', async () => {
-    const project = await createProject({ name: 'Import Test 2' });
-    const codeMap = await getCriteriaByCode(['1.1.1', '1.4.3']);
+    const codeMap = await getCriteriaByCode(['1.1.1']);
     const criterionId = codeMap.get('1.1.1')!;
 
     const vpat = await importVpatFromOpenAcr({
-      project_id: project.id,
+      project_id: projectId,
       title: 'Sparse VPAT',
       description: null,
       standard_edition: 'WCAG',
@@ -388,9 +386,8 @@ describe('importVpatFromOpenAcr', () => {
   });
 
   it('creates a VPAT with zero rows when rows array is empty', async () => {
-    const project = await createProject({ name: 'Import Test 3' });
     const vpat = await importVpatFromOpenAcr({
-      project_id: project.id,
+      project_id: projectId,
       title: 'Empty VPAT',
       description: null,
       standard_edition: '508',
