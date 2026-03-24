@@ -33,7 +33,10 @@ export function PourRadar() {
 
   useEffect(() => {
     fetch('/api/dashboard/pour-radar')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.json();
+      })
       .then((j) => {
         setData(j.data);
         setLoading(false);
@@ -63,7 +66,11 @@ export function PourRadar() {
       {loading && <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>}
       {error && <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>}
 
-      {!loading && !error && view === 'chart' && (
+      {!loading && !error && total === 0 && (
+        <p className="text-sm text-muted-foreground py-8 text-center">No open issues found.</p>
+      )}
+
+      {!loading && !error && total > 0 && view === 'chart' && (
         <div aria-hidden="true">
           <ResponsiveContainer width="100%" height={220}>
             <RadarChart data={chartData}>
@@ -81,7 +88,7 @@ export function PourRadar() {
         </div>
       )}
 
-      {!loading && !error && view === 'table' && (
+      {!loading && !error && total > 0 && view === 'table' && (
         <table className="w-full text-sm">
           <caption className="sr-only">Issues by POUR Principle — open issues only</caption>
           <thead>
@@ -106,7 +113,7 @@ export function PourRadar() {
             <tr className="text-muted-foreground">
               <td className="pt-2 font-medium">Total</td>
               <td className="pt-2 text-right font-medium">{total}</td>
-              <td />
+              <td className="pt-2 text-right text-muted-foreground">100%</td>
             </tr>
           </tfoot>
         </table>
