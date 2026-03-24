@@ -57,7 +57,7 @@ export function PourRadar() {
   const total = chartData.reduce((s, d) => s + d.issues, 0);
 
   return (
-    <div className="rounded-lg border bg-card p-4">
+    <div className="rounded-lg border bg-card p-4 h-full">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold">Issues by POUR Principle</h2>
         <ChartTableToggle view={view} onChange={setView} />

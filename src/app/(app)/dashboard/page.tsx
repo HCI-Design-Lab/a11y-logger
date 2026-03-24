@@ -60,7 +60,7 @@ export default async function DashboardPage() {
             openTotal={actionableStats.open_issues_total}
             severityBreakdown={actionableStats.open_severity_breakdown}
           />
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 h-full">
             <PourRadar />
           </div>
         </div>
