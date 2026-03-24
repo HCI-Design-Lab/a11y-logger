@@ -57,7 +57,7 @@ export function PourRadar() {
   const total = chartData.reduce((s, d) => s + d.issues, 0);
 
   return (
-    <div className="rounded-lg border bg-card p-4 h-full">
+    <div className="rounded-lg border bg-card p-4 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold">Issues by POUR Principle</h2>
         <ChartTableToggle view={view} onChange={setView} />
@@ -71,8 +71,8 @@ export function PourRadar() {
       )}
 
       {!loading && !error && total > 0 && view === 'chart' && (
-        <div aria-hidden="true">
-          <ResponsiveContainer width="100%" height={220}>
+        <div aria-hidden="true" className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={chartData}>
               <PolarGrid />
               <PolarAngleAxis dataKey="principle" tick={{ fontSize: 12 }} />
