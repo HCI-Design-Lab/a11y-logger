@@ -5,7 +5,7 @@ import { getDbClient } from '@/lib/db/client';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type * as sqliteSchema from '@/lib/db/schema';
 import { issues, assessments, projects } from '@/lib/db/schema';
-import { getTimeSeriesData, getWcagCriteriaCounts } from '../dashboard';
+import { getTimeSeriesData, getWcagCriteriaCounts, getActionableStats } from '../dashboard';
 
 function db() {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
@@ -177,5 +177,124 @@ describe('getWcagCriteriaCounts', () => {
 
     const results = await getWcagCriteriaCounts('perceivable');
     expect(results).toEqual([]);
+  });
+});
+
+describe('getActionableStats', () => {
+  it('returns zeros when db is empty', async () => {
+    const stats = await getActionableStats();
+    expect(stats.open_critical_issues).toBe(0);
+    expect(stats.in_progress_assessments).toBe(0);
+    expect(stats.resolved_this_month).toBe(0);
+    expect(stats.active_projects).toBe(0);
+    expect(stats.total_projects).toBe(0);
+    expect(stats.open_issues_total).toBe(0);
+    expect(stats.open_severity_breakdown).toEqual({ critical: 0, high: 0, medium: 0, low: 0 });
+  });
+
+  it('counts open critical issues only', async () => {
+    const d = db();
+    const now = new Date().toISOString();
+
+    await d
+      .insert(projects)
+      .values({ id: 'p1', name: 'P', status: 'active', created_at: now, updated_at: now });
+    await d
+      .insert(assessments)
+      .values({
+        id: 'a1',
+        project_id: 'p1',
+        name: 'A',
+        status: 'completed',
+        created_at: now,
+        updated_at: now,
+      });
+    await d
+      .insert(issues)
+      .values({
+        id: 'i1',
+        assessment_id: 'a1',
+        title: 'T',
+        severity: 'critical',
+        status: 'open',
+        created_at: now,
+        updated_at: now,
+      });
+    await d
+      .insert(issues)
+      .values({
+        id: 'i2',
+        assessment_id: 'a1',
+        title: 'T',
+        severity: 'critical',
+        status: 'resolved',
+        created_at: now,
+        updated_at: now,
+      });
+    await d
+      .insert(issues)
+      .values({
+        id: 'i3',
+        assessment_id: 'a1',
+        title: 'T',
+        severity: 'high',
+        status: 'open',
+        created_at: now,
+        updated_at: now,
+      });
+
+    const stats = await getActionableStats();
+    expect(stats.open_critical_issues).toBe(1);
+    expect(stats.open_issues_total).toBe(2);
+    expect(stats.open_severity_breakdown.critical).toBe(1);
+    expect(stats.open_severity_breakdown.high).toBe(1);
+  });
+
+  it('counts in_progress assessments only', async () => {
+    const d = db();
+    const now = new Date().toISOString();
+
+    await d
+      .insert(projects)
+      .values({ id: 'p1', name: 'P', status: 'active', created_at: now, updated_at: now });
+    await d
+      .insert(assessments)
+      .values({
+        id: 'a1',
+        project_id: 'p1',
+        name: 'A',
+        status: 'in_progress',
+        created_at: now,
+        updated_at: now,
+      });
+    await d
+      .insert(assessments)
+      .values({
+        id: 'a2',
+        project_id: 'p1',
+        name: 'B',
+        status: 'completed',
+        created_at: now,
+        updated_at: now,
+      });
+
+    const stats = await getActionableStats();
+    expect(stats.in_progress_assessments).toBe(1);
+  });
+
+  it('counts active vs total projects', async () => {
+    const d = db();
+    const now = new Date().toISOString();
+
+    await d
+      .insert(projects)
+      .values({ id: 'p1', name: 'A', status: 'active', created_at: now, updated_at: now });
+    await d
+      .insert(projects)
+      .values({ id: 'p2', name: 'B', status: 'archived', created_at: now, updated_at: now });
+
+    const stats = await getActionableStats();
+    expect(stats.active_projects).toBe(1);
+    expect(stats.total_projects).toBe(2);
   });
 });
