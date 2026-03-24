@@ -1,4 +1,4 @@
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, inArray, and } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { getDbClient } from './client';
 import { projects, assessments, issues, reports, vpats } from './schema';
@@ -246,6 +246,32 @@ export async function getActionableStats(): Promise<ActionableStats> {
   };
 }
 
+// --- getSeverityBreakdown ---
+export interface SeverityBreakdown {
+  breakdown: { critical: number; high: number; medium: number; low: number };
+  total: number;
+}
+
+export async function getSeverityBreakdown(
+  statuses: string[] = ['open']
+): Promise<SeverityBreakdown> {
+  const severityRows = await db()
+    .select({ severity: issues.severity, n: sql<number>`COUNT(*)`.as('n') })
+    .from(issues)
+    .where(inArray(issues.status, statuses))
+    .groupBy(issues.severity);
+
+  const breakdown = { critical: 0, high: 0, medium: 0, low: 0 };
+  let total = 0;
+  for (const r of severityRows) {
+    if (r.severity in breakdown) {
+      breakdown[r.severity as keyof typeof breakdown] = r.n;
+      total += r.n;
+    }
+  }
+  return { breakdown, total };
+}
+
 // --- getPourTotals ---
 export interface PourTotals {
   perceivable: number;
@@ -259,12 +285,15 @@ export interface PourTotals {
  * An issue with wcag_codes=['1.1.1','1.4.3'] contributes 2 to Perceivable.
  * This is a violation count, consistent with getWcagCriteriaCounts.
  */
-export async function getPourTotals(): Promise<PourTotals> {
+export async function getPourTotals(statuses: string[] = ['open']): Promise<PourTotals> {
   const rows = await db()
     .select({ wcag_codes: issues.wcag_codes })
     .from(issues)
     .where(
-      sql`${issues.status} = 'open' AND ${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`
+      and(
+        inArray(issues.status, statuses),
+        sql`${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`
+      )
     );
 
   const totals: PourTotals = { perceivable: 0, operable: 0, understandable: 0, robust: 0 };
@@ -386,14 +415,20 @@ export async function getTagFrequency(): Promise<TagFrequencyEntry[]> {
 }
 
 export async function getWcagCriteriaCounts(
-  principle: WcagPrinciple
+  principle: WcagPrinciple,
+  statuses: string[] = ['open']
 ): Promise<WcagCriteriaCount[]> {
   // Loads all non-empty wcag_codes into memory for JS-side filtering.
   // Acceptable for this single-user offline tool; revisit if issue counts grow very large.
   const rows = await db()
     .select({ wcag_codes: issues.wcag_codes })
     .from(issues)
-    .where(sql`${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`);
+    .where(
+      and(
+        inArray(issues.status, statuses),
+        sql`${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`
+      )
+    );
 
   const counts = new Map<string, number>();
 

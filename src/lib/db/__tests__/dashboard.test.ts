@@ -13,6 +13,7 @@ import {
   getRepeatOffenders,
   getEnvironmentBreakdown,
   getTagFrequency,
+  getSeverityBreakdown,
 } from '../dashboard';
 
 function db() {
@@ -220,6 +221,7 @@ async function insertIssue(opts: {
   projectId?: string;
   wcagCodes?: string[];
   status?: string;
+  severity?: string;
   deviceType?: string;
   assistiveTechnology?: string;
   tags?: string[];
@@ -235,6 +237,7 @@ async function insertIssue(opts: {
     assessment_id: assessmentId,
     title: `Issue ${opts.id}`,
     status: opts.status ?? 'open',
+    severity: opts.severity ?? 'medium',
     wcag_codes: opts.wcagCodes ? JSON.stringify(opts.wcagCodes) : '[]',
     device_type: opts.deviceType ?? null,
     assistive_technology: opts.assistiveTechnology ?? null,
@@ -523,6 +526,86 @@ describe('getEnvironmentBreakdown', () => {
     );
     expect(desktopEntry).toBeDefined();
     expect(desktopEntry!.count).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPourTotals with statuses filter
+// ---------------------------------------------------------------------------
+describe('getPourTotals with statuses filter', () => {
+  beforeEach(async () => {
+    await db().delete(issues);
+    await db().delete(assessments);
+    await db().delete(projects);
+  });
+
+  it('filters by resolved status', async () => {
+    await insertIssue({ id: 'i1', status: 'open', wcagCodes: ['1.1.1'] });
+    await insertIssue({ id: 'i2', status: 'resolved', wcagCodes: ['1.1.1'] });
+
+    const openResult = await getPourTotals(['open']);
+    expect(openResult.perceivable).toBe(1);
+
+    const resolvedResult = await getPourTotals(['resolved']);
+    expect(resolvedResult.perceivable).toBe(1);
+
+    const bothResult = await getPourTotals(['open', 'resolved']);
+    expect(bothResult.perceivable).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getWcagCriteriaCounts with statuses filter
+// ---------------------------------------------------------------------------
+describe('getWcagCriteriaCounts with statuses filter', () => {
+  beforeEach(async () => {
+    await db().delete(issues);
+    await db().delete(assessments);
+    await db().delete(projects);
+  });
+
+  it('filters by statuses', async () => {
+    await insertIssue({ id: 'i1', status: 'open', wcagCodes: ['1.1.1'] });
+    await insertIssue({ id: 'i2', status: 'resolved', wcagCodes: ['1.1.1'] });
+    await insertIssue({ id: 'i3', status: 'wont_fix', wcagCodes: ['1.1.1'] });
+
+    const openOnly = await getWcagCriteriaCounts('perceivable', ['open']);
+    expect(openOnly[0]?.count).toBe(1);
+
+    const all = await getWcagCriteriaCounts('perceivable', ['open', 'resolved', 'wont_fix']);
+    expect(all[0]?.count).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getSeverityBreakdown
+// ---------------------------------------------------------------------------
+describe('getSeverityBreakdown', () => {
+  beforeEach(async () => {
+    await db().delete(issues);
+    await db().delete(assessments);
+    await db().delete(projects);
+  });
+
+  it('returns zeros for empty db', async () => {
+    const result = await getSeverityBreakdown(['open']);
+    expect(result.total).toBe(0);
+    expect(result.breakdown).toEqual({ critical: 0, high: 0, medium: 0, low: 0 });
+  });
+
+  it('counts by severity for given statuses', async () => {
+    await insertIssue({ id: 'i1', status: 'open', severity: 'critical' });
+    await insertIssue({ id: 'i2', status: 'resolved', severity: 'high' });
+    await insertIssue({ id: 'i3', status: 'open', severity: 'high' });
+
+    const openOnly = await getSeverityBreakdown(['open']);
+    expect(openOnly.total).toBe(2);
+    expect(openOnly.breakdown.critical).toBe(1);
+    expect(openOnly.breakdown.high).toBe(1);
+
+    const both = await getSeverityBreakdown(['open', 'resolved']);
+    expect(both.total).toBe(3);
+    expect(both.breakdown.high).toBe(2);
   });
 });
 
