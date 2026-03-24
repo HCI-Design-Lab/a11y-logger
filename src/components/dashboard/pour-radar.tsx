@@ -1,6 +1,6 @@
 // src/components/dashboard/pour-radar.tsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   RadarChart,
   PolarGrid,
@@ -25,27 +25,34 @@ const PRINCIPLE_LABELS: Record<keyof PourTotals, string> = {
   robust: 'Robust',
 };
 
-export function PourRadar() {
+interface PourRadarProps {
+  statuses: string[];
+}
+
+export function PourRadar({ statuses }: PourRadarProps) {
   const [data, setData] = useState<PourTotals | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [view, setView] = useState<'chart' | 'table'>('chart');
 
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const r = await fetch(`/api/dashboard/pour-radar?statuses=${statuses.join(',')}`);
+      if (!r.ok) throw new Error(r.statusText);
+      const j = await r.json();
+      setData(j.data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [statuses]);
+
   useEffect(() => {
-    fetch('/api/dashboard/pour-radar')
-      .then((r) => {
-        if (!r.ok) throw new Error(r.statusText);
-        return r.json();
-      })
-      .then((j) => {
-        setData(j.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError(true);
-        setLoading(false);
-      });
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const chartData = data
     ? (Object.keys(PRINCIPLE_LABELS) as Array<keyof PourTotals>).map((key) => ({

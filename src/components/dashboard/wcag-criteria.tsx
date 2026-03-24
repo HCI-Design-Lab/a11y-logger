@@ -12,29 +12,38 @@ const PRINCIPLE_LABELS: Record<WcagPrinciple, string> = {
   robust: 'Robust',
 };
 
-export function WcagCriteria() {
+interface WcagCriteriaProps {
+  statuses: string[];
+}
+
+export function WcagCriteria({ statuses }: WcagCriteriaProps) {
   const [principle, setPrinciple] = useState<WcagPrinciple>('perceivable');
   const [rows, setRows] = useState<WcagCriteriaCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async (p: WcagPrinciple) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/dashboard/wcag-criteria?principle=${p}`);
-      const json = await res.json();
-      if (json.success) {
-        setRows(json.data);
-      } else {
+  const fetchData = useCallback(
+    async (p: WcagPrinciple) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `/api/dashboard/wcag-criteria?principle=${p}&statuses=${statuses.join(',')}`
+        );
+        const json = await res.json();
+        if (json.success) {
+          setRows(json.data);
+        } else {
+          setError('Failed to load WCAG criteria.');
+        }
+      } catch {
         setError('Failed to load WCAG criteria.');
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError('Failed to load WCAG criteria.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [statuses]
+  );
 
   useEffect(() => {
     fetchData(principle);

@@ -18,7 +18,7 @@ afterEach(() => {
 describe('WcagCriteria', () => {
   it('shows loading state on mount', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
@@ -26,7 +26,7 @@ describe('WcagCriteria', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: [] }),
     });
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     await waitFor(() =>
       expect(screen.getByText(/No issues logged for Perceivable criteria yet/)).toBeInTheDocument()
     );
@@ -36,7 +36,7 @@ describe('WcagCriteria', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: false, error: 'DB error' }),
     });
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     await waitFor(() =>
       expect(screen.getByText('Failed to load WCAG criteria.')).toBeInTheDocument()
     );
@@ -46,7 +46,7 @@ describe('WcagCriteria', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: mockCriteriaData }),
     });
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     await waitFor(() => expect(screen.getByText('1.1.1')).toBeInTheDocument());
     expect(screen.getByText('Non-text Content')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('WcagCriteria', () => {
 
   it('has four principle tabs defaulting to Perceivable', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     ['Perceivable', 'Operable', 'Understandable', 'Robust'].forEach((label) => {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
     });
@@ -71,7 +71,7 @@ describe('WcagCriteria', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: [] }),
     });
-    render(<WcagCriteria />);
+    render(<WcagCriteria statuses={[]} />);
     await waitFor(() => screen.getByText(/No issues logged/));
     fireEvent.click(screen.getByRole('button', { name: 'Operable' }));
     expect(screen.getByRole('button', { name: 'Operable' })).toHaveAttribute(
