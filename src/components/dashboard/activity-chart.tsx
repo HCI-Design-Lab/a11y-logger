@@ -32,7 +32,12 @@ function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
       existing.assessments += entry.assessments;
       existing.issues += entry.issues;
     } else {
-      weeks.set(weekKey, { date: weekKey, ...entry });
+      weeks.set(weekKey, {
+        date: weekKey,
+        projects: entry.projects,
+        assessments: entry.assessments,
+        issues: entry.issues,
+      });
     }
   }
   return Array.from(weeks.values()).slice(-20);
@@ -184,7 +189,7 @@ export function ActivityChart() {
               <div>
                 <p className="text-xs text-muted-foreground mb-2">
                   Showing most recent {tableData.length}{' '}
-                  {range === '6m' || range === '3m' ? 'weeks' : 'days'}
+                  {range !== '1m' && range !== '1w' ? 'weeks' : 'days'}
                 </p>
                 <table className="w-full text-sm">
                   <caption className="sr-only">
