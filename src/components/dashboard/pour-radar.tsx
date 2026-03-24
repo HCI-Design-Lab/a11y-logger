@@ -35,11 +35,13 @@ export function PourRadar({ statuses }: PourRadarProps) {
   const [error, setError] = useState(false);
   const [view, setView] = useState<'chart' | 'table'>('chart');
 
+  const statusesKey = statuses.join(',');
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const r = await fetch(`/api/dashboard/pour-radar?statuses=${statuses.join(',')}`);
+      const r = await fetch(`/api/dashboard/pour-radar?statuses=${statusesKey}`);
       if (!r.ok) throw new Error(r.statusText);
       const j = await r.json();
       setData(j.data);
@@ -48,7 +50,7 @@ export function PourRadar({ statuses }: PourRadarProps) {
     } finally {
       setLoading(false);
     }
-  }, [statuses]);
+  }, [statusesKey]);
 
   useEffect(() => {
     fetchData();

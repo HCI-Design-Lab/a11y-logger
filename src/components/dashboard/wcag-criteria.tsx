@@ -22,13 +22,15 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const statusesKey = statuses.join(',');
+
   const fetchData = useCallback(
     async (p: WcagPrinciple) => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch(
-          `/api/dashboard/wcag-criteria?principle=${p}&statuses=${statuses.join(',')}`
+          `/api/dashboard/wcag-criteria?principle=${p}&statuses=${statusesKey}`
         );
         const json = await res.json();
         if (json.success) {
@@ -42,7 +44,7 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
         setLoading(false);
       }
     },
-    [statuses]
+    [statusesKey]
   );
 
   useEffect(() => {
