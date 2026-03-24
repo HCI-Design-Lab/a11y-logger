@@ -81,4 +81,15 @@ describe('GET /api/dashboard/wcag-criteria', () => {
     expect(body.success).toBe(false);
     expect(body.code).toBe('INTERNAL_ERROR');
   });
+
+  it('passes statuses param to getWcagCriteriaCounts', async () => {
+    const spy = vi.spyOn(dashboardDb, 'getWcagCriteriaCounts').mockReturnValue([]);
+
+    const req = new Request(
+      'http://localhost/api/dashboard/wcag-criteria?principle=perceivable&statuses=resolved'
+    );
+    await GET(req);
+
+    expect(spy).toHaveBeenCalledWith('perceivable', ['resolved']);
+  });
 });

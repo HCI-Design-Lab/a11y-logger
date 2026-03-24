@@ -6,6 +6,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const principleParam = searchParams.get('principle') ?? 'perceivable';
+    const statusParam = searchParams.get('statuses');
+    const statuses = statusParam ? statusParam.split(',').filter(Boolean) : ['open'];
 
     if (!WCAG_PRINCIPLES.includes(principleParam as WcagPrinciple)) {
       return NextResponse.json(
@@ -18,7 +20,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = await getWcagCriteriaCounts(principleParam as WcagPrinciple);
+    const data = await getWcagCriteriaCounts(principleParam as WcagPrinciple, statuses);
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json(

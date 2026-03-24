@@ -16,7 +16,8 @@ describe('GET /api/dashboard/pour-radar', () => {
       understandable: 5,
       robust: 3,
     });
-    const res = await GET();
+    const req = new Request('http://localhost/api/dashboard/pour-radar');
+    const res = await GET(req);
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
@@ -25,10 +26,23 @@ describe('GET /api/dashboard/pour-radar', () => {
 
   it('returns 500 on DB error', async () => {
     vi.mocked(getPourTotals).mockRejectedValue(new Error('db error'));
-    const res = await GET();
+    const req = new Request('http://localhost/api/dashboard/pour-radar');
+    const res = await GET(req);
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.success).toBe(false);
     expect(body.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('passes statuses param to getPourTotals', async () => {
+    vi.mocked(getPourTotals).mockResolvedValue({
+      perceivable: 3,
+      operable: 2,
+      understandable: 1,
+      robust: 0,
+    });
+    const req = new Request('http://localhost/api/dashboard/pour-radar?statuses=open,resolved');
+    await GET(req);
+    expect(getPourTotals).toHaveBeenCalledWith(['open', 'resolved']);
   });
 });
