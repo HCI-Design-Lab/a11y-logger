@@ -10,11 +10,7 @@ describe('GET /api/dashboard/environment', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns 200 with environment breakdown', async () => {
-    const mockData = [
-      { environment: 'web', count: 20 },
-      { environment: 'mobile', count: 7 },
-      { environment: 'native', count: 3 },
-    ];
+    const mockData = [{ device_type: 'desktop', assistive_technology: 'NVDA', count: 3 }];
     vi.mocked(getEnvironmentBreakdown).mockResolvedValue(mockData);
     const res = await GET();
     const body = await res.json();

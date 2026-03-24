@@ -11,8 +11,8 @@ describe('GET /api/dashboard/repeat-offenders', () => {
 
   it('returns 200 with repeat offenders', async () => {
     const mockData = [
-      { title: 'Missing alt text', count: 12 },
-      { title: 'Low contrast', count: 8 },
+      { code: '1.1.1', name: 'Non-text Content', project_count: 2, issue_count: 5 },
+      { code: '1.4.3', name: 'Contrast (Minimum)', project_count: 1, issue_count: 3 },
     ];
     vi.mocked(getRepeatOffenders).mockResolvedValue(mockData);
     const res = await GET();

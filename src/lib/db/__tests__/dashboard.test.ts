@@ -334,6 +334,62 @@ describe('getActionableStats', () => {
     expect(stats.in_progress_assessments).toBe(1);
   });
 
+  it('counts issue resolved in current month', async () => {
+    const d = db();
+    const now = new Date().toISOString();
+
+    await d
+      .insert(projects)
+      .values({ id: 'rm_p1', name: 'P', status: 'active', created_at: now, updated_at: now });
+    await d.insert(assessments).values({
+      id: 'rm_a1',
+      project_id: 'rm_p1',
+      name: 'A',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(issues).values({
+      id: 'rm_i1',
+      assessment_id: 'rm_a1',
+      title: 'Resolved this month',
+      status: 'resolved',
+      resolved_at: new Date().toISOString(),
+      created_at: now,
+      updated_at: now,
+    });
+
+    const stats = await getActionableStats();
+    expect(stats.resolved_this_month).toBe(1);
+  });
+
+  it('excludes issue resolved in a past month', async () => {
+    const d = db();
+    const now = new Date().toISOString();
+
+    await d
+      .insert(projects)
+      .values({ id: 'rm_p2', name: 'P', status: 'active', created_at: now, updated_at: now });
+    await d.insert(assessments).values({
+      id: 'rm_a2',
+      project_id: 'rm_p2',
+      name: 'A',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(issues).values({
+      id: 'rm_i2',
+      assessment_id: 'rm_a2',
+      title: 'Resolved in past month',
+      status: 'resolved',
+      resolved_at: '2025-01-15T00:00:00.000Z',
+      created_at: now,
+      updated_at: now,
+    });
+
+    const stats = await getActionableStats();
+    expect(stats.resolved_this_month).toBe(0);
+  });
+
   it('counts active vs total projects', async () => {
     const d = db();
     const now = new Date().toISOString();
@@ -422,11 +478,11 @@ describe('getRepeatOffenders', () => {
     });
 
     const result = await getRepeatOffenders();
-    expect(result[0].code).toBe('1.1.1');
-    expect(result[0].project_count).toBe(2);
-    expect(result[0].issue_count).toBe(2);
-    expect(result[1].code).toBe('2.1.1');
-    expect(result[1].project_count).toBe(1);
+    expect(result[0]!.code).toBe('1.1.1');
+    expect(result[0]!.project_count).toBe(2);
+    expect(result[0]!.issue_count).toBe(2);
+    expect(result[1]!.code).toBe('2.1.1');
+    expect(result[1]!.project_count).toBe(1);
   });
 });
 
@@ -496,7 +552,7 @@ describe('getTagFrequency', () => {
     expect(formsEntry!.count).toBe(2);
     // Verify sorted desc: all counts should be >= the next
     for (let i = 0; i < result.length - 1; i++) {
-      expect(result[i].count).toBeGreaterThanOrEqual(result[i + 1].count);
+      expect(result[i]!.count).toBeGreaterThanOrEqual(result[i + 1]!.count);
     }
   });
 });

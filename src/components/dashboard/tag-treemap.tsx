@@ -109,7 +109,7 @@ export function TagTreemap() {
         <div aria-hidden="true">
           <ResponsiveContainer width="100%" height={240}>
             <Treemap data={treemapData} dataKey="size" content={<CustomContent />}>
-              <Tooltip formatter={(v: number) => [v, 'Issues']} />
+              <Tooltip formatter={(v: number | undefined) => [v ?? 0, 'Issues']} />
             </Treemap>
           </ResponsiveContainer>
         </div>

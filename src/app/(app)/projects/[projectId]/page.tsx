@@ -71,7 +71,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <aside className="w-72 shrink-0">
-          <IssueStatistics total={issues.length} severityBreakdown={severityCounts} />
+          <IssueStatistics openTotal={issues.length} severityBreakdown={severityCounts} />
         </aside>
       </div>
     </div>

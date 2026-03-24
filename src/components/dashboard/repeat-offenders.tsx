@@ -60,7 +60,7 @@ export function RepeatOffenders() {
             <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
               <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
               <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={48} />
-              <Tooltip formatter={(v: number) => [v, 'Projects']} />
+              <Tooltip formatter={(v: number | undefined) => [v ?? 0, 'Projects']} />
               <Bar dataKey="projects" radius={[0, 3, 3, 0]}>
                 {chartData.map((_, i) => (
                   <Cell key={_.label} fill={`var(--chart-1)`} opacity={1 - i * 0.07} />

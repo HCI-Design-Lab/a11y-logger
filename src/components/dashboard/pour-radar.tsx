@@ -82,7 +82,7 @@ export function PourRadar() {
                 fill="var(--chart-1)"
                 fillOpacity={0.25}
               />
-              <Tooltip formatter={(v: number) => [v, 'Issues']} />
+              <Tooltip formatter={(v: number | undefined) => [v ?? 0, 'Issues']} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
