@@ -254,6 +254,11 @@ export interface PourTotals {
   robust: number;
 }
 
+/**
+ * Returns the count of WCAG code occurrences per POUR principle across all open issues.
+ * An issue with wcag_codes=['1.1.1','1.4.3'] contributes 2 to Perceivable.
+ * This is a violation count, consistent with getWcagCriteriaCounts.
+ */
 export async function getPourTotals(): Promise<PourTotals> {
   const rows = await db()
     .select({ wcag_codes: issues.wcag_codes })
@@ -345,7 +350,7 @@ export async function getEnvironmentBreakdown(): Promise<EnvironmentEntry[]> {
     .groupBy(issues.device_type, issues.assistive_technology)
     .orderBy(sql`COUNT(*) DESC`);
 
-  return rows.filter((r) => r.device_type && r.assistive_technology) as EnvironmentEntry[];
+  return rows as EnvironmentEntry[];
 }
 
 // --- getTagFrequency ---
