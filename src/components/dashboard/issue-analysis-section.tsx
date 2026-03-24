@@ -34,7 +34,7 @@ export function IssueAnalysisSection() {
           <PourRadar statuses={statuses} />
         </div>
       </div>
-      <div className="grid gap-4 lg:grid-cols-1 mb-4">
+      <div className="mb-4">
         <WcagCriteria statuses={statuses} />
       </div>
     </section>

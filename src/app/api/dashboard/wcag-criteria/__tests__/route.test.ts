@@ -83,7 +83,7 @@ describe('GET /api/dashboard/wcag-criteria', () => {
   });
 
   it('passes statuses param to getWcagCriteriaCounts', async () => {
-    const spy = vi.spyOn(dashboardDb, 'getWcagCriteriaCounts').mockReturnValue([]);
+    const spy = vi.spyOn(dashboardDb, 'getWcagCriteriaCounts').mockResolvedValue([]);
 
     const req = new Request(
       'http://localhost/api/dashboard/wcag-criteria?principle=perceivable&statuses=resolved'
