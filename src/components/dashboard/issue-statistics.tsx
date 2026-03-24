@@ -49,6 +49,9 @@ export function IssueStatistics({ statuses }: IssueStatisticsProps) {
         setError(true);
         setResolvedKey(statusesKey);
       });
+    return () => {
+      controller.abort();
+    };
   }, [statusesKey]);
 
   const loading = resolvedKey !== statusesKey;
