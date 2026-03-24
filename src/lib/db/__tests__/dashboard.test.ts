@@ -5,7 +5,15 @@ import { getDbClient } from '@/lib/db/client';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type * as sqliteSchema from '@/lib/db/schema';
 import { issues, assessments, projects } from '@/lib/db/schema';
-import { getTimeSeriesData, getWcagCriteriaCounts, getActionableStats } from '../dashboard';
+import {
+  getTimeSeriesData,
+  getWcagCriteriaCounts,
+  getActionableStats,
+  getPourTotals,
+  getRepeatOffenders,
+  getEnvironmentBreakdown,
+  getTagFrequency,
+} from '../dashboard';
 
 function db() {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
@@ -180,6 +188,62 @@ describe('getWcagCriteriaCounts', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Shared insert helper for new describe blocks
+// ---------------------------------------------------------------------------
+async function ensureProjectAndAssessment(
+  projectId = 'p_shared',
+  assessmentId = 'a_shared'
+): Promise<{ projectId: string; assessmentId: string }> {
+  const d = db();
+  const now = new Date().toISOString();
+  await d
+    .insert(projects)
+    .values({ id: projectId, name: 'Shared Project', created_at: now, updated_at: now })
+    .onConflictDoNothing();
+  await d
+    .insert(assessments)
+    .values({
+      id: assessmentId,
+      project_id: projectId,
+      name: 'Shared Assessment',
+      created_at: now,
+      updated_at: now,
+    })
+    .onConflictDoNothing();
+  return { projectId, assessmentId };
+}
+
+async function insertIssue(opts: {
+  id: string;
+  assessmentId?: string;
+  projectId?: string;
+  wcagCodes?: string[];
+  status?: string;
+  deviceType?: string;
+  assistiveTechnology?: string;
+  tags?: string[];
+}): Promise<void> {
+  const d = db();
+  const now = new Date().toISOString();
+  const { assessmentId } = await ensureProjectAndAssessment(
+    opts.projectId ?? 'p_shared',
+    opts.assessmentId ?? 'a_shared'
+  );
+  await d.insert(issues).values({
+    id: opts.id,
+    assessment_id: assessmentId,
+    title: `Issue ${opts.id}`,
+    status: opts.status ?? 'open',
+    wcag_codes: opts.wcagCodes ? JSON.stringify(opts.wcagCodes) : '[]',
+    device_type: opts.deviceType ?? null,
+    assistive_technology: opts.assistiveTechnology ?? null,
+    tags: opts.tags ? JSON.stringify(opts.tags) : '[]',
+    created_at: now,
+    updated_at: now,
+  });
+}
+
 describe('getActionableStats', () => {
   it('returns zeros when db is empty', async () => {
     const stats = await getActionableStats();
@@ -199,49 +263,41 @@ describe('getActionableStats', () => {
     await d
       .insert(projects)
       .values({ id: 'p1', name: 'P', status: 'active', created_at: now, updated_at: now });
-    await d
-      .insert(assessments)
-      .values({
-        id: 'a1',
-        project_id: 'p1',
-        name: 'A',
-        status: 'completed',
-        created_at: now,
-        updated_at: now,
-      });
-    await d
-      .insert(issues)
-      .values({
-        id: 'i1',
-        assessment_id: 'a1',
-        title: 'T',
-        severity: 'critical',
-        status: 'open',
-        created_at: now,
-        updated_at: now,
-      });
-    await d
-      .insert(issues)
-      .values({
-        id: 'i2',
-        assessment_id: 'a1',
-        title: 'T',
-        severity: 'critical',
-        status: 'resolved',
-        created_at: now,
-        updated_at: now,
-      });
-    await d
-      .insert(issues)
-      .values({
-        id: 'i3',
-        assessment_id: 'a1',
-        title: 'T',
-        severity: 'high',
-        status: 'open',
-        created_at: now,
-        updated_at: now,
-      });
+    await d.insert(assessments).values({
+      id: 'a1',
+      project_id: 'p1',
+      name: 'A',
+      status: 'completed',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(issues).values({
+      id: 'i1',
+      assessment_id: 'a1',
+      title: 'T',
+      severity: 'critical',
+      status: 'open',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(issues).values({
+      id: 'i2',
+      assessment_id: 'a1',
+      title: 'T',
+      severity: 'critical',
+      status: 'resolved',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(issues).values({
+      id: 'i3',
+      assessment_id: 'a1',
+      title: 'T',
+      severity: 'high',
+      status: 'open',
+      created_at: now,
+      updated_at: now,
+    });
 
     const stats = await getActionableStats();
     expect(stats.open_critical_issues).toBe(1);
@@ -257,26 +313,22 @@ describe('getActionableStats', () => {
     await d
       .insert(projects)
       .values({ id: 'p1', name: 'P', status: 'active', created_at: now, updated_at: now });
-    await d
-      .insert(assessments)
-      .values({
-        id: 'a1',
-        project_id: 'p1',
-        name: 'A',
-        status: 'in_progress',
-        created_at: now,
-        updated_at: now,
-      });
-    await d
-      .insert(assessments)
-      .values({
-        id: 'a2',
-        project_id: 'p1',
-        name: 'B',
-        status: 'completed',
-        created_at: now,
-        updated_at: now,
-      });
+    await d.insert(assessments).values({
+      id: 'a1',
+      project_id: 'p1',
+      name: 'A',
+      status: 'in_progress',
+      created_at: now,
+      updated_at: now,
+    });
+    await d.insert(assessments).values({
+      id: 'a2',
+      project_id: 'p1',
+      name: 'B',
+      status: 'completed',
+      created_at: now,
+      updated_at: now,
+    });
 
     const stats = await getActionableStats();
     expect(stats.in_progress_assessments).toBe(1);
@@ -296,5 +348,155 @@ describe('getActionableStats', () => {
     const stats = await getActionableStats();
     expect(stats.active_projects).toBe(1);
     expect(stats.total_projects).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPourTotals
+// ---------------------------------------------------------------------------
+describe('getPourTotals', () => {
+  it('returns zero for all principles when no issues', async () => {
+    const result = await getPourTotals();
+    expect(result).toEqual({ perceivable: 0, operable: 0, understandable: 0, robust: 0 });
+  });
+
+  it('counts open issues by WCAG principle, excludes resolved', async () => {
+    await insertIssue({ id: 'pt_i1', wcagCodes: ['1.1.1', '1.4.3'], status: 'open' });
+    await insertIssue({ id: 'pt_i2', wcagCodes: ['2.1.1'], status: 'open' });
+    await insertIssue({ id: 'pt_i3', wcagCodes: ['1.1.1'], status: 'resolved' });
+
+    const result = await getPourTotals();
+    expect(result.perceivable).toBe(2);
+    expect(result.operable).toBe(1);
+    expect(result.understandable).toBe(0);
+    expect(result.robust).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getRepeatOffenders
+// ---------------------------------------------------------------------------
+describe('getRepeatOffenders', () => {
+  it('returns empty array when no open issues with wcag codes', async () => {
+    const result = await getRepeatOffenders();
+    expect(result).toEqual([]);
+  });
+
+  it('ranks criteria by distinct project count', async () => {
+    const now = new Date().toISOString();
+    const d = db();
+    // Two projects, two assessments
+    await d
+      .insert(projects)
+      .values({ id: 'ro_p1', name: 'RO Project 1', created_at: now, updated_at: now });
+    await d
+      .insert(projects)
+      .values({ id: 'ro_p2', name: 'RO Project 2', created_at: now, updated_at: now });
+    await d
+      .insert(assessments)
+      .values({ id: 'ro_a1', project_id: 'ro_p1', name: 'A', created_at: now, updated_at: now });
+    await d
+      .insert(assessments)
+      .values({ id: 'ro_a2', project_id: 'ro_p2', name: 'B', created_at: now, updated_at: now });
+
+    await insertIssue({
+      id: 'ro_i1',
+      assessmentId: 'ro_a1',
+      projectId: 'ro_p1',
+      wcagCodes: ['1.1.1'],
+      status: 'open',
+    });
+    await insertIssue({
+      id: 'ro_i2',
+      assessmentId: 'ro_a2',
+      projectId: 'ro_p2',
+      wcagCodes: ['1.1.1'],
+      status: 'open',
+    });
+    await insertIssue({
+      id: 'ro_i3',
+      assessmentId: 'ro_a1',
+      projectId: 'ro_p1',
+      wcagCodes: ['2.1.1'],
+      status: 'open',
+    });
+
+    const result = await getRepeatOffenders();
+    expect(result[0].code).toBe('1.1.1');
+    expect(result[0].project_count).toBe(2);
+    expect(result[0].issue_count).toBe(2);
+    expect(result[1].code).toBe('2.1.1');
+    expect(result[1].project_count).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getEnvironmentBreakdown
+// ---------------------------------------------------------------------------
+describe('getEnvironmentBreakdown', () => {
+  it('returns empty array when issues have null device/AT', async () => {
+    await insertIssue({ id: 'env_i1', status: 'open' });
+    const result = await getEnvironmentBreakdown();
+    expect(result).toEqual([]);
+  });
+
+  it('groups by device_type and assistive_technology', async () => {
+    await insertIssue({
+      id: 'env_i2',
+      status: 'open',
+      deviceType: 'desktop',
+      assistiveTechnology: 'NVDA',
+    });
+    await insertIssue({
+      id: 'env_i3',
+      status: 'open',
+      deviceType: 'desktop',
+      assistiveTechnology: 'NVDA',
+    });
+    await insertIssue({
+      id: 'env_i4',
+      status: 'open',
+      deviceType: 'mobile',
+      assistiveTechnology: 'VoiceOver',
+    });
+
+    const result = await getEnvironmentBreakdown();
+    expect(result.length).toBe(2);
+    const desktopEntry = result.find(
+      (r) => r.device_type === 'desktop' && r.assistive_technology === 'NVDA'
+    );
+    expect(desktopEntry).toBeDefined();
+    expect(desktopEntry!.count).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getTagFrequency
+// ---------------------------------------------------------------------------
+describe('getTagFrequency', () => {
+  it('returns empty array when no tags', async () => {
+    await insertIssue({ id: 'tag_i1', status: 'open' });
+    const result = await getTagFrequency();
+    expect(result).toEqual([]);
+  });
+
+  it('aggregates tag counts across open issues, sorts by count desc', async () => {
+    await insertIssue({ id: 'tag_i2', status: 'open', tags: ['keyboard', 'forms'] });
+    await insertIssue({ id: 'tag_i3', status: 'open', tags: ['keyboard'] });
+    await insertIssue({ id: 'tag_i4', status: 'open', tags: ['forms'] });
+
+    const result = await getTagFrequency();
+    expect(result.length).toBe(2);
+    // Both keyboard and forms have count 2; order by count desc, tie-breaking order doesn't matter
+    const keyboardEntry = result.find((r) => r.tag === 'keyboard');
+    const formsEntry = result.find((r) => r.tag === 'forms');
+    expect(keyboardEntry).toBeDefined();
+    expect(formsEntry).toBeDefined();
+    expect(keyboardEntry!.count).toBe(2);
+    expect(formsEntry!.count).toBe(2);
+    // Verify sorted desc: all counts should be >= the next
+    for (let i = 0; i < result.length - 1; i++) {
+      expect(result[i].count).toBeGreaterThanOrEqual(result[i + 1].count);
+    }
   });
 });

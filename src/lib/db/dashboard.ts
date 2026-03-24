@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { getDbClient } from './client';
 import { projects, assessments, issues, reports, vpats } from './schema';
@@ -244,6 +244,140 @@ export async function getActionableStats(): Promise<ActionableStats> {
     open_severity_breakdown,
     open_issues_total,
   };
+}
+
+// --- getPourTotals ---
+export interface PourTotals {
+  perceivable: number;
+  operable: number;
+  understandable: number;
+  robust: number;
+}
+
+export async function getPourTotals(): Promise<PourTotals> {
+  const rows = await db()
+    .select({ wcag_codes: issues.wcag_codes })
+    .from(issues)
+    .where(
+      sql`${issues.status} = 'open' AND ${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`
+    );
+
+  const totals: PourTotals = { perceivable: 0, operable: 0, understandable: 0, robust: 0 };
+  for (const row of rows) {
+    let codes: string[] = [];
+    try {
+      codes = JSON.parse(row.wcag_codes);
+    } catch {
+      continue;
+    }
+    for (const code of codes) {
+      const principle = getPrincipleFromCode(code);
+      if (principle && principle in totals) totals[principle as keyof PourTotals]++;
+    }
+  }
+  return totals;
+}
+
+// --- getRepeatOffenders ---
+export interface RepeatOffender {
+  code: string;
+  name: string | undefined;
+  project_count: number;
+  issue_count: number;
+}
+
+export async function getRepeatOffenders(): Promise<RepeatOffender[]> {
+  const rows = await db()
+    .select({
+      wcag_codes: issues.wcag_codes,
+      project_id: assessments.project_id,
+    })
+    .from(issues)
+    .innerJoin(assessments, eq(assessments.id, issues.assessment_id))
+    .where(
+      sql`${issues.status} = 'open' AND ${issues.wcag_codes} IS NOT NULL AND ${issues.wcag_codes} != '[]'`
+    );
+
+  const codeMap = new Map<string, { projects: Set<string>; count: number }>();
+  for (const row of rows) {
+    let codes: string[] = [];
+    try {
+      codes = JSON.parse(row.wcag_codes);
+    } catch {
+      continue;
+    }
+    for (const code of codes) {
+      if (!codeMap.has(code)) codeMap.set(code, { projects: new Set(), count: 0 });
+      const entry = codeMap.get(code)!;
+      entry.projects.add(row.project_id);
+      entry.count++;
+    }
+  }
+
+  return Array.from(codeMap.entries())
+    .map(([code, { projects, count }]) => ({
+      code,
+      name: getWcagCriterionName(code),
+      project_count: projects.size,
+      issue_count: count,
+    }))
+    .sort((a, b) => b.project_count - a.project_count || b.issue_count - a.issue_count);
+}
+
+// --- getEnvironmentBreakdown ---
+export interface EnvironmentEntry {
+  device_type: string;
+  assistive_technology: string;
+  count: number;
+}
+
+export async function getEnvironmentBreakdown(): Promise<EnvironmentEntry[]> {
+  const rows = await db()
+    .select({
+      device_type: issues.device_type,
+      assistive_technology: issues.assistive_technology,
+      count: sql<number>`COUNT(*)`.as('count'),
+    })
+    .from(issues)
+    .where(
+      sql`${issues.status} = 'open' AND ${issues.device_type} IS NOT NULL AND ${issues.assistive_technology} IS NOT NULL`
+    )
+    .groupBy(issues.device_type, issues.assistive_technology)
+    .orderBy(sql`COUNT(*) DESC`);
+
+  return rows.filter((r) => r.device_type && r.assistive_technology) as EnvironmentEntry[];
+}
+
+// --- getTagFrequency ---
+export interface TagFrequencyEntry {
+  tag: string;
+  count: number;
+}
+
+export async function getTagFrequency(): Promise<TagFrequencyEntry[]> {
+  const rows = await db()
+    .select({ tags: issues.tags })
+    .from(issues)
+    .where(
+      sql`${issues.status} = 'open' AND ${issues.tags} IS NOT NULL AND ${issues.tags} != '[]'`
+    );
+
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    let tags: string[] = [];
+    try {
+      tags = JSON.parse(row.tags);
+    } catch {
+      continue;
+    }
+    for (const tag of tags) {
+      if (typeof tag === 'string') counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+
+  return Array.from(counts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export async function getWcagCriteriaCounts(
