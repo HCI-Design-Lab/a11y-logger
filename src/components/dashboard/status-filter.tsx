@@ -25,6 +25,7 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
     <div role="group" aria-label="Filter by status" className="flex gap-1">
       {STATUS_OPTIONS.map(({ value, label }) => (
         <button
+          type="button"
           key={value}
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
