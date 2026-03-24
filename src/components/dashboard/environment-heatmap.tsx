@@ -10,7 +10,7 @@ interface EnvironmentEntry {
 }
 
 function heatColor(count: number, max: number): string {
-  if (max === 0) return 'bg-muted';
+  if (max === 0 || count === 0) return 'bg-muted';
   const intensity = count / max;
   if (intensity > 0.75) return 'bg-chart-1 text-white';
   if (intensity > 0.5) return 'bg-chart-1/70 text-foreground';
