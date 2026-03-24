@@ -3,9 +3,6 @@ import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
 import { WcagCriteria } from '@/components/dashboard/wcag-criteria';
 import { PourRadar } from '@/components/dashboard/pour-radar';
-import { RepeatOffenders } from '@/components/dashboard/repeat-offenders';
-import { EnvironmentHeatmap } from '@/components/dashboard/environment-heatmap';
-import { TagTreemap } from '@/components/dashboard/tag-treemap';
 import { getActionableStats } from '@/lib/db/dashboard';
 
 export default async function DashboardPage() {
@@ -64,12 +61,7 @@ export default async function DashboardPage() {
             <PourRadar />
           </div>
         </div>
-        <div className="grid gap-4 lg:grid-cols-2 mb-4">
-          <RepeatOffenders />
-          <EnvironmentHeatmap />
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <TagTreemap />
+        <div className="grid gap-4 lg:grid-cols-1 mb-4">
           <WcagCriteria />
         </div>
       </section>
