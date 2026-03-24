@@ -63,7 +63,7 @@ export function RepeatOffenders() {
               <Tooltip formatter={(v: number) => [v, 'Projects']} />
               <Bar dataKey="projects" radius={[0, 3, 3, 0]}>
                 {chartData.map((_, i) => (
-                  <Cell key={i} fill={`var(--chart-1)`} opacity={1 - i * 0.07} />
+                  <Cell key={_.label} fill={`var(--chart-1)`} opacity={1 - i * 0.07} />
                 ))}
               </Bar>
             </BarChart>
@@ -78,10 +78,18 @@ export function RepeatOffenders() {
           </caption>
           <thead>
             <tr className="border-b text-left text-muted-foreground">
-              <th className="pb-2 font-medium">Code</th>
-              <th className="pb-2 font-medium">Criterion</th>
-              <th className="pb-2 font-medium text-right">Projects</th>
-              <th className="pb-2 font-medium text-right">Issues</th>
+              <th scope="col" className="pb-2 font-medium">
+                Code
+              </th>
+              <th scope="col" className="pb-2 font-medium">
+                Criterion
+              </th>
+              <th scope="col" className="pb-2 font-medium text-right">
+                Projects
+              </th>
+              <th scope="col" className="pb-2 font-medium text-right">
+                Issues
+              </th>
             </tr>
           </thead>
           <tbody>
