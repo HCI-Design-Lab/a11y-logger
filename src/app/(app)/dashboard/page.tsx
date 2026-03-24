@@ -1,8 +1,6 @@
 import { StatsCard } from '@/components/dashboard/stats-card';
-import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
-import { WcagCriteria } from '@/components/dashboard/wcag-criteria';
-import { PourRadar } from '@/components/dashboard/pour-radar';
+import { IssueAnalysisSection } from '@/components/dashboard/issue-analysis-section';
 import { getActionableStats } from '@/lib/db/dashboard';
 
 export default async function DashboardPage() {
@@ -44,27 +42,7 @@ export default async function DashboardPage() {
         <ActivityChart />
       </section>
 
-      {/* Section 2: Issue Analysis */}
-      <section aria-labelledby="analysis-heading" className="mt-8">
-        <div className="mb-4">
-          <h2 id="analysis-heading" className="text-lg font-semibold">
-            Issue Analysis
-          </h2>
-          <p className="text-sm text-muted-foreground">Open issues across all projects</p>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-3 mb-4">
-          <IssueStatistics
-            openTotal={actionableStats.open_issues_total}
-            severityBreakdown={actionableStats.open_severity_breakdown}
-          />
-          <div className="lg:col-span-2 h-full">
-            <PourRadar />
-          </div>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-1 mb-4">
-          <WcagCriteria />
-        </div>
-      </section>
+      <IssueAnalysisSection />
     </main>
   );
 }
