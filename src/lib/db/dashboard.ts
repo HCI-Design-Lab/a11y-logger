@@ -255,6 +255,8 @@ export interface SeverityBreakdown {
 export async function getSeverityBreakdown(
   statuses: string[] = ['open']
 ): Promise<SeverityBreakdown> {
+  if (statuses.length === 0)
+    return { breakdown: { critical: 0, high: 0, medium: 0, low: 0 }, total: 0 };
   const severityRows = await db()
     .select({ severity: issues.severity, n: sql<number>`COUNT(*)`.as('n') })
     .from(issues)
@@ -286,6 +288,7 @@ export interface PourTotals {
  * This is a violation count, consistent with getWcagCriteriaCounts.
  */
 export async function getPourTotals(statuses: string[] = ['open']): Promise<PourTotals> {
+  if (statuses.length === 0) return { perceivable: 0, operable: 0, understandable: 0, robust: 0 };
   const rows = await db()
     .select({ wcag_codes: issues.wcag_codes })
     .from(issues)
@@ -418,6 +421,7 @@ export async function getWcagCriteriaCounts(
   principle: WcagPrinciple,
   statuses: string[] = ['open']
 ): Promise<WcagCriteriaCount[]> {
+  if (statuses.length === 0) return [];
   // Loads all non-empty wcag_codes into memory for JS-side filtering.
   // Acceptable for this single-user offline tool; revisit if issue counts grow very large.
   const rows = await db()

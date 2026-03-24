@@ -539,6 +539,12 @@ describe('getPourTotals with statuses filter', () => {
     await db().delete(projects);
   });
 
+  it('returns zero result for empty statuses array', async () => {
+    await insertIssue({ id: 'i_empty_pour', status: 'open', wcagCodes: ['1.1.1'] });
+    const result = await getPourTotals([]);
+    expect(result).toEqual({ perceivable: 0, operable: 0, understandable: 0, robust: 0 });
+  });
+
   it('filters by resolved status', async () => {
     await insertIssue({ id: 'i1', status: 'open', wcagCodes: ['1.1.1'] });
     await insertIssue({ id: 'i2', status: 'resolved', wcagCodes: ['1.1.1'] });
@@ -564,6 +570,12 @@ describe('getWcagCriteriaCounts with statuses filter', () => {
     await db().delete(projects);
   });
 
+  it('returns empty array for empty statuses array', async () => {
+    await insertIssue({ id: 'i_empty_wcag', status: 'open', wcagCodes: ['1.1.1'] });
+    const result = await getWcagCriteriaCounts('perceivable', []);
+    expect(result).toEqual([]);
+  });
+
   it('filters by statuses', async () => {
     await insertIssue({ id: 'i1', status: 'open', wcagCodes: ['1.1.1'] });
     await insertIssue({ id: 'i2', status: 'resolved', wcagCodes: ['1.1.1'] });
@@ -585,6 +597,12 @@ describe('getSeverityBreakdown', () => {
     await db().delete(issues);
     await db().delete(assessments);
     await db().delete(projects);
+  });
+
+  it('returns zero result for empty statuses array', async () => {
+    await insertIssue({ id: 'i_empty_sev', status: 'open', wcagCodes: ['1.1.1'] });
+    const result = await getSeverityBreakdown([]);
+    expect(result).toEqual({ breakdown: { critical: 0, high: 0, medium: 0, low: 0 }, total: 0 });
   });
 
   it('returns zeros for empty db', async () => {
