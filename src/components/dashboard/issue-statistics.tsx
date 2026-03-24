@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart2, Table2 } from 'lucide-react';
+import { ChartTableToggle } from './chart-table-toggle';
 
 interface SeverityBreakdown {
   critical: number;
@@ -13,7 +13,7 @@ interface SeverityBreakdown {
 }
 
 interface IssueStatisticsProps {
-  total: number;
+  openTotal: number;
   severityBreakdown: SeverityBreakdown;
 }
 
@@ -24,7 +24,7 @@ const SEVERITY_CONFIG = [
   { key: 'low' as const, label: 'Low', color: '#3b82f6' },
 ];
 
-export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsProps) {
+export function IssueStatistics({ openTotal, severityBreakdown }: IssueStatisticsProps) {
   const [view, setView] = useState<'chart' | 'table'>('chart');
 
   const pieData = SEVERITY_CONFIG.map(({ key, label, color }) => ({
@@ -37,32 +37,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>Issue Statistics</CardTitle>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setView('chart')}
-            aria-label="Chart view"
-            aria-pressed={view === 'chart'}
-            className={`p-1.5 rounded transition-colors ${
-              view === 'chart'
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <BarChart2 size={16} />
-          </button>
-          <button
-            onClick={() => setView('table')}
-            aria-label="Table view"
-            aria-pressed={view === 'table'}
-            className={`p-1.5 rounded transition-colors ${
-              view === 'table'
-                ? 'bg-muted text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Table2 size={16} />
-          </button>
-        </div>
+        <ChartTableToggle view={view} onChange={setView} />
       </CardHeader>
       <CardContent>
         {view === 'chart' ? (
@@ -84,8 +59,8 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-4xl font-bold">{total}</span>
-                <span className="text-sm text-muted-foreground">Total</span>
+                <span className="text-4xl font-bold">{openTotal}</span>
+                <span className="text-sm text-muted-foreground">Open</span>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2 w-full text-center">
@@ -126,7 +101,7 @@ export function IssueStatistics({ total, severityBreakdown }: IssueStatisticsPro
               ))}
               <tr>
                 <td className="py-2 font-medium">Total</td>
-                <td className="py-2 text-right font-bold">{total}</td>
+                <td className="py-2 text-right font-bold">{openTotal}</td>
               </tr>
             </tbody>
           </table>

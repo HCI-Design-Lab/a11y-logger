@@ -2,10 +2,11 @@ import { StatsCard } from '@/components/dashboard/stats-card';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
 import { WcagCriteria } from '@/components/dashboard/wcag-criteria';
-import { getDashboardStats } from '@/lib/db/dashboard';
+import { getDashboardStats, getActionableStats } from '@/lib/db/dashboard';
 
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
+  const actionableStats = await getActionableStats();
 
   return (
     <div className="space-y-6 max-w-300">
@@ -29,8 +30,8 @@ export default async function DashboardPage() {
         {/* Right: Issue Statistics spanning full height */}
         <div className="lg:col-span-3">
           <IssueStatistics
-            total={stats.total_issues}
-            severityBreakdown={stats.severity_breakdown}
+            openTotal={actionableStats.open_issues_total}
+            severityBreakdown={actionableStats.open_severity_breakdown}
           />
         </div>
       </div>
