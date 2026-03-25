@@ -44,6 +44,91 @@ function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
   return Array.from(weeks.values()).slice(-20);
 }
 
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+interface TooltipPayloadEntry {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface LegendPayloadEntry {
+  value: string;
+  color: string;
+}
+
+function ActivityLegend({ payload }: { payload?: LegendPayloadEntry[] }) {
+  if (!payload?.length) return null;
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', gap: 24, fontSize: 16, marginTop: 8 }}>
+      {payload.map((entry) => (
+        <div key={entry.value} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span
+            style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: entry.color,
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ color: 'var(--foreground)' }}>{entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActivityTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: TooltipPayloadEntry[];
+  label?: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      style={{
+        backgroundColor: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        padding: '8px 12px',
+        fontSize: 16,
+        color: 'var(--foreground)',
+      }}
+    >
+      <p style={{ marginBottom: 4, fontWeight: 500 }}>{formatDate(label ?? '')}</p>
+      {payload.map((entry) => (
+        <div
+          key={entry.name}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: entry.color,
+              flexShrink: 0,
+            }}
+          />
+          <span>
+            {entry.name}: {entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const RANGES: { label: string; value: TimeRange }[] = [
   { label: '6 months', value: '6m' },
   { label: '3 months', value: '3m' },
@@ -79,16 +164,6 @@ export function ActivityChart() {
   useEffect(() => {
     fetchData(range);
   }, [range, fetchData]);
-
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
-  const formatTooltipLabel = (label: unknown) => {
-    if (typeof label === 'string') return formatDate(label);
-    return String(label ?? '');
-  };
 
   const tableData = bucketData(data, range);
 
@@ -146,16 +221,8 @@ export function ActivityChart() {
                     interval="preserveStartEnd"
                   />
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <Tooltip
-                    labelFormatter={formatTooltipLabel}
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px',
-                      fontSize: 12,
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Tooltip content={<ActivityTooltip />} />
+                  <Legend content={<ActivityLegend />} />
                   <Line
                     type="monotone"
                     dataKey="projects"
