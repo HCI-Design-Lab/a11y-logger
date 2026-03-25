@@ -98,7 +98,7 @@ export function PourRadar({ statuses }: PourRadarProps) {
                     dataKey="issues"
                     stroke="var(--chart-1)"
                     fill="var(--chart-1)"
-                    fillOpacity={0.25}
+                    fillOpacity={0.65}
                   />
                   <Tooltip formatter={(v: number | undefined) => [v ?? 0, 'Issues']} />
                 </RadarChart>
