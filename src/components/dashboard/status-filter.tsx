@@ -1,4 +1,5 @@
 'use client';
+import { Square, SquareCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const STATUS_OPTIONS = [
@@ -35,6 +36,11 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
         >
+          {statuses.includes(value) ? (
+            <SquareCheck className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Square className="h-4 w-4" aria-hidden="true" />
+          )}
           {label}
         </Button>
       ))}

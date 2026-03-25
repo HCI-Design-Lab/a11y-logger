@@ -18,24 +18,28 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Projects</h1>
-        <Button asChild>
-          <Link href="/projects/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Link>
-        </Button>
-      </div>
-      <div className="flex justify-end">
-        <ViewToggle view={view} onViewChange={setView} />
-      </div>
+    <main className="p-6 space-y-6">
+      <section aria-labelledby="projects-heading">
+        <div className="flex items-center justify-between">
+          <h1 id="projects-heading" className="text-lg font-semibold">
+            Projects
+          </h1>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/projects/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Project
+            </Link>
+          </Button>
+        </div>
+        <div className="flex justify-end mt-4">
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
+      </section>
 
       {projects.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-muted-foreground">No projects yet.</p>
-          <Button asChild className="mt-4">
+          <Button asChild variant="outline" size="sm" className="mt-4">
             <Link href="/projects/new">Create your first project</Link>
           </Button>
         </div>
@@ -52,6 +56,6 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   );
 }
