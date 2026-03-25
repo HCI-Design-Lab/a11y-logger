@@ -89,8 +89,11 @@ export function PourRadar({ statuses }: PourRadarProps) {
             <div aria-hidden="true" className="flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={chartData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="principle" tick={{ fontSize: 12 }} />
+                  <PolarGrid stroke="currentColor" strokeOpacity={0.2} />
+                  <PolarAngleAxis
+                    dataKey="principle"
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                  />
                   <Radar
                     dataKey="issues"
                     stroke="var(--chart-1)"

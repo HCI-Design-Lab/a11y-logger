@@ -216,10 +216,10 @@ export function ActivityChart() {
                   <XAxis
                     dataKey="date"
                     tickFormatter={formatDate}
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 11, fill: 'currentColor' }}
                     interval="preserveStartEnd"
                   />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'currentColor' }} allowDecimals={false} />
                   <Tooltip content={<ActivityTooltip />} />
                   <Legend content={<ActivityLegend />} />
                   <Line
