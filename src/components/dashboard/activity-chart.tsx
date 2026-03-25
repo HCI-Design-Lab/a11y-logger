@@ -108,13 +108,10 @@ export function ActivityChart() {
             {RANGES.map(({ label, value }) => (
               <Button
                 key={value}
+                variant={range === value ? 'default' : 'outline'}
                 onClick={() => setRange(value)}
                 aria-pressed={range === value}
-                className={`py-1 text-xs rounded transition-colors ${
-                  range === value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:text-foreground'
-                }`}
+                className="rounded px-3"
               >
                 {label}
               </Button>

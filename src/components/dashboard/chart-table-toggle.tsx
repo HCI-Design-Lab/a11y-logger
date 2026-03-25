@@ -1,7 +1,6 @@
 'use client';
 import { ChartPie, Table, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface ChartTableToggleProps {
   view: 'chart' | 'table';
@@ -22,12 +21,8 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
           onClick={() => onChange(value)}
           aria-pressed={view === value}
           aria-label={label}
-          className={cn(
-            'rounded p-1 transition-colors',
-            view === value
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
-          )}
+          variant={view === value ? 'default' : 'outline'}
+          className="rounded p-1"
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
         </Button>

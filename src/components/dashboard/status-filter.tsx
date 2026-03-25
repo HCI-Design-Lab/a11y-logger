@@ -1,5 +1,4 @@
 'use client';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const STATUS_OPTIONS = [
@@ -28,15 +27,10 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
         <Button
           type="button"
           key={value}
-          size="xs"
+          variant={statuses.includes(value) ? 'default' : 'outline'}
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
-          className={cn(
-            'rounded px-3',
-            statuses.includes(value)
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
-          )}
+          className="rounded px-3"
         >
           {label}
         </Button>

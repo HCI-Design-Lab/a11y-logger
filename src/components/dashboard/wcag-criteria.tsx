@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { WCAG_PRINCIPLES, type WcagPrinciple } from '@/lib/wcag-criteria';
 import type { WcagCriteriaCount } from '@/lib/db/dashboard';
 
@@ -68,15 +67,10 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
               <Button
                 key={p}
                 type="button"
-                size="xs"
+                variant={principle === p ? 'default' : 'outline'}
                 onClick={() => setPrinciple(p)}
                 aria-pressed={principle === p}
-                className={cn(
-                  'rounded px-3',
-                  principle === p
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
+                className="rounded px-3"
               >
                 {PRINCIPLE_LABELS[p]}
               </Button>
