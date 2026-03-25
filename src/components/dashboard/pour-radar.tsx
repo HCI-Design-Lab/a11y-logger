@@ -86,7 +86,7 @@ export function PourRadar({ statuses }: PourRadarProps) {
           {total === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No open issues found.</p>
           ) : view === 'chart' ? (
-            <div aria-hidden="true" className="flex-1 min-h-0">
+            <div aria-hidden="true" inert className="flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={chartData}>
                   <PolarGrid stroke="currentColor" strokeOpacity={0.2} />
