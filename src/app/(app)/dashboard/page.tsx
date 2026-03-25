@@ -18,7 +18,7 @@ export default async function DashboardPage() {
             label="Open Critical Issues"
             count={actionableStats.open_critical_issues}
             href="/issues?severity=critical&status=open"
-            alert={actionableStats.open_critical_issues > 0}
+            showAlert={actionableStats.open_critical_issues > 0}
           />
           <StatsCard
             label="In-Progress Assessments"

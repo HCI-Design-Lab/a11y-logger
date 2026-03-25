@@ -7,10 +7,10 @@ interface StatsCardProps {
   href: string;
   subtitle?: string;
   trend?: string;
-  alert?: boolean;
+  showAlert?: boolean;
 }
 
-export function StatsCard({ label, count, href, subtitle, trend, alert }: StatsCardProps) {
+export function StatsCard({ label, count, href, subtitle, trend, showAlert }: StatsCardProps) {
   return (
     <Card>
       <CardContent className="pt-2">
@@ -18,7 +18,7 @@ export function StatsCard({ label, count, href, subtitle, trend, alert }: StatsC
           <dl>
             <dt className="text-sm text-muted-foreground flex items-center gap-1.5">
               {label}
-              {alert && (
+              {showAlert && (
                 <span
                   className="inline-block w-2 h-2 rounded-full bg-destructive shrink-0"
                   aria-label="alert"

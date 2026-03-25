@@ -35,12 +35,12 @@ test('renders trend when provided', () => {
   expect(screen.getByText('↑ vs 6 last month')).toBeInTheDocument();
 });
 
-test('renders alert indicator when alert is true', () => {
-  render(<StatsCard label="Critical" count={4} href="/issues" alert />);
+test('renders alert indicator when showAlert is true', () => {
+  render(<StatsCard label="Critical" count={4} href="/issues" showAlert />);
   expect(screen.getByLabelText('alert')).toBeInTheDocument();
 });
 
-test('does not render alert indicator when alert is false', () => {
-  render(<StatsCard label="Critical" count={0} href="/issues" alert={false} />);
+test('does not render alert indicator when showAlert is false', () => {
+  render(<StatsCard label="Critical" count={0} href="/issues" showAlert={false} />);
   expect(screen.queryByLabelText('alert')).not.toBeInTheDocument();
 });
