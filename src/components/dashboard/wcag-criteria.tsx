@@ -67,10 +67,9 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
               <Button
                 key={p}
                 type="button"
-                variant={principle === p ? 'default' : 'outline'}
+                variant={principle === p ? 'default' : 'secondary'}
                 onClick={() => setPrinciple(p)}
                 aria-pressed={principle === p}
-                className="rounded px-3"
               >
                 {PRINCIPLE_LABELS[p]}
               </Button>

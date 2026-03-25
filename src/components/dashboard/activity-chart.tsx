@@ -183,10 +183,9 @@ export function ActivityChart() {
             {RANGES.map(({ label, value }) => (
               <Button
                 key={value}
-                variant={range === value ? 'default' : 'outline'}
+                variant={range === value ? 'default' : 'secondary'}
                 onClick={() => setRange(value)}
                 aria-pressed={range === value}
-                className="rounded px-3"
               >
                 {label}
               </Button>

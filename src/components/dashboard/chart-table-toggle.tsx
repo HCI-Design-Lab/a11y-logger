@@ -21,8 +21,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
           onClick={() => onChange(value)}
           aria-pressed={view === value}
           aria-label={label}
-          variant={view === value ? 'default' : 'outline'}
-          className="rounded p-1"
+          variant={view === value ? 'default' : 'secondary'}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
         </Button>

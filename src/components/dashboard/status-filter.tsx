@@ -27,10 +27,9 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
         <Button
           type="button"
           key={value}
-          variant={statuses.includes(value) ? 'default' : 'outline'}
+          variant={statuses.includes(value) ? 'default' : 'secondary'}
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
-          className="rounded px-3"
         >
           {label}
         </Button>
