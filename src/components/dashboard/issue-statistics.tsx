@@ -71,80 +71,84 @@ export function IssueStatistics({ statuses }: IssueStatisticsProps) {
         <ChartTableToggle view={view} onChange={setView} />
       </CardHeader>
       <CardContent>
-        {loading && <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>}
-        {!loading && error && (
+        {loading && !fetchedData && (
+          <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
+        )}
+        {!loading && error && !fetchedData && (
           <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>
         )}
-        {!loading &&
-          !error &&
-          (view === 'chart' ? (
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative w-full mb-8" style={{ height: 200 }}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      dataKey="value"
-                      strokeWidth={5}
-                      stroke="var(--card)"
-                    />
-                    <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Issues']} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-4xl font-bold">{total}</span>
-                  <span className="text-sm text-muted-foreground">Open</span>
+        {fetchedData && (
+          <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
+            {view === 'chart' ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative w-full mb-8" style={{ height: 200 }}>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        dataKey="value"
+                        strokeWidth={5}
+                        stroke="var(--card)"
+                      />
+                      <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Issues']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-4xl font-bold">{total}</span>
+                    <span className="text-sm text-muted-foreground">Open</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-2 w-full text-center">
+                  {SEVERITY_CONFIG.map(({ key, label, color }) => (
+                    <div key={key} className="flex flex-col items-center gap-0.5">
+                      <span
+                        className="inline-block w-4 h-4 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-muted-foreground text-sm">{label}</span>
+                      <span className="font-bold text-xl">{fetchedData?.breakdown[key] ?? 0}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-2 w-full text-center">
-                {SEVERITY_CONFIG.map(({ key, label, color }) => (
-                  <div key={key} className="flex flex-col items-center gap-0.5">
-                    <span
-                      className="inline-block w-4 h-4 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-muted-foreground text-sm">{label}</span>
-                    <span className="font-bold text-xl">{fetchedData?.breakdown[key] ?? 0}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-1.5 font-medium text-muted-foreground">Severity</th>
-                  <th className="text-right py-1.5 font-medium text-muted-foreground">Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SEVERITY_CONFIG.map(({ key, label, color }) => (
-                  <tr key={key} className="border-b last:border-0">
-                    <td className="py-2">
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: color }}
-                        />
-                        {label}
-                      </span>
-                    </td>
-                    <td className="py-2 text-right font-bold">
-                      {fetchedData?.breakdown[key] ?? 0}
-                    </td>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-1.5 font-medium text-muted-foreground">Severity</th>
+                    <th className="text-right py-1.5 font-medium text-muted-foreground">Count</th>
                   </tr>
-                ))}
-                <tr>
-                  <td className="py-2 font-medium">Total</td>
-                  <td className="py-2 text-right font-bold">{total}</td>
-                </tr>
-              </tbody>
-            </table>
-          ))}
+                </thead>
+                <tbody>
+                  {SEVERITY_CONFIG.map(({ key, label, color }) => (
+                    <tr key={key} className="border-b last:border-0">
+                      <td className="py-2">
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: color }}
+                          />
+                          {label}
+                        </span>
+                      </td>
+                      <td className="py-2 text-right font-bold">
+                        {fetchedData?.breakdown[key] ?? 0}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="py-2 font-medium">Total</td>
+                    <td className="py-2 text-right font-bold">{total}</td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

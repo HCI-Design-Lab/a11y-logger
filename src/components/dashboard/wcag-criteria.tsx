@@ -80,41 +80,46 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {loading && rows.length === 0 && (
           <p className="text-sm text-muted-foreground py-4">Loading…</p>
-        ) : error ? (
+        )}
+        {!loading && error && rows.length === 0 && (
           <p className="text-sm text-destructive py-4">{error}</p>
-        ) : rows.length === 0 ? (
+        )}
+        {!loading && !error && rows.length === 0 && (
           <p className="text-sm text-muted-foreground py-4">
             No issues logged for {PRINCIPLE_LABELS[principle]} criteria yet.
           </p>
-        ) : (
-          <table className="w-full text-sm">
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.code} className="border-b last:border-0">
-                  <td className="py-2 pr-3 text-muted-foreground font-mono text-xs w-12 shrink-0 whitespace-nowrap">
-                    {row.code}
-                  </td>
-                  <td className="py-2 pr-4 w-48  whitespace-nowrap">{row.name ?? row.code}</td>
-                  <td className="py-2 pr-3 text-right font-bold w-8">{row.count}</td>
-                  <td className="py-2 w-full">
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all"
-                        style={{ width: `${(row.count / maxCount) * 100}%` }}
-                        role="progressbar"
-                        aria-valuenow={row.count}
-                        aria-valuemin={0}
-                        aria-valuemax={maxCount}
-                        aria-label={`${row.name ?? row.code}: ${row.count} issues`}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        )}
+        {rows.length > 0 && (
+          <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
+            <table className="w-full text-sm">
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.code} className="border-b last:border-0">
+                    <td className="py-2 pr-3 text-muted-foreground font-mono text-xs w-12 shrink-0 whitespace-nowrap">
+                      {row.code}
+                    </td>
+                    <td className="py-2 pr-4 w-48  whitespace-nowrap">{row.name ?? row.code}</td>
+                    <td className="py-2 pr-3 text-right font-bold w-8">{row.count}</td>
+                    <td className="py-2 w-full">
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{ width: `${(row.count / maxCount) * 100}%` }}
+                          role="progressbar"
+                          aria-valuenow={row.count}
+                          aria-valuemin={0}
+                          aria-valuemax={maxCount}
+                          aria-label={`${row.name ?? row.code}: ${row.count} issues`}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </CardContent>
     </Card>
