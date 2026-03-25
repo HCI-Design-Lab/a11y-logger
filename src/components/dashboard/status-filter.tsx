@@ -22,7 +22,11 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
   }
 
   return (
-    <div role="group" aria-label="Filter by status" className="flex gap-1">
+    <div
+      role="group"
+      aria-label="Filter by status"
+      className="flex gap-1 bg-primary-foreground p-1 rounded-full border border-primary"
+    >
       {STATUS_OPTIONS.map(({ value, label }) => (
         <Button
           type="button"
