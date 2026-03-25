@@ -25,7 +25,7 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
     <div
       role="group"
       aria-label="Filter by status"
-      className="flex gap-1 bg-primary-foreground p-1 rounded-full border border-primary"
+      className="flex gap-1 p-1 bg-card border rounded-full shadow-sm"
     >
       {STATUS_OPTIONS.map(({ value, label }) => (
         <Button
