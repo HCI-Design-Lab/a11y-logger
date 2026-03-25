@@ -131,6 +131,32 @@
   --sidebar-ring: oklch(0.869 0.0198 252.8);
 }
 
+.a11y-focus:hover {
+  outline-width: 2px;
+  outline-offset: 4px;
+}
+
+.a11y-focus:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline-style: dashed;
+  outline-color: var(--color-primary);
+  outline-width: 4px;
+  outline-offset: 4px;
+}
+
+.dark .a11y-focus:focus-visible,
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible,
+.dark a:focus-visible,
+.dark button:focus-visible {
+  outline-color: white;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

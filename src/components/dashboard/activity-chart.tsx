@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { TimeRange, TimeSeriesEntry } from '@/lib/db/dashboard';
 import { ChartTableToggle } from './chart-table-toggle';
+import { Button } from '@/components/ui/button';
 
 function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
   if (range === '1m' || range === '1w') return data.slice(-20);
@@ -105,18 +106,18 @@ export function ActivityChart() {
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             {RANGES.map(({ label, value }) => (
-              <button
+              <Button
                 key={value}
                 onClick={() => setRange(value)}
                 aria-pressed={range === value}
-                className={`px-2.5 py-1 text-xs rounded transition-colors ${
+                className={`py-1 text-xs rounded transition-colors ${
                   range === value
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
           <ChartTableToggle view={view} onChange={setView} />

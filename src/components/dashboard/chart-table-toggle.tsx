@@ -1,5 +1,6 @@
 'use client';
-import { BarChart2, Table2, LucideIcon } from 'lucide-react';
+import { ChartPie, Table, LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface ChartTableToggleProps {
@@ -8,15 +9,15 @@ interface ChartTableToggleProps {
 }
 
 const TOGGLE_OPTIONS: { value: 'chart' | 'table'; label: string; Icon: LucideIcon }[] = [
-  { value: 'chart', label: 'Chart view', Icon: BarChart2 },
-  { value: 'table', label: 'Table view', Icon: Table2 },
+  { value: 'chart', label: 'Chart view', Icon: ChartPie },
+  { value: 'table', label: 'Table view', Icon: Table },
 ];
 
 export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
   return (
     <div role="group" aria-label="View toggle" className="flex gap-1">
       {TOGGLE_OPTIONS.map(({ value, label, Icon }) => (
-        <button
+        <Button
           key={value}
           onClick={() => onChange(value)}
           aria-pressed={view === value}
@@ -24,12 +25,12 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
           className={cn(
             'rounded p-1 transition-colors',
             view === value
-              ? 'bg-muted text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:text-foreground'
           )}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
       ))}
     </div>
   );
