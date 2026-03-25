@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Search, ArrowUpDown, ArrowLeft, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { SeverityBadge } from '@/components/issues/severity-badge';
 import type { IssueWithContext } from '@/lib/db/issues';
 import type { Issue } from '@/lib/db/issues';
@@ -43,13 +44,15 @@ export function ReportIssuesPanel({ issues }: Props) {
 
     return (
       <div className="space-y-3">
-        <button
+        <Button
+          type="button"
+          variant="link"
           onClick={() => setSelected(null)}
-          className="text-sm text-primary hover:underline flex items-center gap-1"
+          className="h-auto p-0 text-sm flex items-center gap-1"
         >
           <ArrowLeft className="h-3 w-3" />
           Back to list
-        </button>
+        </Button>
         <div className="space-y-2">
           <h3 className="font-semibold text-sm leading-snug">{selected.title}</h3>
           <SeverityBadge severity={selected.severity} />
@@ -113,24 +116,26 @@ export function ReportIssuesPanel({ issues }: Props) {
           <thead>
             <tr className="border-b">
               <th className="text-left py-2 font-medium">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => toggleSort('title')}
-                  className="flex items-center gap-1 hover:text-foreground text-muted-foreground transition-colors"
+                  className="h-auto p-0 flex items-center gap-1 text-muted-foreground hover:text-foreground hover:bg-transparent font-medium"
                 >
                   Title
                   <ArrowUpDown className="h-3 w-3" />
-                </button>
+                </Button>
               </th>
               <th className="text-right py-2 font-medium">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => toggleSort('severity')}
-                  className="flex items-center gap-1 ml-auto hover:text-foreground text-muted-foreground transition-colors"
+                  className="h-auto p-0 flex items-center gap-1 ml-auto text-muted-foreground hover:text-foreground hover:bg-transparent font-medium"
                 >
                   Severity
                   <ArrowUpDown className="h-3 w-3" />
-                </button>
+                </Button>
               </th>
             </tr>
           </thead>

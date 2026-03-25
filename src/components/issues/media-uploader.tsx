@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -122,14 +123,15 @@ export function MediaUploader({
                   />
                 )}
                 {onRemove && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     aria-label={`Remove ${fileName}`}
                     onClick={() => onRemove(url)}
-                    className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-white opacity-80 hover:opacity-100"
+                    className="absolute right-0 top-0 h-5 w-5 rounded-full bg-gray-800 p-0 text-white opacity-80 hover:bg-gray-800 hover:opacity-100"
                   >
                     <span aria-hidden="true">×</span>
-                  </button>
+                  </Button>
                 )}
               </div>
             );
@@ -146,11 +148,12 @@ export function MediaUploader({
 
       {/* Upload zone */}
       <div>
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={disabled || uploading}
           onClick={() => inputRef.current?.click()}
-          className="flex w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center transition-colors hover:border-primary hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full flex-col h-auto items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center hover:border-primary hover:bg-muted/30 hover:text-foreground"
           aria-label="Upload media"
         >
           <svg
@@ -174,7 +177,7 @@ export function MediaUploader({
           <p className="text-xs text-muted-foreground">
             PNG, JPG, GIF, WebP, MP4, WebM, MOV up to 10MB
           </p>
-        </button>
+        </Button>
         <label htmlFor="media-file-input" className="sr-only">
           Choose file
         </label>

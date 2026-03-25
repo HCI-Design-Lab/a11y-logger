@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface MediaGalleryProps {
   urls: string[];
@@ -55,12 +56,13 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
           const name = getFileName(url);
           const video = isVideoUrl(url);
           return (
-            <button
+            <Button
               key={`${url}-${idx}`}
               type="button"
+              variant="ghost"
               onClick={() => openAt(idx)}
               aria-label={`Open ${name}`}
-              className="relative overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="relative overflow-hidden rounded-md p-0 h-auto w-full"
             >
               {video ? (
                 <div className="relative aspect-video w-full bg-black">
@@ -87,7 +89,7 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={url} alt={name} className="aspect-video w-full object-cover" />
               )}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -109,14 +111,15 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
           <DialogTitle className="sr-only">{fileName}</DialogTitle>
           <div className="relative flex items-center justify-center">
             {urls.length > 1 && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={prev}
                 aria-label="Previous media"
-                className="absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+                className="absolute left-0 z-10 h-10 w-10 rounded-full bg-black/50 p-0 text-white hover:bg-black/70"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </button>
+              </Button>
             )}
 
             {isVideo ? (
@@ -133,14 +136,15 @@ export function MediaGallery({ urls }: MediaGalleryProps) {
             )}
 
             {urls.length > 1 && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={next}
                 aria-label="Next media"
-                className="absolute right-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+                className="absolute right-0 z-10 h-10 w-10 rounded-full bg-black/50 p-0 text-white hover:bg-black/70"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
-              </button>
+              </Button>
             )}
           </div>
           <p className="mt-2 text-center text-sm text-muted-foreground">{fileName}</p>

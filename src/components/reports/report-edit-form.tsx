@@ -226,13 +226,14 @@ export function ReportEditForm({ report, issues }: Props) {
 
 function PlaceholderCard({ label, onAdd }: { label: string; onAdd: () => void }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={onAdd}
-      className="w-full rounded-lg border border-dashed p-6 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+      className="w-full h-auto rounded-lg border-dashed p-6 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-transparent"
     >
       {label}
       <Plus className="h-4 w-4" />
-    </button>
+    </Button>
   );
 }

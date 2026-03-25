@@ -104,9 +104,10 @@ const CriterionTableRow = memo(function CriterionTableRow({
       <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
       <TableCell className="align-top pt-3">
         {onCriterionClick ? (
-          <button
+          <Button
             type="button"
-            className="font-medium text-sm text-left hover:underline focus:outline-none focus:ring-1 focus:ring-ring rounded"
+            variant="link"
+            className="h-auto p-0 font-medium text-sm text-left"
             onClick={() => onCriterionClick(row.criterion_code)}
             aria-label={`View issues for ${row.criterion_code}`}
           >
@@ -116,7 +117,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
                 ({row.issue_count})
               </span>
             )}
-          </button>
+          </Button>
         ) : (
           <div className="font-medium text-sm">
             {row.criterion_name}

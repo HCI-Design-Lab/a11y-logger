@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface TagInputProps {
   tags: string[];
@@ -37,14 +38,15 @@ export function TagInput({ tags, onChange, placeholder = 'Add tag…' }: TagInpu
               className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium"
             >
               {tag}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => removeTag(tag)}
-                className="ml-0.5 rounded-full hover:bg-muted-foreground/20"
+                className="ml-0.5 h-4 w-4 rounded-full p-0 hover:bg-muted-foreground/20"
                 aria-label={`Remove tag ${tag}`}
               >
                 <X className="h-3 w-3" />
-              </button>
+              </Button>
             </span>
           ))}
         </div>

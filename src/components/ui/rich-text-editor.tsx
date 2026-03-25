@@ -5,6 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import Heading from '@tiptap/extension-heading';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface RichTextEditorProps {
   value: string;
@@ -24,18 +25,16 @@ function ToolbarButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       aria-label={label}
       aria-pressed={isActive}
-      className={cn(
-        'px-2 py-1 text-xs rounded hover:bg-muted transition-colors',
-        isActive && 'bg-muted font-semibold'
-      )}
+      className={cn('px-2 py-1 h-auto text-xs rounded', isActive && 'bg-muted font-semibold')}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

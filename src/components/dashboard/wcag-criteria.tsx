@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { WCAG_PRINCIPLES, type WcagPrinciple } from '@/lib/wcag-criteria';
 import type { WcagCriteriaCount } from '@/lib/db/dashboard';
 
@@ -63,18 +65,21 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
           </div>
           <div className="flex gap-1">
             {WCAG_PRINCIPLES.map((p) => (
-              <button
+              <Button
                 key={p}
+                type="button"
+                size="xs"
                 onClick={() => setPrinciple(p)}
                 aria-pressed={principle === p}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
+                className={cn(
+                  'rounded px-3',
                   principle === p
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:text-foreground'
-                }`}
+                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
               >
                 {PRINCIPLE_LABELS[p]}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

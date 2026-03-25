@@ -5,6 +5,7 @@ import { Check, ChevronDown, X } from 'lucide-react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Option {
   value: string;
@@ -62,17 +63,18 @@ export function MultiSelect({
             selectedOptions.map((o) => (
               <Badge key={o.value} variant="secondary" className="gap-1 pr-1">
                 {o.label}
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   aria-label={`Remove ${o.label}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggle(o.value);
                   }}
-                  className="ml-0.5 rounded-sm hover:bg-muted"
+                  className="ml-0.5 h-4 w-4 rounded-sm p-0 hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
-                </button>
+                </Button>
               </Badge>
             ))
           )}

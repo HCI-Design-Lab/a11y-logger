@@ -1,5 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const STATUS_OPTIONS = [
   { value: 'open', label: 'Open' },
@@ -24,20 +25,21 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
   return (
     <div role="group" aria-label="Filter by status" className="flex gap-1">
       {STATUS_OPTIONS.map(({ value, label }) => (
-        <button
+        <Button
           type="button"
           key={value}
+          size="xs"
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
           className={cn(
-            'rounded px-3 py-1 text-xs font-medium transition-colors',
+            'rounded px-3',
             statuses.includes(value)
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
           )}
         >
           {label}
-        </button>
+        </Button>
       ))}
     </div>
   );

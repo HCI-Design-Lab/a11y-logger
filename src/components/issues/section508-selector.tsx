@@ -1,6 +1,7 @@
 'use client';
 import { X } from 'lucide-react';
 import { SECTION_508_CRITERION_CODES } from '@/lib/constants/section508';
+import { Button } from '@/components/ui/button';
 
 interface Section508SelectorProps {
   selected: string[];
@@ -26,14 +27,15 @@ export function Section508Selector({ selected, onChange }: Section508SelectorPro
               className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
             >
               {code}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => toggle(code)}
-                className="ml-0.5 rounded-full hover:bg-primary/20"
+                className="ml-0.5 h-4 w-4 rounded-full p-0 hover:bg-primary/20"
                 aria-label={`Remove Section 508 ${code}`}
               >
                 <X className="h-3 w-3" />
-              </button>
+              </Button>
             </span>
           ))}
         </div>
