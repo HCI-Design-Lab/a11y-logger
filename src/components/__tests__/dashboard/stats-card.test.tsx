@@ -35,8 +35,12 @@ test('renders trend when provided', () => {
   expect(screen.getByText('↑ vs 6 last month')).toBeInTheDocument();
 });
 
-test('applies countClassName to count element', () => {
-  render(<StatsCard label="Critical" count={4} href="/issues" countClassName="text-destructive" />);
-  const countEl = screen.getByText('4');
-  expect(countEl).toHaveClass('text-destructive');
+test('renders alert indicator when alert is true', () => {
+  render(<StatsCard label="Critical" count={4} href="/issues" alert />);
+  expect(screen.getByLabelText('alert')).toBeInTheDocument();
+});
+
+test('does not render alert indicator when alert is false', () => {
+  render(<StatsCard label="Critical" count={0} href="/issues" alert={false} />);
+  expect(screen.queryByLabelText('alert')).not.toBeInTheDocument();
 });
