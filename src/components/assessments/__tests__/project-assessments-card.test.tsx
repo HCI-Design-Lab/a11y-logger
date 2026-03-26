@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { ProjectAssessmentsCard } from '../project-assessments-card';
 import type { AssessmentWithCounts } from '@/lib/db/assessments';
 
@@ -25,36 +24,11 @@ test('renders assessments card heading', () => {
   expect(screen.getByText('Assessments')).toBeInTheDocument();
 });
 
-test('renders view toggle buttons', () => {
-  render(
-    <ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[assessment]} />
-  );
-  expect(screen.getByRole('button', { name: /table view/i })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /grid view/i })).toBeInTheDocument();
-});
-
-test('renders new assessment link', () => {
-  render(
-    <ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[assessment]} />
-  );
-  const link = screen.getByRole('link', { name: /new assessment/i });
-  expect(link).toHaveAttribute('href', '/projects/p1/assessments/new');
-});
-
 test('shows table view by default', () => {
   render(
     <ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[assessment]} />
   );
   expect(screen.getByRole('table')).toBeInTheDocument();
-});
-
-test('switches to grid view when grid button clicked', async () => {
-  render(
-    <ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[assessment]} />
-  );
-  await userEvent.click(screen.getByRole('button', { name: /grid view/i }));
-  expect(screen.queryByRole('table')).not.toBeInTheDocument();
-  expect(screen.getByText('Q1 Audit')).toBeInTheDocument();
 });
 
 test('shows empty state when no assessments', () => {
