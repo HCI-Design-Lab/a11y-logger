@@ -96,7 +96,7 @@ export default async function AssessmentDetailPage({
 
         {/* Sidebar */}
         <aside className="w-72 shrink-0">
-          <IssueStatistics statuses={['open']} />
+          <IssueStatistics statuses={['open']} projectId={projectId} />
         </aside>
       </div>
     </div>

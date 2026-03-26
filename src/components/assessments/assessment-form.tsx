@@ -59,7 +59,7 @@ export function AssessmentForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-2xl" id={externalButtons}>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" id={externalButtons}>
       {projects && (
         <div className="space-y-1.5">
           <Label htmlFor="project_id">Project</Label>
