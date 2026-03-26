@@ -2,10 +2,15 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Save, X } from 'lucide-react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ProjectForm } from '@/components/projects/project-form';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { CreateProjectInput } from '@/lib/validators/projects';
+
+const FORM_ID = 'new-project-form';
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -35,9 +40,21 @@ export default function NewProjectPage() {
       <h1 className="text-2xl font-bold">New Project</h1>
       <Card>
         <CardContent>
-          <ProjectForm onSubmit={handleSubmit} loading={loading} cancelHref="/projects" />
+          <ProjectForm onSubmit={handleSubmit} loading={loading} externalButtons={FORM_ID} />
         </CardContent>
       </Card>
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving…' : 'Save Project'}
+        </Button>
+        <Button asChild variant="cancel">
+          <Link href="/projects">
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

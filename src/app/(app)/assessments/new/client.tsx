@@ -2,10 +2,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Save, X } from 'lucide-react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import type { AssessmentFormData } from '@/lib/validators/assessments';
+
+const FORM_ID = 'new-assessment-form';
 
 interface Props {
   projects: { id: string; name: string }[];
@@ -55,10 +60,22 @@ export default function NewAssessmentClient({ projects }: Props) {
             onSubmit={handleSubmit}
             loading={loading}
             projects={projects}
-            cancelHref="/assessments"
+            externalButtons={FORM_ID}
           />
         </CardContent>
       </Card>
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving…' : 'Save Assessment'}
+        </Button>
+        <Button asChild variant="cancel">
+          <Link href="/assessments">
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

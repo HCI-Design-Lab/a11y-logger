@@ -2,10 +2,15 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { Save, X } from 'lucide-react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import type { AssessmentFormData } from '@/lib/validators/assessments';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+
+const FORM_ID = 'new-assessment-form';
 
 export default function NewAssessmentPage() {
   const params = useParams();
@@ -67,13 +72,21 @@ export default function NewAssessmentPage() {
       <h1 className="text-2xl font-bold">New Assessment</h1>
       <Card>
         <CardContent>
-          <AssessmentForm
-            onSubmit={handleSubmit}
-            loading={loading}
-            cancelHref={`/projects/${projectId}`}
-          />
+          <AssessmentForm onSubmit={handleSubmit} loading={loading} externalButtons={FORM_ID} />
         </CardContent>
       </Card>
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving…' : 'Save Assessment'}
+        </Button>
+        <Button asChild variant="cancel">
+          <Link href={`/projects/${projectId}`}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
