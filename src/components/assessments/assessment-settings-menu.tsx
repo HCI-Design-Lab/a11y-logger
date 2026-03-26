@@ -42,7 +42,7 @@ export function AssessmentSettingsMenu({
     const { next } = statusTransition[currentStatus];
     setLoading(true);
     try {
-      const res = await fetch(`/projects/${projectId}/assessments/${assessmentId}`, {
+      const res = await fetch(`/api/projects/${projectId}/assessments/${assessmentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: next }),

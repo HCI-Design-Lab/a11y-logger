@@ -73,7 +73,7 @@ test('clicking Mark as Complete calls the assessments API', async () => {
   await userEvent.click(await screen.findByRole('menuitem', { name: /mark as complete/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
-      '/projects/p1/assessments/a1',
+      '/api/projects/p1/assessments/a1',
       expect.objectContaining({ method: 'PUT' })
     );
   });
