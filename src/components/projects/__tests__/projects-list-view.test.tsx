@@ -16,12 +16,12 @@ describe('ProjectsListView layout', () => {
     expect(screen.getByRole('link', { name: /new project/i })).toBeInTheDocument();
   });
 
-  it('ViewToggle is not in the header row with the New Project button', () => {
+  it('ViewToggle is in the header row with the New Project button', () => {
     render(<ProjectsListView projects={[]} />);
     const heading = screen.getByRole('heading', { name: 'Projects' });
     const headerRow = heading.closest('div')!;
     const viewGroup = screen.getByRole('group', { name: 'View options' });
-    expect(headerRow).not.toContainElement(viewGroup);
+    expect(headerRow).toContainElement(viewGroup);
   });
 
   it('ViewToggle is rendered on the page', () => {

@@ -182,8 +182,9 @@ export function ActivityChart() {
           <div className="flex gap-1">
             {RANGES.map(({ label, value }) => (
               <Button
+                size={'sm'}
                 key={value}
-                variant={range === value ? 'default' : 'secondary'}
+                variant={range === value ? 'default' : 'outline'}
                 onClick={() => setRange(value)}
                 aria-pressed={range === value}
               >

@@ -114,7 +114,7 @@ export function ImportOpenAcrModal({ onImportComplete }: ImportOpenAcrModalProps
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <FileUp className="mr-2 h-4 w-4" />
         Import from OpenACR
       </Button>
@@ -204,17 +204,17 @@ export function ImportOpenAcrModal({ onImportComplete }: ImportOpenAcrModalProps
               Cancel
             </Button>
             {step === 'project' && (
-              <Button onClick={() => setStep('upload')} disabled={!projectId}>
+              <Button size="sm" onClick={() => setStep('upload')} disabled={!projectId}>
                 Next
               </Button>
             )}
             {step === 'upload' && (
-              <Button onClick={() => setStep('confirm')} disabled={!parsed}>
+              <Button size="sm" onClick={() => setStep('confirm')} disabled={!parsed}>
                 Next
               </Button>
             )}
             {step === 'confirm' && (
-              <Button onClick={handleImport} disabled={loading}>
+              <Button size="sm" onClick={handleImport} disabled={loading}>
                 {loading ? 'Importing…' : 'Import'}
               </Button>
             )}

@@ -24,22 +24,22 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
           <h1 id="projects-heading" className="text-lg font-semibold">
             Projects
           </h1>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/projects/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Link>
-          </Button>
-        </div>
-        <div className="flex justify-end mt-4">
-          <ViewToggle view={view} onViewChange={setView} />
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/projects/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New Project
+              </Link>
+            </Button>
+            <ViewToggle view={view} onViewChange={setView} />
+          </div>
         </div>
       </section>
 
       {projects.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-muted-foreground">No projects yet.</p>
-          <Button asChild variant="outline" size="sm" className="mt-4">
+          <Button asChild variant="outline" className="mt-4">
             <Link href="/projects/new">Create your first project</Link>
           </Button>
         </div>

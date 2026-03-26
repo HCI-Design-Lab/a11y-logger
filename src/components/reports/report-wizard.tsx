@@ -100,7 +100,7 @@ export function ReportWizard({ projects, assessments }: Props) {
                 />
               </div>
               <div className="flex justify-end">
-                <Button onClick={() => setStep(2)} disabled={selectedProjects.size === 0}>
+                <Button size="sm" onClick={() => setStep(2)} disabled={selectedProjects.size === 0}>
                   Next
                 </Button>
               </div>
@@ -123,10 +123,14 @@ export function ReportWizard({ projects, assessments }: Props) {
                 />
               </div>
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(1)}>
+                <Button variant="outline" size="sm" onClick={() => setStep(1)}>
                   Back
                 </Button>
-                <Button onClick={() => setStep(3)} disabled={selectedAssessments.size === 0}>
+                <Button
+                  size="sm"
+                  onClick={() => setStep(3)}
+                  disabled={selectedAssessments.size === 0}
+                >
                   Next
                 </Button>
               </div>
@@ -145,10 +149,10 @@ export function ReportWizard({ projects, assessments }: Props) {
                 />
               </div>
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setStep(2)}>
+                <Button variant="outline" size="sm" onClick={() => setStep(2)}>
                   Back
                 </Button>
-                <Button onClick={handleCreate} disabled={isCreating || !title.trim()}>
+                <Button size="sm" onClick={handleCreate} disabled={isCreating || !title.trim()}>
                   {isCreating ? 'Creating…' : 'Create Report'}
                 </Button>
               </div>

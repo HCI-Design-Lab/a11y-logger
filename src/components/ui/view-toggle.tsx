@@ -1,5 +1,6 @@
-import { LayoutGrid, LayoutList } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+'use client';
+
+import { Table, LayoutGrid } from 'lucide-react';
 
 interface ViewToggleProps {
   view: 'grid' | 'table';
@@ -8,25 +9,44 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
   return (
-    <div className="flex items-center gap-1" role="group" aria-label="View options">
-      <Button
-        variant={view === 'table' ? 'default' : 'ghost'}
-        size="icon"
+    <div
+      role="group"
+      aria-label="View options"
+      className="relative inline-flex items-center rounded-full border bg-muted p-0.5"
+    >
+      {/* Sliding thumb */}
+      <span
+        aria-hidden="true"
+        className={`absolute h-7 w-7 rounded-full bg-primary shadow transition-transform duration-200 ${
+          view === 'grid' ? 'translate-x-7' : 'translate-x-0'
+        }`}
+      />
+
+      <button
+        type="button"
         onClick={() => onViewChange('table')}
         aria-label="Table view"
         aria-pressed={view === 'table'}
+        className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full"
       >
-        <LayoutList className="h-4 w-4" aria-hidden="true" />
-      </Button>
-      <Button
-        variant={view === 'grid' ? 'default' : 'ghost'}
-        size="icon"
+        <Table
+          className={`h-3.5 w-3.5 ${view === 'table' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      <button
+        type="button"
         onClick={() => onViewChange('grid')}
         aria-label="Grid view"
         aria-pressed={view === 'grid'}
+        className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full"
       >
-        <LayoutGrid className="h-4 w-4" aria-hidden="true" />
-      </Button>
+        <LayoutGrid
+          className={`h-3.5 w-3.5 ${view === 'grid' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+          aria-hidden="true"
+        />
+      </button>
     </div>
   );
 }

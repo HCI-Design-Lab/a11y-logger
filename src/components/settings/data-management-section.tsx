@@ -65,7 +65,9 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
           </p>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">Reset Database</Button>
+              <Button variant="destructive" size="sm">
+                Reset Database
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

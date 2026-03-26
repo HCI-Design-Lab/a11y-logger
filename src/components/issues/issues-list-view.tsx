@@ -41,15 +41,18 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
     : afterSeverity;
 
   return (
-    <div className="space-y-6">
+    <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Issues</h1>
-        <Button asChild size="sm">
-          <Link href="/issues/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Issue
-          </Link>
-        </Button>
+        <h1 className="text-lg font-semibold">Issues</h1>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/issues/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Issue
+            </Link>
+          </Button>
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
       </div>
 
       {/* Severity filter + Search */}
@@ -93,7 +96,6 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
             placeholder="Search issues…"
             className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
-          <ViewToggle view={view} onViewChange={setView} />
         </div>
       </div>
 
@@ -110,6 +112,6 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   );
 }

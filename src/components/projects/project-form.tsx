@@ -71,11 +71,11 @@ export function ProjectForm({ project, onSubmit, loading, cancelHref }: ProjectF
         )}
       </div>
       <div className="flex gap-2">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" size="sm" disabled={loading}>
           {loading ? 'Saving…' : 'Save Project'}
         </Button>
         {cancelHref && (
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="sm">
             <Link href={cancelHref}>Cancel</Link>
           </Button>
         )}

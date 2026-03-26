@@ -65,9 +65,10 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
           <div className="flex gap-1">
             {WCAG_PRINCIPLES.map((p) => (
               <Button
+                size={'sm'}
                 key={p}
                 type="button"
-                variant={principle === p ? 'default' : 'secondary'}
+                variant={principle === p ? 'default' : 'outline'}
                 onClick={() => setPrinciple(p)}
                 aria-pressed={principle === p}
               >

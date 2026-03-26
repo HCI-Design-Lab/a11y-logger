@@ -1,31 +1,51 @@
 'use client';
-import { ChartPie, Table, LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChartPie, Table } from 'lucide-react';
 
 interface ChartTableToggleProps {
   view: 'chart' | 'table';
   onChange: (view: 'chart' | 'table') => void;
 }
 
-const TOGGLE_OPTIONS: { value: 'chart' | 'table'; label: string; Icon: LucideIcon }[] = [
-  { value: 'chart', label: 'Chart view', Icon: ChartPie },
-  { value: 'table', label: 'Table view', Icon: Table },
-];
-
 export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
   return (
-    <div role="group" aria-label="View toggle" className="flex gap-1">
-      {TOGGLE_OPTIONS.map(({ value, label, Icon }) => (
-        <Button
-          key={value}
-          onClick={() => onChange(value)}
-          aria-pressed={view === value}
-          aria-label={label}
-          variant={view === value ? 'default' : 'secondary'}
-        >
-          <Icon className="h-4 w-4" aria-hidden="true" />
-        </Button>
-      ))}
+    <div
+      role="group"
+      aria-label="View toggle"
+      className="relative inline-flex items-center rounded-full border bg-muted p-0.5"
+    >
+      {/* Sliding thumb */}
+      <span
+        aria-hidden="true"
+        className={`absolute h-7 w-7 rounded-full bg-primary shadow transition-transform duration-200 ${
+          view === 'table' ? 'translate-x-7' : 'translate-x-0'
+        }`}
+      />
+
+      <button
+        type="button"
+        onClick={() => onChange('chart')}
+        aria-pressed={view === 'chart'}
+        aria-label="Chart view"
+        className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full"
+      >
+        <ChartPie
+          className={`h-3.5 w-3.5 ${view === 'chart' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => onChange('table')}
+        aria-pressed={view === 'table'}
+        aria-label="Table view"
+        className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full"
+      >
+        <Table
+          className={`h-3.5 w-3.5 ${view === 'table' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+          aria-hidden="true"
+        />
+      </button>
     </div>
   );
 }

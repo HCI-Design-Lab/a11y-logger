@@ -131,20 +131,19 @@ describe('IssuesListView New Issue button', () => {
     expect(link).toHaveAttribute('href', '/issues/new');
   });
 
-  it('ViewToggle is not in the header row with the New Issue button', () => {
+  it('ViewToggle is in the header row with the New Issue button', () => {
     render(<IssuesListView issues={[]} />);
     const heading = screen.getByRole('heading', { name: 'Issues' });
     const headerRow = heading.closest('div')!;
     const viewGroup = screen.getByRole('group', { name: 'View options' });
-    expect(headerRow).not.toContainElement(viewGroup);
+    expect(headerRow).toContainElement(viewGroup);
   });
 
-  it('ViewToggle is in the filter/search row alongside the search input', () => {
+  it('ViewToggle is not in the filter/search row', () => {
     render(<IssuesListView issues={[]} />);
     const search = document.getElementById('issues-search')!;
     const viewGroup = screen.getByRole('group', { name: 'View options' });
-    // Both the search input and ViewToggle should share the same parent row
-    expect(search.parentElement).toContainElement(viewGroup);
+    expect(search.parentElement).not.toContainElement(viewGroup);
   });
 });
 

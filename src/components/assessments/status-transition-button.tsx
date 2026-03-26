@@ -46,7 +46,7 @@ export function StatusTransitionButton({
   };
 
   return (
-    <Button variant="outline" onClick={handleTransition} disabled={loading}>
+    <Button variant="outline" size="sm" onClick={handleTransition} disabled={loading}>
       {transition.label}
     </Button>
   );

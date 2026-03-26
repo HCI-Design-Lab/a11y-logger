@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,15 +27,18 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <div className="space-y-6">
+    <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Reports</h1>
-        <Button asChild>
-          <Link href="/reports/new">New Report</Link>
-        </Button>
-      </div>
-      <div className="flex justify-end">
-        <ViewToggle view={view} onViewChange={setView} />
+        <h1 className="text-lg font-semibold">Reports</h1>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/reports/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Report
+            </Link>
+          </Button>
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
       </div>
 
       {reports.length === 0 ? (
@@ -46,7 +50,7 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
                 Create your first accessibility report to document findings and share with
                 stakeholders.
               </p>
-              <Button asChild>
+              <Button asChild size="sm">
                 <Link href="/reports/new">Create Report</Link>
               </Button>
             </div>
@@ -92,6 +96,6 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   );
 }

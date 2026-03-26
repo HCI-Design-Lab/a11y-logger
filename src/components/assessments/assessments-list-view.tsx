@@ -18,18 +18,18 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <div className="space-y-6">
+    <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Assessments</h1>
-        <Button asChild>
-          <Link href="/assessments/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Assessment
-          </Link>
-        </Button>
-      </div>
-      <div className="flex justify-end">
-        <ViewToggle view={view} onViewChange={setView} />
+        <h1 className="text-lg font-semibold">Assessments</h1>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/assessments/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Assessment
+            </Link>
+          </Button>
+          <ViewToggle view={view} onViewChange={setView} />
+        </div>
       </div>
 
       {view === 'grid' ? (
@@ -45,6 +45,6 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   );
 }

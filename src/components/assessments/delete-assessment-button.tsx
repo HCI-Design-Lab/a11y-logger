@@ -49,7 +49,7 @@ export function DeleteAssessmentButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" disabled={loading}>
+        <Button variant="destructive" size="sm" disabled={loading}>
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
         </Button>

@@ -231,6 +231,7 @@ export function IssueForm({
 
               <Button
                 type="button"
+                size="sm"
                 onClick={handleAiGenerate}
                 disabled={aiLoading || !aiDescription.trim()}
               >
@@ -479,11 +480,11 @@ export function IssueForm({
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" size="sm" disabled={loading}>
                 {loading ? 'Saving…' : 'Save Issue'}
               </Button>
               {cancelHref && (
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" size="sm">
                   <Link href={cancelHref}>Cancel</Link>
                 </Button>
               )}

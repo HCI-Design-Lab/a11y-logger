@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ImportOpenAcrModal } from '@/components/vpats/import-openacr-modal';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,18 +35,19 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
   const router = useRouter();
 
   return (
-    <div className="space-y-6">
+    <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">VPATs</h1>
+        <h1 className="text-lg font-semibold">VPATs</h1>
         <div className="flex items-center gap-2">
           <ImportOpenAcrModal onImportComplete={(id) => router.push(`/vpats/${id}`)} />
-          <Button asChild>
-            <Link href="/vpats/new">New VPAT</Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/vpats/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New VPAT
+            </Link>
           </Button>
+          <ViewToggle view={view} onViewChange={setView} />
         </div>
-      </div>
-      <div className="flex justify-end">
-        <ViewToggle view={view} onViewChange={setView} />
       </div>
 
       {vpats.length === 0 ? (
@@ -57,7 +59,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                 Create a Voluntary Product Accessibility Template to document how your product
                 conforms to WCAG criteria.
               </p>
-              <Button asChild>
+              <Button asChild size="sm">
                 <Link href="/vpats/new">Create VPAT</Link>
               </Button>
             </div>
@@ -111,6 +113,6 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   );
 }

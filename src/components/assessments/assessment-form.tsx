@@ -138,11 +138,11 @@ export function AssessmentForm({
       </div>
 
       <div className="flex gap-2">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" size="sm" disabled={loading}>
           {loading ? 'Saving…' : 'Save Assessment'}
         </Button>
         {cancelHref && (
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="sm">
             <Link href={cancelHref}>Cancel</Link>
           </Button>
         )}
