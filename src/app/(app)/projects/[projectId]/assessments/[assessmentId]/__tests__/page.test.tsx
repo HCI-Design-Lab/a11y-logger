@@ -40,10 +40,6 @@ vi.mock('@/components/assessments/assessment-settings-menu', () => ({
   AssessmentSettingsMenu: () => <div data-testid="assessment-settings-menu" />,
 }));
 
-vi.mock('@/components/assessments/delete-assessment-button', () => ({
-  DeleteAssessmentButton: () => <button>Delete</button>,
-}));
-
 vi.mock('@/components/assessments/status-transition-button', () => ({
   StatusTransitionButton: () => <button>Transition</button>,
 }));
