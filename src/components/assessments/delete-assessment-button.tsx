@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -39,7 +39,7 @@ export function DeleteAssessmentButton({
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success('Assessment deleted');
-      router.push('/assessments');
+      router.push(`/projects/${projectId}`);
     } catch {
       toast.error('Failed to delete assessment');
       setLoading(false);
@@ -49,7 +49,7 @@ export function DeleteAssessmentButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={loading}>
+        <Button variant="destructive" disabled={loading}>
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
         </Button>
@@ -63,11 +63,15 @@ export function DeleteAssessmentButton({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>
+            <X className="h-4 w-4" />
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
+            <Trash2 className="h-4 w-4" />
             Delete Assessment
           </AlertDialogAction>
         </AlertDialogFooter>

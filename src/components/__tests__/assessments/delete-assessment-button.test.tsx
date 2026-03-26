@@ -52,7 +52,7 @@ test('calls the correct DELETE API endpoint on confirm', async () => {
   });
 });
 
-test('redirects to assessments list on success', async () => {
+test('redirects to project page on success', async () => {
   (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     json: async () => ({ success: true }),
   });
@@ -66,8 +66,17 @@ test('redirects to assessments list on success', async () => {
   fireEvent.click(confirmButton);
 
   await waitFor(() => {
-    expect(mockPush).toHaveBeenCalledWith('/assessments');
+    expect(mockPush).toHaveBeenCalledWith('/projects/p1');
   });
+});
+
+test('Cancel button in confirm dialog has an icon', async () => {
+  render(
+    <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
+  );
+  fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+  const cancelBtn = await screen.findByRole('button', { name: /cancel/i });
+  expect(cancelBtn.querySelector('svg')).toBeInTheDocument();
 });
 
 test('shows an error toast on API failure', async () => {
