@@ -134,7 +134,7 @@ export function ImportIssuesModal({
           if (!v) handleClose();
         }}
       >
-        <DialogContent className="max-w-4xl" showCloseButton={false}>
+        <DialogContent className="sm:max-w-4xl" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>{step === 'upload' ? 'Upload CSV' : 'Map Columns'}</DialogTitle>
           </DialogHeader>
