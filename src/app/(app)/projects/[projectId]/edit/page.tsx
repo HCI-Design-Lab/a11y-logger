@@ -1,13 +1,18 @@
 'use client';
+import Link from 'next/link';
+import { Save, X } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ProjectForm } from '@/components/projects/project-form';
 import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { Project } from '@/lib/db/projects';
 import type { CreateProjectInput } from '@/lib/validators/projects';
+
+const FORM_ID = 'edit-project-form';
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -76,17 +81,31 @@ export default function EditProjectPage() {
         ]}
       />
       <h1 className="text-2xl font-bold">Edit Project</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
           <ProjectForm
             project={project}
             onSubmit={handleSubmit}
             loading={loading}
-            cancelHref={`/projects/${projectId}`}
-            deleteButton={<DeleteProjectButton projectId={projectId} projectName={project.name} />}
+            externalButtons={FORM_ID}
           />
         </CardContent>
       </Card>
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving…' : 'Save Project'}
+        </Button>
+        <Button asChild variant="outline">
+          <Link href={`/projects/${projectId}`}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+        <div className="ml-auto">
+          <DeleteProjectButton projectId={projectId} projectName={project.name} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -37,7 +37,7 @@ export default async function ProjectDetailPage({
       >
         <div className="flex items-start justify-between">
           <h1 className="text-2xl font-bold">{project.name}</h1>
-          <ProjectSettingsMenu projectId={project.id} projectName={project.name} />
+          <ProjectSettingsMenu projectId={project.id} />
         </div>
         {project.description && <p className="mt-1 text-muted-foreground">{project.description}</p>}
         {project.product_url && (

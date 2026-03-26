@@ -17,6 +17,8 @@ interface ProjectFormProps {
   loading?: boolean;
   cancelHref?: string;
   deleteButton?: React.ReactNode;
+  /** When set, the form renders with this id and hides its internal buttons so the caller can render them externally via the `form` attribute. */
+  externalButtons?: string;
 }
 
 export function ProjectForm({
@@ -25,6 +27,7 @@ export function ProjectForm({
   loading,
   cancelHref,
   deleteButton,
+  externalButtons,
 }: ProjectFormProps) {
   const {
     register,
@@ -40,7 +43,7 @@ export function ProjectForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form id={externalButtons} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">Project Name *</Label>
         <Input id="name" {...register('name')} placeholder="e.g. Mobile App Redesign" />
@@ -64,7 +67,7 @@ export function ProjectForm({
           </p>
         )}
       </div>
-      <div className="space-y-1.5 mb-8">
+      <div className="space-y-1.5">
         <Label htmlFor="product_url">Product URL</Label>
         <Input
           id="product_url"
@@ -78,17 +81,19 @@ export function ProjectForm({
           </p>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Saving…' : 'Save Project'}
-        </Button>
-        {cancelHref && (
-          <Button asChild variant="outline">
-            <Link href={cancelHref}>Cancel</Link>
+      {!externalButtons && (
+        <div className="flex items-center gap-2">
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Saving…' : 'Save Project'}
           </Button>
-        )}
-        {deleteButton && <div className="ml-auto">{deleteButton}</div>}
-      </div>
+          {cancelHref && (
+            <Button asChild variant="outline">
+              <Link href={cancelHref}>Cancel</Link>
+            </Button>
+          )}
+          {deleteButton && <div className="ml-auto">{deleteButton}</div>}
+        </div>
+      )}
     </form>
   );
 }
