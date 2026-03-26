@@ -44,10 +44,14 @@ test('renders issues count in heading', () => {
   expect(screen.getByText('Issues (1)')).toBeInTheDocument();
 });
 
-test('renders Add Issue link', () => {
+test('does not render Add Issue link (moved to settings menu)', () => {
   render(<AssessmentIssuesCard {...baseProps} issues={[issue]} />);
-  const link = screen.getByRole('link', { name: /add issue/i });
-  expect(link).toHaveAttribute('href', '/projects/p1/assessments/a1/issues/new');
+  expect(screen.queryByRole('link', { name: /add issue/i })).not.toBeInTheDocument();
+});
+
+test('does not render Import button (moved to settings menu)', () => {
+  render(<AssessmentIssuesCard {...baseProps} issues={[issue]} />);
+  expect(screen.queryByRole('button', { name: /import/i })).not.toBeInTheDocument();
 });
 
 test('renders all severity filter links', () => {
