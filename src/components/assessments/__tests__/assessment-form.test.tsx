@@ -155,3 +155,21 @@ test('does not render cancel link when cancelHref is omitted', () => {
   render(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
 });
+
+// externalButtons prop
+test('hides save button when externalButtons prop is provided', () => {
+  render(<AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />);
+  expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
+});
+
+test('hides cancel link when externalButtons prop is provided', () => {
+  render(
+    <AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" cancelHref="/assessments" />
+  );
+  expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
+});
+
+test('sets the form id when externalButtons is provided', () => {
+  const { container } = render(<AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />);
+  expect(container.querySelector('form#my-form-id')).toBeInTheDocument();
+});

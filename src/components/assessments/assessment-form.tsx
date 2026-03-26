@@ -2,6 +2,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +24,7 @@ interface AssessmentFormProps {
   projects?: { id: string; name: string }[];
   defaultProjectId?: string;
   cancelHref?: string;
+  externalButtons?: string;
 }
 
 function toDateInputValue(iso: string | null | undefined): string {
@@ -37,6 +39,7 @@ export function AssessmentForm({
   projects,
   defaultProjectId,
   cancelHref,
+  externalButtons,
 }: AssessmentFormProps) {
   const {
     register,
@@ -56,7 +59,7 @@ export function AssessmentForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-2xl">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-2xl" id={externalButtons}>
       {projects && (
         <div className="space-y-1.5">
           <Label htmlFor="project_id">Project</Label>
@@ -137,16 +140,22 @@ export function AssessmentForm({
         />
       </div>
 
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" disabled={loading}>
-          {loading ? 'Saving…' : 'Save Assessment'}
-        </Button>
-        {cancelHref && (
-          <Button asChild variant="cancel" size="sm">
-            <Link href={cancelHref}>Cancel</Link>
+      {!externalButtons && (
+        <div className="flex items-center gap-2">
+          <Button type="submit" disabled={loading}>
+            <Save className="h-4 w-4" />
+            {loading ? 'Saving…' : 'Save Assessment'}
           </Button>
-        )}
-      </div>
+          {cancelHref && (
+            <Button asChild variant="cancel">
+              <Link href={cancelHref}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Link>
+            </Button>
+          )}
+        </div>
+      )}
     </form>
   );
 }
