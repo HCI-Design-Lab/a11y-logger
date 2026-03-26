@@ -7,6 +7,7 @@ import { ChartTableToggle } from './chart-table-toggle';
 
 interface IssueStatisticsProps {
   statuses: string[];
+  projectId?: string;
 }
 
 interface FetchedData {
@@ -21,7 +22,7 @@ const SEVERITY_CONFIG = [
   { key: 'low' as const, label: 'Low', color: '#3b82f6' },
 ];
 
-export function IssueStatistics({ statuses }: IssueStatisticsProps) {
+export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [fetchedData, setFetchedData] = useState<FetchedData | null>(null);
   const [resolvedKey, setResolvedKey] = useState<string | null>(null);
@@ -34,7 +35,10 @@ export function IssueStatistics({ statuses }: IssueStatisticsProps) {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    fetch(`/api/dashboard/issue-statistics?statuses=${statusesKey}`, { signal: controller.signal })
+    const url = projectId
+      ? `/api/dashboard/issue-statistics?statuses=${statusesKey}&projectId=${projectId}`
+      : `/api/dashboard/issue-statistics?statuses=${statusesKey}`;
+    fetch(url, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error(r.statusText);
         return r.json();

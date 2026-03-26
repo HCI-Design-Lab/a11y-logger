@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { ExternalLink, Pencil } from 'lucide-react';
+import { ExternalLink, Pencil, Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { getProject } from '@/lib/db/projects';
 import { getAssessments } from '@/lib/db/assessments';
@@ -32,35 +32,40 @@ export default async function ProjectDetailPage({
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name }]} />
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
-          {project.description && (
-            <p className="mt-1 text-muted-foreground">{project.description}</p>
-          )}
-          {project.product_url && (
-            <a
-              href={project.product_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1"
-            >
-              <ExternalLink className="h-3 w-3" />
-              {project.product_url}
-            </a>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${project.id}/edit`}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
+      <div>
+        <h1 className="text-2xl font-bold">{project.name}</h1>
+        {project.description && <p className="mt-1 text-muted-foreground">{project.description}</p>}
+        {project.product_url && (
+          <a
+            href={project.product_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1"
+          >
+            <ExternalLink className="h-3 w-3" />
+            {project.product_url}
+          </a>
+        )}
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <Link
+            href={`/projects/${project.id}/assessments/new`}
+            className={buttonVariants({
+              className: 'bg-success text-success-foreground hover:bg-success/90',
+            })}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New Assessment
+          </Link>
+          <Link
+            href={`/projects/${project.id}/edit`}
+            className={buttonVariants({ variant: 'outline' })}
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit Project
+          </Link>
           <DeleteProjectButton projectId={project.id} projectName={project.name} />
         </div>
       </div>
-
       <div className="flex gap-6">
         <div className="flex-1 space-y-6">
           <ProjectAssessmentsCard
@@ -71,7 +76,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <aside className="w-72 shrink-0">
-          <IssueStatistics statuses={['open']} />
+          <IssueStatistics statuses={['open']} projectId={projectId} />
         </aside>
       </div>
     </div>

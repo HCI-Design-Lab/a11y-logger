@@ -6,7 +6,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get('statuses');
     const statuses = statusParam ? statusParam.split(',').filter(Boolean) : ['open'];
-    const data = await getSeverityBreakdown(statuses);
+    const projectId = searchParams.get('projectId') ?? undefined;
+    const data = await getSeverityBreakdown(statuses, projectId);
     return NextResponse.json({ success: true, data });
   } catch {
     return NextResponse.json(

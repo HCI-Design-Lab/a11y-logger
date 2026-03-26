@@ -23,7 +23,7 @@ describe('GET /api/dashboard/issue-statistics', () => {
 
     expect(res.status).toBe(200);
     expect(json).toEqual({ success: true, data: mockData });
-    expect(getSeverityBreakdown).toHaveBeenCalledWith(['open']);
+    expect(getSeverityBreakdown).toHaveBeenCalledWith(['open'], undefined);
   });
 
   it('passes statuses query param to getSeverityBreakdown', async () => {
@@ -37,7 +37,21 @@ describe('GET /api/dashboard/issue-statistics', () => {
     );
     await GET(req);
 
-    expect(getSeverityBreakdown).toHaveBeenCalledWith(['open', 'resolved']);
+    expect(getSeverityBreakdown).toHaveBeenCalledWith(['open', 'resolved'], undefined);
+  });
+
+  it('passes projectId query param to getSeverityBreakdown', async () => {
+    vi.mocked(getSeverityBreakdown).mockResolvedValue({
+      breakdown: { critical: 1, high: 0, medium: 0, low: 0 },
+      total: 1,
+    });
+
+    const req = new Request(
+      'http://localhost/api/dashboard/issue-statistics?statuses=open&projectId=proj_123'
+    );
+    await GET(req);
+
+    expect(getSeverityBreakdown).toHaveBeenCalledWith(['open'], 'proj_123');
   });
 
   it('returns 500 on error', async () => {

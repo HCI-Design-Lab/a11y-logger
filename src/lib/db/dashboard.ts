@@ -253,15 +253,25 @@ export interface SeverityBreakdown {
 }
 
 export async function getSeverityBreakdown(
-  statuses: string[] = ['open']
+  statuses: string[] = ['open'],
+  projectId?: string
 ): Promise<SeverityBreakdown> {
   if (statuses.length === 0)
     return { breakdown: { critical: 0, high: 0, medium: 0, low: 0 }, total: 0 };
-  const severityRows = await db()
-    .select({ severity: issues.severity, n: sql<number>`COUNT(*)`.as('n') })
-    .from(issues)
-    .where(inArray(issues.status, statuses))
-    .groupBy(issues.severity);
+
+  const statusFilter = inArray(issues.status, statuses);
+  const severityRows = projectId
+    ? await db()
+        .select({ severity: issues.severity, n: sql<number>`COUNT(*)`.as('n') })
+        .from(issues)
+        .innerJoin(assessments, eq(assessments.id, issues.assessment_id))
+        .where(and(statusFilter, eq(assessments.project_id, projectId)))
+        .groupBy(issues.severity)
+    : await db()
+        .select({ severity: issues.severity, n: sql<number>`COUNT(*)`.as('n') })
+        .from(issues)
+        .where(statusFilter)
+        .groupBy(issues.severity);
 
   const breakdown = { critical: 0, high: 0, medium: 0, low: 0 };
   let total = 0;

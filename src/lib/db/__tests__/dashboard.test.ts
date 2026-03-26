@@ -625,6 +625,36 @@ describe('getSeverityBreakdown', () => {
     expect(both.total).toBe(3);
     expect(both.breakdown.high).toBe(2);
   });
+
+  it('filters by projectId when provided', async () => {
+    await insertIssue({
+      id: 'sev_p1_i1',
+      status: 'open',
+      severity: 'critical',
+      projectId: 'sev_p1',
+      assessmentId: 'sev_a1',
+    });
+    await insertIssue({
+      id: 'sev_p2_i1',
+      status: 'open',
+      severity: 'high',
+      projectId: 'sev_p2',
+      assessmentId: 'sev_a2',
+    });
+    await insertIssue({
+      id: 'sev_p1_i2',
+      status: 'open',
+      severity: 'medium',
+      projectId: 'sev_p1',
+      assessmentId: 'sev_a1',
+    });
+
+    const result = await getSeverityBreakdown(['open'], 'sev_p1');
+    expect(result.total).toBe(2);
+    expect(result.breakdown.critical).toBe(1);
+    expect(result.breakdown.medium).toBe(1);
+    expect(result.breakdown.high).toBe(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

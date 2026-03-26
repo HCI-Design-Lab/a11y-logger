@@ -42,9 +42,9 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={loading}>
+        <Button variant="destructive" disabled={loading}>
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete
+          Delete Project
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
