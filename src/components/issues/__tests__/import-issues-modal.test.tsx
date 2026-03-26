@@ -115,6 +115,28 @@ describe('ImportIssuesModal', () => {
     expect(screen.getByRole('button', { name: /import/i })).toBeInTheDocument();
   });
 
+  it('does not show dialog close (X) button', async () => {
+    render(<ImportIssuesModal {...defaultProps} />);
+    await userEvent.click(screen.getByRole('button', { name: /import/i }));
+    expect(screen.queryByRole('button', { name: /^close$/i })).not.toBeInTheDocument();
+  });
+
+  it('Cancel button in dialog has X icon', async () => {
+    render(<ImportIssuesModal {...defaultProps} />);
+    await userEvent.click(screen.getByRole('button', { name: /import/i }));
+    const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+    expect(cancelBtn.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('Next button has an icon', async () => {
+    render(<ImportIssuesModal {...defaultProps} />);
+    await userEvent.click(screen.getByRole('button', { name: /import/i }));
+    const file = new File(['title\nIssue 1'], 'issues.csv', { type: 'text/csv' });
+    await userEvent.upload(screen.getByLabelText(/csv file/i), file);
+    const nextBtn = screen.getByRole('button', { name: /next/i });
+    expect(nextBtn.querySelector('svg')).toBeInTheDocument();
+  });
+
   it('shows error message when import fails', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,

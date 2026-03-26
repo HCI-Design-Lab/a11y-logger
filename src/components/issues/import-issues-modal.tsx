@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
-import { Upload } from 'lucide-react';
+import { Upload, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -134,7 +134,7 @@ export function ImportIssuesModal({
           if (!v) handleClose();
         }}
       >
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>{step === 'upload' ? 'Upload CSV' : 'Map Columns'}</DialogTitle>
           </DialogHeader>
@@ -226,15 +226,18 @@ export function ImportIssuesModal({
 
           <DialogFooter>
             <Button variant="cancel" onClick={handleClose}>
+              <X className="h-4 w-4" />
               Cancel
             </Button>
             {step === 'upload' && (
-              <Button size="sm" onClick={() => setStep('mapping')} disabled={csvRows.length === 0}>
+              <Button onClick={() => setStep('mapping')} disabled={csvRows.length === 0}>
+                <ArrowRight className="h-4 w-4" />
                 Next
               </Button>
             )}
             {step === 'mapping' && (
-              <Button size="sm" onClick={handleImport} disabled={loading}>
+              <Button onClick={handleImport} disabled={loading}>
+                <Upload className="h-4 w-4" />
                 {loading ? 'Importing…' : `Import ${csvRows.length} rows`}
               </Button>
             )}
