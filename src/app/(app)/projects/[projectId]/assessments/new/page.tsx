@@ -65,7 +65,7 @@ export default function NewAssessmentPage() {
         ]}
       />
       <h1 className="text-2xl font-bold">New Assessment</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
           <AssessmentForm
             onSubmit={handleSubmit}

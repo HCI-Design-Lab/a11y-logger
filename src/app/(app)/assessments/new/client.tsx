@@ -49,7 +49,7 @@ export default function NewAssessmentClient({ projects }: Props) {
         items={[{ label: 'Assessments', href: '/assessments' }, { label: 'New Assessment' }]}
       />
       <h1 className="text-2xl font-bold">New Assessment</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
           <AssessmentForm
             onSubmit={handleSubmit}
