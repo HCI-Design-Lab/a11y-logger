@@ -24,6 +24,8 @@ interface ImportIssuesModalProps {
   projectId: string;
   assessmentId: string;
   onImportComplete: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 type Step = 'upload' | 'mapping';
@@ -34,8 +36,16 @@ export function ImportIssuesModal({
   projectId,
   assessmentId,
   onImportComplete,
+  open: controlledOpen,
+  onOpenChange: onControlledOpenChange,
 }: ImportIssuesModalProps) {
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? controlledOpen! : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (isControlled) onControlledOpenChange?.(v);
+    else setInternalOpen(v);
+  };
   const [step, setStep] = useState<Step>('upload');
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<Record<string, string>[]>([]);
@@ -111,10 +121,12 @@ export function ImportIssuesModal({
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <Upload className="mr-2 h-4 w-4" />
-        Import
-      </Button>
+      {!isControlled && (
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
+          Import
+        </Button>
+      )}
 
       <Dialog
         open={open}

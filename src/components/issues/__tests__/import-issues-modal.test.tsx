@@ -84,6 +84,37 @@ describe('ImportIssuesModal', () => {
     });
   });
 
+  it('does not render trigger button when open prop is provided (controlled mode)', () => {
+    render(
+      <ImportIssuesModal
+        projectId="p1"
+        assessmentId="a1"
+        onImportComplete={vi.fn()}
+        open={false}
+        onOpenChange={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole('button', { name: /import/i })).not.toBeInTheDocument();
+  });
+
+  it('dialog is open when controlled open=true', () => {
+    render(
+      <ImportIssuesModal
+        projectId="p1"
+        assessmentId="a1"
+        onImportComplete={vi.fn()}
+        open={true}
+        onOpenChange={vi.fn()}
+      />
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('renders trigger button in uncontrolled mode (no open prop)', () => {
+    render(<ImportIssuesModal projectId="p1" assessmentId="a1" onImportComplete={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /import/i })).toBeInTheDocument();
+  });
+
   it('shows error message when import fails', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,
