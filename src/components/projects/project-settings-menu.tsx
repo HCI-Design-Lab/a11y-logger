@@ -12,6 +12,7 @@ import {
 
 interface ProjectSettingsMenuProps {
   projectId: string;
+  projectName: string;
 }
 
 export function ProjectSettingsMenu({ projectId }: ProjectSettingsMenuProps) {
