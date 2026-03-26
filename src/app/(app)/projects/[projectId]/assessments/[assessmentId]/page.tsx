@@ -4,7 +4,6 @@ import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssues } from '@/lib/db/issues';
 import type { IssueFilters } from '@/lib/db/issues';
-import { StatusTransitionButton } from '@/components/assessments/status-transition-button';
 import { AssessmentSettingsMenu } from '@/components/assessments/assessment-settings-menu';
 import { AssessmentIssuesCard } from '@/components/issues/assessment-issues-card';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
@@ -74,12 +73,11 @@ export default async function AssessmentDetailPage({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <StatusTransitionButton
+            <AssessmentSettingsMenu
               projectId={projectId}
               assessmentId={assessmentId}
               currentStatus={assessment.status}
             />
-            <AssessmentSettingsMenu projectId={projectId} assessmentId={assessmentId} />
           </div>
         </div>
       </div>

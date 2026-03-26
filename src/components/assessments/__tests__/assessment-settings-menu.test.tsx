@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
@@ -7,6 +7,8 @@ vi.mock('@/components/issues/import-issues-modal', () => ({
   ImportIssuesModal: ({ open }: { open: boolean }) =>
     open ? <div role="dialog" data-testid="import-modal" /> : null,
 }));
+vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+global.fetch = vi.fn();
 
 import { AssessmentSettingsMenu } from '../assessment-settings-menu';
 
@@ -42,4 +44,37 @@ test('clicking Import Issues opens the import modal', async () => {
   await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
   await userEvent.click(await screen.findByRole('menuitem', { name: /import issues/i }));
   expect(screen.getByTestId('import-modal')).toBeInTheDocument();
+});
+
+test('renders Mark as In Progress item when status is ready', async () => {
+  render(<AssessmentSettingsMenu {...baseProps} currentStatus="ready" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  expect(await screen.findByRole('menuitem', { name: /mark as in progress/i })).toBeInTheDocument();
+});
+
+test('renders Mark as Complete item when status is in_progress', async () => {
+  render(<AssessmentSettingsMenu {...baseProps} currentStatus="in_progress" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  expect(await screen.findByRole('menuitem', { name: /mark as complete/i })).toBeInTheDocument();
+});
+
+test('renders Mark as Incomplete item when status is completed', async () => {
+  render(<AssessmentSettingsMenu {...baseProps} currentStatus="completed" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  expect(await screen.findByRole('menuitem', { name: /mark as incomplete/i })).toBeInTheDocument();
+});
+
+test('clicking Mark as Complete calls the assessments API', async () => {
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    json: async () => ({ success: true }),
+  });
+  render(<AssessmentSettingsMenu {...baseProps} currentStatus="in_progress" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /mark as complete/i }));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/projects/p1/assessments/a1',
+      expect.objectContaining({ method: 'PUT' })
+    );
+  });
 });
