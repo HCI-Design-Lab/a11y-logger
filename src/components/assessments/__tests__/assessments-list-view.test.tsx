@@ -55,4 +55,23 @@ describe('AssessmentsListView layout', () => {
     expect(screen.getByTestId('assessment-card')).toBeInTheDocument();
     expect(screen.queryByTestId('assessments-table')).not.toBeInTheDocument();
   });
+
+  it('wraps content in a section with aria-labelledby', () => {
+    render(<AssessmentsListView assessments={[]} />);
+    const heading = screen.getByRole('heading', { name: 'Assessments' });
+    expect(heading).toHaveAttribute('id', 'assessments-heading');
+    const section = heading.closest('section');
+    expect(section).toHaveAttribute('aria-labelledby', 'assessments-heading');
+  });
+
+  it('shows empty state with dashed border when no assessments', () => {
+    render(<AssessmentsListView assessments={[]} />);
+    const empty = screen.getByText(/no assessments yet/i).closest('div');
+    expect(empty).toHaveClass('border-dashed');
+  });
+
+  it('empty state has a Create your first assessment link', () => {
+    render(<AssessmentsListView assessments={[]} />);
+    expect(screen.getByRole('link', { name: /create your first assessment/i })).toBeInTheDocument();
+  });
 });
