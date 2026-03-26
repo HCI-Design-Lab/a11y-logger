@@ -36,6 +36,10 @@ vi.mock('@/components/issues/assessment-issues-card', () => ({
   AssessmentIssuesCard: () => <div data-testid="assessment-issues-card" />,
 }));
 
+vi.mock('@/components/assessments/assessment-settings-menu', () => ({
+  AssessmentSettingsMenu: () => <div data-testid="assessment-settings-menu" />,
+}));
+
 vi.mock('@/components/assessments/delete-assessment-button', () => ({
   DeleteAssessmentButton: () => <button>Delete</button>,
 }));
@@ -67,4 +71,40 @@ test('renders AssessmentIssuesCard', async () => {
   const page = await AssessmentDetailPage(defaultProps);
   render(page);
   expect(screen.getByTestId('assessment-issues-card')).toBeInTheDocument();
+});
+
+test('renders assessment name in hero card', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByRole('heading', { name: 'My Assessment' })).toBeInTheDocument();
+});
+
+test('renders status badge', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByText('Ready')).toBeInTheDocument();
+});
+
+test('renders AssessmentSettingsMenu', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByTestId('assessment-settings-menu')).toBeInTheDocument();
+});
+
+test('renders StatusTransitionButton', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByRole('button', { name: /transition/i })).toBeInTheDocument();
+});
+
+test('does not render standalone Edit link', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.queryByRole('link', { name: /^edit$/i })).not.toBeInTheDocument();
+});
+
+test('does not render DeleteAssessmentButton on detail page', async () => {
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+  expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
 });

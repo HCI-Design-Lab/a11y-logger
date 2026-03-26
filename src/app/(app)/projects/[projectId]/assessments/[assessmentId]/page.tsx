@@ -1,14 +1,11 @@
-import Link from 'next/link';
-import { Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';
 import { getIssues } from '@/lib/db/issues';
 import type { IssueFilters } from '@/lib/db/issues';
-import { DeleteAssessmentButton } from '@/components/assessments/delete-assessment-button';
 import { StatusTransitionButton } from '@/components/assessments/status-transition-button';
+import { AssessmentSettingsMenu } from '@/components/assessments/assessment-settings-menu';
 import { AssessmentIssuesCard } from '@/components/issues/assessment-issues-card';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -64,34 +61,26 @@ export default async function AssessmentDetailPage({
         ]}
       />
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">{assessment.name}</h1>
-            <Badge className={status.className}>{status.label}</Badge>
+      {/* Hero card */}
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">{assessment.name}</h1>
+              <Badge className={status.className}>{status.label}</Badge>
+            </div>
+            {assessment.description && (
+              <p className="text-muted-foreground">{assessment.description}</p>
+            )}
           </div>
-          {assessment.description && (
-            <p className="text-muted-foreground">{assessment.description}</p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <StatusTransitionButton
-            projectId={projectId}
-            assessmentId={assessmentId}
-            currentStatus={assessment.status}
-          />
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${projectId}/assessments/${assessmentId}/edit`}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-          <DeleteAssessmentButton
-            projectId={projectId}
-            assessmentId={assessmentId}
-            assessmentName={assessment.name}
-          />
+          <div className="flex items-center gap-2">
+            <StatusTransitionButton
+              projectId={projectId}
+              assessmentId={assessmentId}
+              currentStatus={assessment.status}
+            />
+            <AssessmentSettingsMenu projectId={projectId} assessmentId={assessmentId} />
+          </div>
         </div>
       </div>
 
@@ -106,7 +95,7 @@ export default async function AssessmentDetailPage({
         </div>
 
         {/* Sidebar */}
-        <aside className="w-64 shrink-0">
+        <aside className="w-72 shrink-0">
           <IssueStatistics statuses={['open']} />
         </aside>
       </div>
