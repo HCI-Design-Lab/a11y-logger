@@ -193,7 +193,7 @@ export function ReportEditForm({ report, issues }: Props) {
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? 'Saving…' : 'Save Report'}
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="cancel">
               <Link href={`/reports/${report.id}`}>Cancel</Link>
             </Button>
           </div>

@@ -484,7 +484,7 @@ export function IssueForm({
                 {loading ? 'Saving…' : 'Save Issue'}
               </Button>
               {cancelHref && (
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="cancel" size="sm">
                   <Link href={cancelHref}>Cancel</Link>
                 </Button>
               )}

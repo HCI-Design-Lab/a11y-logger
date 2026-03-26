@@ -317,7 +317,7 @@ export default function NewVpatPage() {
                   Back
                 </Button>
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" asChild>
+                  <Button type="button" variant="cancel" asChild>
                     <Link href="/vpats">Cancel</Link>
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>

@@ -142,7 +142,7 @@ export function AssessmentForm({
           {loading ? 'Saving…' : 'Save Assessment'}
         </Button>
         {cancelHref && (
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="cancel" size="sm">
             <Link href={cancelHref}>Cancel</Link>
           </Button>
         )}

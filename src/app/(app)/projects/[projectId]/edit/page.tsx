@@ -96,7 +96,7 @@ export default function EditProjectPage() {
           <Save className="h-4 w-4" />
           {loading ? 'Saving…' : 'Save Project'}
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild variant="cancel">
           <Link href={`/projects/${projectId}`}>
             <X className="h-4 w-4" />
             Cancel

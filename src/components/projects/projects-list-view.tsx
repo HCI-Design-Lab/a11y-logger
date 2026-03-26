@@ -25,7 +25,7 @@ export function ProjectsListView({ projects }: ProjectsListViewProps) {
             Projects
           </h1>
           <div className="flex items-center gap-2">
-            <Button asChild className={'bg-success dark:text-foreground'}>
+            <Button asChild variant="success">
               <Link href="/projects/new">
                 <Plus className="mr-2 h-4 w-4" />
                 New Project

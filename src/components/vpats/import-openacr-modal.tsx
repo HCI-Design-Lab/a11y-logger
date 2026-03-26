@@ -200,7 +200,7 @@ export function ImportOpenAcrModal({ onImportComplete }: ImportOpenAcrModalProps
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <DialogFooter>
-            <Button variant="ghost" onClick={handleClose}>
+            <Button variant="cancel" onClick={handleClose}>
               Cancel
             </Button>
             {step === 'project' && (

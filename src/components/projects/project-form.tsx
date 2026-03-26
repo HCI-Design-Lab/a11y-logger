@@ -89,7 +89,7 @@ export function ProjectForm({
             {loading ? 'Saving…' : 'Save Project'}
           </Button>
           {cancelHref && (
-            <Button asChild variant="outline">
+            <Button asChild variant="cancel">
               <Link href={cancelHref}>
                 <X className="h-4 w-4" />
                 Cancel
