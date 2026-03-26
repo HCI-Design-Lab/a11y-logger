@@ -1,5 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AssessmentsTable } from '@/components/assessments/assessments-table';
 import type { AssessmentWithCounts } from '@/lib/db/assessments';
@@ -15,6 +18,12 @@ export function ProjectAssessmentsCard({ projectId, assessments }: ProjectAssess
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Assessments</CardTitle>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/projects/${projectId}/assessments/new`}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Assessment
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent>
         {assessments.length === 0 ? (
