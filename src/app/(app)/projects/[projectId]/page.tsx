@@ -37,7 +37,7 @@ export default async function ProjectDetailPage({
       >
         <div className="flex items-start justify-between">
           <h1 className="text-2xl font-bold">{project.name}</h1>
-          <ProjectSettingsMenu projectId={project.id} />
+          <ProjectSettingsMenu projectId={project.id} projectName={project.name} />
         </div>
         {project.description && <p className="mt-1 text-muted-foreground">{project.description}</p>}
         {project.product_url && (
@@ -45,7 +45,7 @@ export default async function ProjectDetailPage({
             href={project.product_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1"
+            className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1 w-fit"
           >
             <ExternalLink className="h-3 w-3" />
             {project.product_url}
