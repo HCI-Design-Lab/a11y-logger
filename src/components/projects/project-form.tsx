@@ -3,6 +3,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -84,11 +85,15 @@ export function ProjectForm({
       {!externalButtons && (
         <div className="flex items-center gap-2">
           <Button type="submit" disabled={loading}>
+            <Save className="h-4 w-4" />
             {loading ? 'Saving…' : 'Save Project'}
           </Button>
           {cancelHref && (
             <Button asChild variant="outline">
-              <Link href={cancelHref}>Cancel</Link>
+              <Link href={cancelHref}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Link>
             </Button>
           )}
           {deleteButton && <div className="ml-auto">{deleteButton}</div>}

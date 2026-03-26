@@ -33,7 +33,7 @@ export default function NewProjectPage() {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: 'New Project' }]} />
       <h1 className="text-2xl font-bold">New Project</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
           <ProjectForm onSubmit={handleSubmit} loading={loading} cancelHref="/projects" />
         </CardContent>

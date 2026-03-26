@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -56,11 +56,15 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>
+            <X className="h-4 w-4" />
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
+            <Trash2 className="h-4 w-4" />
             Delete Project
           </AlertDialogAction>
         </AlertDialogFooter>
