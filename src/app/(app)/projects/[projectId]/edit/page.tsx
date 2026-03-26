@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProjectForm } from '@/components/projects/project-form';
+import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { Project } from '@/lib/db/projects';
 import type { CreateProjectInput } from '@/lib/validators/projects';
@@ -82,6 +83,7 @@ export default function EditProjectPage() {
             onSubmit={handleSubmit}
             loading={loading}
             cancelHref={`/projects/${projectId}`}
+            deleteButton={<DeleteProjectButton projectId={projectId} projectName={project.name} />}
           />
         </CardContent>
       </Card>

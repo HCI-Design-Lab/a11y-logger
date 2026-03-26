@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -15,9 +16,16 @@ interface ProjectFormProps {
   onSubmit: (data: CreateProjectInput) => void;
   loading?: boolean;
   cancelHref?: string;
+  deleteButton?: React.ReactNode;
 }
 
-export function ProjectForm({ project, onSubmit, loading, cancelHref }: ProjectFormProps) {
+export function ProjectForm({
+  project,
+  onSubmit,
+  loading,
+  cancelHref,
+  deleteButton,
+}: ProjectFormProps) {
   const {
     register,
     handleSubmit,
@@ -70,15 +78,16 @@ export function ProjectForm({ project, onSubmit, loading, cancelHref }: ProjectF
           </p>
         )}
       </div>
-      <div className="flex gap-2">
-        <Button type="submit" size="sm" disabled={loading}>
+      <div className="flex items-center gap-2">
+        <Button type="submit" disabled={loading}>
           {loading ? 'Saving…' : 'Save Project'}
         </Button>
         {cancelHref && (
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline">
             <Link href={cancelHref}>Cancel</Link>
           </Button>
         )}
+        {deleteButton && <div className="ml-auto">{deleteButton}</div>}
       </div>
     </form>
   );

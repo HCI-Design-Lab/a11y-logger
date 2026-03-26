@@ -1,14 +1,12 @@
-import Link from 'next/link';
-import { ExternalLink, Pencil, Plus } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { buttonVariants } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { getProject } from '@/lib/db/projects';
 import { getAssessments } from '@/lib/db/assessments';
 import { getIssuesByProject } from '@/lib/db/issues';
-import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 import { ProjectAssessmentsCard } from '@/components/assessments/project-assessments-card';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
+import { ProjectSettingsMenu } from '@/components/projects/project-settings-menu';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,8 +30,15 @@ export default async function ProjectDetailPage({
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name }]} />
-      <div>
-        <h1 className="text-2xl font-bold">{project.name}</h1>
+      <div
+        className={
+          'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm'
+        }
+      >
+        <div className="flex items-start justify-between">
+          <h1 className="text-2xl font-bold">{project.name}</h1>
+          <ProjectSettingsMenu projectId={project.id} projectName={project.name} />
+        </div>
         {project.description && <p className="mt-1 text-muted-foreground">{project.description}</p>}
         {project.product_url && (
           <a
@@ -46,25 +51,6 @@ export default async function ProjectDetailPage({
             {project.product_url}
           </a>
         )}
-        <div className="flex items-center justify-end gap-2 mt-4">
-          <Link
-            href={`/projects/${project.id}/assessments/new`}
-            className={buttonVariants({
-              className: 'bg-success text-success-foreground hover:bg-success/90',
-            })}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Assessment
-          </Link>
-          <Link
-            href={`/projects/${project.id}/edit`}
-            className={buttonVariants({ variant: 'outline' })}
-          >
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Project
-          </Link>
-          <DeleteProjectButton projectId={project.id} projectName={project.name} />
-        </div>
       </div>
       <div className="flex gap-6">
         <div className="flex-1 space-y-6">

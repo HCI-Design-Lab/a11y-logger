@@ -33,6 +33,13 @@ const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
+    compoundVariants: [
+      {
+        variant: 'ghost',
+        size: ['icon', 'icon-xs', 'icon-sm', 'icon-lg'],
+        className: 'border border-primary dark:border-border',
+      },
+    ],
   }
 );
 
