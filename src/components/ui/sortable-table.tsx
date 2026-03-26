@@ -18,6 +18,8 @@ export interface Column<T> {
   key: keyof T & string;
   label: string;
   render: (row: T) => React.ReactNode;
+  className?: string;
+  cellClassName?: string;
 }
 
 interface SortableTableProps<T extends object> {
@@ -36,17 +38,19 @@ function SortHeader<T>({
   current,
   dir,
   onClick,
+  className,
 }: {
   label: string;
   sortKey: keyof T & string;
   current: keyof T & string;
   dir: SortDir;
   onClick: (key: keyof T & string) => void;
+  className?: string;
 }) {
   const active = current === sortKey;
   const Icon = active ? (dir === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown;
   return (
-    <TableHead>
+    <TableHead className={className}>
       <Button
         variant="ghost"
         size="sm"
@@ -102,9 +106,11 @@ export function SortableTable<T extends object>({
   const start = (page - 1) * pageSize;
   const visible = sorted.slice(start, start + pageSize);
 
+  const hasColumnWidths = columns.some((c) => c.className);
+
   return (
     <div className="space-y-2">
-      <Table>
+      <Table className={hasColumnWidths ? 'table-fixed w-full' : undefined}>
         <TableHeader>
           <TableRow>
             {columns.map((col) => (
@@ -115,6 +121,7 @@ export function SortableTable<T extends object>({
                 current={sortKey}
                 dir={sortDir}
                 onClick={handleSort}
+                className={col.className}
               />
             ))}
           </TableRow>
@@ -123,7 +130,9 @@ export function SortableTable<T extends object>({
           {visible.map((row) => (
             <TableRow key={getKey(row)}>
               {columns.map((col) => (
-                <TableCell key={col.key}>{col.render(row)}</TableCell>
+                <TableCell key={col.key} className={col.cellClassName}>
+                  {col.render(row)}
+                </TableCell>
               ))}
             </TableRow>
           ))}

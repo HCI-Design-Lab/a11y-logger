@@ -224,6 +224,41 @@ test('page size 25 shows all rows when total is under 25', () => {
   expect(dataRows).toHaveLength(12);
 });
 
+test('column className is applied to the <th> element', () => {
+  const cols = [
+    { key: 'name' as const, label: 'Name', className: 'w-1/2', render: (row: Row) => row.name },
+    { key: 'count' as const, label: 'Count', render: (row: Row) => row.count },
+  ];
+  render(<SortableTable columns={cols} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />);
+  const nameHeader = screen.getByRole('columnheader', { name: /name/i });
+  expect(nameHeader).toHaveClass('w-1/2');
+});
+
+test('column cellClassName is applied to every <td> in that column', () => {
+  const cols = [
+    {
+      key: 'name' as const,
+      label: 'Name',
+      cellClassName: 'max-w-0',
+      render: (row: Row) => row.name,
+    },
+    { key: 'count' as const, label: 'Count', render: (row: Row) => row.count },
+  ];
+  render(<SortableTable columns={cols} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />);
+  // Both data rows should have a cell with max-w-0
+  const cells = document.querySelectorAll('td.max-w-0');
+  expect(cells).toHaveLength(2);
+});
+
+test('table gets table-fixed class when any column has a className', () => {
+  const cols = [
+    { key: 'name' as const, label: 'Name', className: 'w-1/2', render: (row: Row) => row.name },
+    { key: 'count' as const, label: 'Count', render: (row: Row) => row.count },
+  ];
+  render(<SortableTable columns={cols} rows={rows} defaultSortKey="name" getKey={(r) => r.id} />);
+  expect(screen.getByRole('table')).toHaveClass('table-fixed');
+});
+
 test('shows empty message when rows is empty', () => {
   render(
     <SortableTable
