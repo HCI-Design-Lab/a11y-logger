@@ -1,12 +1,18 @@
 'use client';
+import Link from 'next/link';
+import { Save, X } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
+import { DeleteAssessmentButton } from '@/components/assessments/delete-assessment-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { AssessmentFormData } from '@/lib/validators/assessments';
 import type { Assessment } from '@/lib/db/assessments';
+
+const FORM_ID = 'edit-assessment-form';
 
 export default function EditAssessmentPage() {
   const params = useParams();
@@ -105,7 +111,7 @@ export default function EditAssessmentPage() {
         ]}
       />
       <h1 className="text-2xl font-bold">Edit Assessment</h1>
-      <Card className="max-w-2xl">
+      <Card>
         <CardContent>
           <AssessmentForm
             assessment={assessment}
@@ -113,10 +119,29 @@ export default function EditAssessmentPage() {
             loading={loading}
             projects={projects}
             defaultProjectId={assessment.project_id}
-            cancelHref={`/projects/${projectId}/assessments/${assessmentId}`}
+            externalButtons={FORM_ID}
           />
         </CardContent>
       </Card>
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving…' : 'Save Assessment'}
+        </Button>
+        <Button asChild variant="cancel">
+          <Link href={`/projects/${projectId}/assessments/${assessmentId}`}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+        <div className="ml-auto">
+          <DeleteAssessmentButton
+            projectId={projectId}
+            assessmentId={assessmentId}
+            assessmentName={assessment.name}
+          />
+        </div>
+      </div>
     </div>
   );
 }
