@@ -36,3 +36,9 @@ test('card links to project detail', () => {
   render(<ProjectCard project={mockProject} />);
   expect(screen.getByRole('link')).toHaveAttribute('href', '/projects/1');
 });
+
+test('uses singular labels when counts are 1', () => {
+  render(<ProjectCard project={{ ...mockProject, assessment_count: 1, issue_count: 1 }} />);
+  expect(screen.getByText('1 assessment')).toBeInTheDocument();
+  expect(screen.getByText('1 issue')).toBeInTheDocument();
+});
