@@ -153,7 +153,7 @@ export function MediaUploader({
           variant="outline"
           disabled={disabled || uploading}
           onClick={() => inputRef.current?.click()}
-          className="flex w-full flex-col h-auto items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 text-center hover:border-primary hover:bg-muted/30 hover:text-foreground"
+          className="flex w-full flex-col h-auto items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-form-background dark:bg-form-background p-6 text-center hover:border-primary hover:bg-muted/30 hover:text-foreground"
           aria-label="Upload media"
         >
           <svg
