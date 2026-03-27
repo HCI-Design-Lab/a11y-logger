@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,7 @@ interface IssueFormProps {
   onSubmit: (data: CreateIssueInput | UpdateIssueInput) => void;
   loading?: boolean;
   cancelHref?: string;
+  externalButtons?: string;
 }
 
 export function IssueForm({
@@ -50,6 +51,7 @@ export function IssueForm({
   onSubmit,
   loading,
   cancelHref,
+  externalButtons,
 }: IssueFormProps) {
   // AI assistance state — not part of the submitted form
   const [aiDescription, setAiDescription] = useState('');
@@ -156,7 +158,7 @@ export function IssueForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} id={externalButtons}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column: all form fields */}
         <Card className="lg:col-span-2">
@@ -479,16 +481,22 @@ export function IssueForm({
               />
             </div>
 
-            <div className="flex gap-2">
-              <Button type="submit" size="sm" disabled={loading}>
-                {loading ? 'Saving…' : 'Save Issue'}
-              </Button>
-              {cancelHref && (
-                <Button asChild variant="cancel" size="sm">
-                  <Link href={cancelHref}>Cancel</Link>
+            {!externalButtons && (
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading}>
+                  <Save className="h-4 w-4" />
+                  {loading ? 'Saving…' : 'Save Issue'}
                 </Button>
-              )}
-            </div>
+                {cancelHref && (
+                  <Button asChild variant="cancel">
+                    <Link href={cancelHref}>
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 

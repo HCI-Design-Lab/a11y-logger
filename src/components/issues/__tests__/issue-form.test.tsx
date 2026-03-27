@@ -25,6 +25,42 @@ const assessmentOptions: AssessmentOption[] = [
   { id: 'a2', name: 'Q2 Audit', projectId: 'p2', projectName: 'Beta App' },
 ];
 
+describe('IssueForm externalButtons prop', () => {
+  it('renders internal Save and Cancel buttons when externalButtons is not set', () => {
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
+    expect(screen.getByRole('button', { name: /save issue/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /cancel/i })).toBeInTheDocument();
+  });
+
+  it('hides internal buttons when externalButtons prop is provided', () => {
+    render(
+      <IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" externalButtons="my-form" />
+    );
+    expect(screen.queryByRole('button', { name: /save issue/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
+  });
+
+  it('sets the form id when externalButtons prop is provided', () => {
+    const { container } = render(
+      <IssueForm projectId="p1" onSubmit={vi.fn()} externalButtons="my-form" />
+    );
+    const form = container.querySelector('form');
+    expect(form).toHaveAttribute('id', 'my-form');
+  });
+
+  it('Save Issue button has an icon', () => {
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    const btn = screen.getByRole('button', { name: /save issue/i });
+    expect(btn.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('Cancel button has an icon', () => {
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
+    const btn = screen.getByRole('link', { name: /cancel/i });
+    expect(btn.querySelector('svg')).toBeInTheDocument();
+  });
+});
+
 describe('IssueForm assessment selector', () => {
   it('does not render an assessment selector when assessmentOptions is not provided', () => {
     render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
