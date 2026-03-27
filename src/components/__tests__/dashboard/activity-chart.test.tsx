@@ -127,9 +127,7 @@ describe('ActivityChart', () => {
   it('shows error state when fetch throws', async () => {
     (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
     render(<ActivityChart />);
-    await waitFor(() =>
-      expect(screen.getByText('Failed to load chart data.')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText('Failed to load chart data.')).toBeInTheDocument());
   });
 
   it('groups entries by week for 3m range', async () => {

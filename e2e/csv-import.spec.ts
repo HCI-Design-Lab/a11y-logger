@@ -44,8 +44,9 @@ test.describe('CSV Import', () => {
       await page.goto(`/projects/${projectId}/assessments/${assessmentId}`);
       await expect(page.getByRole('heading', { name: 'E2E CSV Import Assessment' })).toBeVisible();
 
-      // Click the Import button
-      await page.getByRole('button', { name: /import/i }).click();
+      // Open settings menu and click Import Issues
+      await page.getByRole('button', { name: /assessment settings/i }).click();
+      await page.getByRole('menuitem', { name: /import issues/i }).click();
 
       // Step 1: Upload file — dialog should show "Upload CSV"
       await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
@@ -82,7 +83,8 @@ test.describe('CSV Import', () => {
       await page.goto(`/projects/${projectId}/assessments/${assessmentId}`);
       await expect(page.getByRole('heading', { name: 'E2E CSV Import Assessment' })).toBeVisible();
 
-      await page.getByRole('button', { name: /import/i }).click();
+      await page.getByRole('button', { name: /assessment settings/i }).click();
+      await page.getByRole('menuitem', { name: /import issues/i }).click();
       await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
 
       const dialog = page.getByRole('dialog');

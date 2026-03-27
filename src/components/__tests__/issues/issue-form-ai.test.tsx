@@ -7,19 +7,31 @@ import { IssueForm } from '@/components/issues/issue-form';
 vi.mock('@/components/issues/wcag-selector', () => ({
   WcagSelector: ({ selected }: { selected: string[] }) =>
     selected.length > 0 ? (
-      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+      <div>
+        {selected.map((code: string) => (
+          <span key={code}>{code}</span>
+        ))}
+      </div>
     ) : null,
 }));
 vi.mock('@/components/issues/section508-selector', () => ({
   Section508Selector: ({ selected }: { selected: string[] }) =>
     selected.length > 0 ? (
-      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+      <div>
+        {selected.map((code: string) => (
+          <span key={code}>{code}</span>
+        ))}
+      </div>
     ) : null,
 }));
 vi.mock('@/components/issues/eu-selector', () => ({
   EuSelector: ({ selected }: { selected: string[] }) =>
     selected.length > 0 ? (
-      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+      <div>
+        {selected.map((code: string) => (
+          <span key={code}>{code}</span>
+        ))}
+      </div>
     ) : null,
 }));
 vi.mock('@/components/issues/tag-input', () => ({

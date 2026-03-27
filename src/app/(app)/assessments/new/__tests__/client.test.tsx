@@ -115,7 +115,7 @@ test('includes description in payload when provided', async () => {
     await capturedOnSubmit!({ ...baseFormData, description: 'My description' });
   });
 
-  const body = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+  const body = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0]![1].body);
   expect(body.description).toBe('My description');
   vi.unstubAllGlobals();
 });
@@ -137,7 +137,7 @@ test('includes test dates in payload when provided', async () => {
     });
   });
 
-  const body = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+  const body = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[0]![1].body);
   expect(body.test_date_start).toBeDefined();
   expect(body.test_date_end).toBeDefined();
   vi.unstubAllGlobals();

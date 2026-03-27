@@ -167,11 +167,14 @@ test('includes all urls in evidence_media when multiple files are uploaded', asy
 }, 15000);
 
 test('renders assessment selector when assessmentOptions are provided', () => {
-  const options = [
-    { id: 'a1', name: 'Sprint 1', projectId: 'p1', projectName: 'My Project' },
-  ];
+  const options = [{ id: 'a1', name: 'Sprint 1', projectId: 'p1', projectName: 'My Project' }];
   render(
-    <IssueForm onSubmit={vi.fn()} projectId="p1" assessmentOptions={options} onAssessmentChange={vi.fn()} />
+    <IssueForm
+      onSubmit={vi.fn()}
+      projectId="p1"
+      assessmentOptions={options}
+      onAssessmentChange={vi.fn()}
+    />
   );
   expect(screen.getByRole('combobox', { name: /assessment/i })).toBeInTheDocument();
 }, 15000);
