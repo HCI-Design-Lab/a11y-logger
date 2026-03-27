@@ -147,6 +147,23 @@ describe('IssuesListView New Issue button', () => {
   });
 });
 
+describe('IssuesListView search input component', () => {
+  beforeEach(() => { mockSeverity = null; });
+
+  it('search input uses the Input component (has data-slot="input")', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    const searchbox = screen.getByRole('searchbox');
+    expect(searchbox).toHaveAttribute('data-slot', 'input');
+  });
+
+  it('search input uses the Input component in grid view', () => {
+    render(<IssuesListView issues={searchIssues} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Grid view' }));
+    const searchbox = screen.getByRole('searchbox');
+    expect(searchbox).toHaveAttribute('data-slot', 'input');
+  });
+});
+
 describe('IssuesListView layout and style', () => {
   beforeEach(() => { mockSeverity = null; });
 
