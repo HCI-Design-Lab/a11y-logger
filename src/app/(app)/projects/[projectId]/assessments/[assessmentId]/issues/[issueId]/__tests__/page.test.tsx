@@ -50,8 +50,8 @@ vi.mock('next/navigation', () => ({
   },
 }));
 
-vi.mock('@/components/issues/delete-issue-button', () => ({
-  DeleteIssueButton: () => <button>Delete</button>,
+vi.mock('@/components/issues/issue-settings-menu', () => ({
+  IssueSettingsMenu: () => <button aria-label="Issue settings">Settings</button>,
 }));
 
 vi.mock('@/components/issues/media-gallery', () => ({
@@ -97,4 +97,10 @@ test('URL link does not appear in the header area', async () => {
   const heading = screen.getByRole('heading', { name: 'Missing alt text' });
   const headerWrapper = heading.closest('[class*="space-y"]');
   expect(headerWrapper).not.toHaveTextContent('https://example.com/page');
+});
+
+test('renders IssueSettingsMenu in the hero card header', async () => {
+  const page = await IssueDetailPage(defaultProps);
+  render(page);
+  expect(screen.getByRole('button', { name: /issue settings/i })).toBeInTheDocument();
 });

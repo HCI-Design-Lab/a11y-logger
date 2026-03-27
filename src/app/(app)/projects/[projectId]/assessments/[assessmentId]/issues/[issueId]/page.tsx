@@ -1,8 +1,6 @@
-import Link from 'next/link';
-import { Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProject } from '@/lib/db/projects';
@@ -10,7 +8,7 @@ import { getAssessment } from '@/lib/db/assessments';
 import { getIssue } from '@/lib/db/issues';
 import { SeverityBadge } from '@/components/issues/severity-badge';
 import { StatusBadge } from '@/components/issues/status-badge';
-import { DeleteIssueButton } from '@/components/issues/delete-issue-button';
+import { IssueSettingsMenu } from '@/components/issues/issue-settings-menu';
 import { MediaGallery } from '@/components/issues/media-gallery';
 
 export const dynamic = 'force-dynamic';
@@ -55,31 +53,23 @@ export default async function IssueDetailPage({
         ]}
       />
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold">{issue.title}</h1>
-            <SeverityBadge severity={issue.severity} />
-            <StatusBadge status={issue.status} />
-          </div>
-          <Link
-            href={`/projects/${projectId}/assessments/${assessmentId}`}
-            className="text-sm text-primary hover:underline"
-          >
-            {assessment.name}
-          </Link>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <Button variant="outline" asChild>
+      {/* Hero card */}
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold">{issue.title}</h1>
+              <SeverityBadge severity={issue.severity} />
+              <StatusBadge status={issue.status} />
+            </div>
             <Link
-              href={`/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}/edit`}
+              href={`/projects/${projectId}/assessments/${assessmentId}`}
+              className="text-sm text-primary hover:underline"
             >
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
+              {assessment.name}
             </Link>
-          </Button>
-          <DeleteIssueButton
+          </div>
+          <IssueSettingsMenu
             projectId={projectId}
             assessmentId={assessmentId}
             issueId={issueId}
