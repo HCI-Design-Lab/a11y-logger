@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { AllIssuesTable } from '@/components/issues/all-issues-table';
 import { IssueCard } from '@/components/issues/issue-card';
@@ -89,13 +90,13 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
             <label htmlFor="issues-search" className="sr-only">
               Search issues
             </label>
-            <input
+            <Input
               id="issues-search"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search issues…"
-              className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-56"
             />
           </div>
         </div>
@@ -147,13 +148,13 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
                 <label htmlFor="issues-search" className="sr-only">
                   Search issues
                 </label>
-                <input
+                <Input
                   id="issues-search"
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search issues…"
-                  className="w-56 rounded-md border border-border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="w-56"
                 />
               </div>
             </div>
