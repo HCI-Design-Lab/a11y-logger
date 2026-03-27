@@ -24,7 +24,13 @@ vi.mock('@/components/issues/issue-form', () => ({
     externalButtons?: string;
     loading?: boolean;
   }) => (
-    <form id={externalButtons} onSubmit={(e) => { e.preventDefault(); onSubmit({ title: 'Test' }); }}>
+    <form
+      id={externalButtons}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({ title: 'Test' });
+      }}
+    >
       <span data-testid="form-loading">{loading ? 'loading' : 'idle'}</span>
     </form>
   ),
@@ -44,7 +50,20 @@ beforeEach(() => {
   (global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
     if (url.includes('/issues/i1')) {
       return Promise.resolve({
-        json: async () => ({ success: true, data: { id: 'i1', title: 'Missing alt text', severity: 'high', status: 'open', wcag_codes: [], section_508_codes: [], eu_codes: [], tags: [], evidence_media: [] } }),
+        json: async () => ({
+          success: true,
+          data: {
+            id: 'i1',
+            title: 'Missing alt text',
+            severity: 'high',
+            status: 'open',
+            wcag_codes: [],
+            section_508_codes: [],
+            eu_codes: [],
+            tags: [],
+            evidence_media: [],
+          },
+        }),
       });
     }
     if (url.includes('/assessments/a1') && !url.includes('/issues/')) {

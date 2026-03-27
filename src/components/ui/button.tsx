@@ -21,8 +21,7 @@ const buttonVariants = cva(
           'hover:border hover:border-dashed hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         success:
           'bg-success text-white border border-success hover:border-dashed hover:bg-transparent hover:text-success focus-visible:ring-success/20 dark:focus-visible:ring-success/40 dark:bg-success/60 dark:hover:bg-transparent',
-        ai:
-          'bg-ai text-white border border-ai hover:border-dashed hover:bg-transparent hover:text-ai focus-visible:ring-ai/20 dark:focus-visible:ring-ai/40 dark:bg-ai/60 dark:hover:bg-transparent',
+        ai: 'bg-ai text-white border border-ai hover:border-dashed hover:bg-transparent hover:text-ai focus-visible:ring-ai/20 dark:focus-visible:ring-ai/40 dark:bg-ai/60 dark:hover:bg-transparent',
         cancel: 'border hover:border-dashed dark:hover:border-dashed dark:hover:border-white',
         link: 'text-primary underline-offset-4 hover:underline',
       },

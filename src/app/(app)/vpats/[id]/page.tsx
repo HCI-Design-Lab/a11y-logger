@@ -270,10 +270,13 @@ export default function VpatDetailPage() {
           <h1 className="text-2xl font-bold">{vpat.title}</h1>
           <div className="flex items-center gap-2">
             <Badge variant="outline">{editionLabel}</Badge>
-            <Badge className={isPublished
-              ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
-              : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
-            }>
+            <Badge
+              className={
+                isPublished
+                  ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
+                  : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
+              }
+            >
               {isPublished ? 'Published' : 'Draft'}
             </Badge>
           </div>

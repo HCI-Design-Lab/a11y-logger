@@ -44,7 +44,9 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
   return (
     <section aria-labelledby="issues-heading" className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 id="issues-heading" className="text-lg font-semibold">Issues</h1>
+        <h1 id="issues-heading" className="text-lg font-semibold">
+          Issues
+        </h1>
         <div className="flex items-center gap-2">
           <Button asChild variant="success" size="sm">
             <Link href="/issues/new">

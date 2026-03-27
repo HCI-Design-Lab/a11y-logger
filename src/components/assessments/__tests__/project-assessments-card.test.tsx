@@ -35,4 +35,3 @@ test('shows empty state when no assessments', () => {
   render(<ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[]} />);
   expect(screen.getByText('No assessments yet.')).toBeInTheDocument();
 });
-

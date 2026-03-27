@@ -148,7 +148,9 @@ describe('IssuesListView New Issue button', () => {
 });
 
 describe('IssuesListView search input component', () => {
-  beforeEach(() => { mockSeverity = null; });
+  beforeEach(() => {
+    mockSeverity = null;
+  });
 
   it('search input uses the Input component (has data-slot="input")', () => {
     render(<IssuesListView issues={searchIssues} />);
@@ -165,7 +167,9 @@ describe('IssuesListView search input component', () => {
 });
 
 describe('IssuesListView layout and style', () => {
-  beforeEach(() => { mockSeverity = null; });
+  beforeEach(() => {
+    mockSeverity = null;
+  });
 
   it('renders a section with aria-labelledby pointing to the Issues heading', () => {
     const { container } = render(<IssuesListView issues={[]} />);
@@ -193,7 +197,9 @@ describe('IssuesListView layout and style', () => {
 });
 
 describe('IssuesListView filter/search placement by view', () => {
-  beforeEach(() => { mockSeverity = null; });
+  beforeEach(() => {
+    mockSeverity = null;
+  });
 
   it('in table view (default), filter and search are inside the table card, not sibling to it', () => {
     const { container } = render(<IssuesListView issues={searchIssues} />);

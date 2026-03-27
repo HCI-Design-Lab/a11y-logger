@@ -1,6 +1,9 @@
 'use client';
 import { X } from 'lucide-react';
-import { SECTION_508_CRITERION_CODES, SECTION_508_CRITERION_NAMES } from '@/lib/constants/section508';
+import {
+  SECTION_508_CRITERION_CODES,
+  SECTION_508_CRITERION_NAMES,
+} from '@/lib/constants/section508';
 import { Button } from '@/components/ui/button';
 
 interface Section508SelectorProps {

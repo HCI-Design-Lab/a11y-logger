@@ -396,7 +396,12 @@ export function IssueForm({
 
             <div className="space-y-1.5">
               <Label htmlFor="browser">Browser</Label>
-              <Input id="browser" {...register('browser')} disabled={aiLoading} placeholder="e.g. Chrome 121" />
+              <Input
+                id="browser"
+                {...register('browser')}
+                disabled={aiLoading}
+                placeholder="e.g. Chrome 121"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -474,7 +479,11 @@ export function IssueForm({
                 name="tags"
                 control={control}
                 render={({ field }) => (
-                  <TagInput tags={(field.value ?? []) as string[]} onChange={field.onChange} disabled={aiLoading} />
+                  <TagInput
+                    tags={(field.value ?? []) as string[]}
+                    onChange={field.onChange}
+                    disabled={aiLoading}
+                  />
                 )}
               />
             </div>

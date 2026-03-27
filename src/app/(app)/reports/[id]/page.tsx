@@ -54,7 +54,9 @@ export default async function ReportDetailPage({ params }: PageProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">{report.title}</h1>
-          <Badge className={getStatusBadgeClass(report.status)}>{isPublished ? 'Published' : 'Draft'}</Badge>
+          <Badge className={getStatusBadgeClass(report.status)}>
+            {isPublished ? 'Published' : 'Draft'}
+          </Badge>
         </div>
         <div className="flex gap-2">
           <DropdownMenu>

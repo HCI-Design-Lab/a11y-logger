@@ -27,7 +27,13 @@ vi.mock('@/components/issues/issue-form', () => ({
     loading?: boolean;
     externalButtons?: string;
   }) => (
-    <form id={externalButtons} onSubmit={(e) => { e.preventDefault(); onSubmit({ title: 'Test Issue', severity: 'high' }); }}>
+    <form
+      id={externalButtons}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({ title: 'Test Issue', severity: 'high' });
+      }}
+    >
       <span data-testid="issue-form-loading">{loading ? 'loading' : 'idle'}</span>
       <button type="submit">Submit</button>
     </form>
