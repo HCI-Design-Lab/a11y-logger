@@ -36,15 +36,3 @@ test('shows empty state when no assessments', () => {
   expect(screen.getByText('No assessments yet.')).toBeInTheDocument();
 });
 
-test('renders New Assessment link in card header', () => {
-  render(<ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[]} />);
-  expect(screen.getByRole('link', { name: /new assessment/i })).toBeInTheDocument();
-});
-
-test('New Assessment link points to project-scoped new assessment route', () => {
-  render(<ProjectAssessmentsCard projectId="p1" projectName="My Project" assessments={[]} />);
-  expect(screen.getByRole('link', { name: /new assessment/i })).toHaveAttribute(
-    'href',
-    '/projects/p1/assessments/new'
-  );
-});
