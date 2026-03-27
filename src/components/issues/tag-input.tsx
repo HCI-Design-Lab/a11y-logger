@@ -8,9 +8,10 @@ interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
-export function TagInput({ tags, onChange, placeholder = 'Add tag…' }: TagInputProps) {
+export function TagInput({ tags, onChange, placeholder = 'Add tag…', disabled }: TagInputProps) {
   const [value, setValue] = useState('');
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -42,6 +43,7 @@ export function TagInput({ tags, onChange, placeholder = 'Add tag…' }: TagInpu
                 type="button"
                 variant="ghost"
                 onClick={() => removeTag(tag)}
+                disabled={disabled}
                 className="ml-0.5 h-4 w-4 rounded-full p-0 hover:bg-muted-foreground/20"
                 aria-label={`Remove tag ${tag}`}
               >
@@ -56,6 +58,7 @@ export function TagInput({ tags, onChange, placeholder = 'Add tag…' }: TagInpu
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
+        disabled={disabled}
       />
     </div>
   );

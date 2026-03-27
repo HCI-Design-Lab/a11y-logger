@@ -225,6 +225,7 @@ export function IssueForm({
                   value={aiDescription}
                   onChange={(e) => setAiDescription(e.target.value)}
                   rows={4}
+                  disabled={aiLoading}
                   placeholder="Example: The search button on the homepage is not operable via keyboard. It should be focusable and activated using the Enter key."
                 />
               </div>
@@ -249,6 +250,7 @@ export function IssueForm({
               <Input
                 id="title"
                 {...register('title')}
+                disabled={aiLoading}
                 aria-required="true"
                 placeholder="e.g. Image missing alt text"
               />
@@ -266,6 +268,7 @@ export function IssueForm({
                 id="description"
                 {...register('description')}
                 rows={4}
+                disabled={aiLoading}
                 placeholder="Describe the accessibility issue"
               />
             </div>
@@ -277,7 +280,7 @@ export function IssueForm({
                 name="severity"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={aiLoading}>
                     <SelectTrigger id="severity">
                       <SelectValue />
                     </SelectTrigger>
@@ -299,6 +302,7 @@ export function IssueForm({
                 id="user_impact"
                 {...register('user_impact')}
                 rows={3}
+                disabled={aiLoading}
                 placeholder="Describe how this issue affects users, particularly those with disabilities"
               />
             </div>
@@ -310,6 +314,7 @@ export function IssueForm({
                 id="url"
                 type="url"
                 {...register('url')}
+                disabled={aiLoading}
                 placeholder="https://example.com/page"
               />
               {errors.url && (
@@ -325,6 +330,7 @@ export function IssueForm({
               <Input
                 id="selector"
                 {...register('selector')}
+                disabled={aiLoading}
                 placeholder="e.g. #search-button or header nav .menu > li:nth-child(3) a"
                 className="font-mono text-sm"
               />
@@ -337,6 +343,7 @@ export function IssueForm({
                 id="code_snippet"
                 {...register('code_snippet')}
                 rows={4}
+                disabled={aiLoading}
                 placeholder={`<button class="btn" aria-label="">...</button>`}
                 className="font-mono text-sm"
               />
@@ -349,6 +356,7 @@ export function IssueForm({
                 id="suggested_fix"
                 {...register('suggested_fix')}
                 rows={4}
+                disabled={aiLoading}
                 placeholder="Describe how to fix this issue"
               />
             </div>
@@ -367,6 +375,7 @@ export function IssueForm({
                   <Select
                     value={field.value ?? 'none'}
                     onValueChange={(v) => field.onChange(v === 'none' ? undefined : v)}
+                    disabled={aiLoading}
                   >
                     <SelectTrigger id="device_type">
                       <SelectValue placeholder="Select device type" />
@@ -384,7 +393,7 @@ export function IssueForm({
 
             <div className="space-y-1.5">
               <Label htmlFor="browser">Browser</Label>
-              <Input id="browser" {...register('browser')} placeholder="e.g. Chrome 121" />
+              <Input id="browser" {...register('browser')} disabled={aiLoading} placeholder="e.g. Chrome 121" />
             </div>
 
             <div className="space-y-1.5">
@@ -392,6 +401,7 @@ export function IssueForm({
               <Input
                 id="operating_system"
                 {...register('operating_system')}
+                disabled={aiLoading}
                 placeholder="e.g. macOS 14"
               />
             </div>
@@ -401,6 +411,7 @@ export function IssueForm({
               <Input
                 id="assistive_technology"
                 {...register('assistive_technology')}
+                disabled={aiLoading}
                 placeholder="e.g. VoiceOver, NVDA"
               />
             </div>
@@ -415,6 +426,7 @@ export function IssueForm({
                   <WcagSelector
                     selected={(field.value ?? []) as string[]}
                     onChange={field.onChange}
+                    disabled={aiLoading}
                   />
                 )}
               />
@@ -430,6 +442,7 @@ export function IssueForm({
                   <Section508Selector
                     selected={(field.value ?? []) as string[]}
                     onChange={field.onChange}
+                    disabled={aiLoading}
                   />
                 )}
               />
@@ -445,6 +458,7 @@ export function IssueForm({
                   <EuSelector
                     selected={(field.value ?? []) as string[]}
                     onChange={field.onChange}
+                    disabled={aiLoading}
                   />
                 )}
               />
@@ -457,7 +471,7 @@ export function IssueForm({
                 name="tags"
                 control={control}
                 render={({ field }) => (
-                  <TagInput tags={(field.value ?? []) as string[]} onChange={field.onChange} />
+                  <TagInput tags={(field.value ?? []) as string[]} onChange={field.onChange} disabled={aiLoading} />
                 )}
               />
             </div>
@@ -469,7 +483,7 @@ export function IssueForm({
                 name="status"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={aiLoading}>
                     <SelectTrigger id="status">
                       <SelectValue />
                     </SelectTrigger>
@@ -485,7 +499,7 @@ export function IssueForm({
 
             {!externalButtons && (
               <div className="flex gap-2">
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading || aiLoading}>
                   <Save className="h-4 w-4" />
                   {loading ? 'Saving…' : 'Save Issue'}
                 </Button>
@@ -525,6 +539,7 @@ export function IssueForm({
                       field.onChange([...current, url]);
                     }}
                     onRemove={(url) => field.onChange((field.value ?? []).filter((u) => u !== url))}
+                    disabled={aiLoading}
                   />
                 )}
               />

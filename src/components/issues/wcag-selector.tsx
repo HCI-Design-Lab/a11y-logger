@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 interface WcagSelectorProps {
   selected: string[];
   onChange: (codes: string[]) => void;
+  disabled?: boolean;
 }
 
-export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
+export function WcagSelector({ selected, onChange, disabled }: WcagSelectorProps) {
   const toggle = (code: string) => {
     if (selected.includes(code)) {
       onChange(selected.filter((c) => c !== code));
@@ -31,6 +32,7 @@ export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
                 type="button"
                 variant="ghost"
                 onClick={() => toggle(code)}
+                disabled={disabled}
                 className="ml-0.5 h-4 w-4 rounded-full p-0 hover:bg-primary/20"
                 aria-label={`Remove WCAG ${code}`}
               >
@@ -54,6 +56,7 @@ export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
                 type="checkbox"
                 checked={selected.includes(code)}
                 onChange={() => toggle(code)}
+                disabled={disabled}
                 aria-label={code}
               />
               <span className="font-mono">{code}</span>

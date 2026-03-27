@@ -2,19 +2,29 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 
 vi.mock('@/components/issues/wcag-selector', () => ({
-  WcagSelector: () => <div data-testid="wcag-selector" />,
+  WcagSelector: ({ disabled }: { disabled?: boolean }) => (
+    <div data-testid="wcag-selector" data-disabled={disabled ? 'true' : undefined} />
+  ),
 }));
 vi.mock('@/components/issues/section508-selector', () => ({
-  Section508Selector: () => <div data-testid="section508-selector" />,
+  Section508Selector: ({ disabled }: { disabled?: boolean }) => (
+    <div data-testid="section508-selector" data-disabled={disabled ? 'true' : undefined} />
+  ),
 }));
 vi.mock('@/components/issues/eu-selector', () => ({
-  EuSelector: () => <div data-testid="eu-selector" />,
+  EuSelector: ({ disabled }: { disabled?: boolean }) => (
+    <div data-testid="eu-selector" data-disabled={disabled ? 'true' : undefined} />
+  ),
 }));
 vi.mock('@/components/issues/tag-input', () => ({
-  TagInput: () => <div data-testid="tag-input" />,
+  TagInput: ({ disabled }: { disabled?: boolean }) => (
+    <div data-testid="tag-input" data-disabled={disabled ? 'true' : undefined} />
+  ),
 }));
 vi.mock('@/components/issues/media-uploader', () => ({
-  MediaUploader: () => <div data-testid="media-uploader" />,
+  MediaUploader: ({ disabled }: { disabled?: boolean }) => (
+    <div data-testid="media-uploader" data-disabled={disabled ? 'true' : undefined} />
+  ),
 }));
 
 import { IssueForm } from '../issue-form';
@@ -58,6 +68,44 @@ describe('IssueForm externalButtons prop', () => {
     render(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
     const btn = screen.getByRole('link', { name: /cancel/i });
     expect(btn.querySelector('svg')).toBeInTheDocument();
+  });
+});
+
+describe('IssueForm AI generation disables fields', () => {
+  it('disables title input while AI is generating', async () => {
+    vi.stubGlobal('fetch', () => new Promise(() => {})); // never resolves
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'test description' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+    expect(screen.getByLabelText(/title/i)).toBeDisabled();
+    vi.unstubAllGlobals();
+  });
+
+  it('disables AI description textarea while generating', async () => {
+    vi.stubGlobal('fetch', () => new Promise(() => {}));
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    const aiTextarea = screen.getByLabelText(/ai assistance description/i);
+    fireEvent.change(aiTextarea, { target: { value: 'test description' } });
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+    expect(aiTextarea).toBeDisabled();
+    vi.unstubAllGlobals();
+  });
+
+  it('passes disabled to custom selectors while generating', async () => {
+    vi.stubGlobal('fetch', () => new Promise(() => {}));
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'test description' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+    expect(screen.getByTestId('wcag-selector')).toHaveAttribute('data-disabled', 'true');
+    expect(screen.getByTestId('section508-selector')).toHaveAttribute('data-disabled', 'true');
+    expect(screen.getByTestId('eu-selector')).toHaveAttribute('data-disabled', 'true');
+    expect(screen.getByTestId('tag-input')).toHaveAttribute('data-disabled', 'true');
+    expect(screen.getByTestId('media-uploader')).toHaveAttribute('data-disabled', 'true');
+    vi.unstubAllGlobals();
   });
 });
 

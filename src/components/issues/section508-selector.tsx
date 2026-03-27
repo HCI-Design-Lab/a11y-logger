@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 interface Section508SelectorProps {
   selected: string[];
   onChange: (codes: string[]) => void;
+  disabled?: boolean;
 }
 
-export function Section508Selector({ selected, onChange }: Section508SelectorProps) {
+export function Section508Selector({ selected, onChange, disabled }: Section508SelectorProps) {
   const toggle = (code: string) => {
     if (selected.includes(code)) {
       onChange(selected.filter((c) => c !== code));
@@ -31,6 +32,7 @@ export function Section508Selector({ selected, onChange }: Section508SelectorPro
                 type="button"
                 variant="ghost"
                 onClick={() => toggle(code)}
+                disabled={disabled}
                 className="ml-0.5 h-4 w-4 rounded-full p-0 hover:bg-primary/20"
                 aria-label={`Remove Section 508 ${code}`}
               >
@@ -54,6 +56,7 @@ export function Section508Selector({ selected, onChange }: Section508SelectorPro
                 type="checkbox"
                 checked={selected.includes(code)}
                 onChange={() => toggle(code)}
+                disabled={disabled}
                 aria-label={code}
               />
               <span className="font-mono">{code}</span>
