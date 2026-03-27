@@ -5,12 +5,14 @@ vi.mock('@/lib/db/projects', () => ({
   getProject: () => ({ id: 'p1', name: 'My Project' }),
 }));
 
+let mockDescription: string | null = null;
+
 vi.mock('@/lib/db/assessments', () => ({
   getAssessment: () => ({
     id: 'a1',
     project_id: 'p1',
     name: 'My Assessment',
-    description: null,
+    description: mockDescription,
     test_date_start: null,
     test_date_end: null,
     status: 'ready',
@@ -107,4 +109,20 @@ test('does not render StatusTransitionButton', async () => {
   const page = await AssessmentDetailPage(defaultProps);
   render(page);
   expect(screen.queryByRole('button', { name: /transition/i })).not.toBeInTheDocument();
+});
+
+test('description is a sibling of the header row, not nested inside it', async () => {
+  mockDescription = 'Audit of the checkout flow';
+  const page = await AssessmentDetailPage(defaultProps);
+  render(page);
+
+  const description = screen.getByText('Audit of the checkout flow');
+  const settingsMenu = screen.getByTestId('assessment-settings-menu');
+
+  // The header row is the element two levels above the settings menu
+  // (settings menu → wrapper div → header row)
+  const headerRow = settingsMenu.parentElement?.parentElement!;
+  expect(headerRow).not.toContainElement(description);
+
+  mockDescription = null;
 });

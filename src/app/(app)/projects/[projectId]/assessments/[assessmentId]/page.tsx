@@ -55,14 +55,9 @@ export default async function AssessmentDetailPage({
       {/* Hero card */}
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">{assessment.name}</h1>
-              <AssessmentStatusBadge status={assessment.status} />
-            </div>
-            {assessment.description && (
-              <p className="text-muted-foreground">{assessment.description}</p>
-            )}
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{assessment.name}</h1>
+            <AssessmentStatusBadge status={assessment.status} />
           </div>
           <div className="flex items-center gap-2">
             <AssessmentSettingsMenu
@@ -72,6 +67,9 @@ export default async function AssessmentDetailPage({
             />
           </div>
         </div>
+        {assessment.description && (
+          <p className="text-muted-foreground">{assessment.description}</p>
+        )}
       </div>
 
       <div className="flex gap-6">
