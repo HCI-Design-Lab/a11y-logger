@@ -1,6 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-import { EN301549_CRITERION_CODES } from '@/lib/constants/en301549';
+import { EN301549_CRITERION_CODES, EN301549_CRITERION_NAMES } from '@/lib/constants/en301549';
 import { Button } from '@/components/ui/button';
 
 interface EuSelectorProps {
@@ -57,6 +57,9 @@ export function EuSelector({ selected, onChange }: EuSelectorProps) {
                 aria-label={code}
               />
               <span className="font-mono">{code}</span>
+              {EN301549_CRITERION_NAMES[code] && (
+                <span className="text-muted-foreground">{EN301549_CRITERION_NAMES[code]}</span>
+              )}
             </label>
           );
         })}

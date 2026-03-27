@@ -1,6 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-import { SECTION_508_CRITERION_CODES } from '@/lib/constants/section508';
+import { SECTION_508_CRITERION_CODES, SECTION_508_CRITERION_NAMES } from '@/lib/constants/section508';
 import { Button } from '@/components/ui/button';
 
 interface Section508SelectorProps {
@@ -57,6 +57,9 @@ export function Section508Selector({ selected, onChange }: Section508SelectorPro
                 aria-label={code}
               />
               <span className="font-mono">{code}</span>
+              {SECTION_508_CRITERION_NAMES[code] && (
+                <span className="text-muted-foreground">{SECTION_508_CRITERION_NAMES[code]}</span>
+              )}
             </label>
           );
         })}

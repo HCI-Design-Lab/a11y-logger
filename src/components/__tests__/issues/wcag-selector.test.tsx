@@ -4,9 +4,14 @@ import { WcagSelector } from '@/components/issues/wcag-selector';
 
 test('shows selected codes as badges', () => {
   render(<WcagSelector selected={['1.1.1']} onChange={vi.fn()} />);
-  // There will be at least one element showing '1.1.1' (as a badge)
-  const matches = screen.getAllByText('1.1.1');
-  expect(matches.length).toBeGreaterThanOrEqual(1);
+  // Code appears in both the badge and the list item
+  expect(screen.getAllByText('1.1.1').length).toBeGreaterThanOrEqual(1);
+});
+
+test('list items show criterion name alongside code', () => {
+  render(<WcagSelector selected={[]} onChange={vi.fn()} />);
+  expect(screen.getByText('Non-text Content')).toBeInTheDocument();
+  expect(screen.getByText('Contrast (Minimum)')).toBeInTheDocument();
 });
 
 test('can select a code', () => {

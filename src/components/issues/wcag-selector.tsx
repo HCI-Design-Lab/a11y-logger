@@ -1,6 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-import { WCAG_CRITERION_CODES } from '@/lib/constants/wcag';
+import { WCAG_CRITERION_CODES, WCAG_CRITERION_NAMES } from '@/lib/constants/wcag';
 import { Button } from '@/components/ui/button';
 
 interface WcagSelectorProps {
@@ -57,6 +57,9 @@ export function WcagSelector({ selected, onChange }: WcagSelectorProps) {
                 aria-label={code}
               />
               <span className="font-mono">{code}</span>
+              {WCAG_CRITERION_NAMES[code] && (
+                <span className="text-muted-foreground">{WCAG_CRITERION_NAMES[code]}</span>
+              )}
             </label>
           );
         })}
