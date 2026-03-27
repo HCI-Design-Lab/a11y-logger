@@ -2,9 +2,14 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Save, X } from 'lucide-react';
+import Link from 'next/link';
 import { IssueForm } from '@/components/issues/issue-form';
+import { Button } from '@/components/ui/button';
 import type { CreateIssueInput, UpdateIssueInput } from '@/lib/validators/issues';
 import type { AssessmentWithProject } from '@/lib/db/assessments';
+
+const FORM_ID = 'new-issue-form';
 
 interface NewIssueGlobalClientProps {
   assessments: AssessmentWithProject[];
@@ -58,7 +63,7 @@ export function NewIssueGlobalClient({ assessments }: NewIssueGlobalClientProps)
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold">New Issue</h1>
       <IssueForm
         projectId={selectedProjectId ?? ''}
@@ -66,8 +71,20 @@ export function NewIssueGlobalClient({ assessments }: NewIssueGlobalClientProps)
         onAssessmentChange={handleAssessmentChange}
         onSubmit={handleSubmit}
         loading={loading}
-        cancelHref="/issues"
+        externalButtons={FORM_ID}
       />
-    </>
+      <div className="flex justify-between">
+        <Button variant="cancel" asChild>
+          <Link href="/issues">
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          Save Issue
+        </Button>
+      </div>
+    </div>
   );
 }

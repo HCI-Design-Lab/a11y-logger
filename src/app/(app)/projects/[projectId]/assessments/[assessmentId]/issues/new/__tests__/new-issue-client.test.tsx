@@ -20,15 +20,17 @@ vi.mock('@/components/issues/issue-form', () => ({
   IssueForm: ({
     onSubmit,
     loading,
+    externalButtons,
   }: {
     projectId: string;
     onSubmit: (data: Record<string, unknown>) => void;
     loading?: boolean;
+    externalButtons?: string;
   }) => (
-    <div>
+    <form id={externalButtons} onSubmit={(e) => { e.preventDefault(); onSubmit({ title: 'Test Issue', severity: 'high' }); }}>
       <span data-testid="issue-form-loading">{loading ? 'loading' : 'idle'}</span>
-      <button onClick={() => onSubmit({ title: 'Test Issue', severity: 'high' })}>Submit</button>
-    </div>
+      <button type="submit">Submit</button>
+    </form>
   ),
 }));
 
@@ -57,7 +59,7 @@ describe('NewIssueClient', () => {
     });
 
     render(<NewIssueClient projectId="p1" assessmentId="a1" />);
-    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/projects/p1/assessments/a1/issues',
@@ -78,7 +80,7 @@ describe('NewIssueClient', () => {
     });
 
     render(<NewIssueClient projectId="p1" assessmentId="a1" />);
-    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(mockToastError).toHaveBeenCalledWith('Failed to create issue');
     expect(mockToastSuccess).not.toHaveBeenCalled();
@@ -89,10 +91,35 @@ describe('NewIssueClient', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
 
     render(<NewIssueClient projectId="p1" assessmentId="a1" />);
-    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(mockToastError).toHaveBeenCalledWith('Failed to create issue');
     expect(mockToastSuccess).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('renders a Cancel link pointing to the assessment page', () => {
+    render(<NewIssueClient projectId="p1" assessmentId="a1" />);
+    const cancelLink = screen.getByRole('link', { name: /cancel/i });
+    expect(cancelLink).toHaveAttribute('href', '/projects/p1/assessments/a1');
+  });
+
+  it('renders a Save Issue submit button with the form attribute', () => {
+    render(<NewIssueClient projectId="p1" assessmentId="a1" />);
+    const btn = screen.getByRole('button', { name: /save issue/i });
+    expect(btn).toHaveAttribute('type', 'submit');
+    expect(btn).toHaveAttribute('form', 'new-issue-form');
+  });
+
+  it('Save Issue button has an icon', () => {
+    render(<NewIssueClient projectId="p1" assessmentId="a1" />);
+    const btn = screen.getByRole('button', { name: /save issue/i });
+    expect(btn.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('Cancel link has an icon', () => {
+    render(<NewIssueClient projectId="p1" assessmentId="a1" />);
+    const link = screen.getByRole('link', { name: /cancel/i });
+    expect(link.querySelector('svg')).toBeInTheDocument();
   });
 });

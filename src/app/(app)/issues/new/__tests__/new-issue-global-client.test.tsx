@@ -22,19 +22,21 @@ vi.mock('@/components/issues/issue-form', () => ({
     assessmentOptions,
     onAssessmentChange,
     loading,
+    externalButtons,
   }: {
     projectId: string;
     onSubmit: (data: Record<string, unknown>) => void;
     assessmentOptions?: Array<{ id: string; name: string; projectId: string; projectName: string }>;
     onAssessmentChange?: (assessmentId: string, projectId: string) => void;
     loading?: boolean;
+    externalButtons?: string;
   }) => (
-    <div>
+    <form id={externalButtons} onSubmit={(e) => { e.preventDefault(); onSubmit({ title: 'Test Issue', severity: 'high' }); }}>
       <span data-testid="assessment-options-count">{assessmentOptions?.length ?? 0}</span>
       <span data-testid="issue-form-loading">{loading ? 'loading' : 'idle'}</span>
       <button onClick={() => onAssessmentChange?.('a1', 'p1')}>Select Assessment</button>
-      <button onClick={() => onSubmit({ title: 'Test Issue', severity: 'high' })}>Submit</button>
-    </div>
+      <button type="submit">Submit</button>
+    </form>
   ),
 }));
 
@@ -127,5 +129,18 @@ describe('NewIssueGlobalClient', () => {
 
     expect(mockToastError).toHaveBeenCalledWith('Failed to create issue');
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('renders a Cancel link pointing to /issues', () => {
+    render(<NewIssueGlobalClient assessments={assessments} />);
+    const cancelLink = screen.getByRole('link', { name: /cancel/i });
+    expect(cancelLink).toHaveAttribute('href', '/issues');
+  });
+
+  it('renders a Save Issue submit button with the form attribute', () => {
+    render(<NewIssueGlobalClient assessments={assessments} />);
+    const btn = screen.getByRole('button', { name: /save issue/i });
+    expect(btn).toHaveAttribute('type', 'submit');
+    expect(btn).toHaveAttribute('form', 'new-issue-form');
   });
 });
