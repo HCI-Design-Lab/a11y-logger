@@ -147,6 +147,34 @@ describe('IssuesListView New Issue button', () => {
   });
 });
 
+describe('IssuesListView layout and style', () => {
+  beforeEach(() => { mockSeverity = null; });
+
+  it('renders a section with aria-labelledby pointing to the Issues heading', () => {
+    const { container } = render(<IssuesListView issues={[]} />);
+    const section = container.querySelector('section[aria-labelledby]');
+    expect(section).toBeInTheDocument();
+    const headingId = section!.getAttribute('aria-labelledby');
+    expect(document.getElementById(headingId!)).toHaveTextContent('Issues');
+  });
+
+  it('New Issue button does not have the outline variant class', () => {
+    render(<IssuesListView issues={[]} />);
+    const link = screen.getByRole('link', { name: /new issue/i });
+    expect(link.className).not.toContain('border-input');
+  });
+
+  it('shows an empty state message when no issues match the filter', () => {
+    render(<IssuesListView issues={[]} />);
+    expect(screen.getByText(/no issues found/i)).toBeInTheDocument();
+  });
+
+  it('does not show empty state when issues are present', () => {
+    render(<IssuesListView issues={[makeIssue('i1', 'high')]} />);
+    expect(screen.queryByText(/no issues found/i)).not.toBeInTheDocument();
+  });
+});
+
 describe('IssuesListView severity filter', () => {
   beforeEach(() => {
     mockSeverity = null;

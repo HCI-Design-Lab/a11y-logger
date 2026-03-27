@@ -41,11 +41,11 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
     : afterSeverity;
 
   return (
-    <main className="p-6 space-y-6">
+    <section aria-labelledby="issues-heading" className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Issues</h1>
+        <h1 id="issues-heading" className="text-lg font-semibold">Issues</h1>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="success" size="sm">
             <Link href="/issues/new">
               <Plus className="mr-2 h-4 w-4" />
               New Issue
@@ -99,7 +99,11 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
         </div>
       </div>
 
-      {view === 'grid' ? (
+      {filtered.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+          No issues found.
+        </div>
+      ) : view === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {filtered.map((i) => (
             <IssueCard key={i.id} issue={i} />
@@ -112,6 +116,6 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           </CardContent>
         </Card>
       )}
-    </main>
+    </section>
   );
 }
