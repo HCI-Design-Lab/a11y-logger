@@ -175,6 +175,36 @@ describe('IssuesListView layout and style', () => {
   });
 });
 
+describe('IssuesListView filter/search placement by view', () => {
+  beforeEach(() => { mockSeverity = null; });
+
+  it('in table view (default), filter and search are inside the table card, not sibling to it', () => {
+    const { container } = render(<IssuesListView issues={searchIssues} />);
+    const section = container.querySelector('section')!;
+    const searchbox = screen.getByRole('searchbox');
+
+    // header + card = 2 direct children (filter is inside the card)
+    expect(Array.from(section.children)).toHaveLength(2);
+    // The card (second child) contains the searchbox
+    expect(section.children[1]).toContainElement(searchbox as HTMLElement);
+  });
+
+  it('in grid view, filter and search are outside the grid', () => {
+    const { container } = render(<IssuesListView issues={searchIssues} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Grid view' }));
+
+    const section = container.querySelector('section')!;
+    const searchbox = screen.getByRole('searchbox');
+
+    // header + filter bar + grid = 3 direct children
+    expect(Array.from(section.children)).toHaveLength(3);
+    // Filter bar (second child) contains the searchbox
+    expect(section.children[1]).toContainElement(searchbox as HTMLElement);
+    // Grid (third child) does NOT contain the searchbox
+    expect(section.children[2]).not.toContainElement(searchbox as HTMLElement);
+  });
+});
+
 describe('IssuesListView severity filter', () => {
   beforeEach(() => {
     mockSeverity = null;
