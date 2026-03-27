@@ -113,4 +113,39 @@ describe('IssueStatistics', () => {
     expect(screen.getByText('10')).toBeInTheDocument(); // medium
     expect(screen.getByText('3')).toBeInTheDocument(); // low
   });
+
+  it('appends projectId to fetch URL when provided', async () => {
+    mockFetchSuccess(mockData);
+    render(<IssueStatistics statuses={['open']} projectId="proj-1" />);
+    await waitFor(() => expect(screen.getByText('35')).toBeInTheDocument());
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('projectId=proj-1'),
+      expect.anything()
+    );
+  });
+
+  it('does not show error when fetch is aborted', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }))
+    );
+    render(<IssueStatistics statuses={['open']} />);
+    // Give the microtask queue time to flush
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByText('Failed to load data.')).not.toBeInTheDocument();
+  });
+
+  it('shows stale data at reduced opacity while refetching', async () => {
+    // First render resolves with data
+    mockFetchSuccess(mockData);
+    const { rerender } = render(<IssueStatistics statuses={['open']} />);
+    await waitFor(() => expect(screen.getByText('35')).toBeInTheDocument());
+
+    // Switch statuses with a pending fetch so loading=true but fetchedData still exists
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => {})));
+    rerender(<IssueStatistics statuses={['resolved']} />);
+    // The wrapper div gets opacity-50 while new fetch is pending
+    const opacityDiv = document.querySelector('.opacity-50');
+    expect(opacityDiv).not.toBeNull();
+  });
 });

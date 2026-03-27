@@ -88,4 +88,66 @@ describe('ActivityChart', () => {
       'false'
     );
   });
+
+  it('shows table view with column headers when table toggle is clicked', async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      json: async () => ({ success: true, data: mockTimeSeriesData }),
+    });
+    render(<ActivityChart />);
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
+    expect(screen.getByText('Date')).toBeInTheDocument();
+    expect(screen.getByText('Projects')).toBeInTheDocument();
+    expect(screen.getByText('Assessments')).toBeInTheDocument();
+    expect(screen.getByText('Issues')).toBeInTheDocument();
+  });
+
+  it('shows "weeks" label in table view for 6-month range', async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      json: async () => ({ success: true, data: mockTimeSeriesData }),
+    });
+    render(<ActivityChart />);
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
+    expect(screen.getByText(/weeks/i)).toBeInTheDocument();
+  });
+
+  it('shows "days" label in table view for 1-week range', async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      json: async () => ({ success: true, data: mockTimeSeriesData }),
+    });
+    render(<ActivityChart />);
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: '1 week' }));
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
+    expect(screen.getByText(/days/i)).toBeInTheDocument();
+  });
+
+  it('shows error state when fetch throws', async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
+    render(<ActivityChart />);
+    await waitFor(() =>
+      expect(screen.getByText('Failed to load chart data.')).toBeInTheDocument()
+    );
+  });
+
+  it('groups entries by week for 3m range', async () => {
+    // Two entries in the same week (Mon + Wed of the same week)
+    const sameWeekData = [
+      { date: '2026-01-05', projects: 1, assessments: 1, issues: 2 }, // Monday
+      { date: '2026-01-07', projects: 0, assessments: 1, issues: 3 }, // Wednesday same week
+    ];
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      json: async () => ({ success: true, data: sameWeekData }),
+    });
+    render(<ActivityChart />);
+    // Switch to 3m so bucketing applies
+    fireEvent.click(screen.getByRole('button', { name: '3 months' }));
+    await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
+    // Two entries bucketed into one week row — only one date row should appear
+    const rows = screen.getAllByText(/2026-01-/);
+    expect(rows).toHaveLength(1);
+  });
 });

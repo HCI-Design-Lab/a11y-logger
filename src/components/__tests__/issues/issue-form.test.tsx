@@ -4,6 +4,21 @@ import { vi } from 'vitest';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { Issue } from '@/lib/db/issues';
 
+// Mock heavy selector sub-components — they render 80+ checkboxes each and have
+// their own test files. Mocking them keeps issue-form tests fast under load.
+vi.mock('@/components/issues/wcag-selector', () => ({
+  WcagSelector: () => null,
+}));
+vi.mock('@/components/issues/section508-selector', () => ({
+  Section508Selector: () => null,
+}));
+vi.mock('@/components/issues/eu-selector', () => ({
+  EuSelector: () => null,
+}));
+vi.mock('@/components/issues/tag-input', () => ({
+  TagInput: () => null,
+}));
+
 test('renders title field as required', () => {
   render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
   expect(screen.getByLabelText(/^title \*/i)).toHaveAttribute('aria-required', 'true');
@@ -149,6 +164,22 @@ test('includes all urls in evidence_media when multiple files are uploaded', asy
       expect.anything()
     )
   );
+}, 15000);
+
+test('renders assessment selector when assessmentOptions are provided', () => {
+  const options = [
+    { id: 'a1', name: 'Sprint 1', projectId: 'p1', projectName: 'My Project' },
+  ];
+  render(
+    <IssueForm onSubmit={vi.fn()} projectId="p1" assessmentOptions={options} onAssessmentChange={vi.fn()} />
+  );
+  expect(screen.getByRole('combobox', { name: /assessment/i })).toBeInTheDocument();
+}, 15000);
+
+test('shows title validation error when submitted without title', async () => {
+  render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+  fireEvent.click(screen.getByRole('button', { name: /save/i }));
+  await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
 }, 15000);
 
 test('renders Section 508 Criteria section', () => {

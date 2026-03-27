@@ -2,6 +2,30 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { vi } from 'vitest';
 import { IssueForm } from '@/components/issues/issue-form';
 
+// Lightweight mocks: render only badges for selected codes (no 80+ checkbox lists).
+// Tests that verify AI-populated values can still find badge text in the DOM.
+vi.mock('@/components/issues/wcag-selector', () => ({
+  WcagSelector: ({ selected }: { selected: string[] }) =>
+    selected.length > 0 ? (
+      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+    ) : null,
+}));
+vi.mock('@/components/issues/section508-selector', () => ({
+  Section508Selector: ({ selected }: { selected: string[] }) =>
+    selected.length > 0 ? (
+      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+    ) : null,
+}));
+vi.mock('@/components/issues/eu-selector', () => ({
+  EuSelector: ({ selected }: { selected: string[] }) =>
+    selected.length > 0 ? (
+      <div>{selected.map((code: string) => <span key={code}>{code}</span>)}</div>
+    ) : null,
+}));
+vi.mock('@/components/issues/tag-input', () => ({
+  TagInput: () => null,
+}));
+
 describe('IssueForm AI Generate', () => {
   beforeEach(() => {
     vi.clearAllMocks();

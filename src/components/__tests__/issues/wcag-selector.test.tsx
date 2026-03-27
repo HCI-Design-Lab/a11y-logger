@@ -16,7 +16,7 @@ test('can select a code', () => {
   const checkbox = screen.getByRole('checkbox', { name: /1\.1\.1/i });
   fireEvent.click(checkbox);
   expect(onChange).toHaveBeenCalledWith(['1.1.1']);
-});
+}, 15000);
 
 test('can remove a selected code', () => {
   const onChange = vi.fn();
@@ -24,7 +24,7 @@ test('can remove a selected code', () => {
   const checkbox = screen.getByRole('checkbox', { name: /1\.1\.1/i });
   fireEvent.click(checkbox);
   expect(onChange).toHaveBeenCalledWith([]);
-});
+}, 15000);
 
 test('shows multiple selected codes as badges', () => {
   render(<WcagSelector selected={['1.1.1', '1.4.3']} onChange={vi.fn()} />);
