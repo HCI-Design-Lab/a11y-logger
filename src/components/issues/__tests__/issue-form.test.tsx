@@ -71,6 +71,36 @@ describe('IssueForm externalButtons prop', () => {
   });
 });
 
+describe('IssueForm AI generation screen reader announcements', () => {
+  it('announces generating status to screen readers when AI starts', () => {
+    vi.stubGlobal('fetch', () => new Promise(() => {}));
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'test description' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+    expect(screen.getByRole('status')).toHaveTextContent(/generating/i);
+    vi.unstubAllGlobals();
+  });
+
+  it('clears the status announcement when generation completes', async () => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: { title: 'AI Title' } }),
+      })
+    );
+    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
+      target: { value: 'test description' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
+    await screen.findByDisplayValue('AI Title');
+    expect(screen.getByRole('status')).toHaveTextContent('');
+    vi.unstubAllGlobals();
+  });
+});
+
 describe('IssueForm AI generation disables fields', () => {
   it('disables title input while AI is generating', async () => {
     vi.stubGlobal('fetch', () => new Promise(() => {})); // never resolves

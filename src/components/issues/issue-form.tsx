@@ -159,6 +159,9 @@ export function IssueForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id={externalButtons}>
+      <p role="status" aria-live="polite" className="sr-only">
+        {aiLoading ? 'Generating issue with AI. Please wait.' : ''}
+      </p>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column: all form fields */}
         <Card className="lg:col-span-2">
