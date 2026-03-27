@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle, Save, X } from 'lucide-react';
+import { AlertTriangle, Save, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -188,7 +188,7 @@ export function IssueForm({
             )}
 
             {/* AI Assistance Section */}
-            <div className="rounded-md border border-border bg-muted/30 p-4 space-y-3">
+            <div className="rounded-md border border-ai/30 bg-ai/10 p-4 space-y-3">
               <p className="text-sm text-muted-foreground">
                 You can enter a description here and press <strong>Generate with AI</strong> to have
                 the rest of the issue filled out by the AI. For best results, include:
@@ -233,10 +233,12 @@ export function IssueForm({
 
               <Button
                 type="button"
+                variant="ai"
                 size="sm"
                 onClick={handleAiGenerate}
                 disabled={aiLoading || !aiDescription.trim()}
               >
+                <Sparkles className="mr-1 h-4 w-4" />
                 {aiLoading ? 'Generating…' : 'Generate with AI'}
               </Button>
             </div>
