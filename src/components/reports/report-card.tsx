@@ -21,8 +21,8 @@ export function ReportCard({ report }: ReportCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base">{report.title}</CardTitle>
             <div className="flex gap-2 shrink-0">
-              <Badge className={getStatusBadgeClass(report.status)} variant="outline">
-                {report.status}
+              <Badge className={getStatusBadgeClass(report.status)}>
+                {report.status === 'published' ? 'Published' : 'Draft'}
               </Badge>
             </div>
           </div>

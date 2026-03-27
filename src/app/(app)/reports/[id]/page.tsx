@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Download, Pencil, ChevronDown, Printer } from 'lucide-react';
 import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
+import { getStatusBadgeClass } from '@/components/reports/report-badge-utils';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -53,7 +54,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">{report.title}</h1>
-          <Badge variant="outline">{isPublished ? 'Published' : 'Draft'}</Badge>
+          <Badge className={getStatusBadgeClass(report.status)}>{isPublished ? 'Published' : 'Draft'}</Badge>
         </div>
         <div className="flex gap-2">
           <DropdownMenu>

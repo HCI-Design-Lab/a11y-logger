@@ -22,8 +22,8 @@ import type { VpatWithProgress } from '@/lib/db/vpats';
 
 function getStatusBadgeClass(status: string): string {
   return status === 'published'
-    ? 'bg-green-100 text-green-800 border-green-200'
-    : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
+    : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground';
 }
 
 interface VpatsListViewProps {
@@ -96,7 +96,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
                       {vpat.resolved} of {vpat.total} criteria resolved
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusBadgeClass(vpat.status)} variant="outline">
+                      <Badge className={getStatusBadgeClass(vpat.status)}>
                         {vpat.status === 'published' ? 'Published' : 'Draft'}
                       </Badge>
                     </TableCell>

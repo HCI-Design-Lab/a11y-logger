@@ -82,8 +82,8 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusBadgeClass(report.status)} variant="outline">
-                        {report.status}
+                      <Badge className={getStatusBadgeClass(report.status)}>
+                        {report.status === 'published' ? 'Published' : 'Draft'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">

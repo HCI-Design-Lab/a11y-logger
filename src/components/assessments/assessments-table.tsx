@@ -1,24 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { SortableTable } from '@/components/ui/sortable-table';
+import { AssessmentStatusBadge } from '@/components/assessments/assessment-status-badge';
 import type { AssessmentWithCounts } from '@/lib/db/assessments';
-
-const statusConfig = {
-  ready: {
-    label: 'Ready',
-    className: 'bg-gray-100 border border-gray-500 text-primary dark:text-primary-foreground',
-  },
-  in_progress: {
-    label: 'In Progress',
-    className: 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground',
-  },
-  completed: {
-    label: 'Completed',
-    className: 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground',
-  },
-};
 
 interface AssessmentsTableProps {
   assessments: AssessmentWithCounts[];
@@ -42,10 +27,7 @@ export function AssessmentsTable({ assessments, projectId }: AssessmentsTablePro
     {
       key: 'status' as const,
       label: 'Status',
-      render: (row: AssessmentWithCounts) => {
-        const s = statusConfig[row.status];
-        return <Badge className={s.className}>{s.label}</Badge>;
-      },
+      render: (row: AssessmentWithCounts) => <AssessmentStatusBadge status={row.status} />,
     },
     {
       key: 'issue_count' as const,
