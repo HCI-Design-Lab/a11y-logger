@@ -1,14 +1,8 @@
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SeverityBadge } from '@/components/issues/severity-badge';
+import { StatusBadge } from '@/components/issues/status-badge';
 import type { IssueWithContext } from '@/lib/db/issues';
-
-const statusLabels: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
-};
 
 interface IssueCardProps {
   issue: IssueWithContext;
@@ -33,7 +27,7 @@ export function IssueCard({ issue }: IssueCardProps) {
         </CardHeader>
         <CardContent className="flex items-center gap-2">
           <SeverityBadge severity={issue.severity} />
-          <Badge variant="outline">{statusLabels[issue.status] ?? issue.status}</Badge>
+          <StatusBadge status={issue.status} />
         </CardContent>
       </Card>
     </Link>

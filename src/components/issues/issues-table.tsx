@@ -3,13 +3,8 @@
 import Link from 'next/link';
 import { SortableTable } from '@/components/ui/sortable-table';
 import { SeverityBadge } from '@/components/issues/severity-badge';
+import { StatusBadge } from '@/components/issues/status-badge';
 import type { Issue } from '@/lib/db/issues';
-
-const statusLabels: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
-};
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -48,7 +43,7 @@ export function IssuesTable({ issues, projectId, assessmentId }: IssuesTableProp
     {
       key: 'status' as const,
       label: 'Status',
-      render: (row: Issue) => statusLabels[row.status] ?? row.status,
+      render: (row: Issue) => <StatusBadge status={row.status} />,
     },
     {
       key: 'created_at' as const,

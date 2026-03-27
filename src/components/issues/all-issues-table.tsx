@@ -3,13 +3,8 @@
 import Link from 'next/link';
 import { SortableTable } from '@/components/ui/sortable-table';
 import { SeverityBadge } from '@/components/issues/severity-badge';
+import { StatusBadge } from '@/components/issues/status-badge';
 import type { IssueWithContext } from '@/lib/db/issues';
-
-const statusLabels: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
-};
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -45,7 +40,7 @@ export function AllIssuesTable({ issues }: AllIssuesTableProps) {
     {
       key: 'status' as const,
       label: 'Status',
-      render: (row: IssueWithContext) => statusLabels[row.status] ?? row.status,
+      render: (row: IssueWithContext) => <StatusBadge status={row.status} />,
     },
     {
       key: 'created_at' as const,
