@@ -13,7 +13,7 @@ export function Header() {
   const isDark = mounted && theme === 'dark';
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-sidebar px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-sidebar px-6 shadow-sm">
       <div className="flex items-center gap-2">
         {/*<Accessibility className="h-6 w-6 text-primary" aria-hidden="true" />*/}
         <span className="font-semibold text-lg">A11y Logger</span>

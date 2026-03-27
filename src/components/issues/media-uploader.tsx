@@ -174,7 +174,7 @@ export function MediaUploader({
           <p className="text-sm font-medium text-muted-foreground">
             {uploading ? 'Uploading…' : 'Upload screenshots or videos'}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground text-wrap">
             PNG, JPG, GIF, WebP, MP4, WebM, MOV up to 10MB
           </p>
         </Button>
