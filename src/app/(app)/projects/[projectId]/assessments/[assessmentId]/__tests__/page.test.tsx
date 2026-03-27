@@ -121,7 +121,8 @@ test('description is a sibling of the header row, not nested inside it', async (
 
   // The header row is the element two levels above the settings menu
   // (settings menu → wrapper div → header row)
-  const headerRow = settingsMenu.parentElement?.parentElement!;
+  const headerRow = settingsMenu.parentElement?.parentElement;
+  if (!headerRow) throw new Error('Expected header row to exist');
   expect(headerRow).not.toContainElement(description);
 
   mockDescription = null;
