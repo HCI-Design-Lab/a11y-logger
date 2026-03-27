@@ -38,30 +38,6 @@ export function AllIssuesTable({ issues }: AllIssuesTableProps) {
       ),
     },
     {
-      key: 'project_name' as const,
-      label: 'Project',
-      render: (row: IssueWithContext) => (
-        <Link
-          href={`/projects/${row.project_id}`}
-          className="hover:underline text-muted-foreground"
-        >
-          {row.project_name}
-        </Link>
-      ),
-    },
-    {
-      key: 'assessment_name' as const,
-      label: 'Assessment',
-      render: (row: IssueWithContext) => (
-        <Link
-          href={`/projects/${row.project_id}/assessments/${row.assessment_id}`}
-          className="hover:underline text-muted-foreground"
-        >
-          {row.assessment_name}
-        </Link>
-      ),
-    },
-    {
       key: 'severity' as const,
       label: 'Severity',
       render: (row: IssueWithContext) => <SeverityBadge severity={row.severity} />,
@@ -76,6 +52,32 @@ export function AllIssuesTable({ issues }: AllIssuesTableProps) {
       label: 'Created',
       render: (row: IssueWithContext) => (
         <span className="text-muted-foreground">{formatDate(row.created_at)}</span>
+      ),
+    },
+    {
+      key: 'project_name' as const,
+      label: 'Project',
+      render: (row: IssueWithContext) => (
+        <Link
+          href={`/projects/${row.project_id}`}
+          className="hover:underline text-muted-foreground block truncate max-w-[160px]"
+          title={row.project_name}
+        >
+          {row.project_name}
+        </Link>
+      ),
+    },
+    {
+      key: 'assessment_name' as const,
+      label: 'Assessment',
+      render: (row: IssueWithContext) => (
+        <Link
+          href={`/projects/${row.project_id}/assessments/${row.assessment_id}`}
+          className="hover:underline text-muted-foreground block truncate max-w-[160px]"
+          title={row.assessment_name}
+        >
+          {row.assessment_name}
+        </Link>
       ),
     },
   ];
