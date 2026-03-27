@@ -40,6 +40,7 @@
   --color-card: var(--card);
   --color-success: var(--success);
   --color-ai: var(--ai);
+  --color-ai-background: var(--ai-background);
   --color-form-background: var(--form-background);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -71,9 +72,10 @@
   --input: oklch(0.22 0.0076 285.8);
   --ring: oklch(0.137 0.036 258.5);
   --success: oklch(0.527 0.129 151);
-  --ai: oklch(0.55 0.2 300);
-  --form-background: oklch(0.94 0.014 225);
-  --tags: oklch(0.931 0.0327 272.3);
+  --ai: oklch(0.546 0.141 283.103);
+  --ai-background: oklch(0.943 0.025 268.845 / 0.45);
+  --form-background: oklch(0.943 0.025 268.845);
+  --tags: oklch(0.93 0.033 272.788 / 0.3);
   --button-background: oklch(0.546 0.1411 283.1);
   --chart-1: oklch(0.677 0.1571 35.2);
   --chart-2: oklch(0.631 0.1013 183.5);
@@ -114,7 +116,8 @@
   --input: oklch(0.176 0.014 258.4);
   --ring: oklch(0.869 0.0198 252.8);
   --success: oklch(0.527 0.129 151);
-  --ai: oklch(0.65 0.2 300);
+  --ai: oklch(0.546 0.141 283.103);
+  --ai-background: oklch(0.943 0.025 268.845);
   --form-background: oklch(0 0.022 207);
   --tags: oklch(0.696 0.121 233.418);
   --button-background: oklch(0.546 0.1411 283.1);
