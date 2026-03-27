@@ -2,10 +2,16 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { Save, X } from 'lucide-react';
+import Link from 'next/link';
 import { IssueForm } from '@/components/issues/issue-form';
+import { DeleteIssueButton } from '@/components/issues/delete-issue-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Button } from '@/components/ui/button';
 import type { Issue } from '@/lib/db/issues';
 import type { UpdateIssueInput } from '@/lib/validators/issues';
+
+const FORM_ID = 'edit-issue-form';
 
 export default function EditIssuePage() {
   const params = useParams();
@@ -80,6 +86,8 @@ export default function EditIssuePage() {
     return <div className="p-6 text-destructive">Issue not found.</div>;
   }
 
+  const cancelHref = `/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`;
+
   return (
     <div className="space-y-6">
       <Breadcrumbs
@@ -98,7 +106,7 @@ export default function EditIssuePage() {
           { label: 'Issues' },
           {
             label: issue.title,
-            href: `/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`,
+            href: cancelHref,
           },
           { label: 'Edit' },
         ]}
@@ -109,8 +117,28 @@ export default function EditIssuePage() {
         issue={issue}
         onSubmit={handleSubmit}
         loading={loading}
-        cancelHref={`/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`}
+        externalButtons={FORM_ID}
       />
+      <div className="flex justify-between">
+        <Button variant="cancel" asChild>
+          <Link href={cancelHref}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+        <div className="flex gap-2">
+          <DeleteIssueButton
+            projectId={projectId}
+            assessmentId={assessmentId}
+            issueId={issueId}
+            issueTitle={issue.title}
+          />
+          <Button type="submit" form={FORM_ID} disabled={loading}>
+            <Save className="h-4 w-4" />
+            Save Issue
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
