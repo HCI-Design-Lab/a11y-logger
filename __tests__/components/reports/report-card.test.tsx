@@ -26,7 +26,7 @@ describe('ReportCard', () => {
 
   it('renders status badge', () => {
     render(<ReportCard report={mockReport} />);
-    expect(screen.getByText('draft')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
   it('renders updated date', () => {
