@@ -61,10 +61,10 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           <span className="text-muted-foreground">Filter by severity:</span>
           <Link
             href="/issues"
-            className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+            className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
               !severity
                 ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-border hover:bg-muted'
+                : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
             }`}
           >
             All
@@ -73,10 +73,10 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
             <Link
               key={s}
               href={`/issues?severity=${s}`}
-              className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+              className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
                 severity === s
                   ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border hover:bg-muted'
+                  : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
               }`}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
