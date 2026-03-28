@@ -2,9 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-const mockPush = vi.fn();
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
-vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+const { mockPush, mockRefresh, mockToastSuccess, mockToastError } = vi.hoisted(() => ({
+  mockPush: vi.fn(),
+  mockRefresh: vi.fn(),
+  mockToastSuccess: vi.fn(),
+  mockToastError: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush, refresh: mockRefresh }) }));
+vi.mock('sonner', () => ({ toast: { success: mockToastSuccess, error: mockToastError } }));
 global.fetch = vi.fn();
 
 import { ProjectSettingsMenu } from '../project-settings-menu';
@@ -60,6 +66,21 @@ describe('ProjectSettingsMenu', () => {
         expect.objectContaining({ method: 'DELETE' })
       );
       expect(mockPush).toHaveBeenCalledWith('/projects');
+      expect(mockRefresh).toHaveBeenCalled();
+    });
+  });
+
+  it('shows error toast and does not redirect when API returns failure', async () => {
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      json: async () => ({ success: false, error: 'Not found' }),
+    });
+    render(<ProjectSettingsMenu {...props} />);
+    await userEvent.click(screen.getByRole('button', { name: /project settings/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /delete project/i }));
+    await userEvent.click(screen.getByRole('button', { name: /delete project/i }));
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith('Not found');
+      expect(mockPush).not.toHaveBeenCalled();
     });
   });
 });

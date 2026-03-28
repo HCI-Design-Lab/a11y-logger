@@ -42,6 +42,7 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
       if (!json.success) { toast.error(json.error ?? 'Failed to delete project'); return; }
       toast.success('Project deleted');
       router.push('/projects');
+      router.refresh();
     } catch {
       toast.error('Failed to delete project');
     } finally {
