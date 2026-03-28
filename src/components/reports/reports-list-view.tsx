@@ -28,34 +28,32 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
 
   return (
     <main className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Reports</h1>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/reports/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Report
-            </Link>
-          </Button>
-          <ViewToggle view={view} onViewChange={setView} />
+      <section aria-labelledby="reports-heading">
+        <div className="flex items-center justify-between">
+          <h1 id="reports-heading" className="text-lg font-semibold">
+            Reports
+          </h1>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="success">
+              <Link href="/reports/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New Report
+              </Link>
+            </Button>
+            <ViewToggle view={view} onViewChange={setView} />
+          </div>
         </div>
-      </div>
+      </section>
 
       {reports.length === 0 ? (
-        <Card>
-          <CardContent>
-            <div className="border border-dashed rounded-lg p-12 text-center">
-              <h2 className="text-lg font-semibold mb-2">No reports yet</h2>
-              <p className="text-muted-foreground mb-4">
-                Create your first accessibility report to document findings and share with
-                stakeholders.
-              </p>
-              <Button asChild size="sm">
-                <Link href="/reports/new">Create Report</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground mb-4">
+            Create your first accessibility report to document findings and share with stakeholders.
+          </p>
+          <Button asChild variant="outline" className="mt-4">
+            <Link href="/reports/new">Create your first report</Link>
+          </Button>
+        </div>
       ) : view === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {reports.map((r) => (

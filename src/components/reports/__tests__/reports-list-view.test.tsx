@@ -28,4 +28,19 @@ describe('ReportsListView layout', () => {
     render(<ReportsListView reports={[]} />);
     expect(screen.getByRole('group', { name: 'View options' })).toBeInTheDocument();
   });
+
+  it('header section has aria-labelledby pointing to the Reports heading', () => {
+    render(<ReportsListView reports={[]} />);
+    const heading = screen.getByRole('heading', { name: 'Reports' });
+    expect(heading).toHaveAttribute('id', 'reports-heading');
+    const section = heading.closest('section')!;
+    expect(section).toHaveAttribute('aria-labelledby', 'reports-heading');
+  });
+
+  it('shows empty state without a double-bordered Card wrapper', () => {
+    render(<ReportsListView reports={[]} />);
+    const dashed = document.querySelector('.border-dashed')!;
+    // should not be inside a Card (which uses rounded-lg border)
+    expect(dashed.closest('[data-slot="card"]')).toBeNull();
+  });
 });
