@@ -35,6 +35,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
   const [publishOpen, setPublishOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handlePublish() {
@@ -54,6 +55,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
   }
 
   async function handleUnpublish() {
+    setIsUnpublishing(true);
     try {
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'DELETE' });
       const json = await res.json();
@@ -62,6 +64,8 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       router.refresh();
     } catch {
       toast.error('Failed to unpublish report');
+    } finally {
+      setIsUnpublishing(false);
     }
   }
 
@@ -105,9 +109,9 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
               Publish
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onSelect={handleUnpublish}>
+            <DropdownMenuItem onSelect={handleUnpublish} disabled={isUnpublishing}>
               <SendHorizonal className="mr-2 h-4 w-4" />
-              Unpublish
+              {isUnpublishing ? 'Unpublishing…' : 'Unpublish'}
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
