@@ -53,6 +53,7 @@ export function VpatSettingsMenu({
       if (!json.success) { toast.error(json.error ?? 'Failed to delete VPAT'); return; }
       toast.success('VPAT deleted');
       router.push('/vpats');
+      router.refresh();
     } catch {
       toast.error('Failed to delete VPAT');
     } finally {

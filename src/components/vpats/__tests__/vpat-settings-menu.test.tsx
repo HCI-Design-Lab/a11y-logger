@@ -103,6 +103,7 @@ describe('VpatSettingsMenu', () => {
         expect.objectContaining({ method: 'DELETE' })
       );
       expect(mockPush).toHaveBeenCalledWith('/vpats');
+      expect(mockRefresh).toHaveBeenCalled();
     });
   });
 
