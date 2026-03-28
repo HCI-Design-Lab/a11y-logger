@@ -71,15 +71,17 @@ export function VpatSettingsMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {!isPublished && (
-            <DropdownMenuItem
-              onSelect={() => setPublishOpen(true)}
-              disabled={!canPublish || isPublishing}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Publish
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem
+                onSelect={() => setPublishOpen(true)}
+                disabled={!canPublish || isPublishing}
+              >
+                <Send className="mr-2 h-4 w-4" />
+                Publish
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
           )}
-          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <a href={`/api/vpats/${vpatId}/export?format=html`} target="_blank" rel="noopener noreferrer">
               <Download className="mr-2 h-4 w-4" />

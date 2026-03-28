@@ -23,10 +23,6 @@ vi.mock('@/components/assessments/assessment-form', () => ({
   },
 }));
 
-vi.mock('@/components/assessments/delete-assessment-button', () => ({
-  DeleteAssessmentButton: () => <button type="button">Delete Assessment</button>,
-}));
-
 import EditAssessmentPage from '../page';
 
 const mockAssessment = {
@@ -78,11 +74,6 @@ test('renders Cancel link outside the card after loading', async () => {
   render(<EditAssessmentPage />);
   await screen.findByRole('button', { name: /save assessment/i });
   expect(screen.getByRole('link', { name: /cancel/i })).toBeInTheDocument();
-});
-
-test('renders DeleteAssessmentButton after loading', async () => {
-  render(<EditAssessmentPage />);
-  expect(await screen.findByRole('button', { name: /delete assessment/i })).toBeInTheDocument();
 });
 
 test('Save button has type=submit and form attribute', async () => {
