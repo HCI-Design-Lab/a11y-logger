@@ -80,7 +80,10 @@ export function AssessmentSettingsMenu({
         method: 'DELETE',
       });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to delete assessment'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to delete assessment');
+        return;
+      }
       toast.success('Assessment deleted');
       router.push(`/projects/${projectId}`);
       router.refresh();

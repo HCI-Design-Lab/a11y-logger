@@ -24,13 +24,7 @@ export function ExecutiveSummarySection({
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>Executive Summary</CardTitle>
         <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ai"
-            size="sm"
-            onClick={onGenerate}
-            disabled={isGenerating}
-          >
+          <Button type="button" variant="ai" size="sm" onClick={onGenerate} disabled={isGenerating}>
             <Sparkles />
             {isGenerating ? 'Generating…' : 'Generate'}
           </Button>

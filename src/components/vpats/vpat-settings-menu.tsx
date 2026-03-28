@@ -50,7 +50,10 @@ export function VpatSettingsMenu({
     try {
       const res = await fetch(`/api/vpats/${vpatId}`, { method: 'DELETE' });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to delete VPAT'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to delete VPAT');
+        return;
+      }
       toast.success('VPAT deleted');
       router.push('/vpats');
       router.refresh();
@@ -84,7 +87,11 @@ export function VpatSettingsMenu({
             </>
           )}
           <DropdownMenuItem asChild>
-            <a href={`/api/vpats/${vpatId}/export?format=html`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/vpats/${vpatId}/export?format=html`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="mr-2 h-4 w-4" />
               HTML
             </a>
@@ -124,7 +131,10 @@ export function VpatSettingsMenu({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { setPublishOpen(false); onPublish(); }}
+              onClick={() => {
+                setPublishOpen(false);
+                onPublish();
+              }}
               disabled={isPublishing}
             >
               {isPublishing ? 'Publishing…' : 'Publish'}
@@ -139,7 +149,8 @@ export function VpatSettingsMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete VPAT</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{vpatTitle}&rdquo;? This action cannot be undone.
+              Are you sure you want to delete &ldquo;{vpatTitle}&rdquo;? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -160,6 +160,9 @@ describe('ExecutiveSummarySection', () => {
         isGenerating={false}
       />
     );
-    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute('data-variant', 'destructive');
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'data-variant',
+      'destructive'
+    );
   });
 });

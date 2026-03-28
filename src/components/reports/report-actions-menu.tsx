@@ -43,7 +43,10 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
     try {
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'POST' });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to publish report'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to publish report');
+        return;
+      }
       toast.success('Report published');
       router.refresh();
     } catch {
@@ -59,7 +62,10 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
     try {
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'DELETE' });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to unpublish report'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to unpublish report');
+        return;
+      }
       toast.success('Report unpublished');
       router.refresh();
     } catch {
@@ -74,7 +80,10 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
     try {
       const res = await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to delete report'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to delete report');
+        return;
+      }
       toast.success('Report deleted');
       router.push('/reports');
       router.refresh();
@@ -116,25 +125,41 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <a href={`/api/reports/${reportId}/export?format=html`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/reports/${reportId}/export?format=html`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="mr-2 h-4 w-4" />
               HTML — Default
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href={`/api/reports/${reportId}/export?format=html&variant=with-chart`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/reports/${reportId}/export?format=html&variant=with-chart`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="mr-2 h-4 w-4" />
               HTML — With Chart
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href={`/api/reports/${reportId}/export?format=html&variant=with-issues`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/reports/${reportId}/export?format=html&variant=with-issues`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="mr-2 h-4 w-4" />
               HTML — With Issues
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href={`/api/reports/${reportId}/export?format=html&variant=with-all`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/reports/${reportId}/export?format=html&variant=with-all`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download className="mr-2 h-4 w-4" />
               HTML — All (Chart + Issues)
             </a>
@@ -146,7 +171,11 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href={`/api/reports/${reportId}/export?autoprint=true`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`/api/reports/${reportId}/export?autoprint=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Printer className="mr-2 h-4 w-4" />
               Print / Save as PDF
             </a>
@@ -172,9 +201,13 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel><X />Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              <X />
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction variant="success" onClick={handlePublish} disabled={isPublishing}>
-              <Send />{isPublishing ? 'Publishing…' : 'Publish'}
+              <Send />
+              {isPublishing ? 'Publishing…' : 'Publish'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -186,7 +219,8 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Report</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{reportTitle}&rdquo;? This action cannot be undone.
+              Are you sure you want to delete &ldquo;{reportTitle}&rdquo;? This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
