@@ -3,22 +3,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Download, ChevronDown, History } from 'lucide-react';
+import { History } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
-import { DeleteVpatButton } from '@/components/vpats/delete-vpat-button';
+import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
 interface VpatData {
@@ -264,65 +257,32 @@ export default function VpatDetailPage() {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'VPATs', href: '/vpats' }, { label: 'VPAT Detail' }]} />
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">{vpat.title}</h1>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">{editionLabel}</Badge>
-            <Badge
-              className={
-                isPublished
-                  ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
-                  : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
-              }
-            >
-              {isPublished ? 'Published' : 'Draft'}
-            </Badge>
+      {/* Header card */}
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold">{vpat.title}</h1>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{editionLabel}</Badge>
+              <Badge
+                className={
+                  isPublished
+                    ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
+                    : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
+                }
+              >
+                {isPublished ? 'Published' : 'Draft'}
+              </Badge>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {!isPublished && (
-            <Button
-              type="button"
-              onClick={handlePublish}
-              disabled={!canPublish || isPublishing}
-              title={
-                !canPublish
-                  ? `${total - resolved} criteria still need a conformance decision`
-                  : undefined
-              }
-            >
-              {isPublishing ? 'Publishing…' : 'Publish'}
-            </Button>
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-                <ChevronDown className="ml-1 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <a
-                  href={`/api/vpats/${vpat.id}/export?format=html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  HTML
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href={`/api/vpats/${vpat.id}/export?format=docx`}>Word (.docx)</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href={`/api/vpats/${vpat.id}/export?format=openacr`}>OpenACR (YAML)</a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DeleteVpatButton vpatId={vpat.id} vpatTitle={vpat.title} />
+          <VpatSettingsMenu
+            vpatId={vpat.id}
+            vpatTitle={vpat.title}
+            isPublished={isPublished}
+            canPublish={canPublish}
+            isPublishing={isPublishing}
+            onPublish={handlePublish}
+          />
         </div>
       </div>
 

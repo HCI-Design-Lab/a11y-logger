@@ -99,11 +99,16 @@ describe('VpatDetailPage', () => {
     });
   });
 
-  it('shows Publish button disabled when unresolved rows exist', async () => {
+  it('shows Publish option disabled when unresolved rows exist', async () => {
+    const user = userEvent.setup();
     render(<VpatDetailPage />);
     await waitFor(() => {
-      const publishBtn = screen.getByRole('button', { name: /publish/i });
-      expect(publishBtn).toBeDisabled();
+      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await waitFor(() => {
+      const publishItem = screen.getByRole('menuitem', { name: /publish/i });
+      expect(publishItem).toHaveAttribute('data-disabled');
     });
   });
 
