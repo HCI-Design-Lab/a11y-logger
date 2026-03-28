@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExecutiveSummarySection } from './report-section-executive-summary';
@@ -191,10 +191,14 @@ export function ReportEditForm({ report, issues }: Props) {
         <div className="pt-2">
           <div className="flex gap-2">
             <Button onClick={handleSave} disabled={isSaving}>
+              <Save />
               {isSaving ? 'Saving…' : 'Save Report'}
             </Button>
             <Button asChild variant="cancel">
-              <Link href={`/reports/${report.id}`}>Cancel</Link>
+              <Link href={`/reports/${report.id}`}>
+                <X />
+                Cancel
+              </Link>
             </Button>
           </div>
         </div>

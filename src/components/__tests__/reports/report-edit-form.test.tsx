@@ -48,7 +48,7 @@ describe('ReportEditForm', () => {
   it('shows delete modal when trash icon clicked', async () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
-    fireEvent.click(screen.getByRole('button', { name: /delete section/i }));
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => {
       expect(screen.getByText(/permanently remove/i)).toBeInTheDocument();
     });
@@ -57,7 +57,7 @@ describe('ReportEditForm', () => {
   it('removes section after delete confirmed', async () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
-    fireEvent.click(screen.getByRole('button', { name: /delete section/i }));
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => screen.getByText(/permanently remove/i));
     fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
     await waitFor(() => {
@@ -128,7 +128,7 @@ describe('ReportEditForm', () => {
   it('closes delete modal when cancel is clicked', async () => {
     render(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
-    fireEvent.click(screen.getByRole('button', { name: /delete section/i }));
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => screen.getByText(/permanently remove/i));
 
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
