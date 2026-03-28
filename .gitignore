@@ -53,6 +53,9 @@ data/
 # Claude
 CLAUDE.md
 
+# Scripts
+/scripts/
+
 # Git worktrees
 .worktrees/
 
