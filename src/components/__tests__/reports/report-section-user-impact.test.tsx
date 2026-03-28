@@ -162,4 +162,30 @@ describe('UserImpactSection', () => {
     );
     expect(screen.getByTestId('section-fields')).not.toHaveAttribute('inert');
   });
+
+  it('generate button uses ai variant', () => {
+    render(
+      <UserImpactSection
+        data={EMPTY}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={false}
+      />
+    );
+    expect(screen.getByRole('button', { name: /generate/i })).toHaveAttribute('data-variant', 'ai');
+  });
+
+  it('delete button uses destructive variant', () => {
+    render(
+      <UserImpactSection
+        data={EMPTY}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+        onGenerate={vi.fn()}
+        isGenerating={false}
+      />
+    );
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute('data-variant', 'destructive');
+  });
 });
