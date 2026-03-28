@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ProjectForm } from '@/components/projects/project-form';
-import { DeleteProjectButton } from '@/components/projects/delete-project-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import type { Project } from '@/lib/db/projects';
 import type { CreateProjectInput } from '@/lib/validators/projects';
@@ -102,9 +101,6 @@ export default function EditProjectPage() {
             Cancel
           </Link>
         </Button>
-        <div className="ml-auto">
-          <DeleteProjectButton projectId={projectId} projectName={project.name} />
-        </div>
       </div>
     </div>
   );
