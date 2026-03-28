@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Settings, Plus, Upload, Pencil, CirclePlay, CircleCheck, Ban } from 'lucide-react';
+import { Settings, Plus, Upload, Pencil, CirclePlay, CircleCheck, Ban, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -14,6 +14,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ImportIssuesModal } from '@/components/issues/import-issues-modal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface AssessmentSettingsMenuProps {
   projectId: string;
@@ -35,6 +45,8 @@ export function AssessmentSettingsMenu({
   const router = useRouter();
   const [importOpen, setImportOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const baseUrl = `/projects/${projectId}/assessments/${assessmentId}`;
 
   async function handleStatusTransition() {
@@ -58,6 +70,25 @@ export function AssessmentSettingsMenu({
       toast.error('Failed to update status');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/assessments/${assessmentId}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (!json.success) { toast.error(json.error ?? 'Failed to delete assessment'); return; }
+      toast.success('Assessment deleted');
+      router.push(`/projects/${projectId}`);
+      router.refresh();
+    } catch {
+      toast.error('Failed to delete assessment');
+    } finally {
+      setIsDeleting(false);
+      setDeleteOpen(false);
     }
   }
 
@@ -97,6 +128,14 @@ export function AssessmentSettingsMenu({
               Edit Assessment
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => setDeleteOpen(true)}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Assessment
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -107,6 +146,24 @@ export function AssessmentSettingsMenu({
         open={importOpen}
         onOpenChange={setImportOpen}
       />
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Assessment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the assessment and all its issues. This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? 'Deleting…' : 'Delete Assessment'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

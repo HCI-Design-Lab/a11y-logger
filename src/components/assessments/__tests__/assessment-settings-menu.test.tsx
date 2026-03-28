@@ -2,13 +2,21 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+const { mockPush, mockRefresh } = vi.hoisted(() => ({
+  mockPush: vi.fn(),
+  mockRefresh: vi.fn(),
+}));
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mockRefresh, push: mockPush }),
+}));
 vi.mock('@/components/issues/import-issues-modal', () => ({
   ImportIssuesModal: ({ open }: { open: boolean }) =>
     open ? <div role="dialog" data-testid="import-modal" /> : null,
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 global.fetch = vi.fn();
+
+beforeEach(() => vi.clearAllMocks());
 
 import { AssessmentSettingsMenu } from '../assessment-settings-menu';
 
@@ -76,5 +84,49 @@ test('clicking Mark as Complete calls the assessments API', async () => {
       '/api/projects/p1/assessments/a1',
       expect.objectContaining({ method: 'PUT' })
     );
+  });
+});
+
+test('dropdown contains Delete Assessment option', async () => {
+  render(<AssessmentSettingsMenu {...baseProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  expect(await screen.findByRole('menuitem', { name: /delete assessment/i })).toBeInTheDocument();
+});
+
+test('clicking Delete Assessment opens confirmation dialog', async () => {
+  render(<AssessmentSettingsMenu {...baseProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /delete assessment/i }));
+  expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+});
+
+test('confirming delete calls DELETE /api/projects/p1/assessments/a1 and redirects', async () => {
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    json: async () => ({ success: true }),
+  });
+  render(<AssessmentSettingsMenu {...baseProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /delete assessment/i }));
+  await userEvent.click(screen.getByRole('button', { name: /delete assessment/i }));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/projects/p1/assessments/a1',
+      expect.objectContaining({ method: 'DELETE' })
+    );
+    expect(mockPush).toHaveBeenCalledWith('/projects/p1');
+    expect(mockRefresh).toHaveBeenCalled();
+  });
+});
+
+test('shows error toast and does not redirect when API returns failure', async () => {
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    json: async () => ({ success: false, error: 'Not found' }),
+  });
+  render(<AssessmentSettingsMenu {...baseProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /delete assessment/i }));
+  await userEvent.click(screen.getByRole('button', { name: /delete assessment/i }));
+  await waitFor(() => {
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });
