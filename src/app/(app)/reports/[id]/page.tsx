@@ -1,21 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { Download, Pencil, ChevronDown, Printer } from 'lucide-react';
 import { getReport, getReportStats, parseReportContent } from '@/lib/db/reports';
 import { Badge } from '@/components/ui/badge';
 import { getStatusBadgeClass } from '@/components/reports/report-badge-utils';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DeleteReportButton } from '@/components/reports/delete-report-button';
-import { PublishReportButton } from '@/components/reports/publish-report-button';
+import { ReportActionsMenu } from '@/components/reports/report-actions-menu';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
 import { ReportWcagCriteriaList } from '@/components/reports/report-wcag-criteria-list';
@@ -50,85 +40,20 @@ export default async function ReportDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Reports', href: '/reports' }, { label: report.title }]} />
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">{report.title}</h1>
-          <Badge className={getStatusBadgeClass(report.status)}>
-            {isPublished ? 'Published' : 'Draft'}
-          </Badge>
-        </div>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-                <ChevronDown className="ml-1 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <a
-                  href={`/api/reports/${report.id}/export?format=html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  HTML — Default
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
-                  href={`/api/reports/${report.id}/export?format=html&variant=with-chart`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  HTML — With Chart
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
-                  href={`/api/reports/${report.id}/export?format=html&variant=with-issues`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  HTML — With Issues
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
-                  href={`/api/reports/${report.id}/export?format=html&variant=with-all`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  HTML — All (Chart + Issues)
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a href={`/api/reports/${report.id}/export?format=docx`}>Word (.docx)</a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button asChild variant="outline" size="sm">
-            <a
-              href={`/api/reports/${report.id}/export?autoprint=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              Print / Save as PDF
-            </a>
-          </Button>
-          {!isPublished && (
-            <Button asChild variant="outline" size="sm">
-              <Link href={`/reports/${report.id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </Button>
-          )}
-          <PublishReportButton reportId={report.id} isPublished={isPublished} />
-          <DeleteReportButton reportId={report.id} reportTitle={report.title} />
+      {/* Header card */}
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{report.title}</h1>
+            <Badge className={getStatusBadgeClass(report.status)}>
+              {isPublished ? 'Published' : 'Draft'}
+            </Badge>
+          </div>
+          <ReportActionsMenu
+            reportId={report.id}
+            reportTitle={report.title}
+            isPublished={isPublished}
+          />
         </div>
       </div>
 
