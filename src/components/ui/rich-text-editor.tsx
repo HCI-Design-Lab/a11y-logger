@@ -64,7 +64,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   }, [value, editor]);
 
   return (
-    <div className="rounded-md border bg-background">
+    <div className="rounded-md border bg-form-background">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-1 border-b px-2 py-1">
         <ToolbarButton
