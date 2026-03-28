@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Settings, Pencil, Send, SendHorizonal, Download, Printer, Trash2 } from 'lucide-react';
+import { Settings, Pencil, Send, SendHorizonal, Download, Printer, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -172,9 +172,9 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePublish} disabled={isPublishing}>
-              {isPublishing ? 'Publishing…' : 'Publish'}
+            <AlertDialogCancel><X />Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="success" onClick={handlePublish} disabled={isPublishing}>
+              <Send />{isPublishing ? 'Publishing…' : 'Publish'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
