@@ -1,10 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
 vi.mock('@/components/vpats/vpat-card', () => ({
   VpatCard: () => <div data-testid="vpat-card" />,
 }));
