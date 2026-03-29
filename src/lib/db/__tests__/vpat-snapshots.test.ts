@@ -60,6 +60,8 @@ describe('createVpatSnapshot', () => {
           remarks: null,
         },
       ],
+      reviewed_by: null,
+      reviewed_at: null,
     });
     expect(snap.id).toBeDefined();
     expect(snap.version_number).toBe(2);
@@ -78,6 +80,8 @@ describe('listVpatSnapshots', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
       criterion_rows: [],
+      reviewed_by: null,
+      reviewed_at: null,
     };
     await createVpatSnapshot(vpatId, 1, now, data);
     await createVpatSnapshot(vpatId, 2, now, data);
@@ -101,6 +105,8 @@ describe('getVpatSnapshot', () => {
       wcag_level: 'AA',
       product_scope: ['web'],
       criterion_rows: [],
+      reviewed_by: null,
+      reviewed_at: null,
     };
     await createVpatSnapshot(vpatId, 2, now, data);
     const snap = await getVpatSnapshot(vpatId, 2);

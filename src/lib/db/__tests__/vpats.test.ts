@@ -20,7 +20,7 @@ import {
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
 import { getCriteriaByCode } from '../criteria';
-import { listVpatSnapshots } from '../vpat-snapshots';
+import { listVpatSnapshots, getVpatSnapshot } from '../vpat-snapshots';
 import { eq } from 'drizzle-orm';
 
 function dbc() {
@@ -295,9 +295,11 @@ describe('publishVpat', () => {
     const published = await publishVpat(vpat.id);
     expect(published.status).toBe('published');
     const snapshots = await listVpatSnapshots(vpat.id);
-    const snap = JSON.parse(snapshots[0]!.snapshot as string);
-    expect(snap.reviewed_by).toBe('Jane Smith');
-    expect(snap.reviewed_at).not.toBeNull();
+    expect(snapshots).toHaveLength(1);
+    const snap = await getVpatSnapshot(vpat.id, snapshots[0]!.version_number);
+    expect(snap).not.toBeNull();
+    expect(snap!.data.reviewed_by).toBe('Jane Smith');
+    expect(snap!.data.reviewed_at).not.toBeNull();
   });
 });
 
