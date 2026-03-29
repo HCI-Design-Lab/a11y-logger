@@ -2,16 +2,24 @@
 -- to update the status CHECK constraint to allow 'reviewed' in addition to
 -- 'draft' and 'published'.
 --
--- NOTE: The migration runner wraps each migration in a transaction. PRAGMA
--- foreign_keys is a connection-level setting that cannot be changed inside a
--- transaction in SQLite, so the PRAGMA OFF/ON below has no effect inside the
--- transaction boundary. This works safely today because better-sqlite3 leaves
--- foreign key enforcement OFF by default. If the app ever enables foreign keys
--- at connection startup, this migration should be run outside a transaction or
--- the runner should be updated to handle table-rebuild migrations specially.
+-- The migration runner wraps each migration in a transaction, and PRAGMA
+-- foreign_keys cannot be changed inside a transaction in SQLite. Since the
+-- app enables foreign_keys = ON at connection startup (index.ts), a naive
+-- DROP TABLE vpats would cascade-delete all vpat_criterion_rows and
+-- vpat_snapshots rows via their ON DELETE CASCADE constraints.
+--
+-- Fix: backup child rows before the drop, restore them after the rename.
+-- All steps run inside the runner's transaction, so any failure rolls back cleanly.
 
-PRAGMA foreign_keys = OFF;
+-- Step 1: Backup child rows that CASCADE from vpats
+CREATE TABLE _m012_criterion_rows_backup AS SELECT * FROM vpat_criterion_rows;
+CREATE TABLE _m012_snapshots_backup AS SELECT * FROM vpat_snapshots;
 
+-- Step 2: Delete child rows to prevent CASCADE when dropping vpats
+DELETE FROM vpat_snapshots;
+DELETE FROM vpat_criterion_rows;
+
+-- Step 3: Recreate vpats with updated CHECK constraint
 CREATE TABLE vpats_new (
   id TEXT PRIMARY KEY,
   project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -48,4 +56,10 @@ INSERT INTO vpats_new
 DROP TABLE vpats;
 ALTER TABLE vpats_new RENAME TO vpats;
 
-PRAGMA foreign_keys = ON;
+-- Step 4: Restore child rows
+INSERT INTO vpat_criterion_rows SELECT * FROM _m012_criterion_rows_backup;
+INSERT INTO vpat_snapshots SELECT * FROM _m012_snapshots_backup;
+
+-- Step 5: Clean up backup tables
+DROP TABLE _m012_criterion_rows_backup;
+DROP TABLE _m012_snapshots_backup;
