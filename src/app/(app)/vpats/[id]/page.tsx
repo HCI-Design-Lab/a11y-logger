@@ -10,7 +10,6 @@ import { History, Pencil } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
-import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import Link from 'next/link';
 
 interface VpatData {
@@ -42,7 +41,6 @@ export default function VpatDetailPage() {
   const vpatId = params.id;
 
   const [vpat, setVpat] = useState<VpatData | null>(null);
-  const [rows, setRows] = useState<VpatCriterionRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [snapshots, setSnapshots] = useState<
     { id: string; version_number: number; published_at: string }[]
@@ -59,7 +57,6 @@ export default function VpatDetailPage() {
           return;
         }
         setVpat(json.data);
-        setRows(json.data.criterion_rows);
         // Load version history
         try {
           const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
@@ -142,7 +139,7 @@ export default function VpatDetailPage() {
 
         <TabsContent value="criteria" className="space-y-6">
           <VpatCriteriaTable
-            rows={rows}
+            rows={vpat.criterion_rows}
             onRowChange={() => {}}
             onSaveRemarks={() => {}}
             onGenerateRow={() => {}}

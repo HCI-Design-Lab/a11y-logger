@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import VpatDetailPage from '../[id]/page';
 
 vi.mock('next/navigation', () => ({
@@ -99,7 +100,6 @@ describe('VpatDetailPage (view)', () => {
   });
 
   it('does not show Publish in settings menu (view variant)', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
     const user = userEvent.setup();
     render(<VpatDetailPage />);
     await waitFor(() => {
@@ -112,7 +112,6 @@ describe('VpatDetailPage (view)', () => {
   });
 
   it('shows criteria table', async () => {
-    const userEvent = (await import('@testing-library/user-event')).default;
     const user = userEvent.setup();
     render(<VpatDetailPage />);
 
