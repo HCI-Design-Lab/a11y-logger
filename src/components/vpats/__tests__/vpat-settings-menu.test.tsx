@@ -121,3 +121,35 @@ describe('VpatSettingsMenu', () => {
     });
   });
 });
+
+describe('VpatSettingsMenu variant="view"', () => {
+  it('shows Edit VPAT link', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /edit vpat/i })).toBeInTheDocument();
+  });
+
+  it('does not show Publish option', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.queryByRole('menuitem', { name: /publish/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('VpatSettingsMenu variant="edit"', () => {
+  it('shows Publish option when draft', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="edit" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
+  });
+
+  it('does not show Edit VPAT link', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} variant="edit" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.queryByRole('menuitem', { name: /edit vpat/i })).not.toBeInTheDocument();
+  });
+});

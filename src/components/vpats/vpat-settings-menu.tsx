@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
-import { Settings, Send, Download, Trash2 } from 'lucide-react';
+import { Settings, Send, Download, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -30,6 +31,7 @@ interface VpatSettingsMenuProps {
   canPublish: boolean;
   isPublishing: boolean;
   onPublish: () => void;
+  variant?: 'view' | 'edit';
 }
 
 export function VpatSettingsMenu({
@@ -39,6 +41,7 @@ export function VpatSettingsMenu({
   canPublish,
   isPublishing,
   onPublish,
+  variant,
 }: VpatSettingsMenuProps) {
   const router = useRouter();
   const [publishOpen, setPublishOpen] = useState(false);
@@ -74,7 +77,18 @@ export function VpatSettingsMenu({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {!isPublished && (
+          {variant === 'view' && (
+            <>
+              <DropdownMenuItem asChild>
+                <Link href={`/vpats/${vpatId}/edit`}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit VPAT
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          {(variant === 'edit' || !variant) && !isPublished && (
             <>
               <DropdownMenuItem
                 onSelect={() => setPublishOpen(true)}
