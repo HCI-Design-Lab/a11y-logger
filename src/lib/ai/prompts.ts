@@ -51,6 +51,7 @@ export function buildUserImpactPrompt(context: string): string {
 // ─── VPAT row (moved from vpat-prompt.ts) ────────────────────────────────────
 
 const VALID_CONFIDENCE = ['high', 'medium', 'low'] as const;
+const VALID_SUGGESTED_CONFORMANCE = ['supports', 'does_not_support', 'not_applicable'] as const;
 
 export function buildVpatRowPrompt(context: VpatGenerationContext): string {
   const { criterion, issues } = context;
@@ -77,13 +78,22 @@ Then provide your output as JSON:
 {
   "reasoning": "your step-by-step analysis",
   "remarks": "2-4 sentence professional conformance statement suitable for a client-facing VPAT. Do not include the conformance level. Do not use bullet points.",
-  "confidence": "high | medium | low"
+  "confidence": "high | medium | low",
+  "referenced_issues": [{ "title": "issue title", "severity": "issue severity" }],
+  "suggested_conformance": "supports | does_not_support | not_applicable"
 }
 
 Confidence guide:
 - high: clear evidence (multiple issues, consistent severity, good coverage)
 - medium: partial evidence or mixed signals
 - low: no issues found or insufficient evidence
+
+Suggested conformance guide:
+- supports: no issues found, or only trivial issues that do not affect conformance
+- does_not_support: one or more issues that prevent full conformance
+- not_applicable: the criterion does not apply to this product
+
+For referenced_issues: list only the issues from the input that directly informed your reasoning. Use the exact title and severity from the input. Return an empty array if no issues were relevant.
 
 Return only valid JSON, no markdown.`;
 }
@@ -99,7 +109,10 @@ export function parseVpatRowResponse(raw: string): VpatRowGenerationResult {
     typeof result.remarks !== 'string' ||
     typeof result.confidence !== 'string' ||
     !(VALID_CONFIDENCE as readonly string[]).includes(result.confidence) ||
-    typeof result.reasoning !== 'string'
+    typeof result.reasoning !== 'string' ||
+    !Array.isArray(result.referenced_issues) ||
+    typeof result.suggested_conformance !== 'string' ||
+    !(VALID_SUGGESTED_CONFORMANCE as readonly string[]).includes(result.suggested_conformance)
   ) {
     throw new Error('AI response missing required fields');
   }
@@ -107,5 +120,7 @@ export function parseVpatRowResponse(raw: string): VpatRowGenerationResult {
     remarks: result.remarks,
     confidence: result.confidence as VpatRowGenerationResult['confidence'],
     reasoning: result.reasoning,
+    referenced_issues: result.referenced_issues as { title: string; severity: string }[],
+    suggested_conformance: result.suggested_conformance as VpatRowGenerationResult['suggested_conformance'],
   };
 }

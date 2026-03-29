@@ -112,6 +112,15 @@ describe('buildVpatRowPrompt', () => {
     });
     expect(result).toContain('No issues mapped');
   });
+
+  it('includes referenced_issues and suggested_conformance in prompt JSON spec', () => {
+    const result = buildVpatRowPrompt({
+      criterion: { code: '1.1.1', name: 'Non-text Content', description: 'Alt text.' },
+      issues: [{ title: 'Missing alt', severity: 'high', url: '', description: '' }],
+    });
+    expect(result).toContain('referenced_issues');
+    expect(result).toContain('suggested_conformance');
+  });
 });
 
 describe('parseVpatRowResponse', () => {
@@ -120,6 +129,8 @@ describe('parseVpatRowResponse', () => {
       reasoning: 'Step by step analysis.',
       remarks: 'Partially supports criterion.',
       confidence: 'medium',
+      referenced_issues: [],
+      suggested_conformance: 'supports',
     });
     const result = parseVpatRowResponse(raw);
     expect(result.remarks).toBe('Partially supports criterion.');
@@ -141,6 +152,46 @@ describe('parseVpatRowResponse', () => {
     expect(() =>
       parseVpatRowResponse(
         JSON.stringify({ remarks: 'ok', confidence: 'unknown', reasoning: 'ok' })
+      )
+    ).toThrow('AI response missing required fields');
+  });
+
+  it('parses referenced_issues and suggested_conformance', () => {
+    const raw = JSON.stringify({
+      reasoning: 'Analysis.',
+      remarks: 'Does not support.',
+      confidence: 'high',
+      referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+      suggested_conformance: 'does_not_support',
+    });
+    const result = parseVpatRowResponse(raw);
+    expect(result.referenced_issues).toEqual([{ title: 'Missing alt', severity: 'high' }]);
+    expect(result.suggested_conformance).toBe('does_not_support');
+  });
+
+  it('throws when referenced_issues is missing', () => {
+    expect(() =>
+      parseVpatRowResponse(
+        JSON.stringify({
+          reasoning: 'ok',
+          remarks: 'ok',
+          confidence: 'high',
+          suggested_conformance: 'supports',
+        })
+      )
+    ).toThrow('AI response missing required fields');
+  });
+
+  it('throws when suggested_conformance is invalid', () => {
+    expect(() =>
+      parseVpatRowResponse(
+        JSON.stringify({
+          reasoning: 'ok',
+          remarks: 'ok',
+          confidence: 'high',
+          referenced_issues: [],
+          suggested_conformance: 'partially_supports',
+        })
       )
     ).toThrow('AI response missing required fields');
   });
