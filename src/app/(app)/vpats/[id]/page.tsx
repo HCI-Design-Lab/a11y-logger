@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { History } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatData } from '@/lib/db/vpats';
@@ -25,6 +25,7 @@ export default function VpatDetailPage() {
 
   const [vpat, setVpat] = useState<VpatData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'criteria' | 'history'>('criteria');
   const [snapshots, setSnapshots] = useState<
     { id: string; version_number: number; published_at: string }[]
   >([]);
@@ -113,70 +114,86 @@ export default function VpatDetailPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="criteria">
-        <TabsList>
-          <TabsTrigger value="criteria">Criteria</TabsTrigger>
-          <TabsTrigger value="history">
+      <div>
+        <div className="flex gap-1 mb-4">
+          <Button
+            size="sm"
+            variant={activeTab === 'criteria' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('criteria')}
+            aria-pressed={activeTab === 'criteria'}
+          >
+            Criteria
+          </Button>
+          <Button
+            size="sm"
+            variant={activeTab === 'history' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('history')}
+            aria-pressed={activeTab === 'history'}
+          >
             <History className="mr-1 h-4 w-4" />
             Version History
             {snapshots.length > 0 && (
-              <span className="ml-1 text-xs text-muted-foreground">({snapshots.length})</span>
+              <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
             )}
-          </TabsTrigger>
-        </TabsList>
+          </Button>
+        </div>
 
-        <TabsContent value="criteria" className="space-y-6">
-          <VpatCriteriaTable
-            rows={vpat.criterion_rows}
-            onRowChange={() => {}}
-            onSaveRemarks={() => {}}
-            onGenerateRow={() => {}}
-            onGenerateAll={() => {}}
-            generatingRowId={null}
-            readOnly={true}
-            aiEnabled={false}
-            onCriterionClick={() => {}}
-          />
-        </TabsContent>
+        {activeTab === 'criteria' && (
+          <div className="space-y-6">
+            <VpatCriteriaTable
+              rows={vpat.criterion_rows}
+              onRowChange={() => {}}
+              onSaveRemarks={() => {}}
+              onGenerateRow={() => {}}
+              onGenerateAll={() => {}}
+              generatingRowId={null}
+              readOnly={true}
+              aiEnabled={false}
+              onCriterionClick={() => {}}
+            />
+          </div>
+        )}
 
-        <TabsContent value="history">
-          {snapshots.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
-              No published versions yet. Publish this VPAT to create a snapshot.
-            </p>
-          ) : (
-            <div className="rounded-md border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-2 text-left font-medium">Version</th>
-                    <th className="px-4 py-2 text-left font-medium">Published</th>
-                    <th className="px-4 py-2 text-right font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {snapshots.map((snap) => (
-                    <tr key={snap.id} className="border-b last:border-0">
-                      <td className="px-4 py-2">v{snap.version_number}</td>
-                      <td className="px-4 py-2 text-muted-foreground">
-                        {new Date(snap.published_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <a
-                          href={`/vpats/${vpatId}/versions/${snap.version_number}`}
-                          className="text-sm font-medium underline-offset-4 hover:underline"
-                        >
-                          View
-                        </a>
-                      </td>
+        {activeTab === 'history' && (
+          <div>
+            {snapshots.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">
+                No published versions yet. Publish this VPAT to create a snapshot.
+              </p>
+            ) : (
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="px-4 py-2 text-left font-medium">Version</th>
+                      <th className="px-4 py-2 text-left font-medium">Published</th>
+                      <th className="px-4 py-2 text-right font-medium">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+                  </thead>
+                  <tbody>
+                    {snapshots.map((snap) => (
+                      <tr key={snap.id} className="border-b last:border-0">
+                        <td className="px-4 py-2">v{snap.version_number}</td>
+                        <td className="px-4 py-2 text-muted-foreground">
+                          {new Date(snap.published_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <a
+                            href={`/vpats/${vpatId}/versions/${snap.version_number}`}
+                            className="text-sm font-medium underline-offset-4 hover:underline"
+                          >
+                            View
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
