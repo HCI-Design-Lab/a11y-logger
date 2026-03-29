@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { parseOpenAcr, type OpenAcrParseResult } from '@/lib/import/parse-openacr';
 
@@ -268,17 +269,17 @@ export default function NewVpatPage() {
           </CardHeader>
           <CardContent className="space-y-5">
             {edition !== '508' && (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="wcag-version">WCAG Version</Label>
-                <select
-                  id="wcag-version"
-                  value={wcagVersion}
-                  onChange={(e) => setWcagVersion(e.target.value as '2.1' | '2.2')}
-                  className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="2.1">WCAG 2.1</option>
-                  <option value="2.2">WCAG 2.2</option>
-                </select>
+                <Select value={wcagVersion} onValueChange={(v) => setWcagVersion(v as '2.1' | '2.2')}>
+                  <SelectTrigger id="wcag-version">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2.1">WCAG 2.1</SelectItem>
+                    <SelectItem value="2.2">WCAG 2.2</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
