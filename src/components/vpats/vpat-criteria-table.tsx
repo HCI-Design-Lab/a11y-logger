@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormRegister } from 'react-hook-form';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -217,7 +217,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
         <TableCell className="align-top pt-3">
           <Button
             type="button"
-            variant="outline"
+            variant="ai"
             size="sm"
             onClick={() => onGenerateRow?.(row.id)}
             disabled={isGenerating}
@@ -227,6 +227,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
                 : `Generate for ${row.criterion_code}`
             }
           >
+            <Sparkles />
             {isGenerating ? 'Generating…' : 'Generate'}
           </Button>
         </TableCell>
@@ -395,7 +396,8 @@ export function VpatCriteriaTable({
     <div className="space-y-6">
       {aiEnabled && !readOnly && onGenerateAll && (
         <div className="flex justify-end">
-          <Button type="button" variant="outline" size="sm" onClick={onGenerateAll}>
+          <Button type="button" variant="ai" size="sm" onClick={onGenerateAll}>
+            <Sparkles />
             Generate All
           </Button>
         </div>
