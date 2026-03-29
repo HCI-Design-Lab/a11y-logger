@@ -238,6 +238,8 @@ describe('core tables schema', () => {
         'ai_reasoning',
         'last_generated_at',
         'updated_at',
+        'ai_referenced_issues',
+        'ai_suggested_conformance',
       ]);
     });
 

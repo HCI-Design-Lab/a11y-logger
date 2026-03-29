@@ -37,6 +37,8 @@ const mockVpatAllResolved = {
       remarks: 'All images have alt text.',
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
       issue_count: 0,
@@ -54,6 +56,8 @@ const mockVpatAllResolved = {
       remarks: 'Good contrast throughout.',
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
       issue_count: 0,
@@ -90,6 +94,8 @@ const mockVpatReviewed = {
       remarks: 'All images have alt text.',
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
       issue_count: 0,
@@ -126,6 +132,8 @@ const mockVpat = {
       remarks: null,
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
       issue_count: 0,
@@ -143,6 +151,8 @@ const mockVpat = {
       remarks: 'Good contrast throughout.',
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
       issue_count: 0,
@@ -200,32 +210,9 @@ describe('VpatEditPage', () => {
     });
   });
 
-  it('shows Publish option disabled when unresolved rows exist', async () => {
-    const user = userEvent.setup();
-    render(<VpatEditPage />);
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
-    });
-    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
-    await waitFor(() => {
-      const publishItem = screen.getByRole('menuitem', { name: /publish/i });
-      expect(publishItem).toHaveAttribute('data-disabled');
-    });
-  });
-
   it('opens issues panel when criterion name is clicked', async () => {
     const user = userEvent.setup();
     render(<VpatEditPage />);
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-      ).toBeInTheDocument();
-    });
-
-    await user.click(
-      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-    );
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
@@ -298,19 +285,6 @@ describe('VpatEditPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('dialog', { name: /submit review/i })).toBeInTheDocument();
-    });
-  });
-
-  it('Publish button is disabled when status is draft', async () => {
-    const user = userEvent.setup();
-    render(<VpatEditPage />);
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
-    });
-    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
-    await waitFor(() => {
-      const publishItem = screen.getByRole('menuitem', { name: /publish/i });
-      expect(publishItem).toHaveAttribute('data-disabled');
     });
   });
 

@@ -125,6 +125,8 @@ describe('VercelAIProvider.generateVpatRow', () => {
       remarks: 'Partially supports.',
       confidence: 'medium',
       reasoning: 'Some issues found.',
+      referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+      suggested_conformance: 'does_not_support',
     };
     mockGenerateText.mockResolvedValue({ text: JSON.stringify(row) } as never);
     const provider = new VercelAIProvider(fakeModel);

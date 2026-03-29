@@ -24,21 +24,19 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   ...overrides,
 });
 
-// Sections start collapsed — call this to reveal row content in tests that need it.
-const expandSection = (label = /expand Table 1/i) =>
+// Sections start expanded — call this to collapse a section in tests that need it.
+const collapseSection = (label = /collapse Table 1/i) =>
   fireEvent.click(screen.getByRole('button', { name: label }));
 
 describe('VpatCriteriaTable', () => {
   it('renders criterion code and name', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expandSection();
     expect(screen.getByText('1.1.1')).toBeInTheDocument();
     expect(screen.getByText('Non-text Content')).toBeInTheDocument();
   });
 
   it('shows amber left border when conformance is not_evaluated', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expandSection();
     expect(screen.getByTestId('row-1')).toHaveClass('border-amber-400');
   });
 
@@ -50,32 +48,35 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
-    expandSection();
     expect(screen.getByTestId('row-1')).not.toHaveClass('border-amber-400');
   });
 
-  it('shows confidence badge when ai_confidence is set', () => {
+  it('shows confidence badge when ai_confidence is set (via AI info modal)', () => {
     render(
       <VpatCriteriaTable
         rows={[makeRow({ ai_confidence: 'high', remarks: 'AI text' })]}
         onRowChange={vi.fn()}
         onSaveRemarks={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
       />
     );
-    expandSection();
+    fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
     expect(screen.getByText(/high/i)).toBeInTheDocument();
   });
 
-  it('shows expandable reasoning button when ai_reasoning is set', () => {
+  it('shows reasoning in AI info modal when ai_reasoning is set', () => {
     render(
       <VpatCriteriaTable
-        rows={[makeRow({ ai_reasoning: 'Step 1: ...', remarks: 'text' })]}
+        rows={[makeRow({ ai_reasoning: 'Step 1: check images.', remarks: 'text' })]}
         onRowChange={vi.fn()}
         onSaveRemarks={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
       />
     );
-    expandSection();
-    expect(screen.getByRole('button', { name: /show reasoning for 1.1.1/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
+    expect(screen.getByText(/Step 1: check images/i)).toBeInTheDocument();
   });
 
   it('renders read-only when readOnly prop is true', () => {
@@ -175,7 +176,6 @@ describe('VpatCriteriaTable', () => {
     render(
       <VpatCriteriaTable rows={[makeRow()]} onRowChange={onRowChange} onSaveRemarks={vi.fn()} />
     );
-    expandSection();
     const select = screen.getByRole('combobox', { name: /conformance for 1.1.1/i });
     fireEvent.click(select);
     const option = screen.getByRole('option', { name: /supports$/i });
@@ -183,15 +183,17 @@ describe('VpatCriteriaTable', () => {
     expect(onRowChange).toHaveBeenCalledWith('1', { conformance: 'supports' });
   });
 
-  it('shows low confidence warning when ai_confidence is low', () => {
+  it('shows low confidence warning when ai_confidence is low (via AI info modal)', () => {
     render(
       <VpatCriteriaTable
         rows={[makeRow({ ai_confidence: 'low', remarks: 'text' })]}
         onRowChange={vi.fn()}
         onSaveRemarks={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
       />
     );
-    expandSection();
+    fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
     expect(screen.getByText(/limited evidence/i)).toBeInTheDocument();
   });
 
@@ -205,7 +207,6 @@ describe('VpatCriteriaTable', () => {
         aiEnabled
       />
     );
-    expandSection();
     expect(screen.getByRole('button', { name: /generate for 1.1.1/i })).toBeInTheDocument();
   });
 
@@ -220,7 +221,6 @@ describe('VpatCriteriaTable', () => {
         readOnly
       />
     );
-    expandSection();
     expect(screen.queryByRole('button', { name: /generate for 1.1.1/i })).not.toBeInTheDocument();
   });
 
@@ -235,21 +235,21 @@ describe('VpatCriteriaTable', () => {
         aiEnabled
       />
     );
-    expandSection();
     fireEvent.click(screen.getByRole('button', { name: /generate for 1.1.1/i }));
     expect(onGenerateRow).toHaveBeenCalledWith('1');
   });
 
-  it('shows reasoning text when reasoning button is clicked', () => {
+  it('shows reasoning text in AI info modal when opened', () => {
     render(
       <VpatCriteriaTable
         rows={[makeRow({ ai_reasoning: 'Step 1: check images.', remarks: 'text' })]}
         onRowChange={vi.fn()}
         onSaveRemarks={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
       />
     );
-    expandSection();
-    fireEvent.click(screen.getByRole('button', { name: /show reasoning for 1.1.1/i }));
+    fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
     expect(screen.getByText(/Step 1: check images/i)).toBeInTheDocument();
   });
 
@@ -279,7 +279,6 @@ describe('VpatCriteriaTable', () => {
         generatingRowId="1"
       />
     );
-    expandSection();
     const btn = screen.getByRole('button', { name: /generating for 1.1.1/i });
     expect(btn).toBeDisabled();
   });
@@ -292,7 +291,6 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
-    expandSection();
     expect(screen.getByText('(3)')).toBeInTheDocument();
   });
 
@@ -304,35 +302,35 @@ describe('VpatCriteriaTable', () => {
         onSaveRemarks={vi.fn()}
       />
     );
-    expandSection();
     expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
   });
 
-  it('sections are collapsed by default', () => {
+  it('sections are expanded by default', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
+    expect(screen.getByTestId('row-1')).toBeInTheDocument();
   });
 
-  it('shows resolved/total count when collapsed by default', () => {
+  it('shows resolved/total count when section is collapsed', () => {
     const rows = [
       makeRow({ id: '1', conformance: 'supports' }),
       makeRow({ id: '2', criterion_code: '1.2.1', conformance: 'not_evaluated' }),
     ];
     render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    collapseSection();
     expect(screen.getByText(/1 of 2 resolved/i)).toBeInTheDocument();
   });
 
-  it('expands a section when the toggle button is clicked', () => {
+  it('collapses a section when the toggle button is clicked', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
-    expect(screen.getByTestId('row-1')).toBeInTheDocument();
-  });
-
-  it('collapses an expanded section when toggle is clicked again', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
     fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
     expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
+  });
+
+  it('re-expands a collapsed section when toggle is clicked again', () => {
+    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
+    fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
+    expect(screen.getByTestId('row-1')).toBeInTheDocument();
   });
 
   it('calls onSaveRemarks with row id and value after debounce', () => {
@@ -341,7 +339,6 @@ describe('VpatCriteriaTable', () => {
     render(
       <VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={onSaveRemarks} />
     );
-    expandSection();
     const textarea = screen.getByRole('textbox', { name: /remarks for 1.1.1/i });
     fireEvent.change(textarea, { target: { value: 'New remark' } });
     expect(onSaveRemarks).not.toHaveBeenCalled();

@@ -82,6 +82,8 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
         reasoning: 'Test',
         remarks: 'Generated remark.',
         confidence: 'medium',
+        referenced_issues: [],
+        suggested_conformance: 'supports',
       }),
     } as Awaited<ReturnType<typeof generateText>>);
 
@@ -111,6 +113,8 @@ describe('POST /api/vpats/[id]/rows/generate-all', () => {
           reasoning: 'r',
           remarks: 'Generated.',
           confidence: 'medium',
+          referenced_issues: [],
+          suggested_conformance: 'supports',
         }),
       } as Awaited<ReturnType<typeof generateText>>;
     });
