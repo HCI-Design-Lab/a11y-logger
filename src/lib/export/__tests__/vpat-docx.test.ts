@@ -1,9 +1,17 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
+import JSZip from 'jszip';
 import { generateVpatDocx } from '../vpat-docx';
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+
+async function extractDocxText(buffer: Buffer): Promise<string> {
+  const zip = await JSZip.loadAsync(buffer);
+  const xml = await zip.file('word/document.xml')!.async('string');
+  // Strip XML tags, leaving just the text content
+  return xml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+}
 
 const mockVpat: Vpat = {
   id: 'v1',
@@ -17,6 +25,8 @@ const mockVpat: Vpat = {
   status: 'draft',
   version_number: 1,
   published_at: null,
+  reviewed_by: null,
+  reviewed_at: null,
   created_at: '2026-01-01T00:00:00.000Z',
   updated_at: '2026-01-01T00:00:00.000Z',
 };
@@ -71,5 +81,35 @@ describe('generateVpatDocx', () => {
     const buffer = await generateVpatDocx(mockVpat, mockProject, []);
     expect(Buffer.isBuffer(buffer)).toBe(true);
     expect(buffer.length).toBeGreaterThan(0);
+  });
+
+  describe('reviewer info', () => {
+    it('includes "Reviewed by Jane Smith" when reviewed_by is set', async () => {
+      const reviewedVpat: Vpat = {
+        ...mockVpat,
+        reviewed_by: 'Jane Smith',
+        reviewed_at: '2026-03-29T10:00:00.000Z',
+      };
+      const buffer = await generateVpatDocx(reviewedVpat, mockProject, mockRows);
+      const text = await extractDocxText(buffer);
+      expect(text).toContain('Reviewed by Jane Smith');
+    });
+
+    it('includes the formatted review date when reviewed_at is set', async () => {
+      const reviewedVpat: Vpat = {
+        ...mockVpat,
+        reviewed_by: 'Jane Smith',
+        reviewed_at: '2026-03-29T10:00:00.000Z',
+      };
+      const buffer = await generateVpatDocx(reviewedVpat, mockProject, mockRows);
+      const text = await extractDocxText(buffer);
+      expect(text).toContain('March 29, 2026');
+    });
+
+    it('does not include "Reviewed by" when reviewed_by is null', async () => {
+      const buffer = await generateVpatDocx(mockVpat, mockProject, mockRows);
+      const text = await extractDocxText(buffer);
+      expect(text).not.toContain('Reviewed by');
+    });
   });
 });

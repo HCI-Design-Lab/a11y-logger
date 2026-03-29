@@ -153,8 +153,27 @@ export async function generateVpatDocx(
         new TextRun({ text: vpat.status.charAt(0).toUpperCase() + vpat.status.slice(1) }),
       ],
     }),
-    new Paragraph({ text: '' }),
   ];
+
+  if (vpat.reviewed_by && vpat.reviewed_at) {
+    const reviewedDate = new Date(vpat.reviewed_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `Reviewed by ${vpat.reviewed_by} on ${reviewedDate}.`,
+            italics: true,
+          }),
+        ],
+      })
+    );
+  }
+
+  children.push(new Paragraph({ text: '' }));
 
   for (const section of orderedSections) {
     const sectionRows = bySection.get(section)!;
