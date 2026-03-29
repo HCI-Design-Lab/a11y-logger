@@ -63,6 +63,18 @@ const CONFIDENCE_COLORS: Record<string, string> = {
   low: 'bg-red-100 text-red-800',
 };
 
+const SUGGESTED_CONFORMANCE_COLORS: Record<string, string> = {
+  supports: 'border-green-500 text-green-700',
+  does_not_support: 'border-red-500 text-red-700',
+  not_applicable: 'border-gray-400 text-gray-600',
+};
+
+const SUGGESTED_CONFORMANCE_LABELS: Record<string, string> = {
+  supports: 'Supports',
+  does_not_support: 'Does Not Support',
+  not_applicable: 'Not Applicable',
+};
+
 type RemarksFormValues = Record<string, string>;
 
 interface CriterionTableRowProps {
@@ -240,7 +252,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
           <DialogHeader>
             <DialogTitle>AI Analysis — {row.criterion_code}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 pt-1">
+          <div className="space-y-4 pt-1">
             {row.ai_confidence && (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Confidence</span>
@@ -257,11 +269,65 @@ const CriterionTableRow = memo(function CriterionTableRow({
                 )}
               </div>
             )}
+
+            {row.ai_suggested_conformance && (
+              <div>
+                <p className="text-sm font-medium mb-1">Suggested Conformance</p>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${SUGGESTED_CONFORMANCE_COLORS[row.ai_suggested_conformance] ?? ''}`}
+                >
+                  {SUGGESTED_CONFORMANCE_LABELS[row.ai_suggested_conformance]}
+                </Badge>
+                <p className="text-xs text-muted-foreground mt-1">
+                  AI recommendation only — does not update the conformance selector.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-sm font-medium mb-1">
+                Issues Referenced
+                {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 && (
+                  <span className="font-normal text-muted-foreground ml-1">
+                    ({row.ai_referenced_issues.length})
+                  </span>
+                )}
+              </p>
+              {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
+                <ul className="space-y-1">
+                  {row.ai_referenced_issues.map((issue, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground flex-1">{issue.title}</span>
+                      <Badge variant="outline" className="text-xs capitalize">
+                        {issue.severity}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">No issues mapped to this criterion.</p>
+              )}
+            </div>
+
             {row.ai_reasoning && (
               <div>
                 <p className="text-sm font-medium mb-1">Reasoning</p>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">{row.ai_reasoning}</p>
               </div>
+            )}
+
+            {row.last_generated_at && (
+              <p className="text-xs text-muted-foreground border-t pt-2">
+                Generated{' '}
+                {new Date(row.last_generated_at).toLocaleString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
+              </p>
             )}
           </div>
         </DialogContent>
