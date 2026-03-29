@@ -21,6 +21,8 @@ const mockVpat = {
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
   published_at: null,
+  reviewed_by: null,
+  reviewed_at: null,
   criterion_rows: [
     {
       id: 'row-1',
@@ -130,6 +132,98 @@ describe('VpatDetailPage (view)', () => {
 
     await waitFor(() => {
       expect(screen.getByText('1.1.1')).toBeInTheDocument();
+    });
+  });
+
+  it('shows reviewer block when VPAT is reviewed', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            ...mockVpat,
+            status: 'reviewed',
+            reviewed_by: 'Jane Smith',
+            reviewed_at: '2026-03-29T10:00:00.000Z',
+          },
+        }),
+      } as unknown as Response);
+    });
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByText(/Reviewed by Jane Smith/)).toBeInTheDocument();
+    });
+  });
+
+  it('shows reviewer block when VPAT is published', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            ...mockVpat,
+            status: 'published',
+            reviewed_by: 'Jane Smith',
+            reviewed_at: '2026-03-29T10:00:00.000Z',
+          },
+        }),
+      } as unknown as Response);
+    });
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByText(/Reviewed by Jane Smith/)).toBeInTheDocument();
+    });
+  });
+
+  it('does not show reviewer block when VPAT is draft', async () => {
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/Reviewed by/)).not.toBeInTheDocument();
+  });
+
+  it('shows Reviewed badge when status is reviewed', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            ...mockVpat,
+            status: 'reviewed',
+            reviewed_by: 'Jane Smith',
+            reviewed_at: '2026-03-29T10:00:00.000Z',
+          },
+        }),
+      } as unknown as Response);
+    });
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Reviewed')).toBeInTheDocument();
     });
   });
 });

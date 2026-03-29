@@ -62,6 +62,7 @@ export default function VpatDetailPage() {
   if (!vpat) return null;
 
   const isPublished = vpat.status === 'published';
+  const isReviewed = vpat.status === 'reviewed';
   const editionLabel = getEditionBadgeLabel(vpat);
 
   return (
@@ -79,12 +80,24 @@ export default function VpatDetailPage() {
                 className={
                   isPublished
                     ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
-                    : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
+                    : isReviewed
+                      ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
+                      : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
                 }
               >
-                {isPublished ? 'Published' : 'Draft'}
+                {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
               </Badge>
             </div>
+            {(isReviewed || isPublished) && vpat.reviewed_by && (
+              <p className="text-sm text-muted-foreground">
+                Reviewed by {vpat.reviewed_by} on{' '}
+                {new Date(vpat.reviewed_at!).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <VpatSettingsMenu
