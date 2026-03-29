@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ImportOpenAcrModal } from '@/components/vpats/import-openacr-modal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ViewToggle } from '@/components/ui/view-toggle';
@@ -32,23 +30,25 @@ interface VpatsListViewProps {
 
 export function VpatsListView({ vpats }: VpatsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
-  const router = useRouter();
 
   return (
     <main className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">VPATs</h1>
-        <div className="flex items-center gap-2">
-          <ImportOpenAcrModal onImportComplete={(id) => router.push(`/vpats/${id}`)} />
-          <Button asChild variant="outline" size="sm">
-            <Link href="/vpats/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New VPAT
-            </Link>
-          </Button>
-          <ViewToggle view={view} onViewChange={setView} />
+      <section aria-labelledby="vpats-heading">
+        <div className="flex items-center justify-between">
+          <h1 id="vpats-heading" className="text-lg font-semibold">
+            VPATs
+          </h1>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="success">
+              <Link href="/vpats/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New VPAT
+              </Link>
+            </Button>
+            <ViewToggle view={view} onViewChange={setView} />
+          </div>
         </div>
-      </div>
+      </section>
 
       {vpats.length === 0 ? (
         <Card>
