@@ -200,7 +200,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
         )}
 
         {readOnly ? (
-          <span className="text-sm text-muted-foreground">{row.remarks || '—'}</span>
+          <span className="text-sm text-muted-foreground whitespace-pre-wrap">{row.remarks || '—'}</span>
         ) : (
           <Textarea
             {...register(row.id, {
