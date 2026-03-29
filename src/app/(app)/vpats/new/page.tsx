@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import jsYaml from 'js-yaml';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -210,7 +211,7 @@ export default function NewVpatPage() {
             ))}
             <div className="flex justify-end pt-2">
               <Button type="button" onClick={() => setStep(2)}>
-                Next
+                Next <ChevronRight />
               </Button>
             </div>
           </CardContent>
@@ -247,11 +248,11 @@ export default function NewVpatPage() {
               </div>
             )}
             <div className="flex justify-between pt-2">
-              <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                Back
+              <Button type="button" variant="cancel" onClick={() => setStep(1)}>
+                <ChevronLeft /> Back
               </Button>
               <Button type="button" onClick={() => setStep(3)} disabled={!parsed}>
-                Next
+                Next <ChevronRight />
               </Button>
             </div>
           </CardContent>
@@ -329,11 +330,11 @@ export default function NewVpatPage() {
             </fieldset>
 
             <div className="flex justify-between pt-2">
-              <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                Back
+              <Button type="button" variant="cancel" onClick={() => setStep(1)}>
+                <ChevronLeft /> Back
               </Button>
               <Button type="button" onClick={() => setStep(3)} disabled={productScope.length === 0}>
-                Next
+                Next <ChevronRight />
               </Button>
             </div>
           </CardContent>
@@ -377,8 +378,8 @@ export default function NewVpatPage() {
               )}
             </div>
             <div className="flex justify-between pt-2">
-              <Button type="button" variant="outline" onClick={() => setStep(2)}>
-                Back
+              <Button type="button" variant="cancel" onClick={() => setStep(2)}>
+                <ChevronLeft /> Back
               </Button>
               <div className="flex gap-2">
                 <Button type="button" variant="cancel" asChild>
