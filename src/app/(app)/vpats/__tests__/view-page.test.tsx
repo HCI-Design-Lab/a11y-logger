@@ -83,7 +83,7 @@ describe('VpatDetailPage (view)', () => {
   it('shows VPAT title after loading', async () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText('Test VPAT')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
     });
   });
 
@@ -91,6 +91,14 @@ describe('VpatDetailPage (view)', () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
       expect(screen.getByText(/WCAG 2\.1/i)).toBeInTheDocument();
+    });
+  });
+
+  it('uses VPAT title in breadcrumbs (not hardcoded label)', async () => {
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.queryByText('VPAT Detail')).not.toBeInTheDocument();
+      expect(screen.getAllByText('Test VPAT').length).toBeGreaterThan(0);
     });
   });
 

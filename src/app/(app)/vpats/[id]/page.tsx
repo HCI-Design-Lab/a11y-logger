@@ -68,7 +68,7 @@ export default function VpatDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: 'VPATs', href: '/vpats' }, { label: 'VPAT Detail' }]} />
+      <Breadcrumbs items={[{ label: 'VPATs', href: '/vpats' }, { label: vpat.title }]} />
 
       {/* Header card */}
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
