@@ -214,7 +214,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
         )}
       </TableCell>
       {aiEnabled && !readOnly && (
-        <TableCell className="align-top pt-3">
+        <TableCell className="align-top pt-3 text-center">
           <Button
             type="button"
             variant="ai"
@@ -297,11 +297,11 @@ const CriterionSection = memo(function CriterionSection({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-24">Criterion</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className="w-48">Conformance</TableHead>
-                <TableHead>Remarks</TableHead>
-                {aiEnabled && !readOnly && <TableHead className="w-28">AI</TableHead>}
+                <TableHead className="w-20">Criterion</TableHead>
+                <TableHead className="w-[30%]">Name</TableHead>
+                <TableHead className="w-40">Conformance</TableHead>
+                <TableHead className="w-[30%]">Remarks</TableHead>
+                {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
