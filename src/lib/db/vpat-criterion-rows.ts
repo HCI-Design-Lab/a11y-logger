@@ -78,9 +78,14 @@ function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
     conformance: raw.conformance as VpatCriterionRow['conformance'],
     ai_confidence: raw.ai_confidence as VpatCriterionRow['ai_confidence'],
     ai_suggested_conformance: raw.ai_suggested_conformance as VpatCriterionRow['ai_suggested_conformance'],
-    ai_referenced_issues: raw.ai_referenced_issues
-      ? (JSON.parse(raw.ai_referenced_issues) as { title: string; severity: string }[])
-      : null,
+    ai_referenced_issues: (() => {
+      if (!raw.ai_referenced_issues) return null;
+      try {
+        return JSON.parse(raw.ai_referenced_issues) as { title: string; severity: string }[];
+      } catch {
+        return null;
+      }
+    })(),
     issue_count: raw.issue_count ?? 0,
   };
 }

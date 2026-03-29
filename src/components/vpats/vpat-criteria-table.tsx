@@ -108,7 +108,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
 }: CriterionTableRowProps) {
   const isDisabled = isGenerating || isGeneratingAll;
   const [showAiInfo, setShowAiInfo] = useState(false);
-  const hasAiInfo = !!(row.ai_confidence || row.ai_reasoning);
+  const hasAiInfo = !!(row.ai_confidence || row.ai_reasoning || row.ai_suggested_conformance || row.ai_referenced_issues);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const autoResize = useCallback((el: HTMLTextAreaElement | null) => {

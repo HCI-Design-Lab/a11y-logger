@@ -111,6 +111,11 @@ export function parseVpatRowResponse(raw: string): VpatRowGenerationResult {
     !(VALID_CONFIDENCE as readonly string[]).includes(result.confidence) ||
     typeof result.reasoning !== 'string' ||
     !Array.isArray(result.referenced_issues) ||
+    !result.referenced_issues.every(
+      (item) =>
+        typeof (item as Record<string, unknown>).title === 'string' &&
+        typeof (item as Record<string, unknown>).severity === 'string'
+    ) ||
     typeof result.suggested_conformance !== 'string' ||
     !(VALID_SUGGESTED_CONFORMANCE as readonly string[]).includes(result.suggested_conformance)
   ) {

@@ -195,4 +195,18 @@ describe('parseVpatRowResponse', () => {
       )
     ).toThrow('AI response missing required fields');
   });
+
+  it('throws when referenced_issues items have wrong shape', () => {
+    expect(() =>
+      parseVpatRowResponse(
+        JSON.stringify({
+          reasoning: 'ok',
+          remarks: 'ok',
+          confidence: 'high',
+          referenced_issues: [{ title: 'Missing alt' }], // missing severity
+          suggested_conformance: 'supports',
+        })
+      )
+    ).toThrow('AI response missing required fields');
+  });
 });
