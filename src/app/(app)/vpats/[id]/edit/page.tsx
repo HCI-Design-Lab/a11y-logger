@@ -10,11 +10,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { History, X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { X } from 'lucide-react';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
-import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import type { VpatData } from '@/lib/db/vpats';
 
@@ -33,7 +31,7 @@ export default function VpatEditPage() {
   const [vpat, setVpat] = useState<VpatData | null>(null);
   const [rows, setRows] = useState<VpatCriterionRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPublishing, setIsPublishing] = useState(false);
+
   const [generatingRowId, setGeneratingRowId] = useState<string | null>(null);
   const [panelRowCode, setPanelRowCode] = useState<string | null>(null);
   const [panelIssues, setPanelIssues] = useState<PanelIssue[]>([]);
@@ -42,9 +40,6 @@ export default function VpatEditPage() {
   const [generateProgress, setGenerateProgress] = useState(0);
   const [generateTotal, setGenerateTotal] = useState(0);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
-  const [snapshots, setSnapshots] = useState<
-    { id: string; version_number: number; published_at: string }[]
-  >([]);
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [hasShownEditWarning, setHasShownEditWarning] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -67,14 +62,6 @@ export default function VpatEditPage() {
         if (json.data.status === 'reviewed') {
           setShowEditWarning(true);
           setHasShownEditWarning(true);
-        }
-        // Load version history
-        try {
-          const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
-          const snapJson = await snapRes.json();
-          if (snapJson.success) setSnapshots(snapJson.data);
-        } catch {
-          // non-fatal — version history tab shows empty state
         }
       } catch {
         toast.error('Failed to load VPAT');
@@ -222,32 +209,6 @@ export default function VpatEditPage() {
     [vpat]
   );
 
-  const handlePublish = useCallback(async () => {
-    setIsPublishing(true);
-    try {
-      const res = await fetch(`/api/vpats/${vpatId}/publish`, { method: 'POST' });
-      const json = await res.json();
-      if (!json.success) {
-        toast.error(json.error ?? 'Failed to publish');
-        return;
-      }
-      setVpat(json.data);
-      // Refresh snapshots after publish
-      try {
-        const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
-        const snapJson = await snapRes.json();
-        if (snapJson.success) setSnapshots(snapJson.data);
-      } catch {
-        // non-fatal
-      }
-      toast.success('VPAT published');
-    } catch {
-      toast.error('Failed to publish');
-    } finally {
-      setIsPublishing(false);
-    }
-  }, [vpatId]);
-
   const handleReview = useCallback(async () => {
     if (!reviewerName.trim()) return;
     setIsReviewing(true);
@@ -281,7 +242,7 @@ export default function VpatEditPage() {
   const resolved = rows.filter((r) => r.conformance !== 'not_evaluated').length;
   const total = rows.length;
   const canReview = resolved === total && total > 0 && !isReviewed && !isPublished;
-  const canPublish = isReviewed;
+
   const editionLabel = getEditionBadgeLabel(vpat);
 
   return (
@@ -296,132 +257,71 @@ export default function VpatEditPage() {
 
       {/* Header card */}
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold">{vpat.title}</h1>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">{editionLabel}</Badge>
-              <Badge
-                className={
-                  isPublished
-                    ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
-                    : isReviewed
-                    ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
-                    : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
-                }
-              >
-                {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
-              </Badge>
-            </div>
-          </div>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">{vpat.title}</h1>
           <div className="flex items-center gap-2">
-            <Button asChild variant="cancel">
-              <Link href={`/vpats/${vpatId}`}>
-                <X className="h-4 w-4" />
-                Cancel
-              </Link>
-            </Button>
-            <Button
-              onClick={() => setShowReviewModal(true)}
-              disabled={!canReview}
-              title={!canReview ? 'All criteria must be evaluated before review' : undefined}
+            <Badge variant="outline">{editionLabel}</Badge>
+            <Badge
+              className={
+                isPublished
+                  ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
+                  : isReviewed
+                  ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
+                  : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
+              }
             >
-              Review
-            </Button>
-            <VpatSettingsMenu
-              vpatId={vpat.id}
-              vpatTitle={vpat.title}
-              isPublished={isPublished}
-              canPublish={canPublish}
-              isPublishing={isPublishing}
-              onPublish={handlePublish}
-              variant="edit"
-            />
+              {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
+            </Badge>
           </div>
         </div>
       </div>
 
-      <Tabs defaultValue="criteria">
-        <TabsList>
-          <TabsTrigger value="criteria">Criteria</TabsTrigger>
-          <TabsTrigger value="history">
-            <History className="mr-1 h-4 w-4" />
-            Version History
-            {snapshots.length > 0 && (
-              <span className="ml-1 text-xs text-muted-foreground">({snapshots.length})</span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="criteria" className="space-y-6">
-          {/* Progress */}
-          <Card>
-            <CardContent className="pt-4">
-              <p className="text-sm font-medium">
-                {resolved} of {total} criteria resolved
-              </p>
-              <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all"
-                  style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Criteria Table — key resets RHF defaults after generate-all */}
-          <VpatCriteriaTable
-            key={tableKey}
-            rows={rows}
-            onRowChange={handleRowChange}
-            onSaveRemarks={handleSaveRemarks}
-            onGenerateRow={handleGenerateRow}
-            onGenerateAll={handleGenerateAll}
-            generatingRowId={generatingRowId}
-            readOnly={isPublished}
-            aiEnabled={true}
-            onCriterionClick={handleCriterionClick}
-          />
-        </TabsContent>
-
-        <TabsContent value="history">
-          {snapshots.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
-              No published versions yet. Publish this VPAT to create a snapshot.
+      <div className="space-y-6">
+        {/* Progress */}
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium">
+              {resolved} of {total} criteria resolved
             </p>
-          ) : (
-            <div className="rounded-md border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="px-4 py-2 text-left font-medium">Version</th>
-                    <th className="px-4 py-2 text-left font-medium">Published</th>
-                    <th className="px-4 py-2 text-right font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {snapshots.map((snap) => (
-                    <tr key={snap.id} className="border-b last:border-0">
-                      <td className="px-4 py-2">v{snap.version_number}</td>
-                      <td className="px-4 py-2 text-muted-foreground">
-                        {new Date(snap.published_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <Link
-                          href={`/vpats/${vpatId}/versions/${snap.version_number}`}
-                          className="text-sm font-medium underline-offset-4 hover:underline"
-                        >
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
+              />
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Criteria Table — key resets RHF defaults after generate-all */}
+        <VpatCriteriaTable
+          key={tableKey}
+          rows={rows}
+          onRowChange={handleRowChange}
+          onSaveRemarks={handleSaveRemarks}
+          onGenerateRow={handleGenerateRow}
+          onGenerateAll={handleGenerateAll}
+          generatingRowId={generatingRowId}
+          readOnly={isPublished}
+          aiEnabled={true}
+          onCriterionClick={handleCriterionClick}
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={() => setShowReviewModal(true)}
+          disabled={!canReview}
+          title={!canReview ? 'All criteria must be evaluated before review' : undefined}
+        >
+          Review
+        </Button>
+        <Button asChild variant="cancel">
+          <Link href={`/vpats/${vpatId}`}>
+            <X className="h-4 w-4" />
+            Cancel
+          </Link>
+        </Button>
+      </div>
 
       {/* Edit-warning modal */}
       <Dialog open={showEditWarning} onOpenChange={setShowEditWarning}>
