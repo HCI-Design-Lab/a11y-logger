@@ -99,7 +99,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
   return (
     <TableRow
       data-testid={`row-${row.id}`}
-      className={`border-l-4 ${isUnresolved ? 'border-amber-400' : 'border-transparent'}`}
+      className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-transparent'}`}
     >
       <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
       <TableCell className="align-top pt-3">
@@ -155,7 +155,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
       </TableCell>
       <TableCell className="align-top pt-2">
         {/* AI confidence badge + reasoning toggle */}
-        {(row.ai_confidence || row.ai_reasoning) && (
+        {!readOnly && (row.ai_confidence || row.ai_reasoning) && (
           <div className="mb-1 flex items-center gap-2">
             {row.ai_confidence && (
               <Badge
@@ -186,14 +186,14 @@ const CriterionTableRow = memo(function CriterionTableRow({
         )}
 
         {/* Low confidence warning */}
-        {row.ai_confidence === 'low' && (
+        {!readOnly && row.ai_confidence === 'low' && (
           <p className="text-xs text-amber-600 mb-1">
             AI flagged limited evidence — consider additional testing before setting conformance.
           </p>
         )}
 
         {/* Reasoning expandable */}
-        {isExpanded && row.ai_reasoning && (
+        {!readOnly && isExpanded && row.ai_reasoning && (
           <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2 mb-1 whitespace-pre-wrap">
             {row.ai_reasoning}
           </div>

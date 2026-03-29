@@ -102,13 +102,6 @@ describe('VpatDetailPage (view)', () => {
     });
   });
 
-  it('shows Edit VPAT button', async () => {
-    render(<VpatDetailPage />);
-    await waitFor(() => {
-      expect(screen.getByRole('link', { name: /edit vpat/i })).toBeInTheDocument();
-    });
-  });
-
   it('does not show Publish in settings menu (view variant)', async () => {
     const user = userEvent.setup();
     render(<VpatDetailPage />);

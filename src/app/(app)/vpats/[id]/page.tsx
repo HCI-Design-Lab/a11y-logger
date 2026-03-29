@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { History, Pencil } from 'lucide-react';
+import { History } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatData } from '@/lib/db/vpats';
-import Link from 'next/link';
 
 function getEditionBadgeLabel(vpat: VpatData): string {
   if (vpat.standard_edition === '508') return 'Section 508';
@@ -89,14 +87,6 @@ export default function VpatDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isPublished && (
-              <Button asChild variant="default" size="sm">
-                <Link href={`/vpats/${vpatId}/edit`}>
-                  <Pencil className="h-4 w-4" />
-                  Edit VPAT
-                </Link>
-              </Button>
-            )}
             <VpatSettingsMenu
               vpatId={vpat.id}
               vpatTitle={vpat.title}
