@@ -112,7 +112,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
             aria-label={`View issues for ${row.criterion_code}`}
           >
             {row.criterion_name}
-            {row.issue_count > 0 && (
+            {!readOnly && row.issue_count > 0 && (
               <span className="ml-1.5 text-xs font-normal text-muted-foreground">
                 ({row.issue_count})
               </span>
@@ -121,7 +121,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
         ) : (
           <div className="font-medium text-sm">
             {row.criterion_name}
-            {row.issue_count > 0 && (
+            {!readOnly && row.issue_count > 0 && (
               <span className="ml-1.5 text-xs font-normal text-muted-foreground">
                 ({row.issue_count})
               </span>
@@ -261,7 +261,7 @@ const CriterionSection = memo(function CriterionSection({
   onCriterionClick,
   register,
 }: CriterionSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const label = SECTION_LABELS[section] ?? section;
   const resolved = sectionRows.filter((r) => r.conformance !== 'not_evaluated').length;
   const total = sectionRows.length;
