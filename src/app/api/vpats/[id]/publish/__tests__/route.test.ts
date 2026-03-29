@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
-import { createVpat } from '@/lib/db/vpats';
+import { createVpat, reviewVpat } from '@/lib/db/vpats';
 import { POST } from '../route';
 
 let projectId: string;
@@ -35,6 +35,7 @@ beforeEach(async () => {
   getDb()
     .prepare("UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ?")
     .run(vpatId);
+  await reviewVpat(vpatId, 'Test Reviewer');
 });
 
 function makeContext(id: string) {
@@ -72,6 +73,27 @@ describe('POST /api/vpats/[id]/publish', () => {
     const body = await response.json();
     expect(body.success).toBe(false);
     expect(body.code).toBe('UNRESOLVED_ROWS');
+  });
+
+  it('returns 422 NOT_REVIEWED when VPAT is not reviewed', async () => {
+    const vpat2 = await createVpat({
+      title: 'Draft Only',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    getDb()
+      .prepare("UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ?")
+      .run(vpat2.id);
+    const response = await POST(
+      new Request(`http://localhost/api/vpats/${vpat2.id}/publish`, { method: 'POST' }),
+      makeContext(vpat2.id)
+    );
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.code).toBe('NOT_REVIEWED');
   });
 
   it('returns 404 for nonexistent VPAT id', async () => {

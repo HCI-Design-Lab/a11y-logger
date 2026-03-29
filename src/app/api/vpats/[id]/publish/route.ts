@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { publishVpat, VpatNotFoundError, UnresolvedRowsError } from '@/lib/db/vpats';
+import { publishVpat, VpatNotFoundError, UnresolvedRowsError, NotReviewedError } from '@/lib/db/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -18,6 +18,12 @@ export async function POST(_request: Request, { params }: RouteContext) {
     if (err instanceof UnresolvedRowsError) {
       return NextResponse.json(
         { success: false, error: err.message, code: 'UNRESOLVED_ROWS' },
+        { status: 422 }
+      );
+    }
+    if (err instanceof NotReviewedError) {
+      return NextResponse.json(
+        { success: false, error: err.message, code: 'NOT_REVIEWED' },
         { status: 422 }
       );
     }

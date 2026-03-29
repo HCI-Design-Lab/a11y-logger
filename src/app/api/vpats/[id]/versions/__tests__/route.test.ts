@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
-import { createVpat, publishVpat } from '@/lib/db/vpats';
+import { createVpat, publishVpat, reviewVpat } from '@/lib/db/vpats';
 import { GET } from '../route';
 
 let projectId: string;
@@ -35,6 +35,7 @@ beforeEach(async () => {
   getDb()
     .prepare("UPDATE vpat_criterion_rows SET conformance = 'supports' WHERE vpat_id = ?")
     .run(vpatId);
+  await reviewVpat(vpatId, 'Test Reviewer');
 });
 
 function makeContext(id: string) {
