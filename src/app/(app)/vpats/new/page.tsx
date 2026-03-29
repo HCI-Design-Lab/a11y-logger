@@ -285,7 +285,7 @@ export default function NewVpatPage() {
 
             {edition !== '508' && edition !== 'EU' && (
               <fieldset className="space-y-2">
-                <legend className="text-sm font-medium">Conformance Level</legend>
+                <legend className="text-sm font-bold">Conformance Level</legend>
                 {(['A', 'AA', 'AAA'] as const).map((lvl) => (
                   <label key={lvl} className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -311,7 +311,7 @@ export default function NewVpatPage() {
             )}
 
             <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">Product Scope</legend>
+              <legend className="text-sm font-bold">Product Scope</legend>
               <p className="text-sm text-muted-foreground">
                 Select all product types this VPAT covers.
               </p>
