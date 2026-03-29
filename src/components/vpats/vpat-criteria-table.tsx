@@ -95,6 +95,18 @@ const CriterionTableRow = memo(function CriterionTableRow({
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleReasoning = useCallback(() => setIsExpanded((v) => !v), []);
 
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  // Resize after row.remarks changes — rAF lets the parent's setValue update the DOM first.
+  useEffect(() => {
+    requestAnimationFrame(() => autoResize(textareaRef.current));
+  }, [row.remarks, autoResize]);
+
   const isUnresolved = row.conformance === 'not_evaluated';
   const conformanceLabel =
     CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
@@ -207,13 +219,23 @@ const CriterionTableRow = memo(function CriterionTableRow({
           <span className="text-sm text-muted-foreground whitespace-pre-wrap">{row.remarks || '—'}</span>
         ) : (
           <Textarea
-            {...register(row.id, {
-              onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
-            })}
-            rows={2}
-            className="text-sm min-h-0"
+            {...(() => {
+              const { ref, ...rest } = register(row.id, {
+                onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
+              });
+              return {
+                ...rest,
+                ref: (el: HTMLTextAreaElement | null) => {
+                  ref(el);
+                  textareaRef.current = el;
+                },
+              };
+            })()}
+            className="text-sm min-h-[2.5rem] overflow-hidden"
+            style={{ resize: 'vertical' }}
             placeholder="Add remarks…"
             disabled={isDisabled}
+            onInput={(e) => autoResize(e.currentTarget)}
             aria-label={`Remarks for ${row.criterion_code}`}
           />
         )}
@@ -363,9 +385,18 @@ export function VpatCriteriaTable({
   onCriterionClick,
 }: VpatCriteriaTableProps) {
   // RHF manages remarks as uncontrolled inputs — typing never triggers React re-renders.
-  const { register } = useForm<RemarksFormValues>({
+  const { register, setValue, getValues } = useForm<RemarksFormValues>({
     defaultValues: Object.fromEntries(rows.map((r) => [r.id, r.remarks ?? ''])),
   });
+
+  // Sync rows → form when AI generation updates remarks outside of user input.
+  useEffect(() => {
+    rows.forEach((row) => {
+      if (getValues(row.id) !== (row.remarks ?? '')) {
+        setValue(row.id, row.remarks ?? '');
+      }
+    });
+  }, [rows, setValue, getValues]);
 
   // Per-row debounce timers for remarks saves.
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
