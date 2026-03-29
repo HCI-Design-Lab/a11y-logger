@@ -49,16 +49,16 @@ export function NewIssueClient({ projectId, assessmentId }: NewIssueClientProps)
         loading={loading}
         externalButtons={FORM_ID}
       />
-      <div className="flex justify-between">
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          Save Issue
+        </Button>
         <Button variant="cancel" asChild>
           <Link href={cancelHref}>
             <X className="h-4 w-4" />
             Cancel
           </Link>
-        </Button>
-        <Button type="submit" form={FORM_ID} disabled={loading}>
-          <Save className="h-4 w-4" />
-          Save Issue
         </Button>
       </div>
     </div>

@@ -35,11 +35,6 @@ vi.mock('@/components/issues/issue-form', () => ({
     </form>
   ),
 }));
-vi.mock('@/components/issues/delete-issue-button', () => ({
-  DeleteIssueButton: ({ issueId }: { issueId: string }) => (
-    <button data-testid={`delete-${issueId}`}>Delete</button>
-  ),
-}));
 
 global.fetch = vi.fn();
 
@@ -96,12 +91,6 @@ describe('EditIssuePage', () => {
     const saveBtn = screen.getByRole('button', { name: /save issue/i });
     expect(saveBtn).toHaveAttribute('type', 'submit');
     expect(saveBtn).toHaveAttribute('form', 'edit-issue-form');
-  });
-
-  it('renders the DeleteIssueButton in the external button bar', async () => {
-    render(<EditIssuePage />);
-    await screen.findByRole('heading', { name: /edit issue/i });
-    expect(screen.getByTestId('delete-i1')).toBeInTheDocument();
   });
 
   it('Save Issue button has an icon', async () => {

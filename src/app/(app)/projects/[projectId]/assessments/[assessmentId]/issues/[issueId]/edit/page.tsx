@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Save, X } from 'lucide-react';
 import Link from 'next/link';
 import { IssueForm } from '@/components/issues/issue-form';
-import { DeleteIssueButton } from '@/components/issues/delete-issue-button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import type { Issue } from '@/lib/db/issues';
@@ -119,25 +118,17 @@ export default function EditIssuePage() {
         loading={loading}
         externalButtons={FORM_ID}
       />
-      <div className="flex justify-between">
+      <div className="flex items-center gap-2">
+        <Button type="submit" form={FORM_ID} disabled={loading}>
+          <Save className="h-4 w-4" />
+          Save Issue
+        </Button>
         <Button variant="cancel" asChild>
           <Link href={cancelHref}>
             <X className="h-4 w-4" />
             Cancel
           </Link>
         </Button>
-        <div className="flex gap-2">
-          <DeleteIssueButton
-            projectId={projectId}
-            assessmentId={assessmentId}
-            issueId={issueId}
-            issueTitle={issue.title}
-          />
-          <Button type="submit" form={FORM_ID} disabled={loading}>
-            <Save className="h-4 w-4" />
-            Save Issue
-          </Button>
-        </div>
       </div>
     </div>
   );
