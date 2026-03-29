@@ -118,6 +118,8 @@ export const vpatCriterionRows = sqliteTable('vpat_criterion_rows', {
   remarks: text('remarks'),
   ai_confidence: text('ai_confidence'),
   ai_reasoning: text('ai_reasoning'),
+  ai_referenced_issues: text('ai_referenced_issues'),
+  ai_suggested_conformance: text('ai_suggested_conformance'),
   last_generated_at: text('last_generated_at'),
   updated_at: text('updated_at').notNull(),
 });
