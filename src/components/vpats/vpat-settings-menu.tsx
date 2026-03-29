@@ -125,7 +125,7 @@ export function VpatSettingsMenu({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onSelect={() => setDeleteOpen(true)}
-            className="text-destructive focus:text-destructive"
+            className=""
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
