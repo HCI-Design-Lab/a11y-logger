@@ -250,6 +250,7 @@ describe('updateCriterionRow — review reset', () => {
     const vpat = await getVpat(vpatId);
     expect(vpat!.status).toBe('draft');
     expect(vpat!.reviewed_by).toBeNull();
+    expect(vpat!.reviewed_at).toBeNull();
   });
 
   it('does NOT reset when only ai_reasoning changes', async () => {
@@ -272,5 +273,20 @@ describe('updateCriterionRow — review reset', () => {
     await updateCriterionRow(rows[0]!.id, { conformance: 'supports' });
     const vpat = await getVpat(vpatId);
     expect(vpat!.status).toBe('draft');
+  });
+
+  it('does NOT reset when only ai_confidence changes', async () => {
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpatId))
+      .run();
+    await reviewVpat(vpatId, 'Jane Smith');
+
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { ai_confidence: 'high' });
+
+    const vpat = await getVpat(vpatId);
+    expect(vpat!.status).toBe('reviewed');
   });
 });

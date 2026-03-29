@@ -191,6 +191,9 @@ export async function updateCriterionRow(
 
   // Reset reviewed VPAT to draft if conformance or remarks changed
   if (input.conformance !== undefined || input.remarks !== undefined) {
+    // Dynamic import of schema (not vpats.ts) to avoid circular dependency:
+    // vpats.ts statically imports vpat-criterion-rows.ts, so importing vpats.ts
+    // here would create a cycle. Schema has no such dependency.
     const { vpats: vpatsTable } = await import('./schema');
     const vpatRow = db()
       .select({ status: vpatsTable.status })
