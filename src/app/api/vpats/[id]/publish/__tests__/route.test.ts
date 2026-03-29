@@ -93,6 +93,7 @@ describe('POST /api/vpats/[id]/publish', () => {
     );
     expect(response.status).toBe(422);
     const body = await response.json();
+    expect(body.success).toBe(false);
     expect(body.code).toBe('NOT_REVIEWED');
   });
 
