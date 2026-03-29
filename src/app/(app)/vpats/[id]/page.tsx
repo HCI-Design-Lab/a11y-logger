@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { History } from 'lucide-react';
+import { History, Pencil } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
-import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import Link from 'next/link';
 
 interface VpatData {
   id: string;
@@ -45,15 +44,6 @@ export default function VpatDetailPage() {
   const [vpat, setVpat] = useState<VpatData | null>(null);
   const [rows, setRows] = useState<VpatCriterionRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [generatingRowId, setGeneratingRowId] = useState<string | null>(null);
-  const [panelRowCode, setPanelRowCode] = useState<string | null>(null);
-  const [panelIssues, setPanelIssues] = useState<PanelIssue[]>([]);
-  // Incremented after generate-all so VpatCriteriaTable remounts with fresh RHF defaults.
-  const [tableKey, setTableKey] = useState(0);
-  const [generateProgress, setGenerateProgress] = useState(0);
-  const [generateTotal, setGenerateTotal] = useState(0);
-  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const [snapshots, setSnapshots] = useState<
     { id: string; version_number: number; published_at: string }[]
   >([]);
@@ -88,169 +78,10 @@ export default function VpatDetailPage() {
     load();
   }, [vpatId, router]);
 
-  // Called immediately on conformance change — updates progress bar + saves.
-  const handleRowChange = useCallback(
-    async (rowId: string, update: { conformance?: string }) => {
-      setRows((prev) =>
-        prev.map((r) => (r.id === rowId ? ({ ...r, ...update } as VpatCriterionRow) : r))
-      );
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(update),
-        });
-        const json = await res.json();
-        if (!json.success) toast.error(json.error ?? 'Failed to save');
-      } catch {
-        toast.error('Failed to save');
-      }
-    },
-    [vpatId]
-  );
-
-  // Called by the table after 500ms debounce — remarks only, no state update needed.
-  const handleSaveRemarks = useCallback(
-    async (rowId: string, remarks: string) => {
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ remarks }),
-        });
-        const json = await res.json();
-        if (!json.success) toast.error(json.error ?? 'Failed to save');
-      } catch {
-        toast.error('Failed to save');
-      }
-    },
-    [vpatId]
-  );
-
-  const handleGenerateRow = useCallback(
-    async (rowId: string) => {
-      setGeneratingRowId(rowId);
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}/generate`, {
-          method: 'POST',
-        });
-        const json = await res.json();
-        if (!json.success) {
-          toast.error(json.error ?? 'AI generation failed');
-          return;
-        }
-        setRows((prev) => prev.map((r) => (r.id === rowId ? json.data : r)));
-      } catch {
-        toast.error('AI generation failed');
-      } finally {
-        setGeneratingRowId(null);
-      }
-    },
-    [vpatId]
-  );
-
-  const handleGenerateAll = useCallback(async () => {
-    const pending = rows.filter((r) => !r.remarks);
-    if (pending.length === 0) {
-      toast('All criteria already have remarks');
-      return;
-    }
-
-    setGenerateTotal(pending.length);
-    setGenerateProgress(0);
-    setIsGeneratingAll(true);
-
-    let generated = 0;
-    for (const row of pending) {
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${row.id}/generate`, { method: 'POST' });
-        const json = await res.json();
-        if (json.success) {
-          setRows((prev) => prev.map((r) => (r.id === row.id ? json.data : r)));
-          generated++;
-        }
-      } catch {
-        // continue on error — best effort
-      }
-      setGenerateProgress((p) => p + 1);
-    }
-
-    setIsGeneratingAll(false);
-    setTableKey((k) => k + 1);
-    toast.success(`Generated ${generated} of ${pending.length} criteria`);
-  }, [vpatId, rows]);
-
-  const handleCriterionClick = useCallback(
-    async (criterionCode: string) => {
-      if (!vpat) return;
-      setPanelRowCode(criterionCode);
-      setPanelIssues([]);
-      try {
-        const res = await fetch(
-          `/api/issues/by-criterion?wcagCode=${encodeURIComponent(criterionCode)}&projectId=${encodeURIComponent(vpat.project_id)}`
-        );
-        const json = await res.json();
-        if (json.success)
-          setPanelIssues(
-            json.data.map(
-              (issue: {
-                id: string;
-                assessment_id: string;
-                title: string;
-                severity: string;
-                description: string | null;
-                url: string | null;
-              }) => ({
-                id: issue.id,
-                project_id: vpat.project_id,
-                assessment_id: issue.assessment_id,
-                title: issue.title,
-                severity: issue.severity,
-                description: issue.description ?? '',
-                url: issue.url ?? '',
-              })
-            )
-          );
-      } catch {
-        // panel shows empty state
-      }
-    },
-    [vpat]
-  );
-
-  const handlePublish = useCallback(async () => {
-    setIsPublishing(true);
-    try {
-      const res = await fetch(`/api/vpats/${vpatId}/publish`, { method: 'POST' });
-      const json = await res.json();
-      if (!json.success) {
-        toast.error(json.error ?? 'Failed to publish');
-        return;
-      }
-      setVpat(json.data);
-      // Refresh snapshots after publish
-      try {
-        const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
-        const snapJson = await snapRes.json();
-        if (snapJson.success) setSnapshots(snapJson.data);
-      } catch {
-        // non-fatal
-      }
-      toast.success('VPAT published');
-    } catch {
-      toast.error('Failed to publish');
-    } finally {
-      setIsPublishing(false);
-    }
-  }, [vpatId]);
-
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
 
   const isPublished = vpat.status === 'published';
-  const resolved = rows.filter((r) => r.conformance !== 'not_evaluated').length;
-  const total = rows.length;
-  const canPublish = resolved === total && total > 0;
   const editionLabel = getEditionBadgeLabel(vpat);
 
   return (
@@ -275,14 +106,25 @@ export default function VpatDetailPage() {
               </Badge>
             </div>
           </div>
-          <VpatSettingsMenu
-            vpatId={vpat.id}
-            vpatTitle={vpat.title}
-            isPublished={isPublished}
-            canPublish={canPublish}
-            isPublishing={isPublishing}
-            onPublish={handlePublish}
-          />
+          <div className="flex items-center gap-2">
+            {!isPublished && (
+              <Button asChild variant="default" size="sm">
+                <Link href={`/vpats/${vpatId}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  Edit VPAT
+                </Link>
+              </Button>
+            )}
+            <VpatSettingsMenu
+              vpatId={vpat.id}
+              vpatTitle={vpat.title}
+              isPublished={isPublished}
+              canPublish={false}
+              isPublishing={false}
+              onPublish={() => {}}
+              variant="view"
+            />
+          </div>
         </div>
       </div>
 
@@ -299,33 +141,16 @@ export default function VpatDetailPage() {
         </TabsList>
 
         <TabsContent value="criteria" className="space-y-6">
-          {/* Progress */}
-          <Card>
-            <CardContent className="pt-4">
-              <p className="text-sm font-medium">
-                {resolved} of {total} criteria resolved
-              </p>
-              <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all"
-                  style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Criteria Table — key resets RHF defaults after generate-all */}
           <VpatCriteriaTable
-            key={tableKey}
             rows={rows}
-            onRowChange={handleRowChange}
-            onSaveRemarks={handleSaveRemarks}
-            onGenerateRow={handleGenerateRow}
-            onGenerateAll={handleGenerateAll}
-            generatingRowId={generatingRowId}
-            readOnly={isPublished}
-            aiEnabled={true}
-            onCriterionClick={handleCriterionClick}
+            onRowChange={() => {}}
+            onSaveRemarks={() => {}}
+            onGenerateRow={() => {}}
+            onGenerateAll={() => {}}
+            generatingRowId={null}
+            readOnly={true}
+            aiEnabled={false}
+            onCriterionClick={() => {}}
           />
         </TabsContent>
 
@@ -367,40 +192,6 @@ export default function VpatDetailPage() {
           )}
         </TabsContent>
       </Tabs>
-
-      {/* Generate All progress modal */}
-      <Dialog open={isGeneratingAll}>
-        <DialogContent className="max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
-          <DialogHeader>
-            <DialogTitle>Generating Criteria</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <p className="text-sm text-muted-foreground">
-              {generateProgress} of {generateTotal} criteria generated
-            </p>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{
-                  width: generateTotal > 0 ? `${(generateProgress / generateTotal) * 100}%` : '0%',
-                }}
-              />
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Issues panel */}
-      {panelRowCode && (
-        <VpatIssuesPanel
-          issues={panelIssues}
-          criterionCode={panelRowCode}
-          onClose={() => {
-            setPanelRowCode(null);
-            setPanelIssues([]);
-          }}
-        />
-      )}
     </div>
   );
 }

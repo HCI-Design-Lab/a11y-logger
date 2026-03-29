@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import VpatDetailPage from '../[id]/page';
 
 vi.mock('next/navigation', () => ({
@@ -60,7 +59,7 @@ const mockVpat = {
 beforeEach(() => {
   vi.spyOn(global, 'fetch').mockImplementation((input) => {
     const url = typeof input === 'string' ? input : (input as Request).url;
-    if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
+    if (url.includes('/versions')) {
       return Promise.resolve({
         ok: true,
         json: async () => ({ success: true, data: [] }),
@@ -77,7 +76,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('VpatDetailPage', () => {
+describe('VpatDetailPage (view)', () => {
   it('shows VPAT title after loading', async () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
@@ -85,21 +84,22 @@ describe('VpatDetailPage', () => {
     });
   });
 
-  it('shows progress indicator "1 of 2 criteria resolved"', async () => {
-    render(<VpatDetailPage />);
-    await waitFor(() => {
-      expect(screen.getByText(/1 of 2 criteria resolved/i)).toBeInTheDocument();
-    });
-  });
-
   it('shows edition badge', async () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText(/WCAG 2.1/i)).toBeInTheDocument();
+      expect(screen.getByText(/WCAG 2\.1/i)).toBeInTheDocument();
     });
   });
 
-  it('shows Publish option disabled when unresolved rows exist', async () => {
+  it('shows Edit VPAT button', async () => {
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: /edit vpat/i })).toBeInTheDocument();
+    });
+  });
+
+  it('does not show Publish in settings menu (view variant)', async () => {
+    const userEvent = (await import('@testing-library/user-event')).default;
     const user = userEvent.setup();
     render(<VpatDetailPage />);
     await waitFor(() => {
@@ -107,16 +107,15 @@ describe('VpatDetailPage', () => {
     });
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await waitFor(() => {
-      const publishItem = screen.getByRole('menuitem', { name: /publish/i });
-      expect(publishItem).toHaveAttribute('data-disabled');
+      expect(screen.queryByRole('menuitem', { name: /publish/i })).not.toBeInTheDocument();
     });
   });
 
   it('shows criteria table', async () => {
+    const userEvent = (await import('@testing-library/user-event')).default;
     const user = userEvent.setup();
     render(<VpatDetailPage />);
 
-    // Sections start collapsed — expand the Level A section first.
     await waitFor(() => {
       expect(
         screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
@@ -129,66 +128,6 @@ describe('VpatDetailPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('1.1.1')).toBeInTheDocument();
-    });
-  });
-
-  it('opens issues panel when criterion name is clicked', async () => {
-    const user = userEvent.setup();
-    render(<VpatDetailPage />);
-
-    // Sections start collapsed — expand the Level A section first.
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-      ).toBeInTheDocument();
-    });
-
-    await user.click(
-      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: /view issues for 1\.1\.1/i }));
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('dialog', { name: /issues for criterion 1\.1\.1/i })
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('closes issues panel when close button is clicked', async () => {
-    const user = userEvent.setup();
-    render(<VpatDetailPage />);
-
-    // Sections start collapsed — expand the Level A section first.
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-      ).toBeInTheDocument();
-    });
-
-    await user.click(
-      screen.getByRole('button', { name: /expand table 1: success criteria, level a/i })
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: /view issues for 1\.1\.1/i }));
-
-    await waitFor(() => {
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole('button', { name: /close/i }));
-
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });
