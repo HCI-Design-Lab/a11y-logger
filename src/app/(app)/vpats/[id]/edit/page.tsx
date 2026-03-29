@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { History, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
@@ -44,6 +45,11 @@ export default function VpatEditPage() {
   const [snapshots, setSnapshots] = useState<
     { id: string; version_number: number; published_at: string }[]
   >([]);
+  const [showEditWarning, setShowEditWarning] = useState(false);
+  const [hasShownEditWarning, setHasShownEditWarning] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewerName, setReviewerName] = useState('');
+  const [isReviewing, setIsReviewing] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -57,6 +63,10 @@ export default function VpatEditPage() {
         }
         setVpat(json.data);
         setRows(json.data.criterion_rows);
+        // Show edit-warning immediately if VPAT is already reviewed
+        if (json.data.status === 'reviewed') {
+          setShowEditWarning(true);
+        }
         // Load version history
         try {
           const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
@@ -78,6 +88,9 @@ export default function VpatEditPage() {
   // Called immediately on conformance change — updates progress bar + saves.
   const handleRowChange = useCallback(
     async (rowId: string, update: { conformance?: string }) => {
+      if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
+        setShowEditWarning(true);
+      }
       setRows((prev) =>
         prev.map((r) => (r.id === rowId ? ({ ...r, ...update } as VpatCriterionRow) : r))
       );
@@ -93,12 +106,15 @@ export default function VpatEditPage() {
         toast.error('Failed to save');
       }
     },
-    [vpatId]
+    [vpatId, vpat, hasShownEditWarning]
   );
 
   // Called by the table after 500ms debounce — remarks only, no state update needed.
   const handleSaveRemarks = useCallback(
     async (rowId: string, remarks: string) => {
+      if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
+        setShowEditWarning(true);
+      }
       try {
         const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
           method: 'PATCH',
@@ -111,7 +127,7 @@ export default function VpatEditPage() {
         toast.error('Failed to save');
       }
     },
-    [vpatId]
+    [vpatId, vpat, hasShownEditWarning]
   );
 
   const handleGenerateRow = useCallback(
@@ -231,13 +247,40 @@ export default function VpatEditPage() {
     }
   }, [vpatId]);
 
+  const handleReview = useCallback(async () => {
+    if (!reviewerName.trim()) return;
+    setIsReviewing(true);
+    try {
+      const res = await fetch(`/api/vpats/${vpatId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewer_name: reviewerName.trim() }),
+      });
+      const json = await res.json();
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to mark as reviewed');
+        return;
+      }
+      setVpat(json.data);
+      setShowReviewModal(false);
+      setReviewerName('');
+      toast.success('VPAT marked as reviewed');
+    } catch {
+      toast.error('Failed to mark as reviewed');
+    } finally {
+      setIsReviewing(false);
+    }
+  }, [vpatId, reviewerName]);
+
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
 
+  const isReviewed = vpat.status === 'reviewed';
   const isPublished = vpat.status === 'published';
   const resolved = rows.filter((r) => r.conformance !== 'not_evaluated').length;
   const total = rows.length;
-  const canPublish = resolved === total && total > 0;
+  const canReview = resolved === total && total > 0 && !isReviewed && !isPublished;
+  const canPublish = isReviewed;
   const editionLabel = getEditionBadgeLabel(vpat);
 
   return (
@@ -261,10 +304,12 @@ export default function VpatEditPage() {
                 className={
                   isPublished
                     ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
+                    : isReviewed
+                    ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
                     : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
                 }
               >
-                {isPublished ? 'Published' : 'Draft'}
+                {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
               </Badge>
             </div>
           </div>
@@ -274,6 +319,13 @@ export default function VpatEditPage() {
                 <X className="h-4 w-4" />
                 Cancel
               </Link>
+            </Button>
+            <Button
+              onClick={() => setShowReviewModal(true)}
+              disabled={!canReview}
+              title={!canReview ? 'All criteria must be evaluated before review' : undefined}
+            >
+              Review
             </Button>
             <VpatSettingsMenu
               vpatId={vpat.id}
@@ -369,6 +421,70 @@ export default function VpatEditPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Edit-warning modal */}
+      <Dialog open={showEditWarning} onOpenChange={setShowEditWarning}>
+        <DialogContent aria-label="This VPAT has been reviewed" className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>This VPAT has been reviewed</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This VPAT has been reviewed. If you change any conformance levels or remarks, the
+            reviewed status will be removed and it will need to be reviewed again before publishing.
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="cancel"
+              onClick={() => {
+                setShowEditWarning(false);
+                router.push(`/vpats/${vpatId}`);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setHasShownEditWarning(true);
+                setShowEditWarning(false);
+              }}
+            >
+              Continue to Edit
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Review modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent aria-label="Submit Review" className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Submit Review</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            By submitting your name, you confirm that you have personally reviewed this VPAT and
+            that the results accurately reflect the product&apos;s accessibility conformance.
+          </p>
+          <div className="space-y-3 pt-2">
+            <Input
+              placeholder="Full name"
+              value={reviewerName}
+              onChange={(e) => setReviewerName(e.target.value)}
+              aria-label="Reviewer full name"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="cancel" onClick={() => setShowReviewModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleReview}
+                disabled={!reviewerName.trim() || isReviewing}
+              >
+                {isReviewing ? 'Submitting…' : 'Submit Review'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Generate All progress modal */}
       <Dialog open={isGeneratingAll}>

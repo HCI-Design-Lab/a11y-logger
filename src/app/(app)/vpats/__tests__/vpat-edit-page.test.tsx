@@ -8,6 +8,91 @@ vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'vpat-1' }),
 }));
 
+const mockVpatAllResolved = {
+  id: 'vpat-1',
+  title: 'Test VPAT',
+  status: 'draft',
+  standard_edition: 'WCAG',
+  wcag_version: '2.1',
+  wcag_level: 'AA',
+  product_scope: ['web'],
+  project_id: 'proj-1',
+  version_number: 1,
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+  published_at: null,
+  criterion_rows: [
+    {
+      id: 'row-1',
+      vpat_id: 'vpat-1',
+      criterion_id: 'c1',
+      criterion_code: '1.1.1',
+      criterion_name: 'Non-text Content',
+      criterion_description: 'All non-text content has a text alternative.',
+      criterion_level: 'A',
+      criterion_section: 'A',
+      conformance: 'supports',
+      remarks: 'All images have alt text.',
+      ai_confidence: null,
+      ai_reasoning: null,
+      last_generated_at: null,
+      updated_at: '2026-01-01',
+      issue_count: 0,
+    },
+    {
+      id: 'row-2',
+      vpat_id: 'vpat-1',
+      criterion_id: 'c2',
+      criterion_code: '1.4.3',
+      criterion_name: 'Contrast (Minimum)',
+      criterion_description: 'Text has sufficient contrast.',
+      criterion_level: 'AA',
+      criterion_section: 'AA',
+      conformance: 'supports',
+      remarks: 'Good contrast throughout.',
+      ai_confidence: null,
+      ai_reasoning: null,
+      last_generated_at: null,
+      updated_at: '2026-01-01',
+      issue_count: 0,
+    },
+  ],
+};
+
+const mockVpatReviewed = {
+  id: 'vpat-1',
+  title: 'Test VPAT',
+  status: 'reviewed',
+  standard_edition: 'WCAG',
+  wcag_version: '2.1',
+  wcag_level: 'AA',
+  product_scope: ['web'],
+  project_id: 'proj-1',
+  version_number: 1,
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z',
+  published_at: null,
+  criterion_rows: [
+    {
+      id: 'row-1',
+      vpat_id: 'vpat-1',
+      criterion_id: 'c1',
+      criterion_code: '1.1.1',
+      criterion_name: 'Non-text Content',
+      criterion_description: 'All non-text content has a text alternative.',
+      criterion_level: 'A',
+      criterion_section: 'A',
+      conformance: 'supports',
+      remarks: 'All images have alt text.',
+      ai_confidence: null,
+      ai_reasoning: null,
+      last_generated_at: null,
+      updated_at: '2026-01-01',
+      issue_count: 0,
+    },
+  ],
+};
+
 const mockVpat = {
   id: 'vpat-1',
   title: 'Test VPAT',
@@ -147,5 +232,108 @@ describe('VpatEditPage', () => {
         screen.getByRole('dialog', { name: /issues for criterion 1\.1\.1/i })
       ).toBeInTheDocument();
     });
+  });
+
+  it('Review button is disabled when rows have not_evaluated conformance', async () => {
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
+    });
+    const reviewBtn = screen.getByRole('button', { name: /^review$/i });
+    expect(reviewBtn).toBeDisabled();
+  });
+
+  it('Review button is enabled when all rows are resolved', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: mockVpatAllResolved }),
+      } as unknown as Response);
+    });
+
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
+    });
+    const reviewBtn = screen.getByRole('button', { name: /^review$/i });
+    expect(reviewBtn).not.toBeDisabled();
+  });
+
+  it('Review modal opens when Review button clicked', async () => {
+    const user = userEvent.setup();
+
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: mockVpatAllResolved }),
+      } as unknown as Response);
+    });
+
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /^review$/i })).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole('button', { name: /^review$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /submit review/i })).toBeInTheDocument();
+    });
+  });
+
+  it('Publish button is disabled when status is draft', async () => {
+    const user = userEvent.setup();
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await waitFor(() => {
+      const publishItem = screen.getByRole('menuitem', { name: /publish/i });
+      expect(publishItem).toHaveAttribute('data-disabled');
+    });
+  });
+
+  it('Edit-warning modal shows on page load when VPAT status is reviewed', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: mockVpatReviewed }),
+      } as unknown as Response);
+    });
+
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /this vpat has been reviewed/i })).toBeInTheDocument();
+    });
+  });
+
+  it('Edit-warning modal does NOT show on page load when VPAT status is draft', async () => {
+    render(<VpatEditPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('dialog', { name: /this vpat has been reviewed/i })).not.toBeInTheDocument();
   });
 });
