@@ -29,6 +29,8 @@ export interface VpatCriterionRow {
   remarks: string | null;
   ai_confidence: 'high' | 'medium' | 'low' | null;
   ai_reasoning: string | null;
+  ai_referenced_issues: { title: string; severity: string }[] | null;
+  ai_suggested_conformance: 'supports' | 'does_not_support' | 'not_applicable' | null;
   last_generated_at: string | null;
   updated_at: string;
   issue_count: number;
@@ -45,6 +47,8 @@ export interface UpdateCriterionRowInput {
   remarks?: string;
   ai_confidence?: VpatCriterionRow['ai_confidence'];
   ai_reasoning?: string;
+  ai_referenced_issues?: { title: string; severity: string }[];
+  ai_suggested_conformance?: VpatCriterionRow['ai_suggested_conformance'];
 }
 
 // Raw DB join shape
@@ -61,6 +65,8 @@ interface CriterionRowDbRow {
   remarks: string | null;
   ai_confidence: string | null;
   ai_reasoning: string | null;
+  ai_referenced_issues: string | null;    // JSON string in DB
+  ai_suggested_conformance: string | null;
   last_generated_at: string | null;
   updated_at: string;
   issue_count?: number;
@@ -71,6 +77,10 @@ function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
     ...raw,
     conformance: raw.conformance as VpatCriterionRow['conformance'],
     ai_confidence: raw.ai_confidence as VpatCriterionRow['ai_confidence'],
+    ai_suggested_conformance: raw.ai_suggested_conformance as VpatCriterionRow['ai_suggested_conformance'],
+    ai_referenced_issues: raw.ai_referenced_issues
+      ? (JSON.parse(raw.ai_referenced_issues) as { title: string; severity: string }[])
+      : null,
     issue_count: raw.issue_count ?? 0,
   };
 }
@@ -88,6 +98,8 @@ const joinedSelect = {
   remarks: vpatCriterionRows.remarks,
   ai_confidence: vpatCriterionRows.ai_confidence,
   ai_reasoning: vpatCriterionRows.ai_reasoning,
+  ai_referenced_issues: vpatCriterionRows.ai_referenced_issues,
+  ai_suggested_conformance: vpatCriterionRows.ai_suggested_conformance,
   last_generated_at: vpatCriterionRows.last_generated_at,
   updated_at: vpatCriterionRows.updated_at,
 };
@@ -171,6 +183,8 @@ export async function updateCriterionRow(
       | 'remarks'
       | 'ai_confidence'
       | 'ai_reasoning'
+      | 'ai_referenced_issues'
+      | 'ai_suggested_conformance'
       | 'last_generated_at'
       | 'updated_at'
     >
@@ -183,6 +197,12 @@ export async function updateCriterionRow(
   if (input.ai_reasoning !== undefined) {
     values.ai_reasoning = input.ai_reasoning;
     values.last_generated_at = new Date().toISOString();
+  }
+  if (input.ai_referenced_issues !== undefined) {
+    values.ai_referenced_issues = JSON.stringify(input.ai_referenced_issues);
+  }
+  if (input.ai_suggested_conformance !== undefined) {
+    values.ai_suggested_conformance = input.ai_suggested_conformance;
   }
 
   values.updated_at = new Date().toISOString();

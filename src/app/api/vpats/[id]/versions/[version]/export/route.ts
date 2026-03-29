@@ -95,6 +95,8 @@ export async function GET(request: Request, { params }: RouteContext) {
       remarks: r.remarks,
       ai_confidence: null,
       ai_reasoning: null,
+      ai_referenced_issues: null,
+      ai_suggested_conformance: null,
       last_generated_at: null,
       updated_at: snapshot.published_at,
       issue_count: 0,

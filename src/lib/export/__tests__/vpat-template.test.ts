@@ -45,6 +45,8 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   remarks: 'All images have alt text.',
   ai_confidence: null,
   ai_reasoning: null,
+  ai_referenced_issues: null,
+  ai_suggested_conformance: null,
   last_generated_at: null,
   updated_at: '2026-01-01',
   issue_count: 0,
