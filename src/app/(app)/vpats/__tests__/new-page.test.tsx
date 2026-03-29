@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import jsYaml from 'js-yaml';
 import NewVpatPage from '../new/page';
 
 const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
@@ -9,8 +11,13 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock('js-yaml', () => ({
+  default: { load: vi.fn() },
+}));
+
 beforeEach(() => {
   pushMock.mockClear();
+  vi.mocked(jsYaml.load).mockReset();
   vi.spyOn(global, 'fetch').mockResolvedValue({
     ok: true,
     json: async () => ({ success: true, data: [{ id: 'proj-1', name: 'Test Project' }] }),
@@ -112,5 +119,96 @@ describe('NewVpatPage', () => {
     await vi.waitFor(() => {
       expect(pushMock).toHaveBeenCalledWith('/vpats/vpat-1');
     });
+  });
+
+  it('shows Import from OpenACR tile in step 1', () => {
+    render(<NewVpatPage />);
+    expect(screen.getByText(/Import from OpenACR/i)).toBeInTheDocument();
+  });
+
+  it('advances to YAML upload step when Import tile is selected', () => {
+    render(<NewVpatPage />);
+    fireEvent.click(screen.getByText(/Import from OpenACR/i));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByLabelText(/yaml file/i)).toBeInTheDocument();
+  });
+
+  it('Next on upload step is disabled until a valid file is parsed', () => {
+    render(<NewVpatPage />);
+    fireEvent.click(screen.getByText(/Import from OpenACR/i));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
+  });
+
+  it('advances to project select step after uploading a valid YAML', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, data: [{ id: 'proj-1', name: 'Test Project' }] }),
+    } as unknown as Response);
+
+    vi.mocked(jsYaml.load).mockReturnValue({
+      title: 'My VPAT',
+      catalog: '2.4-edition-wcag-2.1-en',
+      chapters: {
+        success_criteria_level_a: {
+          criteria: [{ num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] }],
+        },
+      },
+    });
+
+    render(<NewVpatPage />);
+    fireEvent.click(screen.getByText(/Import from OpenACR/i));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    const file = new File(['catalog: x'], 'vpat.yaml', { type: 'application/yaml' });
+    const input = screen.getByLabelText(/yaml file/i);
+    await userEvent.upload(input, file);
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /next/i })).not.toBeDisabled());
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    await waitFor(() => expect(screen.getByLabelText(/project/i)).toBeInTheDocument());
+  });
+
+  it('calls /api/vpats/import on confirm and redirects', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation(async (url: unknown, opts?: RequestInit) => {
+      const urlStr = typeof url === 'string' ? url : String(url);
+      if (urlStr === '/api/vpats/import' && opts?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({ success: true, data: { id: 'vpat-99', skipped: [] } }),
+        } as unknown as Response;
+      }
+      return {
+        ok: true,
+        json: async () => ({ success: true, data: [{ id: 'proj-1', name: 'Test Project' }] }),
+      } as unknown as Response;
+    });
+
+    vi.mocked(jsYaml.load).mockReturnValue({
+      title: 'My VPAT',
+      catalog: '2.4-edition-wcag-2.1-en',
+      chapters: {
+        success_criteria_level_a: {
+          criteria: [{ num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] }],
+        },
+      },
+    });
+
+    render(<NewVpatPage />);
+
+    fireEvent.click(screen.getByText(/Import from OpenACR/i));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    const file = new File(['catalog: x'], 'vpat.yaml', { type: 'application/yaml' });
+    await userEvent.upload(screen.getByLabelText(/yaml file/i), file);
+    await waitFor(() => expect(screen.getByRole('button', { name: /next/i })).not.toBeDisabled());
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    await waitFor(() => expect(screen.getByRole('option', { name: 'Test Project' })).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/project/i), { target: { value: 'proj-1' } });
+    fireEvent.click(screen.getByRole('button', { name: /^import$/i }));
+
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/vpats/vpat-99'));
   });
 });
