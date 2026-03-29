@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormRegister } from 'react-hook-form';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, Sparkles } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -22,6 +22,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
@@ -66,6 +67,7 @@ type RemarksFormValues = Record<string, string>;
 
 interface CriterionTableRowProps {
   row: VpatCriterionRow;
+  isEven: boolean;
   readOnly: boolean;
   aiEnabled: boolean;
   isGenerating: boolean;
@@ -77,10 +79,11 @@ interface CriterionTableRowProps {
   register: UseFormRegister<RemarksFormValues>;
 }
 
-// Isolated per-row component — owns isExpanded state so toggling reasoning
+// Isolated per-row component — owns modal state so toggling AI info
 // only re-renders this row, not the entire table.
 const CriterionTableRow = memo(function CriterionTableRow({
   row,
+  isEven,
   readOnly,
   aiEnabled,
   isGenerating,
@@ -92,8 +95,8 @@ const CriterionTableRow = memo(function CriterionTableRow({
   register,
 }: CriterionTableRowProps) {
   const isDisabled = isGenerating || isGeneratingAll;
-  const [isExpanded, setIsExpanded] = useState(false);
-  const toggleReasoning = useCallback(() => setIsExpanded((v) => !v), []);
+  const [showAiInfo, setShowAiInfo] = useState(false);
+  const hasAiInfo = !!(row.ai_confidence || row.ai_reasoning);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
@@ -112,9 +115,10 @@ const CriterionTableRow = memo(function CriterionTableRow({
     CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
 
   return (
+    <>
     <TableRow
       data-testid={`row-${row.id}`}
-      className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-transparent'}`}
+      className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
     >
       <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
       <TableCell className="align-top pt-3">
@@ -170,51 +174,6 @@ const CriterionTableRow = memo(function CriterionTableRow({
         )}
       </TableCell>
       <TableCell className="align-top pt-2">
-        {/* AI confidence badge + reasoning toggle */}
-        {!readOnly && (row.ai_confidence || row.ai_reasoning) && (
-          <div className="mb-1 flex items-center gap-2">
-            {row.ai_confidence && (
-              <Badge
-                variant="outline"
-                className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
-              >
-                {row.ai_confidence}
-              </Badge>
-            )}
-            {row.ai_reasoning && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-xs"
-                onClick={toggleReasoning}
-                aria-label={
-                  isExpanded
-                    ? `Hide reasoning for ${row.criterion_code}`
-                    : `Show reasoning for ${row.criterion_code}`
-                }
-                aria-expanded={isExpanded}
-              >
-                Why?
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Low confidence warning */}
-        {!readOnly && row.ai_confidence === 'low' && (
-          <p className="text-xs text-amber-600 mb-1">
-            AI flagged limited evidence — consider additional testing before setting conformance.
-          </p>
-        )}
-
-        {/* Reasoning expandable */}
-        {!readOnly && isExpanded && row.ai_reasoning && (
-          <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2 mb-1 whitespace-pre-wrap">
-            {row.ai_reasoning}
-          </div>
-        )}
-
         {readOnly ? (
           <span className="text-sm text-muted-foreground whitespace-pre-wrap">{row.remarks || '—'}</span>
         ) : (
@@ -231,7 +190,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
                 },
               };
             })()}
-            className="text-sm min-h-[2.5rem] overflow-hidden"
+            className="text-sm min-h-10 overflow-hidden"
             style={{ resize: 'vertical' }}
             placeholder="Add remarks…"
             disabled={isDisabled}
@@ -242,24 +201,73 @@ const CriterionTableRow = memo(function CriterionTableRow({
       </TableCell>
       {aiEnabled && !readOnly && (
         <TableCell className="align-top pt-3 text-center">
-          <Button
-            type="button"
-            variant="ai"
-            size="sm"
-            onClick={() => onGenerateRow?.(row.id)}
-            disabled={isDisabled}
-            aria-label={
-              isGenerating
-                ? `Generating for ${row.criterion_code}`
-                : `Generate for ${row.criterion_code}`
-            }
-          >
-            <Sparkles />
-            {isGenerating ? 'Generating…' : 'Generate'}
-          </Button>
+          <div className="flex items-center justify-center gap-1">
+            <Button
+              type="button"
+              variant="ai"
+              size="sm"
+              onClick={() => onGenerateRow?.(row.id)}
+              disabled={isDisabled}
+              aria-label={
+                isGenerating
+                  ? `Generating for ${row.criterion_code}`
+                  : `Generate for ${row.criterion_code}`
+              }
+            >
+              <Sparkles />
+              {isGenerating ? 'Generating…' : 'Generate'}
+            </Button>
+            {hasAiInfo && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => setShowAiInfo(true)}
+                aria-label={`AI info for ${row.criterion_code}`}
+              >
+                <Info className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </TableCell>
       )}
     </TableRow>
+
+    {hasAiInfo && (
+      <Dialog open={showAiInfo} onOpenChange={setShowAiInfo}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>AI Analysis — {row.criterion_code}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            {row.ai_confidence && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Confidence</span>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
+                >
+                  {row.ai_confidence}
+                </Badge>
+                {row.ai_confidence === 'low' && (
+                  <span className="text-xs text-amber-600">
+                    Limited evidence — consider additional testing.
+                  </span>
+                )}
+              </div>
+            )}
+            {row.ai_reasoning && (
+              <div>
+                <p className="text-sm font-medium mb-1">Reasoning</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{row.ai_reasoning}</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 });
 
@@ -326,18 +334,19 @@ const CriterionSection = memo(function CriterionSection({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20">Criterion</TableHead>
-                <TableHead className="w-[30%]">Name</TableHead>
-                <TableHead className="w-40">Conformance</TableHead>
-                <TableHead className="w-[30%]">Remarks</TableHead>
+                <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
+                <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
+                <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
+                <TableHead>Remarks</TableHead>
                 {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sectionRows.map((row) => (
+              {sectionRows.map((row, i) => (
                 <CriterionTableRow
                   key={row.id}
                   row={row}
+                  isEven={i % 2 === 0}
                   readOnly={readOnly}
                   aiEnabled={aiEnabled}
                   isGenerating={generatingRowId === row.id}
