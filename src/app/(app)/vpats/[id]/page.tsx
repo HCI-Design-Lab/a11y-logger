@@ -88,10 +88,10 @@ export default function VpatDetailPage() {
                 {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
               </Badge>
             </div>
-            {(isReviewed || isPublished) && vpat.reviewed_by && (
+            {(isReviewed || isPublished) && vpat.reviewed_by && vpat.reviewed_at && (
               <p className="text-sm text-muted-foreground">
                 Reviewed by {vpat.reviewed_by} on{' '}
-                {new Date(vpat.reviewed_at!).toLocaleDateString('en-US', {
+                {new Date(vpat.reviewed_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
