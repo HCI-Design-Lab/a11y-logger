@@ -69,6 +69,7 @@ interface CriterionTableRowProps {
   readOnly: boolean;
   aiEnabled: boolean;
   isGenerating: boolean;
+  isGeneratingAll: boolean;
   onRowChange: (rowId: string, update: { conformance?: string }) => void;
   scheduleRemarksSave: (rowId: string, value: string) => void;
   onGenerateRow?: (rowId: string) => void;
@@ -83,12 +84,14 @@ const CriterionTableRow = memo(function CriterionTableRow({
   readOnly,
   aiEnabled,
   isGenerating,
+  isGeneratingAll,
   onRowChange,
   scheduleRemarksSave,
   onGenerateRow,
   onCriterionClick,
   register,
 }: CriterionTableRowProps) {
+  const isDisabled = isGenerating || isGeneratingAll;
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleReasoning = useCallback(() => setIsExpanded((v) => !v), []);
 
@@ -136,6 +139,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
           <Select
             value={row.conformance}
             onValueChange={(v) => onRowChange(row.id, { conformance: v })}
+            disabled={isDisabled}
           >
             <SelectTrigger
               className="h-8 text-sm"
@@ -209,6 +213,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
             rows={2}
             className="text-sm min-h-0"
             placeholder="Add remarks…"
+            disabled={isDisabled}
             aria-label={`Remarks for ${row.criterion_code}`}
           />
         )}
@@ -220,7 +225,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
             variant="ai"
             size="sm"
             onClick={() => onGenerateRow?.(row.id)}
-            disabled={isGenerating}
+            disabled={isDisabled}
             aria-label={
               isGenerating
                 ? `Generating for ${row.criterion_code}`
@@ -242,6 +247,7 @@ interface CriterionSectionProps {
   readOnly: boolean;
   aiEnabled: boolean;
   generatingRowId?: string | null;
+  isGeneratingAll: boolean;
   onRowChange: (rowId: string, update: { conformance?: string }) => void;
   scheduleRemarksSave: (rowId: string, value: string) => void;
   onGenerateRow?: (rowId: string) => void;
@@ -256,6 +262,7 @@ const CriterionSection = memo(function CriterionSection({
   readOnly,
   aiEnabled,
   generatingRowId,
+  isGeneratingAll,
   onRowChange,
   scheduleRemarksSave,
   onGenerateRow,
@@ -312,6 +319,7 @@ const CriterionSection = memo(function CriterionSection({
                   readOnly={readOnly}
                   aiEnabled={aiEnabled}
                   isGenerating={generatingRowId === row.id}
+                  isGeneratingAll={isGeneratingAll}
                   onRowChange={onRowChange}
                   scheduleRemarksSave={scheduleRemarksSave}
                   onGenerateRow={onGenerateRow}
@@ -336,6 +344,7 @@ interface VpatCriteriaTableProps {
   onGenerateRow?: (rowId: string) => void;
   onGenerateAll?: () => void;
   generatingRowId?: string | null;
+  isGeneratingAll?: boolean;
   readOnly?: boolean;
   aiEnabled?: boolean;
   onCriterionClick?: (criterionCode: string) => void;
@@ -348,6 +357,7 @@ export function VpatCriteriaTable({
   onGenerateRow,
   onGenerateAll,
   generatingRowId,
+  isGeneratingAll = false,
   readOnly = false,
   aiEnabled = false,
   onCriterionClick,
@@ -396,7 +406,7 @@ export function VpatCriteriaTable({
     <div className="space-y-6">
       {aiEnabled && !readOnly && onGenerateAll && (
         <div className="flex justify-end">
-          <Button type="button" variant="ai" size="sm" onClick={onGenerateAll}>
+          <Button type="button" variant="ai" size="sm" onClick={onGenerateAll} disabled={isGeneratingAll}>
             <Sparkles />
             Generate All
           </Button>
@@ -416,6 +426,7 @@ export function VpatCriteriaTable({
                 readOnly={readOnly}
                 aiEnabled={aiEnabled}
                 generatingRowId={generatingRowId}
+                isGeneratingAll={isGeneratingAll}
                 onRowChange={onRowChange}
                 scheduleRemarksSave={scheduleRemarksSave}
                 onGenerateRow={onGenerateRow}

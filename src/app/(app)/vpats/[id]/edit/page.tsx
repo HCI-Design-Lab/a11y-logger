@@ -47,6 +47,7 @@ export default function VpatEditPage() {
   const [reviewerName, setReviewerName] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
   const pendingChanges = useRef<Map<string, { conformance?: string; remarks?: string }>>(new Map());
+  const cancelGenerateAllRef = useRef(false);
 
   useEffect(() => {
     async function load() {
@@ -161,9 +162,11 @@ export default function VpatEditPage() {
     setGenerateTotal(pending.length);
     setGenerateProgress(0);
     setIsGeneratingAll(true);
+    cancelGenerateAllRef.current = false;
 
     let generated = 0;
     for (const row of pending) {
+      if (cancelGenerateAllRef.current) break;
       try {
         const res = await fetch(`/api/vpats/${vpatId}/rows/${row.id}/generate`, { method: 'POST' });
         const json = await res.json();
@@ -179,7 +182,11 @@ export default function VpatEditPage() {
 
     setIsGeneratingAll(false);
     setTableKey((k) => k + 1);
-    toast.success(`Generated ${generated} of ${pending.length} criteria`);
+    if (cancelGenerateAllRef.current) {
+      toast(`Generation stopped. ${generated} criteria generated.`);
+    } else {
+      toast.success(`Generated ${generated} of ${pending.length} criteria`);
+    }
   }, [vpatId, rows]);
 
   const handleCriterionClick = useCallback(
@@ -312,6 +319,7 @@ export default function VpatEditPage() {
           onGenerateRow={handleGenerateRow}
           onGenerateAll={handleGenerateAll}
           generatingRowId={generatingRowId}
+          isGeneratingAll={isGeneratingAll}
           readOnly={isPublished}
           aiEnabled={true}
           onCriterionClick={handleCriterionClick}
@@ -420,6 +428,11 @@ export default function VpatEditPage() {
                   width: generateTotal > 0 ? `${(generateProgress / generateTotal) * 100}%` : '0%',
                 }}
               />
+            </div>
+            <div className="flex justify-end pt-1">
+              <Button variant="cancel" size="sm" onClick={() => { cancelGenerateAllRef.current = true; }}>
+                Cancel
+              </Button>
             </div>
           </div>
         </DialogContent>
