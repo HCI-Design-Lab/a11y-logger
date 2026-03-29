@@ -15,6 +15,7 @@ import {
   countUnresolvedRows,
   getVpatProgress,
 } from '../vpat-criterion-rows';
+import { reviewVpat, getVpat } from '../vpats';
 
 function dbc() {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
@@ -205,5 +206,71 @@ describe('getVpatProgress', () => {
     const progress = await getVpatProgress(vpatId);
     expect(progress.total).toBe(2);
     expect(progress.resolved).toBe(1);
+  });
+});
+
+describe('updateCriterionRow — review reset', () => {
+  beforeEach(async () => {
+    await createCriterionRows(vpatId, [
+      { criterion_id: criterionId, conformance: 'not_evaluated' },
+    ]);
+  });
+
+  it('resets reviewed VPAT to draft when conformance changes', async () => {
+    // resolve all rows and review the VPAT
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpatId))
+      .run();
+    await reviewVpat(vpatId, 'Jane Smith');
+    expect((await getVpat(vpatId))!.status).toBe('reviewed');
+
+    // change conformance on one row
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { conformance: 'does_not_support' });
+
+    const vpat = await getVpat(vpatId);
+    expect(vpat!.status).toBe('draft');
+    expect(vpat!.reviewed_by).toBeNull();
+    expect(vpat!.reviewed_at).toBeNull();
+  });
+
+  it('resets reviewed VPAT to draft when remarks changes', async () => {
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpatId))
+      .run();
+    await reviewVpat(vpatId, 'Jane Smith');
+
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { remarks: 'Updated remark' });
+
+    const vpat = await getVpat(vpatId);
+    expect(vpat!.status).toBe('draft');
+    expect(vpat!.reviewed_by).toBeNull();
+  });
+
+  it('does NOT reset when only ai_reasoning changes', async () => {
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpatId))
+      .run();
+    await reviewVpat(vpatId, 'Jane Smith');
+
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { ai_reasoning: 'Updated AI reasoning' });
+
+    const vpat = await getVpat(vpatId);
+    expect(vpat!.status).toBe('reviewed');
+  });
+
+  it('does NOT reset a draft VPAT when conformance changes', async () => {
+    const rows = await getCriterionRows(vpatId);
+    await updateCriterionRow(rows[0]!.id, { conformance: 'supports' });
+    const vpat = await getVpat(vpatId);
+    expect(vpat!.status).toBe('draft');
   });
 });

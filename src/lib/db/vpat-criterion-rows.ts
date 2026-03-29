@@ -189,6 +189,25 @@ export async function updateCriterionRow(
 
   db().update(vpatCriterionRows).set(values).where(eq(vpatCriterionRows.id, rowId)).run();
 
+  // Reset reviewed VPAT to draft if conformance or remarks changed
+  if (input.conformance !== undefined || input.remarks !== undefined) {
+    const { vpats: vpatsTable } = await import('./schema');
+    const vpatRow = db()
+      .select({ status: vpatsTable.status })
+      .from(vpatsTable)
+      .where(eq(vpatsTable.id, existing.vpat_id))
+      .limit(1)
+      .get() as { status: string } | undefined;
+    if (vpatRow?.status === 'reviewed') {
+      const now = new Date().toISOString();
+      db()
+        .update(vpatsTable)
+        .set({ status: 'draft', reviewed_by: null, reviewed_at: null, updated_at: now })
+        .where(eq(vpatsTable.id, existing.vpat_id))
+        .run();
+    }
+  }
+
   return getCriterionRow(rowId);
 }
 
