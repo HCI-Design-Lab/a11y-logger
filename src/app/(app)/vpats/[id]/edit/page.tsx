@@ -66,6 +66,7 @@ export default function VpatEditPage() {
         // Show edit-warning immediately if VPAT is already reviewed
         if (json.data.status === 'reviewed') {
           setShowEditWarning(true);
+          setHasShownEditWarning(true);
         }
         // Load version history
         try {
@@ -406,12 +407,12 @@ export default function VpatEditPage() {
                         {new Date(snap.published_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-2 text-right">
-                        <a
+                        <Link
                           href={`/vpats/${vpatId}/versions/${snap.version_number}`}
                           className="text-sm font-medium underline-offset-4 hover:underline"
                         >
                           View
-                        </a>
+                        </Link>
                       </td>
                     </tr>
                   ))}
