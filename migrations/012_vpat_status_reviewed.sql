@@ -1,6 +1,14 @@
 -- SQLite does not support DROP CONSTRAINT, so we recreate the vpats table
 -- to update the status CHECK constraint to allow 'reviewed' in addition to
 -- 'draft' and 'published'.
+--
+-- NOTE: The migration runner wraps each migration in a transaction. PRAGMA
+-- foreign_keys is a connection-level setting that cannot be changed inside a
+-- transaction in SQLite, so the PRAGMA OFF/ON below has no effect inside the
+-- transaction boundary. This works safely today because better-sqlite3 leaves
+-- foreign key enforcement OFF by default. If the app ever enables foreign keys
+-- at connection startup, this migration should be run outside a transaction or
+-- the runner should be updated to handle table-rebuild migrations specially.
 
 PRAGMA foreign_keys = OFF;
 
