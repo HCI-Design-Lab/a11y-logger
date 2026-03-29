@@ -254,9 +254,50 @@ describe('publishVpat', () => {
         )
       )
       .run();
+    await reviewVpat(vpat.id, 'Test Reviewer');
     const published = await publishVpat(vpat.id);
     expect(published.status).toBe('published');
     expect(published.published_at).not.toBeNull();
+  });
+
+  it('throws NotReviewedError when status is draft', async () => {
+    const vpat = await createVpat({
+      title: 'Not Reviewed',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpat.id))
+      .run();
+    await expect(publishVpat(vpat.id)).rejects.toThrow('reviewed');
+  });
+
+  it('publishes a reviewed VPAT and snapshot includes reviewer info', async () => {
+    const vpat = await createVpat({
+      title: 'Reviewed',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpat.id))
+      .run();
+    await reviewVpat(vpat.id, 'Jane Smith');
+    const published = await publishVpat(vpat.id);
+    expect(published.status).toBe('published');
+    const snapshots = await listVpatSnapshots(vpat.id);
+    const snap = JSON.parse(snapshots[0]!.snapshot as string);
+    expect(snap.reviewed_by).toBe('Jane Smith');
+    expect(snap.reviewed_at).not.toBeNull();
   });
 });
 
@@ -377,6 +418,7 @@ describe('publishVpat snapshot creation', () => {
       .set({ conformance: 'supports' })
       .where(eq(schema.vpatCriterionRows.vpat_id, vpat.id))
       .run();
+    await reviewVpat(vpat.id, 'Test Reviewer');
     await publishVpat(vpat.id);
     const snapshots = await listVpatSnapshots(vpat.id);
     expect(snapshots).toHaveLength(1);

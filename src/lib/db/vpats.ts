@@ -33,6 +33,14 @@ export class UnresolvedRowsError extends Error {
   }
 }
 
+export class NotReviewedError extends Error {
+  readonly code = 'NOT_REVIEWED' as const;
+  constructor(id: string) {
+    super(`Cannot publish: VPAT ${id} has not been reviewed`);
+    this.name = 'NotReviewedError';
+  }
+}
+
 export interface VpatData {
   id: string;
   title: string;
@@ -338,6 +346,7 @@ export async function publishVpat(id: string): Promise<Vpat> {
   if (unresolved > 0) {
     throw new UnresolvedRowsError(unresolved);
   }
+  if (existing.status !== 'reviewed') throw new NotReviewedError(id);
   // Capture criterion rows before status update (rows don't change during publish)
   const criterionRows = await getCriterionRows(id);
   const publishedAt = new Date().toISOString();
@@ -359,6 +368,8 @@ export async function publishVpat(id: string): Promise<Vpat> {
     wcag_version: published.wcag_version,
     wcag_level: published.wcag_level,
     product_scope: published.product_scope,
+    reviewed_by: published.reviewed_by,
+    reviewed_at: published.reviewed_at,
     criterion_rows: criterionRows.map((r) => ({
       criterion_code: r.criterion_code,
       criterion_name: r.criterion_name,

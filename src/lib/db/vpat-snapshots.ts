@@ -26,6 +26,8 @@ export interface VpatSnapshotData {
   wcag_level: string;
   product_scope: string[];
   criterion_rows: SnapshotCriterionRow[];
+  reviewed_by: string | null;
+  reviewed_at: string | null;
 }
 
 export interface VpatSnapshotSummary {
@@ -33,6 +35,7 @@ export interface VpatSnapshotSummary {
   vpat_id: string;
   version_number: number;
   published_at: string;
+  snapshot: string;
 }
 
 export interface VpatSnapshotFull extends VpatSnapshotSummary {
@@ -56,7 +59,7 @@ export async function createVpatSnapshot(
       snapshot: JSON.stringify(data),
     })
     .run();
-  return { id, vpat_id: vpatId, version_number: versionNumber, published_at: publishedAt };
+  return { id, vpat_id: vpatId, version_number: versionNumber, published_at: publishedAt, snapshot: JSON.stringify(data) };
 }
 
 export async function listVpatSnapshots(vpatId: string): Promise<VpatSnapshotSummary[]> {
@@ -66,6 +69,7 @@ export async function listVpatSnapshots(vpatId: string): Promise<VpatSnapshotSum
       vpat_id: vpatSnapshots.vpat_id,
       version_number: vpatSnapshots.version_number,
       published_at: vpatSnapshots.published_at,
+      snapshot: vpatSnapshots.snapshot,
     })
     .from(vpatSnapshots)
     .where(eq(vpatSnapshots.vpat_id, vpatId))
