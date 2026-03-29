@@ -88,6 +88,8 @@ export const vpats = sqliteTable('vpats', {
   status: text('status').notNull().default('draft'),
   version_number: integer('version_number').notNull().default(1),
   published_at: text('published_at'),
+  reviewed_by: text('reviewed_by'),
+  reviewed_at: text('reviewed_at'),
   created_by: text('created_by'),
   created_at: text('created_at').notNull(),
   updated_at: text('updated_at').notNull(),

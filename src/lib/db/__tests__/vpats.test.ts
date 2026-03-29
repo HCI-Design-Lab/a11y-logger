@@ -93,6 +93,19 @@ describe('createVpat', () => {
     expect(codes).toContain('302.1');
   });
 
+  it('creates a VPAT with null reviewed_by and reviewed_at', async () => {
+    const vpat = await createVpat({
+      title: 'Review Test',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    expect(vpat.reviewed_by).toBeNull();
+    expect(vpat.reviewed_at).toBeNull();
+  });
+
   it('marks Chapter5 rows as not_applicable for web-only scope in 508 edition', async () => {
     const vpat = await createVpat({
       title: '508 VPAT',

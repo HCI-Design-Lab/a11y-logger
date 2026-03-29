@@ -36,7 +36,7 @@ export class UnresolvedRowsError extends Error {
 export interface VpatData {
   id: string;
   title: string;
-  status: 'draft' | 'published';
+  status: 'draft' | 'reviewed' | 'published';
   standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
   wcag_version: '2.1' | '2.2';
   wcag_level: 'A' | 'AA' | 'AAA';
@@ -46,6 +46,8 @@ export interface VpatData {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   criterion_rows: VpatCriterionRow[];
 }
 
@@ -58,9 +60,11 @@ export interface Vpat {
   wcag_version: '2.1' | '2.2';
   wcag_level: 'A' | 'AA' | 'AAA';
   product_scope: string[];
-  status: 'draft' | 'published';
+  status: 'draft' | 'reviewed' | 'published';
   version_number: number;
   published_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -81,6 +85,8 @@ interface VpatRow {
   status: string;
   version_number: number;
   published_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
   updated_at: string;
 }
