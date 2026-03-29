@@ -151,6 +151,7 @@ export default function NewVpatPage() {
   }
 
   async function handleImportSubmit() {
+    if (isSubmitting) return;
     if (!projectId) { toast.error('Project is required'); return; }
 
     setIsSubmitting(true);
