@@ -317,6 +317,20 @@ export async function deleteVpat(id: string): Promise<boolean> {
   return true;
 }
 
+export async function reviewVpat(id: string, reviewerName: string): Promise<Vpat> {
+  const existing = await getVpat(id);
+  if (!existing) throw new VpatNotFoundError(id);
+  const unresolved = countUnresolvedRows(id);
+  if (unresolved > 0) throw new UnresolvedRowsError(unresolved);
+  const now = new Date().toISOString();
+  db()
+    .update(vpats)
+    .set({ status: 'reviewed', reviewed_by: reviewerName, reviewed_at: now, updated_at: now })
+    .where(eq(vpats.id, id))
+    .run();
+  return (await getVpat(id))!;
+}
+
 export async function publishVpat(id: string): Promise<Vpat> {
   const existing = await getVpat(id);
   if (!existing) throw new VpatNotFoundError(id);

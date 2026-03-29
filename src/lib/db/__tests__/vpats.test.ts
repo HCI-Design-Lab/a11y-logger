@@ -13,6 +13,7 @@ import {
   updateVpat,
   deleteVpat,
   publishVpat,
+  reviewVpat,
   getVpatsWithProject,
   getVpatsWithProgress,
   importVpatFromOpenAcr,
@@ -380,6 +381,46 @@ describe('publishVpat snapshot creation', () => {
     const snapshots = await listVpatSnapshots(vpat.id);
     expect(snapshots).toHaveLength(1);
     expect(snapshots[0]!.version_number).toBe(2);
+  });
+});
+
+describe('reviewVpat', () => {
+  it('throws VpatNotFoundError for non-existent id', async () => {
+    await expect(reviewVpat('non-existent', 'Jane Smith')).rejects.toThrow('not found');
+  });
+
+  it('sets status to reviewed and saves reviewer info', async () => {
+    const vpat = await createVpat({
+      title: 'To Review',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    // Resolve all rows so review is allowed
+    dbc()
+      .update(schema.vpatCriterionRows)
+      .set({ conformance: 'supports' })
+      .where(eq(schema.vpatCriterionRows.vpat_id, vpat.id))
+      .run();
+    const reviewed = await reviewVpat(vpat.id, 'Jane Smith');
+    expect(reviewed.status).toBe('reviewed');
+    expect(reviewed.reviewed_by).toBe('Jane Smith');
+    expect(reviewed.reviewed_at).not.toBeNull();
+  });
+
+  it('throws UnresolvedRowsError when rows are not_evaluated', async () => {
+    const vpat = await createVpat({
+      title: 'Unresolved',
+      project_id: projectId,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+    });
+    // Leave rows as not_evaluated (default after createVpat)
+    await expect(reviewVpat(vpat.id, 'Jane Smith')).rejects.toThrow('unresolved');
   });
 });
 
