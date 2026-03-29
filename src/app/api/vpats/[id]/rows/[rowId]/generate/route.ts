@@ -66,6 +66,8 @@ export async function POST(_request: Request, { params }: RouteContext) {
       remarks: result.remarks,
       ai_confidence: result.confidence,
       ai_reasoning: result.reasoning,
+      ai_referenced_issues: result.referenced_issues,
+      ai_suggested_conformance: result.suggested_conformance,
     });
 
     return NextResponse.json({ success: true, data: updated });

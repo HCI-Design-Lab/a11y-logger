@@ -109,6 +109,8 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
         reasoning: 'No issues found.',
         remarks: 'The product supports this criterion.',
         confidence: 'high',
+        referenced_issues: [],
+        suggested_conformance: 'supports',
       }),
     } as Awaited<ReturnType<typeof generateText>>);
 
@@ -121,5 +123,31 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
     expect(body.data.remarks).toBe('The product supports this criterion.');
     expect(body.data.ai_confidence).toBe('high');
     expect(body.data.ai_reasoning).toBe('No issues found.');
+    expect(body.data.ai_referenced_issues).toEqual([]);
+    expect(body.data.ai_suggested_conformance).toBe('supports');
+  });
+
+  it('stores referenced issues as snapshot', async () => {
+    vi.stubEnv('AI_PROVIDER', 'openai');
+    vi.stubEnv('AI_API_KEY', 'test-key');
+
+    const { generateText } = await import('ai');
+    vi.mocked(generateText).mockResolvedValue({
+      text: JSON.stringify({
+        reasoning: 'One issue found.',
+        remarks: 'Does not support.',
+        confidence: 'high',
+        referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+        suggested_conformance: 'does_not_support',
+      }),
+    } as Awaited<ReturnType<typeof generateText>>);
+
+    const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
+      params: Promise.resolve({ id: vpatId, rowId }),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.data.ai_referenced_issues).toEqual([{ title: 'Missing alt', severity: 'high' }]);
+    expect(body.data.ai_suggested_conformance).toBe('does_not_support');
   });
 });
