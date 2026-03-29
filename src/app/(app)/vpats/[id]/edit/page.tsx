@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -40,11 +40,13 @@ export default function VpatEditPage() {
   const [generateProgress, setGenerateProgress] = useState(0);
   const [generateTotal, setGenerateTotal] = useState(0);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [hasShownEditWarning, setHasShownEditWarning] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewerName, setReviewerName] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
+  const pendingChanges = useRef<Map<string, { conformance?: string; remarks?: string }>>(new Map());
 
   useEffect(() => {
     async function load() {
@@ -73,50 +75,59 @@ export default function VpatEditPage() {
     load();
   }, [vpatId, router]);
 
-  // Called immediately on conformance change — updates progress bar + saves.
+  // Updates local state + queues change for save.
   const handleRowChange = useCallback(
-    async (rowId: string, update: { conformance?: string }) => {
+    (rowId: string, update: { conformance?: string }) => {
       if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
         setShowEditWarning(true);
       }
       setRows((prev) =>
         prev.map((r) => (r.id === rowId ? ({ ...r, ...update } as VpatCriterionRow) : r))
       );
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(update),
-        });
-        const json = await res.json();
-        if (!json.success) toast.error(json.error ?? 'Failed to save');
-      } catch {
-        toast.error('Failed to save');
-      }
+      const existing = pendingChanges.current.get(rowId) ?? {};
+      pendingChanges.current.set(rowId, { ...existing, ...update });
     },
-    [vpatId, vpat, hasShownEditWarning]
+    [vpat, hasShownEditWarning]
   );
 
-  // Called by the table after 500ms debounce — remarks only, no state update needed.
+  // Called by the table after 500ms debounce — queues remarks for save.
   const handleSaveRemarks = useCallback(
-    async (rowId: string, remarks: string) => {
+    (rowId: string, remarks: string) => {
       if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
         setShowEditWarning(true);
       }
-      try {
-        const res = await fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ remarks }),
-        });
-        const json = await res.json();
-        if (!json.success) toast.error(json.error ?? 'Failed to save');
-      } catch {
-        toast.error('Failed to save');
-      }
+      const existing = pendingChanges.current.get(rowId) ?? {};
+      pendingChanges.current.set(rowId, { ...existing, remarks });
     },
-    [vpatId, vpat, hasShownEditWarning]
+    [vpat, hasShownEditWarning]
   );
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const entries = Array.from(pendingChanges.current.entries());
+      if (entries.length > 0) {
+        const results = await Promise.all(
+          entries.map(([rowId, changes]) =>
+            fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(changes),
+            }).then((r) => r.json())
+          )
+        );
+        if (results.some((r) => !r.success)) {
+          toast.error('Some changes failed to save');
+          return;
+        }
+      }
+      router.push(`/vpats/${vpatId}`);
+    } catch {
+      toast.error('Failed to save');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [vpatId, router]);
 
   const handleGenerateRow = useCallback(
     async (rowId: string) => {
@@ -308,18 +319,23 @@ export default function VpatEditPage() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          onClick={() => setShowReviewModal(true)}
-          disabled={!canReview}
-          title={!canReview ? 'All criteria must be evaluated before review' : undefined}
-        >
-          Review
+        <Button onClick={handleSave} disabled={isSaving}>
+          <Save className="h-4 w-4" />
+          {isSaving ? 'Saving…' : 'Save VPAT'}
         </Button>
         <Button asChild variant="cancel">
           <Link href={`/vpats/${vpatId}`}>
             <X className="h-4 w-4" />
             Cancel
           </Link>
+        </Button>
+        <Button
+          className="ml-auto"
+          onClick={() => setShowReviewModal(true)}
+          disabled={!canReview}
+          title={!canReview ? 'All criteria must be evaluated before review' : undefined}
+        >
+          Review
         </Button>
       </div>
 
