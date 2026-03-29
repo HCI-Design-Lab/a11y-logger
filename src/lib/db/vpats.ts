@@ -5,6 +5,7 @@ import { vpats, projects, vpatCriterionRows } from './schema';
 import type * as sqliteSchema from './schema';
 import { getCriteriaForEdition } from './criteria';
 import { createCriterionRows, countUnresolvedRows, getCriterionRows } from './vpat-criterion-rows';
+import type { VpatCriterionRow } from './vpat-criterion-rows';
 import { createVpatSnapshot } from './vpat-snapshots';
 import type { VpatSnapshotData } from './vpat-snapshots';
 import type { CreateVpatParams, UpdateVpatInput } from '../validators/vpats';
@@ -30,6 +31,22 @@ export class UnresolvedRowsError extends Error {
     super(`Cannot publish: ${count} unresolved rows`);
     this.name = 'UnresolvedRowsError';
   }
+}
+
+export interface VpatData {
+  id: string;
+  title: string;
+  status: 'draft' | 'published';
+  standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
+  wcag_version: '2.1' | '2.2';
+  wcag_level: 'A' | 'AA' | 'AAA';
+  product_scope: string[];
+  project_id: string;
+  version_number: number;
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+  criterion_rows: VpatCriterionRow[];
 }
 
 export interface Vpat {

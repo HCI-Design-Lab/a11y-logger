@@ -15,22 +15,7 @@ import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
-
-interface VpatData {
-  id: string;
-  title: string;
-  status: 'draft' | 'published';
-  standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
-  wcag_version: '2.1' | '2.2';
-  wcag_level: 'A' | 'AA' | 'AAA';
-  product_scope: string[];
-  project_id: string;
-  version_number: number;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-  criterion_rows: VpatCriterionRow[];
-}
+import type { VpatData } from '@/lib/db/vpats';
 
 function getEditionBadgeLabel(vpat: VpatData): string {
   if (vpat.standard_edition === '508') return 'Section 508';

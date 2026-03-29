@@ -37,6 +37,7 @@ const mockVpat = {
       ai_reasoning: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
+      issue_count: 0,
     },
     {
       id: 'row-2',
@@ -53,6 +54,7 @@ const mockVpat = {
       ai_reasoning: null,
       last_generated_at: null,
       updated_at: '2026-01-01',
+      issue_count: 0,
     },
   ],
 };

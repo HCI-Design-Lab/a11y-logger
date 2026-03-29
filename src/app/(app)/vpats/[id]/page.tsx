@@ -10,23 +10,8 @@ import { History, Pencil } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
+import type { VpatData } from '@/lib/db/vpats';
 import Link from 'next/link';
-
-interface VpatData {
-  id: string;
-  title: string;
-  status: 'draft' | 'published';
-  standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
-  wcag_version: '2.1' | '2.2';
-  wcag_level: 'A' | 'AA' | 'AAA';
-  product_scope: string[];
-  project_id: string;
-  version_number: number;
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-  criterion_rows: VpatCriterionRow[];
-}
 
 function getEditionBadgeLabel(vpat: VpatData): string {
   if (vpat.standard_edition === '508') return 'Section 508';
