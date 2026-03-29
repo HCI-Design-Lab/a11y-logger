@@ -19,6 +19,8 @@ export interface VpatRowGenerationResult {
   remarks: string;
   confidence: 'high' | 'medium' | 'low';
   reasoning: string;
+  referenced_issues: { title: string; severity: string }[];
+  suggested_conformance: 'supports' | 'does_not_support' | 'not_applicable';
 }
 
 export interface AIProvider {
