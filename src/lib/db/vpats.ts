@@ -41,6 +41,13 @@ export class NotReviewedError extends Error {
   }
 }
 
+export class NotPublishedError extends Error {
+  constructor(id: string) {
+    super(`VPAT ${id} is not published`);
+    this.name = 'NotPublishedError';
+  }
+}
+
 export interface VpatData {
   id: string;
   title: string;
@@ -382,4 +389,17 @@ export async function publishVpat(id: string): Promise<Vpat> {
   };
   await createVpatSnapshot(published.id, published.version_number, publishedAt, snapshotData);
   return published;
+}
+
+export async function unpublishVpat(id: string): Promise<Vpat> {
+  const existing = await getVpat(id);
+  if (!existing) throw new VpatNotFoundError(id);
+  if (existing.status !== 'published') throw new NotPublishedError(id);
+  const now = new Date().toISOString();
+  db()
+    .update(vpats)
+    .set({ status: 'draft', updated_at: now })
+    .where(eq(vpats.id, id))
+    .run();
+  return (await getVpat(id))!;
 }

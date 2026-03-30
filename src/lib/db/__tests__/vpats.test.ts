@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { initDb, closeDb } from '../index';
-import { getDbClient } from '../client';
+import { getDbClient, getDb } from '../client';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type * as sqliteSchema from '../schema';
 import * as schema from '../schema';
@@ -13,10 +13,13 @@ import {
   updateVpat,
   deleteVpat,
   publishVpat,
+  unpublishVpat,
   reviewVpat,
   getVpatsWithProject,
   getVpatsWithProgress,
   importVpatFromOpenAcr,
+  VpatNotFoundError,
+  NotPublishedError,
 } from '../vpats';
 import { getCriterionRows } from '../vpat-criterion-rows';
 import { getCriteriaByCode } from '../criteria';
@@ -465,6 +468,40 @@ describe('reviewVpat', () => {
     });
     // Leave rows as not_evaluated (default after createVpat)
     await expect(reviewVpat(vpat.id, 'Jane Smith')).rejects.toThrow('unresolved');
+  });
+});
+
+describe('unpublishVpat', () => {
+  it('resets a published VPAT to draft', async () => {
+    const project = await createProject({ name: 'Unpublish Test' });
+    const vpat = await createVpat({
+      title: 'Published VPAT',
+      project_id: project.id,
+      standard_edition: 'WCAG',
+      product_scope: ['web'],
+    });
+    // Force status to published directly for test setup
+    getDb()!
+      .prepare(`UPDATE vpats SET status = 'published' WHERE id = ?`)
+      .run(vpat.id);
+
+    const result = await unpublishVpat(vpat.id);
+    expect(result.status).toBe('draft');
+  });
+
+  it('throws VpatNotFoundError for unknown id', async () => {
+    await expect(unpublishVpat('nonexistent')).rejects.toThrow(VpatNotFoundError);
+  });
+
+  it('throws NotPublishedError when VPAT is not published', async () => {
+    const project = await createProject({ name: 'Draft Test' });
+    const vpat = await createVpat({
+      title: 'Draft VPAT',
+      project_id: project.id,
+      standard_edition: 'WCAG',
+      product_scope: ['web'],
+    });
+    await expect(unpublishVpat(vpat.id)).rejects.toThrow(NotPublishedError);
   });
 });
 
