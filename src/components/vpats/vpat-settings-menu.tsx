@@ -88,7 +88,7 @@ export function VpatSettingsMenu({
               <DropdownMenuSeparator />
             </>
           )}
-          {(variant === 'edit' || !variant) && !isPublished && (
+          {!isPublished && (variant !== 'view' || canPublish) && (
             <>
               <DropdownMenuItem
                 onSelect={() => setPublishOpen(true)}

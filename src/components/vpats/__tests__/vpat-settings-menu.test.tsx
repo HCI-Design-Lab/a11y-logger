@@ -130,9 +130,16 @@ describe('VpatSettingsMenu variant="view"', () => {
     expect(screen.getByRole('menuitem', { name: /edit vpat/i })).toBeInTheDocument();
   });
 
-  it('does not show Publish option', async () => {
+  it('shows Publish option when canPublish is true', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
+  });
+
+  it('does not show Publish option when canPublish is false', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} canPublish={false} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     expect(screen.queryByRole('menuitem', { name: /publish/i })).not.toBeInTheDocument();
   });
