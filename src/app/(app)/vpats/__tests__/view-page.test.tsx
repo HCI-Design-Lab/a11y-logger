@@ -225,7 +225,7 @@ describe('VpatDetailPage (view)', () => {
 describe('VpatDetailPage edit published flow', () => {
   it('calls unpublish API and navigates on Edit Anyway for published VPAT', async () => {
     const mockPush = vi.fn();
-    vi.mocked(useRouter).mockReturnValue({ push: mockPush, refresh: vi.fn() } as ReturnType<typeof useRouter>);
+    vi.mocked(useRouter).mockReturnValue({ push: mockPush, refresh: vi.fn() } as unknown as ReturnType<typeof useRouter>);
 
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
