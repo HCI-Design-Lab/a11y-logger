@@ -25,6 +25,7 @@ export default function VpatDetailPage() {
 
   const [vpat, setVpat] = useState<VpatData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState<'criteria' | 'history'>('criteria');
   const [snapshots, setSnapshots] = useState<
     { id: string; version_number: number; published_at: string }[]
@@ -58,6 +59,29 @@ export default function VpatDetailPage() {
     }
     load();
   }, [vpatId, router]);
+
+  async function handlePublish() {
+    if (!vpat) return;
+    setIsPublishing(true);
+    try {
+      const res = await fetch(`/api/vpats/${vpat.id}/publish`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to publish');
+        return;
+      }
+      setVpat(json.data);
+      // Refresh snapshots
+      const snapRes = await fetch(`/api/vpats/${vpat.id}/versions`);
+      const snapJson = await snapRes.json();
+      if (snapJson.success) setSnapshots(snapJson.data);
+      toast.success('VPAT published');
+    } catch {
+      toast.error('Failed to publish');
+    } finally {
+      setIsPublishing(false);
+    }
+  }
 
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
@@ -105,9 +129,9 @@ export default function VpatDetailPage() {
               vpatId={vpat.id}
               vpatTitle={vpat.title}
               isPublished={isPublished}
-              canPublish={false}
-              isPublishing={false}
-              onPublish={() => {}}
+              canPublish={isReviewed}
+              isPublishing={isPublishing}
+              onPublish={handlePublish}
               variant="view"
             />
           </div>
