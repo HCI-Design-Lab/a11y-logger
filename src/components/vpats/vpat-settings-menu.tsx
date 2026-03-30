@@ -31,6 +31,7 @@ interface VpatSettingsMenuProps {
   canPublish: boolean;
   isPublishing: boolean;
   onPublish: () => void;
+  onEdit?: () => void;
   variant?: 'view' | 'edit';
 }
 
@@ -41,11 +42,13 @@ export function VpatSettingsMenu({
   canPublish,
   isPublishing,
   onPublish,
+  onEdit,
   variant,
 }: VpatSettingsMenuProps) {
   const router = useRouter();
   const [publishOpen, setPublishOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
@@ -79,11 +82,21 @@ export function VpatSettingsMenu({
         <DropdownMenuContent align="end">
           {variant === 'view' && (
             <>
-              <DropdownMenuItem asChild>
-                <Link href={`/vpats/${vpatId}/edit`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit VPAT
-                </Link>
+              <DropdownMenuItem
+                asChild={!isPublished}
+                onSelect={isPublished ? () => setEditOpen(true) : undefined}
+              >
+                {isPublished ? (
+                  <>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit VPAT
+                  </>
+                ) : (
+                  <Link href={`/vpats/${vpatId}/edit`}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit VPAT
+                  </Link>
+                )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -153,6 +166,30 @@ export function VpatSettingsMenu({
               disabled={isPublishing}
             >
               {isPublishing ? 'Publishing…' : 'Publish'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit published confirmation */}
+      <AlertDialog open={editOpen} onOpenChange={setEditOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit Published VPAT?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Editing will reset this VPAT to Draft. The current published version will be
+              preserved and can be found in Version History.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setEditOpen(false);
+                onEdit?.();
+              }}
+            >
+              Edit Anyway
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

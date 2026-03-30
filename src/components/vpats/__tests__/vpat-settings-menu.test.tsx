@@ -160,3 +160,52 @@ describe('VpatSettingsMenu variant="edit"', () => {
     expect(screen.queryByRole('menuitem', { name: /edit vpat/i })).not.toBeInTheDocument();
   });
 });
+
+describe('VpatSettingsMenu Edit VPAT behavior', () => {
+  it('renders Edit VPAT as a link when not published', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
+    render(<VpatSettingsMenu {...baseProps} isPublished={false} onEdit={onEdit} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    const editItem = screen.getByRole('menuitem', { name: /edit vpat/i });
+    expect(editItem.tagName.toLowerCase()).toBe('a');
+  });
+
+  it('shows confirmation dialog when published and Edit VPAT clicked', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
+    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(screen.getByText(/Edit Published VPAT/i)).toBeInTheDocument();
+    });
+  });
+
+  it('calls onEdit when Edit Anyway confirmed', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
+    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /edit anyway/i }));
+    expect(onEdit).toHaveBeenCalledOnce();
+  });
+
+  it('does not call onEdit when Cancel clicked', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
+    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /cancel/i }));
+    expect(onEdit).not.toHaveBeenCalled();
+  });
+});
