@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { useRouter } from 'next/navigation';
 import VpatDetailPage from '../[id]/page';
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: vi.fn(() => ({ push: vi.fn(), refresh: vi.fn() })),
   useParams: () => ({ id: 'vpat-1' }),
 }));
 
@@ -217,6 +218,39 @@ describe('VpatDetailPage (view)', () => {
     render(<VpatDetailPage />);
     await waitFor(() => {
       expect(screen.getByText('Reviewed')).toBeInTheDocument();
+    });
+  });
+});
+
+describe('VpatDetailPage edit published flow', () => {
+  it('calls unpublish API and navigates on Edit Anyway for published VPAT', async () => {
+    const mockPush = vi.fn();
+    vi.mocked(useRouter).mockReturnValue({ push: mockPush, refresh: vi.fn() } as ReturnType<typeof useRouter>);
+
+    vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('/versions')) {
+        return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
+      }
+      if (url.includes('/unpublish')) {
+        return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'draft' } }) } as unknown as Response);
+      }
+      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }) } as unknown as Response);
+    });
+
+    const user = userEvent.setup();
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /edit anyway/i }));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/vpats/vpat-1/edit');
     });
   });
 });

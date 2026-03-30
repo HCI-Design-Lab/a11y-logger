@@ -83,6 +83,20 @@ export default function VpatDetailPage() {
     }
   }
 
+  async function handleEditPublished() {
+    try {
+      const res = await fetch(`/api/vpats/${vpatId}/unpublish`, { method: 'POST' });
+      const json = await res.json();
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to reset VPAT');
+        return;
+      }
+      router.push(`/vpats/${vpatId}/edit`);
+    } catch {
+      toast.error('Failed to reset VPAT');
+    }
+  }
+
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
 
@@ -132,6 +146,7 @@ export default function VpatDetailPage() {
               canPublish={isReviewed}
               isPublishing={isPublishing}
               onPublish={handlePublish}
+              onEdit={handleEditPublished}
               variant="view"
             />
           </div>
