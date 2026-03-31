@@ -50,6 +50,17 @@ describe('VpatAiPanel', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('locks body scroll when mounted', () => {
+    render(<VpatAiPanel row={makeRow()} onClose={vi.fn()} />);
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('restores body scroll when unmounted', () => {
+    const { unmount } = render(<VpatAiPanel row={makeRow()} onClose={vi.fn()} />);
+    unmount();
+    expect(document.body.style.overflow).toBe('');
+  });
+
   it('moves focus to close button on mount', () => {
     render(<VpatAiPanel row={makeRow()} onClose={vi.fn()} />);
     expect(document.activeElement).toBe(screen.getByRole('button', { name: /close/i }));
@@ -81,6 +92,54 @@ describe('VpatAiPanel', () => {
         onClose={vi.fn()}
       />
     );
+    expect(screen.getByText('Missing alt')).toBeInTheDocument();
+  });
+
+  it('shows SeverityBadge for referenced issue severity', () => {
+    render(
+      <VpatAiPanel
+        row={makeRow({
+          ai_referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+        })}
+        onClose={vi.fn()}
+      />
+    );
+    expect(screen.getByText('High')).toBeInTheDocument();
+  });
+
+  it('renders referenced issue title as link when id/assessment_id/project_id present', () => {
+    render(
+      <VpatAiPanel
+        row={makeRow({
+          ai_referenced_issues: [
+            {
+              title: 'Missing alt',
+              severity: 'high',
+              id: 'issue-1',
+              assessment_id: 'assess-1',
+              project_id: 'proj-1',
+            },
+          ],
+        })}
+        onClose={vi.fn()}
+      />
+    );
+    const link = screen.getByRole('link', { name: /missing alt/i });
+    expect(link).toHaveAttribute('href', '/projects/proj-1/assessments/assess-1/issues/issue-1');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('renders referenced issue title as plain text when no link data', () => {
+    render(
+      <VpatAiPanel
+        row={makeRow({
+          ai_referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+        })}
+        onClose={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole('link', { name: /missing alt/i })).not.toBeInTheDocument();
     expect(screen.getByText('Missing alt')).toBeInTheDocument();
   });
 

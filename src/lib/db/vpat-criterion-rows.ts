@@ -29,7 +29,7 @@ export interface VpatCriterionRow {
   remarks: string | null;
   ai_confidence: 'high' | 'medium' | 'low' | null;
   ai_reasoning: string | null;
-  ai_referenced_issues: { title: string; severity: string }[] | null;
+  ai_referenced_issues: { title: string; severity: string; id?: string; assessment_id?: string; project_id?: string }[] | null;
   ai_suggested_conformance: 'supports' | 'does_not_support' | 'not_applicable' | null;
   last_generated_at: string | null;
   updated_at: string;

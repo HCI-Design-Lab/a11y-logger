@@ -90,6 +90,19 @@ describe('VpatIssuesPanel', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
+  it('locks body scroll when mounted', () => {
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('restores body scroll when unmounted', () => {
+    const { unmount } = render(
+      <VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />
+    );
+    unmount();
+    expect(document.body.style.overflow).toBe('');
+  });
+
   it('moves focus to the close button when the panel mounts', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
     const closeButton = screen.getByRole('button', { name: /close/i });

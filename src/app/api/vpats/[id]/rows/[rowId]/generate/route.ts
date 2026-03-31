@@ -35,7 +35,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
   const issues = getDb()
     .prepare(
       `
-    SELECT i.title, i.severity, i.url, i.description
+    SELECT i.id, i.assessment_id, i.title, i.severity, i.url, i.description
     FROM issues i
     JOIN assessments a ON i.assessment_id = a.id
     WHERE a.project_id = ?
@@ -46,11 +46,16 @@ export async function POST(_request: Request, { params }: RouteContext) {
   `
     )
     .all(vpat.project_id, row.criterion_code) as {
+    id: string;
+    assessment_id: string;
     title: string;
     severity: string;
     url: string;
     description: string;
   }[];
+
+  // Build a lookup map for enriching AI-referenced issues with their IDs after generation
+  const issueByTitle = new Map(issues.map((i) => [i.title, i]));
 
   try {
     const result = await ai.generateVpatRow({
@@ -62,11 +67,20 @@ export async function POST(_request: Request, { params }: RouteContext) {
       issues,
     });
 
+    // Enrich referenced issues with IDs so the UI can link to them
+    const enrichedReferencedIssues = result.referenced_issues.map((ref) => {
+      const match = issueByTitle.get(ref.title);
+      if (match) {
+        return { ...ref, id: match.id, assessment_id: match.assessment_id, project_id: vpat.project_id };
+      }
+      return ref;
+    });
+
     const updated = await updateCriterionRow(rowId, {
       remarks: result.remarks,
       ai_confidence: result.confidence,
       ai_reasoning: result.reasoning,
-      ai_referenced_issues: result.referenced_issues,
+      ai_referenced_issues: enrichedReferencedIssues,
       ai_suggested_conformance: result.suggested_conformance,
     });
 

@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SeverityBadge } from '@/components/issues/severity-badge';
+import type { Issue } from '@/lib/db/issues';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
 const CONFIDENCE_COLORS: Record<string, string> = {
@@ -34,6 +36,11 @@ export function VpatAiPanel({ row, onClose }: VpatAiPanelProps) {
 
   useEffect(() => {
     closeButtonRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
   }, []);
 
   useEffect(() => {
@@ -110,13 +117,22 @@ export function VpatAiPanel({ row, onClose }: VpatAiPanelProps) {
             )}
           </p>
           {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {row.ai_referenced_issues.map((issue, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground flex-1">{issue.title}</span>
-                  <Badge variant="outline" className="text-xs capitalize">
-                    {issue.severity}
-                  </Badge>
+                  {issue.id && issue.assessment_id && issue.project_id ? (
+                    <a
+                      href={`/projects/${issue.project_id}/assessments/${issue.assessment_id}/issues/${issue.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline flex-1"
+                    >
+                      {issue.title}
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground flex-1">{issue.title}</span>
+                  )}
+                  <SeverityBadge severity={issue.severity as Issue['severity']} />
                 </li>
               ))}
             </ul>
