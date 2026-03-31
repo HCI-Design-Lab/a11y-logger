@@ -28,6 +28,8 @@ const mockVpat: Vpat = {
   status: 'published',
   version_number: 2,
   published_at: '2024-03-01T00:00:00Z',
+  reviewed_by: null,
+  reviewed_at: null,
   created_at: '2024-02-01T00:00:00Z',
   updated_at: '2024-03-01T00:00:00Z',
 };

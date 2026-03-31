@@ -17,6 +17,8 @@ const mockVpat: Vpat = {
   status: 'draft',
   version_number: 1,
   published_at: null,
+  reviewed_by: null,
+  reviewed_at: null,
   created_at: '2026-01-01T00:00:00.000Z',
   updated_at: '2026-01-01T00:00:00.000Z',
 };

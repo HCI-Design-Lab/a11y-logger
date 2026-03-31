@@ -16,6 +16,8 @@ const makeVpat = (overrides: Partial<VpatWithProgress> = {}): VpatWithProgress =
   status: 'draft',
   version_number: 1,
   published_at: null,
+  reviewed_by: null,
+  reviewed_at: null,
   created_at: '2026-01-01',
   updated_at: '2026-01-01',
   resolved: 3,

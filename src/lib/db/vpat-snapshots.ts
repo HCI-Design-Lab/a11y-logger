@@ -96,6 +96,7 @@ export async function getVpatSnapshot(
     vpat_id: row.vpat_id,
     version_number: row.version_number,
     published_at: row.published_at,
+    created_at: row.created_at,
     data: JSON.parse(row.snapshot) as VpatSnapshotData,
   };
 }
