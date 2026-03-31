@@ -15,7 +15,8 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "node scripts/seed-projects.js && node scripts/seed-meridian-assessments.js && node scripts/seed-meridian-issues.js && node scripts/seed-alderton-and-luminary.js && node scripts/seed-northgate.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.63",
