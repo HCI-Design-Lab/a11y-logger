@@ -46,6 +46,9 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
               className="font-mono text-sm bg-muted"
             />
           </div>
+          <p className="text-xs text-muted-foreground">
+            These paths are read-only. To change them, set the <code className="font-mono">DATABASE_PATH</code> environment variable before starting the server.
+          </p>
         </div>
 
         <div className="flex gap-2">

@@ -15,6 +15,14 @@ export default function SettingsPage() {
 
   const version = process.env.npm_package_version ?? '0.0.0';
 
+  const aiEnvSource = {
+    provider: process.env.AI_PROVIDER ?? null,
+    apiKey: !!process.env.AI_API_KEY,
+    model: process.env.AI_MODEL ?? null,
+    baseUrl: process.env.AI_BASE_URL ?? null,
+  };
+  const hasAnyEnvOverride = Object.values(aiEnvSource).some(Boolean);
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Settings</h1>
@@ -23,6 +31,7 @@ export default function SettingsPage() {
         aiApiKey={aiApiKey}
         aiModel={aiModel}
         aiBaseUrl={aiBaseUrl}
+        aiEnvSource={hasAnyEnvOverride ? aiEnvSource : undefined}
         dbPath={process.env.DATABASE_PATH ?? './data/a11y-logger.db'}
         mediaPath="./data/media/"
         version={version}

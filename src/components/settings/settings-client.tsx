@@ -6,11 +6,19 @@ import { AIConfigSection } from './ai-config-section';
 import { DataManagementSection } from './data-management-section';
 import { AuthToggleSection } from './auth-toggle-section';
 
+interface AIEnvSource {
+  provider: string | null;
+  apiKey: boolean;
+  model: string | null;
+  baseUrl: string | null;
+}
+
 interface SettingsClientProps {
   aiProvider: string;
   aiApiKey: string;
   aiModel: string;
   aiBaseUrl: string;
+  aiEnvSource?: AIEnvSource;
   dbPath: string;
   mediaPath: string;
   version: string;
@@ -22,6 +30,7 @@ export function SettingsClient({
   aiApiKey,
   aiModel,
   aiBaseUrl,
+  aiEnvSource,
   dbPath,
   mediaPath,
   version,
@@ -89,6 +98,7 @@ export function SettingsClient({
           apiKey={aiApiKey}
           model={aiModel}
           baseUrl={aiBaseUrl}
+          envSource={aiEnvSource}
           onSave={handleSaveAI}
         />
       </TabsContent>
