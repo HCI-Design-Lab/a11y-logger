@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -71,6 +71,7 @@ export function VpatSettingsMenu({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const reviewerInputRef = useRef<HTMLInputElement>(null);
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -285,7 +286,7 @@ export function VpatSettingsMenu({
           if (!open) setReviewerName('');
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent onOpenAutoFocus={(e) => { e.preventDefault(); reviewerInputRef.current?.focus(); }}>
           <AlertDialogHeader>
             <AlertDialogTitle>Submit Review</AlertDialogTitle>
             <AlertDialogDescription asChild>
@@ -304,11 +305,13 @@ export function VpatSettingsMenu({
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
               aria-label="Reviewer full name"
+              ref={reviewerInputRef}
             />
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              className={buttonVariants({ variant: 'success' })}
               onClick={() => {
                 if (!reviewerName.trim()) return;
                 setReviewConfirmOpen(false);

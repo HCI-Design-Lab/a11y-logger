@@ -72,7 +72,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to publish');
         return;
       }
-      setVpat(json.data);
+      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
       // Refresh snapshots
       const snapRes = await fetch(`/api/vpats/${vpat.id}/versions`);
       const snapJson = await snapRes.json();
@@ -98,7 +98,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to mark as reviewed');
         return;
       }
-      setVpat(json.data);
+      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
       toast.success('VPAT marked as reviewed');
     } catch {
       toast.error('Failed to mark as reviewed');
@@ -115,7 +115,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to unpublish');
         return;
       }
-      setVpat(json.data);
+      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
       toast.success('VPAT unpublished');
     } catch {
       toast.error('Failed to unpublish');
