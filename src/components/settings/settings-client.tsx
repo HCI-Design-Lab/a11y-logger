@@ -77,7 +77,7 @@ export function SettingsClient({
 
   return (
     <Tabs defaultValue="ai">
-      <TabsList>
+      <TabsList variant="segmented">
         <TabsTrigger value="ai">AI Configuration</TabsTrigger>
         <TabsTrigger value="data">Data Management</TabsTrigger>
         <TabsTrigger value="security">Security</TabsTrigger>

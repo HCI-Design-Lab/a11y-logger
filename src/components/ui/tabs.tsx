@@ -29,6 +29,7 @@ const tabsListVariants = cva(
       variant: {
         default: 'bg-muted',
         line: 'gap-1 bg-transparent',
+        segmented: 'bg-muted p-0 gap-0 rounded-md overflow-hidden',
       },
     },
     defaultVariants: {
@@ -61,6 +62,10 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
         'group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent',
         'data-[state=active]:bg-background dark:data-[state=active]:text-foreground dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 data-[state=active]:text-foreground',
         'after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100',
+        // segmented variant: flush button group, active = primary bg
+        'group-data-[variant=segmented]/tabs-list:rounded-none group-data-[variant=segmented]/tabs-list:border-0 group-data-[variant=segmented]/tabs-list:h-full group-data-[variant=segmented]/tabs-list:flex-none group-data-[variant=segmented]/tabs-list:px-4',
+        'group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-primary group-data-[variant=segmented]/tabs-list:data-[state=active]:text-primary-foreground group-data-[variant=segmented]/tabs-list:data-[state=active]:shadow-none group-data-[variant=segmented]/tabs-list:data-[state=active]:border-transparent',
+        'dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:bg-primary dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:text-primary-foreground dark:group-data-[variant=segmented]/tabs-list:data-[state=active]:border-transparent',
         className
       )}
       {...props}
