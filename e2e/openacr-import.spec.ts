@@ -52,34 +52,32 @@ test.describe('OpenACR YAML Import', () => {
     fs.writeFileSync(yamlPath, sampleYaml);
 
     try {
-      await page.goto('/vpats');
+      await page.goto('/vpats/new');
 
-      // Open modal
-      await page.getByRole('button', { name: /import from openacr/i }).click();
+      // Step 1: select "Import from OpenACR" edition
+      await page.getByRole('radio', { name: /import from openacr/i }).click();
+      await page.getByRole('button', { name: /^next$/i }).click();
 
-      const dialog = page.getByRole('dialog');
+      // Step 2: upload YAML file
+      await expect(page.getByText(/upload openacr/i)).toBeVisible();
+      await page.locator('input[type="file"]').setInputFiles(yamlPath);
+      await expect(page.getByText('Sample VPAT')).toBeVisible();
+      await expect(page.getByText(/3 criteria/i)).toBeVisible();
+      await page.getByRole('button', { name: /^next$/i }).click();
 
-      // Step 1: select project
-      await expect(dialog.getByRole('heading', { name: /select project/i })).toBeVisible();
-      await dialog.locator('select').selectOption({ label: 'E2E OpenACR Import Project' });
-      await dialog.getByRole('button', { name: /^next$/i }).click();
+      // Step 3: select project and import
+      await expect(page.getByText(/select project/i)).toBeVisible();
+      await page.locator('select#import-project').selectOption({ value: projectId });
+      const importBtn = page.getByRole('button', { name: /^import$/i });
+      await expect(importBtn).toBeEnabled();
 
-      // Step 2: upload file
-      await expect(dialog.getByRole('heading', { name: /upload openacr yaml/i })).toBeVisible();
-      await page.getByLabel(/yaml file/i).setInputFiles(yamlPath);
-      await expect(dialog.getByText('Sample VPAT')).toBeVisible();
-      await expect(dialog.getByText(/3 criteria/i)).toBeVisible();
-      await dialog.getByRole('button', { name: /^next$/i }).click();
+      // Start waiting for URL change before clicking to avoid missing the navigation event
+      await Promise.all([
+        page.waitForURL((url) => url.pathname.startsWith('/vpats/') && url.pathname !== '/vpats/new', { timeout: 10000 }),
+        importBtn.click(),
+      ]);
 
-      // Step 3: confirm
-      await expect(dialog.getByRole('heading', { name: /confirm import/i })).toBeVisible();
-      await dialog.getByRole('button', { name: /^import$/i }).click();
-
-      // Redirected to VPAT detail page
-      await expect(page).toHaveURL(/\/vpats\//);
-      await expect(page.getByRole('heading', { name: 'Sample VPAT' })).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(page.getByRole('heading', { name: 'Sample VPAT' })).toBeVisible();
     } finally {
       fs.unlinkSync(yamlPath);
     }
@@ -90,17 +88,17 @@ test.describe('OpenACR YAML Import', () => {
     fs.writeFileSync(badPath, 'not: valid: {{{');
 
     try {
-      await page.goto('/vpats');
-      await page.getByRole('button', { name: /import from openacr/i }).click();
+      await page.goto('/vpats/new');
 
-      const dialog = page.getByRole('dialog');
-      await expect(dialog.getByRole('heading', { name: /select project/i })).toBeVisible();
-      await dialog.locator('select').selectOption({ label: 'E2E OpenACR Import Project' });
-      await dialog.getByRole('button', { name: /^next$/i }).click();
+      // Step 1: select "Import from OpenACR" edition
+      await page.getByRole('radio', { name: /import from openacr/i }).click();
+      await page.getByRole('button', { name: /^next$/i }).click();
 
-      await page.getByLabel(/yaml file/i).setInputFiles(badPath);
+      // Step 2: upload invalid YAML file
+      await expect(page.getByText(/upload openacr/i)).toBeVisible();
+      await page.locator('input[type="file"]').setInputFiles(badPath);
 
-      await expect(dialog.getByText(/could not parse yaml/i)).toBeVisible();
+      await expect(page.getByText(/could not parse yaml/i)).toBeVisible();
     } finally {
       fs.unlinkSync(badPath);
     }
