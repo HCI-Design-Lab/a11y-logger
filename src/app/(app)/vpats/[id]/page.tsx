@@ -9,6 +9,7 @@ import { History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
+import { VpatVersionHistoryTable } from '@/components/vpats/vpat-version-history-table';
 import type { VpatData } from '@/lib/db/vpats';
 
 function getEditionBadgeLabel(vpat: VpatData): string {
@@ -28,7 +29,7 @@ export default function VpatDetailPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState<'criteria' | 'history'>('criteria');
   const [snapshots, setSnapshots] = useState<
-    { id: string; version_number: number; published_at: string }[]
+    { id: string; vpat_id: string; version_number: number; published_at: string; created_at: string }[]
   >([]);
 
   useEffect(() => {
@@ -194,43 +195,7 @@ export default function VpatDetailPage() {
         )}
 
         {activeTab === 'history' && (
-          <div>
-            {snapshots.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4">
-                No published versions yet. Publish this VPAT to create a snapshot.
-              </p>
-            ) : (
-              <div className="rounded-md border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="px-4 py-2 text-left font-medium">Version</th>
-                      <th className="px-4 py-2 text-left font-medium">Published</th>
-                      <th className="px-4 py-2 text-right font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {snapshots.map((snap) => (
-                      <tr key={snap.id} className="border-b last:border-0">
-                        <td className="px-4 py-2">v{snap.version_number}</td>
-                        <td className="px-4 py-2 text-muted-foreground">
-                          {new Date(snap.published_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-2 text-right">
-                          <a
-                            href={`/vpats/${vpatId}/versions/${snap.version_number}`}
-                            className="text-sm font-medium underline-offset-4 hover:underline"
-                          >
-                            View
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <VpatVersionHistoryTable vpatId={vpatId} snapshots={snapshots} />
         )}
       </div>
     </div>

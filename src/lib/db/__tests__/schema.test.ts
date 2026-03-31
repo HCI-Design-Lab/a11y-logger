@@ -257,7 +257,7 @@ describe('core tables schema', () => {
   describe('vpat_snapshots', () => {
     it('has the correct columns', () => {
       const columns = getColumnNames(db, 'vpat_snapshots');
-      expect(columns).toEqual(['id', 'vpat_id', 'version_number', 'published_at', 'snapshot']);
+      expect(columns).toEqual(['id', 'vpat_id', 'version_number', 'published_at', 'snapshot', 'created_at']);
     });
 
     it('includes vpat_snapshots table', () => {

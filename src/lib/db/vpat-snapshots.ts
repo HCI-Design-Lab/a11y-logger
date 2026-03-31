@@ -35,6 +35,7 @@ export interface VpatSnapshotSummary {
   vpat_id: string;
   version_number: number;
   published_at: string;
+  created_at: string;
 }
 
 export interface VpatSnapshotFull extends VpatSnapshotSummary {
@@ -48,6 +49,7 @@ export async function createVpatSnapshot(
   data: VpatSnapshotData
 ): Promise<VpatSnapshotSummary> {
   const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
   db()
     .insert(vpatSnapshots)
     .values({
@@ -56,9 +58,10 @@ export async function createVpatSnapshot(
       version_number: versionNumber,
       published_at: publishedAt,
       snapshot: JSON.stringify(data),
+      created_at: createdAt,
     })
     .run();
-  return { id, vpat_id: vpatId, version_number: versionNumber, published_at: publishedAt };
+  return { id, vpat_id: vpatId, version_number: versionNumber, published_at: publishedAt, created_at: createdAt };
 }
 
 export async function listVpatSnapshots(vpatId: string): Promise<VpatSnapshotSummary[]> {
@@ -68,6 +71,7 @@ export async function listVpatSnapshots(vpatId: string): Promise<VpatSnapshotSum
       vpat_id: vpatSnapshots.vpat_id,
       version_number: vpatSnapshots.version_number,
       published_at: vpatSnapshots.published_at,
+      created_at: vpatSnapshots.created_at,
     })
     .from(vpatSnapshots)
     .where(eq(vpatSnapshots.vpat_id, vpatId))

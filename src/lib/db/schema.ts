@@ -130,6 +130,7 @@ export const vpatSnapshots = sqliteTable('vpat_snapshots', {
   version_number: integer('version_number').notNull(),
   published_at: text('published_at').notNull(),
   snapshot: text('snapshot').notNull(),
+  created_at: text('created_at').notNull().default(''),
 });
 
 export type VpatSnapshotRow = typeof vpatSnapshots.$inferSelect;

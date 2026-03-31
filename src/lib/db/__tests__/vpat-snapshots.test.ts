@@ -92,6 +92,25 @@ describe('listVpatSnapshots', () => {
     // Should NOT include the snapshot blob
     expect((list[0]! as unknown as Record<string, unknown>).snapshot).toBeUndefined();
   });
+
+  it('includes created_at in returned summaries', async () => {
+    const now = new Date().toISOString();
+    const data = {
+      title: 'T',
+      description: null,
+      standard_edition: 'WCAG',
+      wcag_version: '2.1',
+      wcag_level: 'AA',
+      product_scope: ['web'],
+      criterion_rows: [],
+      reviewed_by: null,
+      reviewed_at: null,
+    };
+    await createVpatSnapshot(vpatId, 1, now, data);
+    const list = await listVpatSnapshots(vpatId);
+    expect(list[0]!.created_at).toBeDefined();
+    expect(typeof list[0]!.created_at).toBe('string');
+  });
 });
 
 describe('getVpatSnapshot', () => {

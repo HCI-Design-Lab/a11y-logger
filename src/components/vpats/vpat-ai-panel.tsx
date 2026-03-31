@@ -117,9 +117,9 @@ export function VpatAiPanel({ row, onClose }: VpatAiPanelProps) {
             )}
           </p>
           {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
-            <ul className="space-y-2">
+            <ul>
               {row.ai_referenced_issues.map((issue, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm">
+                <li key={i} className="flex items-center gap-3 text-sm py-2">
                   {issue.id && issue.assessment_id && issue.project_id ? (
                     <a
                       href={`/projects/${issue.project_id}/assessments/${issue.assessment_id}/issues/${issue.id}`}
