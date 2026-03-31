@@ -21,9 +21,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { VpatAiPanel } from '@/components/vpats/vpat-ai-panel';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
 const CONFORMANCE_OPTIONS = [
@@ -57,24 +56,6 @@ const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
 // but must be grouped by criterion_level (A/AA/AAA) to match the standard VPAT table format.
 const WCAG_PRINCIPLE_SECTIONS = new Set(['Perceivable', 'Operable', 'Understandable', 'Robust']);
 
-const CONFIDENCE_COLORS: Record<string, string> = {
-  high: 'bg-green-100 text-green-800',
-  medium: 'bg-amber-100 text-amber-800',
-  low: 'bg-red-100 text-red-800',
-};
-
-const SUGGESTED_CONFORMANCE_COLORS: Record<string, string> = {
-  supports: 'bg-green-100 border-green-500 text-green-700',
-  does_not_support: 'bg-red-100 border-red-500 text-red-700',
-  not_applicable: 'bg-gray-100 border-gray-400 text-gray-600',
-};
-
-const SUGGESTED_CONFORMANCE_LABELS: Record<string, string> = {
-  supports: 'Supports',
-  does_not_support: 'Does Not Support',
-  not_applicable: 'Not Applicable',
-};
-
 type RemarksFormValues = Record<string, string>;
 
 interface CriterionTableRowProps {
@@ -88,11 +69,10 @@ interface CriterionTableRowProps {
   scheduleRemarksSave: (rowId: string, value: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onCriterionClick?: (criterionCode: string) => void;
+  onAiInfoClick?: (row: VpatCriterionRow) => void;
   register: UseFormRegister<RemarksFormValues>;
 }
 
-// Isolated per-row component — owns modal state so toggling AI info
-// only re-renders this row, not the entire table.
 const CriterionTableRow = memo(function CriterionTableRow({
   row,
   isEven,
@@ -104,10 +84,10 @@ const CriterionTableRow = memo(function CriterionTableRow({
   scheduleRemarksSave,
   onGenerateRow,
   onCriterionClick,
+  onAiInfoClick,
   register,
 }: CriterionTableRowProps) {
   const isDisabled = isGenerating || isGeneratingAll;
-  const [showAiInfo, setShowAiInfo] = useState(false);
   const hasAiInfo = !!(row.ai_confidence || row.ai_reasoning || row.ai_suggested_conformance || row.ai_referenced_issues);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -237,7 +217,7 @@ const CriterionTableRow = memo(function CriterionTableRow({
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => setShowAiInfo(true)}
+                  onClick={() => onAiInfoClick?.(row)}
                   aria-label={`AI info for ${row.criterion_code}`}
                 >
                   <Info className="h-4 w-4" />
@@ -248,94 +228,6 @@ const CriterionTableRow = memo(function CriterionTableRow({
         )}
       </TableRow>
 
-      {hasAiInfo && (
-        <Dialog open={showAiInfo} onOpenChange={setShowAiInfo}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>AI Analysis — {row.criterion_code}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-1">
-              {row.ai_confidence && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">Confidence</span>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
-                  >
-                    {row.ai_confidence}
-                  </Badge>
-                  {row.ai_confidence === 'low' && (
-                    <span className="text-xs text-amber-600">
-                      Limited evidence — consider additional testing.
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {row.ai_suggested_conformance && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium mb-1">Suggested Conformance</span>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${SUGGESTED_CONFORMANCE_COLORS[row.ai_suggested_conformance] ?? ''}`}
-                  >
-                    {SUGGESTED_CONFORMANCE_LABELS[row.ai_suggested_conformance]}
-                  </Badge>
-                </div>
-              )}
-
-              <div>
-                <p className="text-sm font-medium mb-1">
-                  Issues Referenced
-                  {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 && (
-                    <span className="font-normal text-muted-foreground ml-1">
-                      ({row.ai_referenced_issues.length})
-                    </span>
-                  )}
-                </p>
-                {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
-                  <ul className="space-y-1">
-                    {row.ai_referenced_issues.map((issue, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm">
-                        <span className="text-muted-foreground flex-1">{issue.title}</span>
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {issue.severity}
-                        </Badge>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No issues mapped to this criterion.
-                  </p>
-                )}
-              </div>
-
-              {row.ai_reasoning && (
-                <div>
-                  <p className="text-sm font-medium mb-1">Reasoning</p>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {row.ai_reasoning}
-                  </p>
-                </div>
-              )}
-
-              {row.last_generated_at && (
-                <p className="text-xs text-muted-foreground border-t pt-2">
-                  Generated{' '}
-                  {new Date(row.last_generated_at).toLocaleString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </p>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
     </>
   );
 });
@@ -351,6 +243,7 @@ interface CriterionSectionProps {
   scheduleRemarksSave: (rowId: string, value: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onCriterionClick?: (criterionCode: string) => void;
+  onAiInfoClick?: (row: VpatCriterionRow) => void;
   register: UseFormRegister<RemarksFormValues>;
 }
 
@@ -366,6 +259,7 @@ const CriterionSection = memo(function CriterionSection({
   scheduleRemarksSave,
   onGenerateRow,
   onCriterionClick,
+  onAiInfoClick,
   register,
 }: CriterionSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -424,6 +318,7 @@ const CriterionSection = memo(function CriterionSection({
                   scheduleRemarksSave={scheduleRemarksSave}
                   onGenerateRow={onGenerateRow}
                   onCriterionClick={onCriterionClick}
+                  onAiInfoClick={onAiInfoClick}
                   register={register}
                 />
               ))}
@@ -462,6 +357,8 @@ export function VpatCriteriaTable({
   aiEnabled = false,
   onCriterionClick,
 }: VpatCriteriaTableProps) {
+  const [aiPanelRow, setAiPanelRow] = useState<VpatCriterionRow | null>(null);
+
   // RHF manages remarks as uncontrolled inputs — typing never triggers React re-renders.
   const { register, setValue, getValues } = useForm<RemarksFormValues>({
     defaultValues: Object.fromEntries(rows.map((r) => [r.id, r.remarks ?? ''])),
@@ -540,12 +437,16 @@ export function VpatCriteriaTable({
                 scheduleRemarksSave={scheduleRemarksSave}
                 onGenerateRow={onGenerateRow}
                 onCriterionClick={onCriterionClick}
+                onAiInfoClick={setAiPanelRow}
                 register={register}
               />
             ))}
           </div>
         );
       })}
+      {aiPanelRow && (
+        <VpatAiPanel row={aiPanelRow} onClose={() => setAiPanelRow(null)} />
+      )}
     </div>
   );
 }
