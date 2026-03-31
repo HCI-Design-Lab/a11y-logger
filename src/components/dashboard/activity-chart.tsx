@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { TimeRange, TimeSeriesEntry } from '@/lib/db/dashboard';
 import { ChartTableToggle } from './chart-table-toggle';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
   if (range === '1m' || range === '1w') return data.slice(-20);
@@ -179,19 +179,15 @@ export function ActivityChart() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            {RANGES.map(({ label, value }) => (
-              <Button
-                size={'sm'}
-                key={value}
-                variant={range === value ? 'default' : 'outline'}
-                onClick={() => setRange(value)}
-                aria-pressed={range === value}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
+          <Tabs value={range} onValueChange={(v) => setRange(v as TimeRange)}>
+            <TabsList variant="segmented">
+              {RANGES.map(({ label, value }) => (
+                <TabsTrigger key={value} value={value}>
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
           <ChartTableToggle view={view} onChange={setView} />
         </div>
       </CardHeader>

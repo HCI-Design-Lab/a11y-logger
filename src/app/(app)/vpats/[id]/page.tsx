@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { History } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import { VpatVersionHistoryTable } from '@/components/vpats/vpat-version-history-table';
@@ -28,7 +28,6 @@ export default function VpatDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'criteria' | 'history'>('criteria');
   const [snapshots, setSnapshots] = useState<
     {
       id: string;
@@ -205,31 +204,18 @@ export default function VpatDetailPage() {
         </div>
       </div>
 
-      <div>
-        <div className="flex gap-1 mb-4">
-          <Button
-            size="sm"
-            variant={activeTab === 'criteria' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('criteria')}
-            aria-pressed={activeTab === 'criteria'}
-          >
-            Criteria
-          </Button>
-          <Button
-            size="sm"
-            variant={activeTab === 'history' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('history')}
-            aria-pressed={activeTab === 'history'}
-          >
-            <History className="mr-1 h-4 w-4" />
+      <Tabs defaultValue="criteria">
+        <TabsList variant="segmented" className="mb-4">
+          <TabsTrigger value="criteria">Criteria</TabsTrigger>
+          <TabsTrigger value="history">
+            <History className="h-4 w-4" />
             Version History
             {snapshots.length > 0 && (
               <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
             )}
-          </Button>
-        </div>
-
-        {activeTab === 'criteria' && (
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="criteria">
           <div className="space-y-6">
             <VpatCriteriaTable
               rows={vpat.criterion_rows}
@@ -243,12 +229,11 @@ export default function VpatDetailPage() {
               onCriterionClick={() => {}}
             />
           </div>
-        )}
-
-        {activeTab === 'history' && (
+        </TabsContent>
+        <TabsContent value="history">
           <VpatVersionHistoryTable vpatId={vpatId} snapshots={snapshots} />
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

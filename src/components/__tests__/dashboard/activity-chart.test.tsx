@@ -64,15 +64,12 @@ describe('ActivityChart', () => {
   it('has four time range buttons with aria-pressed', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
     render(<ActivityChart />);
-    const buttons = ['6 months', '3 months', '1 month', '1 week'];
-    buttons.forEach((label) => {
-      expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+    const labels = ['6 months', '3 months', '1 month', '1 week'];
+    labels.forEach((label) => {
+      expect(screen.getByRole('tab', { name: label })).toBeInTheDocument();
     });
     // Default is 6m
-    expect(screen.getByRole('button', { name: '6 months' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    );
+    expect(screen.getByRole('tab', { name: '6 months' })).toHaveAttribute('data-state', 'active');
   });
 
   it('changes active range button when clicked', async () => {
@@ -81,12 +78,11 @@ describe('ActivityChart', () => {
     });
     render(<ActivityChart />);
     await waitFor(() => screen.getByText('No activity in this period.'));
-    fireEvent.click(screen.getByRole('button', { name: '1 week' }));
-    expect(screen.getByRole('button', { name: '1 week' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: '6 months' })).toHaveAttribute(
-      'aria-pressed',
-      'false'
-    );
+    fireEvent.mouseDown(screen.getByRole('tab', { name: '1 week' }));
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: '1 week' })).toHaveAttribute('data-state', 'active');
+      expect(screen.getByRole('tab', { name: '6 months' })).toHaveAttribute('data-state', 'inactive');
+    });
   });
 
   it('shows table view with column headers when table toggle is clicked', async () => {
@@ -118,7 +114,7 @@ describe('ActivityChart', () => {
     });
     render(<ActivityChart />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
-    fireEvent.click(screen.getByRole('button', { name: '1 week' }));
+    fireEvent.mouseDown(screen.getByRole('tab', { name: '1 week' }));
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
     expect(screen.getByText(/days/i)).toBeInTheDocument();
@@ -141,7 +137,7 @@ describe('ActivityChart', () => {
     });
     render(<ActivityChart />);
     // Switch to 3m so bucketing applies
-    fireEvent.click(screen.getByRole('button', { name: '3 months' }));
+    fireEvent.mouseDown(screen.getByRole('tab', { name: '3 months' }));
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
     // Two entries bucketed into one week row — only one date row should appear

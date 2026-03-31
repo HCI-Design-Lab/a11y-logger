@@ -59,11 +59,11 @@ describe('WcagCriteria', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
     render(<WcagCriteria statuses={['open']} />);
     ['Perceivable', 'Operable', 'Understandable', 'Robust'].forEach((label) => {
-      expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: label })).toBeInTheDocument();
     });
-    expect(screen.getByRole('button', { name: 'Perceivable' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
+    expect(screen.getByRole('tab', { name: 'Perceivable' })).toHaveAttribute(
+      'data-state',
+      'active'
     );
   });
 
@@ -71,15 +71,14 @@ describe('WcagCriteria', () => {
     mockFetch({ success: true, data: [] });
     render(<WcagCriteria statuses={['open']} />);
     await waitFor(() => screen.getByText(/No issues logged/));
-    fireEvent.click(screen.getByRole('button', { name: 'Operable' }));
-    expect(screen.getByRole('button', { name: 'Operable' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    );
-    expect(screen.getByRole('button', { name: 'Perceivable' })).toHaveAttribute(
-      'aria-pressed',
-      'false'
-    );
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Operable' }));
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Operable' })).toHaveAttribute('data-state', 'active');
+      expect(screen.getByRole('tab', { name: 'Perceivable' })).toHaveAttribute(
+        'data-state',
+        'inactive'
+      );
+    });
   });
 
   it('includes statuses in fetch URL', async () => {

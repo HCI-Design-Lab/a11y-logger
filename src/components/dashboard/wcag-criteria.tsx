@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WCAG_PRINCIPLES, type WcagPrinciple } from '@/lib/wcag-criteria';
 import type { WcagCriteriaCount } from '@/lib/db/dashboard';
 
@@ -62,20 +62,15 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
             <CardTitle>WCAG Criteria</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">Filtered by principle</p>
           </div>
-          <div className="flex gap-1">
-            {WCAG_PRINCIPLES.map((p) => (
-              <Button
-                size={'sm'}
-                key={p}
-                type="button"
-                variant={principle === p ? 'default' : 'outline'}
-                onClick={() => setPrinciple(p)}
-                aria-pressed={principle === p}
-              >
-                {PRINCIPLE_LABELS[p]}
-              </Button>
-            ))}
-          </div>
+          <Tabs value={principle} onValueChange={(v) => setPrinciple(v as WcagPrinciple)}>
+            <TabsList variant="segmented">
+              {WCAG_PRINCIPLES.map((p) => (
+                <TabsTrigger key={p} value={p}>
+                  {PRINCIPLE_LABELS[p]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       </CardHeader>
       <CardContent>
