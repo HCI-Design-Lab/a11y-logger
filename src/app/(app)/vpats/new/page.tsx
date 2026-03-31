@@ -11,7 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { parseOpenAcr, type OpenAcrParseResult } from '@/lib/import/parse-openacr';
 
@@ -120,9 +126,18 @@ export default function NewVpatPage() {
 
   async function handleCreateSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { toast.error('Title is required'); return; }
-    if (!projectId) { toast.error('Project is required'); return; }
-    if (productScope.length === 0) { toast.error('Select at least one product scope'); return; }
+    if (!title.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    if (!projectId) {
+      toast.error('Project is required');
+      return;
+    }
+    if (productScope.length === 0) {
+      toast.error('Select at least one product scope');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -142,7 +157,10 @@ export default function NewVpatPage() {
         body: JSON.stringify(payload),
       });
       const json = await res.json();
-      if (!json.success) { toast.error(json.error ?? 'Failed to create VPAT'); return; }
+      if (!json.success) {
+        toast.error(json.error ?? 'Failed to create VPAT');
+        return;
+      }
       toast.success('VPAT created');
       router.push(`/vpats/${json.data.id}`);
     } catch {
@@ -154,7 +172,10 @@ export default function NewVpatPage() {
 
   async function handleImportSubmit() {
     if (isSubmitting) return;
-    if (!projectId) { toast.error('Project is required'); return; }
+    if (!projectId) {
+      toast.error('Project is required');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -164,7 +185,10 @@ export default function NewVpatPage() {
         body: JSON.stringify({ projectId, yaml: yamlString }),
       });
       const json = await res.json();
-      if (!res.ok) { toast.error(json.error ?? 'Import failed'); return; }
+      if (!res.ok) {
+        toast.error(json.error ?? 'Import failed');
+        return;
+      }
       toast.success('VPAT imported');
       router.push(`/vpats/${json.data.id}`);
     } catch {
@@ -271,7 +295,10 @@ export default function NewVpatPage() {
             {edition !== '508' && (
               <div className="space-y-1.5">
                 <Label htmlFor="wcag-version">WCAG Version</Label>
-                <Select value={wcagVersion} onValueChange={(v) => setWcagVersion(v as '2.1' | '2.2')}>
+                <Select
+                  value={wcagVersion}
+                  onValueChange={(v) => setWcagVersion(v as '2.1' | '2.2')}
+                >
                   <SelectTrigger id="wcag-version">
                     <SelectValue />
                   </SelectTrigger>
@@ -296,7 +323,11 @@ export default function NewVpatPage() {
                       onChange={() => setWcagLevel(lvl)}
                     />
                     <span className="text-sm">
-                      {lvl === 'A' ? 'Level A only' : lvl === 'AA' ? 'Level A + AA' : 'Level A + AA + AAA'}
+                      {lvl === 'A'
+                        ? 'Level A only'
+                        : lvl === 'AA'
+                          ? 'Level A + AA'
+                          : 'Level A + AA + AAA'}
                     </span>
                   </label>
                 ))}
@@ -354,8 +385,8 @@ export default function NewVpatPage() {
               <div className="rounded border p-3 text-sm space-y-1 bg-muted/30">
                 <p className="font-medium">{parsed.title}</p>
                 <p className="text-muted-foreground">
-                  {parsed.standard_edition} · WCAG {parsed.wcag_version} · Level {parsed.wcag_level} ·{' '}
-                  {parsed.criteria.length} criteria
+                  {parsed.standard_edition} · WCAG {parsed.wcag_version} · Level {parsed.wcag_level}{' '}
+                  · {parsed.criteria.length} criteria
                 </p>
               </div>
             )}

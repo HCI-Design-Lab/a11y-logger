@@ -61,7 +61,13 @@ export async function createVpatSnapshot(
       created_at: createdAt,
     })
     .run();
-  return { id, vpat_id: vpatId, version_number: versionNumber, published_at: publishedAt, created_at: createdAt };
+  return {
+    id,
+    vpat_id: vpatId,
+    version_number: versionNumber,
+    published_at: publishedAt,
+    created_at: createdAt,
+  };
 }
 
 export async function listVpatSnapshots(vpatId: string): Promise<VpatSnapshotSummary[]> {

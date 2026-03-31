@@ -151,7 +151,9 @@ describe('NewVpatPage', () => {
       catalog: '2.4-edition-wcag-2.1-en',
       chapters: {
         success_criteria_level_a: {
-          criteria: [{ num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] }],
+          criteria: [
+            { num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] },
+          ],
         },
       },
     });
@@ -190,7 +192,9 @@ describe('NewVpatPage', () => {
       catalog: '2.4-edition-wcag-2.1-en',
       chapters: {
         success_criteria_level_a: {
-          criteria: [{ num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] }],
+          criteria: [
+            { num: '1.1.1', components: [{ adherence: { level: 'supports', notes: '' } }] },
+          ],
         },
       },
     });
@@ -205,7 +209,9 @@ describe('NewVpatPage', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: /next/i })).not.toBeDisabled());
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
-    await waitFor(() => expect(screen.getByRole('option', { name: 'Test Project' })).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByRole('option', { name: 'Test Project' })).toBeInTheDocument()
+    );
     fireEvent.change(screen.getByLabelText(/project/i), { target: { value: 'proj-1' } });
     fireEvent.click(screen.getByRole('button', { name: /^import$/i }));
 

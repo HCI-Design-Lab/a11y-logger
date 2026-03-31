@@ -195,7 +195,9 @@ describe('VpatEditPage', () => {
 
     render(<VpatEditPage />);
     await waitFor(() => {
-      expect(screen.getByRole('dialog', { name: /this vpat has been reviewed/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('dialog', { name: /this vpat has been reviewed/i })
+      ).toBeInTheDocument();
     });
   });
 
@@ -204,6 +206,8 @@ describe('VpatEditPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
     });
-    expect(screen.queryByRole('dialog', { name: /this vpat has been reviewed/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('dialog', { name: /this vpat has been reviewed/i })
+    ).not.toBeInTheDocument();
   });
 });

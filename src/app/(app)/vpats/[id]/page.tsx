@@ -30,7 +30,13 @@ export default function VpatDetailPage() {
   const [isReviewing, setIsReviewing] = useState(false);
   const [activeTab, setActiveTab] = useState<'criteria' | 'history'>('criteria');
   const [snapshots, setSnapshots] = useState<
-    { id: string; vpat_id: string; version_number: number; published_at: string; created_at: string }[]
+    {
+      id: string;
+      vpat_id: string;
+      version_number: number;
+      published_at: string;
+      created_at: string;
+    }[]
   >([]);
 
   useEffect(() => {
@@ -72,7 +78,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to publish');
         return;
       }
-      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
+      setVpat((prev) => (prev ? { ...prev, ...json.data } : json.data));
       // Refresh snapshots
       const snapRes = await fetch(`/api/vpats/${vpat.id}/versions`);
       const snapJson = await snapRes.json();
@@ -98,7 +104,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to mark as reviewed');
         return;
       }
-      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
+      setVpat((prev) => (prev ? { ...prev, ...json.data } : json.data));
       toast.success('VPAT marked as reviewed');
     } catch {
       toast.error('Failed to mark as reviewed');
@@ -115,7 +121,7 @@ export default function VpatDetailPage() {
         toast.error(json.error ?? 'Failed to unpublish');
         return;
       }
-      setVpat((prev) => prev ? { ...prev, ...json.data } : json.data);
+      setVpat((prev) => (prev ? { ...prev, ...json.data } : json.data));
       toast.success('VPAT unpublished');
     } catch {
       toast.error('Failed to unpublish');
@@ -139,7 +145,7 @@ export default function VpatDetailPage() {
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
 
-  const resolvedCount = vpat.criterion_rows.filter(r => r.conformance !== 'not_evaluated').length;
+  const resolvedCount = vpat.criterion_rows.filter((r) => r.conformance !== 'not_evaluated').length;
   const totalCount = vpat.criterion_rows.length;
 
   const isPublished = vpat.status === 'published';

@@ -71,7 +71,12 @@ export async function POST(_request: Request, { params }: RouteContext) {
     const enrichedReferencedIssues = result.referenced_issues.map((ref) => {
       const match = issueByTitle.get(ref.title);
       if (match) {
-        return { ...ref, id: match.id, assessment_id: match.assessment_id, project_id: vpat.project_id };
+        return {
+          ...ref,
+          id: match.id,
+          assessment_id: match.assessment_id,
+          project_id: vpat.project_id,
+        };
       }
       return ref;
     });

@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { publishVpat, VpatNotFoundError, UnresolvedRowsError, NotReviewedError } from '@/lib/db/vpats';
+import {
+  publishVpat,
+  VpatNotFoundError,
+  UnresolvedRowsError,
+  NotReviewedError,
+} from '@/lib/db/vpats';
 
 type RouteContext = { params: Promise<{ id: string }> };
 

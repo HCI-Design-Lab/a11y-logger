@@ -8,8 +8,12 @@ import { POST } from '../route';
 let projectId: string;
 let vpatId: string;
 
-beforeAll(() => { initDb(':memory:'); });
-afterAll(() => { closeDb(); });
+beforeAll(() => {
+  initDb(':memory:');
+});
+afterAll(() => {
+  closeDb();
+});
 
 beforeEach(async () => {
   getDb().prepare('DELETE FROM vpat_criterion_rows').run();
@@ -71,7 +75,9 @@ describe('POST /api/vpats/[id]/review', () => {
 
   it('returns 422 when rows are unresolved', async () => {
     getDb()
-      .prepare("UPDATE vpat_criterion_rows SET conformance = 'not_evaluated' WHERE vpat_id = ? LIMIT 1")
+      .prepare(
+        "UPDATE vpat_criterion_rows SET conformance = 'not_evaluated' WHERE vpat_id = ? LIMIT 1"
+      )
       .run(vpatId);
     const res = await POST(
       new Request(`http://localhost/api/vpats/${vpatId}/review`, {

@@ -73,7 +73,10 @@ test.describe('OpenACR YAML Import', () => {
 
       // Start waiting for URL change before clicking to avoid missing the navigation event
       await Promise.all([
-        page.waitForURL((url) => url.pathname.startsWith('/vpats/') && url.pathname !== '/vpats/new', { timeout: 10000 }),
+        page.waitForURL(
+          (url) => url.pathname.startsWith('/vpats/') && url.pathname !== '/vpats/new',
+          { timeout: 10000 }
+        ),
         importBtn.click(),
       ]);
 

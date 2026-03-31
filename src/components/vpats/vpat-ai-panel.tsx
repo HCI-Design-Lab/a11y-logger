@@ -40,7 +40,9 @@ export function VpatAiPanel({ row, onClose }: VpatAiPanelProps) {
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   useEffect(() => {

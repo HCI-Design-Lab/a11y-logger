@@ -242,8 +242,8 @@ export function VpatSettingsMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Unpublish VPAT?</AlertDialogTitle>
             <AlertDialogDescription>
-              Unpublishing will reset this VPAT to Draft status. The current published version will be
-              preserved and can be found in Version History.
+              Unpublishing will reset this VPAT to Draft status. The current published version will
+              be preserved and can be found in Version History.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -286,15 +286,21 @@ export function VpatSettingsMenu({
           if (!open) setReviewerName('');
         }}
       >
-        <AlertDialogContent onOpenAutoFocus={(e) => { e.preventDefault(); reviewerInputRef.current?.focus(); }}>
+        <AlertDialogContent
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            reviewerInputRef.current?.focus();
+          }}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Submit Review</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-1">
                 <p>{countText}</p>
                 <p>
-                  By submitting your name, you confirm that you have personally reviewed this VPAT and
-                  that the results accurately reflect the product&apos;s accessibility conformance.
+                  By submitting your name, you confirm that you have personally reviewed this VPAT
+                  and that the results accurately reflect the product&apos;s accessibility
+                  conformance.
                 </p>
               </div>
             </AlertDialogDescription>
@@ -332,8 +338,8 @@ export function VpatSettingsMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Edit Published VPAT?</AlertDialogTitle>
             <AlertDialogDescription>
-              Editing will reset this VPAT to Draft. The current published version will be
-              preserved and can be found in Version History.
+              Editing will reset this VPAT to Draft. The current published version will be preserved
+              and can be found in Version History.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

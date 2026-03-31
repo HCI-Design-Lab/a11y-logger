@@ -126,6 +126,7 @@ export function parseVpatRowResponse(raw: string): VpatRowGenerationResult {
     confidence: result.confidence as VpatRowGenerationResult['confidence'],
     reasoning: result.reasoning,
     referenced_issues: result.referenced_issues as { title: string; severity: string }[],
-    suggested_conformance: result.suggested_conformance as VpatRowGenerationResult['suggested_conformance'],
+    suggested_conformance:
+      result.suggested_conformance as VpatRowGenerationResult['suggested_conformance'],
   };
 }

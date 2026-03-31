@@ -481,9 +481,7 @@ describe('unpublishVpat', () => {
       product_scope: ['web'],
     });
     // Force status to published directly for test setup
-    getDb()!
-      .prepare(`UPDATE vpats SET status = 'published' WHERE id = ?`)
-      .run(vpat.id);
+    getDb()!.prepare(`UPDATE vpats SET status = 'published' WHERE id = ?`).run(vpat.id);
 
     const result = await unpublishVpat(vpat.id);
     expect(result.status).toBe('draft');

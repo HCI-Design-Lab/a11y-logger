@@ -396,10 +396,6 @@ export async function unpublishVpat(id: string): Promise<Vpat> {
   if (!existing) throw new VpatNotFoundError(id);
   if (existing.status !== 'published') throw new NotPublishedError(id);
   const now = new Date().toISOString();
-  db()
-    .update(vpats)
-    .set({ status: 'draft', updated_at: now })
-    .where(eq(vpats.id, id))
-    .run();
+  db().update(vpats).set({ status: 'draft', updated_at: now }).where(eq(vpats.id, id)).run();
   return (await getVpat(id))!;
 }

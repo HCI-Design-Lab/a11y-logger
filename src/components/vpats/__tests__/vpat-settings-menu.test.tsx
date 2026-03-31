@@ -138,7 +138,15 @@ describe('VpatSettingsMenu variant="view"', () => {
 
   it('clicking Publish when notEvaluated > 0 shows a not-ready modal', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} status="draft" resolvedCount={1} totalCount={3} variant="view" />);
+    render(
+      <VpatSettingsMenu
+        {...baseProps}
+        status="draft"
+        resolvedCount={1}
+        totalCount={3}
+        variant="view"
+      />
+    );
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /publish/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
@@ -148,7 +156,15 @@ describe('VpatSettingsMenu variant="view"', () => {
 
   it('clicking Publish when all evaluated shows the publish confirmation', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} status="reviewed" resolvedCount={2} totalCount={2} variant="view" />);
+    render(
+      <VpatSettingsMenu
+        {...baseProps}
+        status="reviewed"
+        resolvedCount={2}
+        totalCount={2}
+        variant="view"
+      />
+    );
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /publish/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
@@ -265,7 +281,9 @@ describe('VpatSettingsMenu Review item', () => {
   it('confirming review calls onReview with reviewer name', async () => {
     const onReview = vi.fn();
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} resolvedCount={2} totalCount={2} onReview={onReview} />);
+    render(
+      <VpatSettingsMenu {...baseProps} resolvedCount={2} totalCount={2} onReview={onReview} />
+    );
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /mark as reviewed/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());

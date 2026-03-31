@@ -74,7 +74,9 @@ export function VpatIssuesPanel({ issues, criterionCode, onClose }: VpatIssuesPa
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   useEffect(() => {

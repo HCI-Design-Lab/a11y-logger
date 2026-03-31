@@ -88,7 +88,12 @@ const CriterionTableRow = memo(function CriterionTableRow({
   register,
 }: CriterionTableRowProps) {
   const isDisabled = isGenerating || isGeneratingAll;
-  const hasAiInfo = !!(row.ai_confidence || row.ai_reasoning || row.ai_suggested_conformance || row.ai_referenced_issues);
+  const hasAiInfo = !!(
+    row.ai_confidence ||
+    row.ai_reasoning ||
+    row.ai_suggested_conformance ||
+    row.ai_referenced_issues
+  );
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
@@ -227,7 +232,6 @@ const CriterionTableRow = memo(function CriterionTableRow({
           </TableCell>
         )}
       </TableRow>
-
     </>
   );
 });
@@ -412,7 +416,13 @@ export function VpatCriteriaTable({
     <div className="space-y-6">
       {aiEnabled && !readOnly && onGenerateAll && (
         <div className="flex justify-end">
-          <Button type="button" variant="ai" size="sm" onClick={onGenerateAll} disabled={isGeneratingAll}>
+          <Button
+            type="button"
+            variant="ai"
+            size="sm"
+            onClick={onGenerateAll}
+            disabled={isGeneratingAll}
+          >
             <Sparkles />
             Generate All
           </Button>
@@ -444,9 +454,7 @@ export function VpatCriteriaTable({
           </div>
         );
       })}
-      {aiPanelRow && (
-        <VpatAiPanel row={aiPanelRow} onClose={() => setAiPanelRow(null)} />
-      )}
+      {aiPanelRow && <VpatAiPanel row={aiPanelRow} onClose={() => setAiPanelRow(null)} />}
     </div>
   );
 }

@@ -68,7 +68,7 @@ const mockVpat = {
 
 const mockVpatAllResolved = {
   ...mockVpat,
-  criterion_rows: mockVpat.criterion_rows.map(r => ({ ...r, conformance: 'supports' })),
+  criterion_rows: mockVpat.criterion_rows.map((r) => ({ ...r, conformance: 'supports' })),
 };
 
 beforeEach(() => {
@@ -244,17 +244,29 @@ describe('VpatDetailPage (view)', () => {
 describe('VpatDetailPage edit published flow', () => {
   it('calls unpublish API and navigates on Edit Anyway for published VPAT', async () => {
     const mockPush = vi.fn();
-    vi.mocked(useRouter).mockReturnValue({ push: mockPush, refresh: vi.fn() } as unknown as ReturnType<typeof useRouter>);
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      refresh: vi.fn(),
+    } as unknown as ReturnType<typeof useRouter>);
 
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
       if (url.includes('/versions')) {
-        return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
       }
       if (url.includes('/unpublish')) {
-        return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'draft' } }) } as unknown as Response);
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: { ...mockVpat, status: 'draft' } }),
+        } as unknown as Response);
       }
-      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }) } as unknown as Response);
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }),
+      } as unknown as Response);
     });
 
     const user = userEvent.setup();
@@ -296,8 +308,15 @@ describe('VpatDetailPage Review flow', () => {
   it('clicking Mark as Reviewed when all evaluated shows review confirm with reviewer input', async () => {
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/versions')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
-      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: mockVpatAllResolved }) } as unknown as Response);
+      if (url.includes('/versions'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: mockVpatAllResolved }),
+      } as unknown as Response);
     });
     const user = userEvent.setup();
     render(<VpatDetailPage />);
@@ -311,9 +330,28 @@ describe('VpatDetailPage Review flow', () => {
   it('submitting review POSTs to /api/vpats/vpat-1/review', async () => {
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/versions')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
-      if (url.includes('/review')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpatAllResolved, status: 'reviewed', reviewed_by: 'Jane Smith', reviewed_at: new Date().toISOString() } }) } as unknown as Response);
-      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: mockVpatAllResolved }) } as unknown as Response);
+      if (url.includes('/versions'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      if (url.includes('/review'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: {
+              ...mockVpatAllResolved,
+              status: 'reviewed',
+              reviewed_by: 'Jane Smith',
+              reviewed_at: new Date().toISOString(),
+            },
+          }),
+        } as unknown as Response);
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: mockVpatAllResolved }),
+      } as unknown as Response);
     });
     const user = userEvent.setup();
     render(<VpatDetailPage />);
@@ -336,8 +374,15 @@ describe('VpatDetailPage Unpublish flow', () => {
   it('shows "Unpublish" in settings menu when published', async () => {
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/versions')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
-      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }) } as unknown as Response);
+      if (url.includes('/versions'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }),
+      } as unknown as Response);
     });
     const user = userEvent.setup();
     render(<VpatDetailPage />);
@@ -348,12 +393,26 @@ describe('VpatDetailPage Unpublish flow', () => {
 
   it('confirming Unpublish POSTs to /api/vpats/vpat-1/unpublish and stays on page', async () => {
     const mockPush = vi.fn();
-    vi.mocked(useRouter).mockReturnValue({ push: mockPush, refresh: vi.fn() } as unknown as ReturnType<typeof useRouter>);
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      refresh: vi.fn(),
+    } as unknown as ReturnType<typeof useRouter>);
     vi.spyOn(global, 'fetch').mockImplementation((input) => {
       const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/versions')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) } as unknown as Response);
-      if (url.includes('/unpublish')) return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'draft' } }) } as unknown as Response);
-      return Promise.resolve({ ok: true, json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }) } as unknown as Response);
+      if (url.includes('/versions'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as unknown as Response);
+      if (url.includes('/unpublish'))
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: { ...mockVpat, status: 'draft' } }),
+        } as unknown as Response);
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ success: true, data: { ...mockVpat, status: 'published' } }),
+      } as unknown as Response);
     });
     const user = userEvent.setup();
     render(<VpatDetailPage />);

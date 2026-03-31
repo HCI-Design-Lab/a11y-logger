@@ -266,8 +266,8 @@ export default function VpatEditPage() {
                 isPublished
                   ? 'bg-green-100 border border-green-500 text-primary dark:text-primary-foreground'
                   : isReviewed
-                  ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
-                  : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
+                    ? 'bg-blue-100 border border-blue-500 text-primary dark:text-primary-foreground'
+                    : 'bg-yellow-100 border border-yellow-500 text-primary dark:text-primary-foreground'
               }
             >
               {isPublished ? 'Published' : isReviewed ? 'Reviewed' : 'Draft'}
@@ -379,7 +379,13 @@ export default function VpatEditPage() {
               />
             </div>
             <div className="flex justify-end pt-1">
-              <Button variant="cancel" size="sm" onClick={() => { cancelGenerateAllRef.current = true; }}>
+              <Button
+                variant="cancel"
+                size="sm"
+                onClick={() => {
+                  cancelGenerateAllRef.current = true;
+                }}
+              >
                 Cancel
               </Button>
             </div>

@@ -181,10 +181,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={() => setDeleteOpen(true)}
-            className=""
-          >
+          <DropdownMenuItem onSelect={() => setDeleteOpen(true)} className="">
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
