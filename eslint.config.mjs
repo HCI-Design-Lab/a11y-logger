@@ -24,6 +24,10 @@ const eslintConfig = defineConfig([
     // Worktrees created by Claude Code
     '.claude/**',
     '.worktrees/**',
+    // Seed scripts (CommonJS Node.js scripts)
+    'scripts/**',
+    // Test coverage output
+    'coverage/**',
   ]),
 ]);
 

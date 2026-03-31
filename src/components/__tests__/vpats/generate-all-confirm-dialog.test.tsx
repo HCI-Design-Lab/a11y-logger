@@ -69,7 +69,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('Generate button has a Sparkles icon', () => {
-    const { container } = render(
+    render(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -82,7 +82,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('Cancel button has an X icon', () => {
-    const { container } = render(
+    render(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
