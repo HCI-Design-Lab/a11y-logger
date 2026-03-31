@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { VpatIssuesPanel } from '@/components/vpats/vpat-issues-panel';
 
@@ -8,17 +9,21 @@ const issues = [
     project_id: 'proj-1',
     assessment_id: 'assess-1',
     title: 'Missing alt text',
-    severity: 'high',
+    severity: 'high' as const,
     description: 'Image lacks alt attribute.',
     url: 'https://example.com/page',
   },
 ];
 
 describe('VpatIssuesPanel', () => {
-  it('renders issue title and severity', () => {
+  it('renders issue title', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
     expect(screen.getByText('Missing alt text')).toBeInTheDocument();
-    expect(screen.getByText('high')).toBeInTheDocument();
+  });
+
+  it('renders severity badge with SeverityBadge styling', () => {
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    expect(screen.getByText('High')).toBeInTheDocument();
   });
 
   it('renders criterion code in header', () => {
@@ -38,14 +43,31 @@ describe('VpatIssuesPanel', () => {
     expect(screen.getByText(/no issues/i)).toBeInTheDocument();
   });
 
-  it('renders issue URL as a link', () => {
+  it('does not render the issue URL', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
-    expect(screen.getByRole('link', { name: /example.com/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /example.com/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/example\.com/)).not.toBeInTheDocument();
   });
 
-  it('renders issue description', () => {
+  it('description is hidden by default', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    expect(screen.queryByText('Image lacks alt attribute.')).not.toBeInTheDocument();
+  });
+
+  it('clicking issue expands to show description', async () => {
+    const user = userEvent.setup();
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    await user.click(screen.getByText('Missing alt text'));
     expect(screen.getByText('Image lacks alt attribute.')).toBeInTheDocument();
+  });
+
+  it('clicking expanded issue collapses to hide description', async () => {
+    const user = userEvent.setup();
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    await user.click(screen.getByText('Missing alt text'));
+    expect(screen.getByText('Image lacks alt attribute.')).toBeInTheDocument();
+    await user.click(screen.getByText('Missing alt text'));
+    expect(screen.queryByText('Image lacks alt attribute.')).not.toBeInTheDocument();
   });
 
   it('closes panel when Escape key is pressed', () => {
@@ -59,6 +81,13 @@ describe('VpatIssuesPanel', () => {
     render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
     const link = screen.getByRole('link', { name: /open issue: missing alt text/i });
     expect(link).toHaveAttribute('href', '/projects/proj-1/assessments/assess-1/issues/1');
+  });
+
+  it('Open issue link opens in a new tab', () => {
+    render(<VpatIssuesPanel issues={issues} criterionCode="1.1.1" onClose={vi.fn()} />);
+    const link = screen.getByRole('link', { name: /open issue: missing alt text/i });
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('moves focus to the close button when the panel mounts', () => {
