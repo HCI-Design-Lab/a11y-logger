@@ -29,7 +29,9 @@ describe('decrypt', () => {
 
   it('throws on tampered ciphertext', () => {
     const encrypted = encrypt('value', TEST_KEY);
-    const tampered = encrypted.slice(0, -2) + 'ff';
+    // XOR the last byte with 0x01 to guarantee it changes regardless of original value
+    const lastByte = parseInt(encrypted.slice(-2), 16);
+    const tampered = encrypted.slice(0, -2) + (lastByte ^ 0x01).toString(16).padStart(2, '0');
     expect(() => decrypt(tampered, TEST_KEY)).toThrow();
   });
 });
