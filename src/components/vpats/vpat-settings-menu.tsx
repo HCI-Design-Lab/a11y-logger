@@ -47,6 +47,7 @@ export function VpatSettingsMenu({
 }: VpatSettingsMenuProps) {
   const router = useRouter();
   const [publishOpen, setPublishOpen] = useState(false);
+  const [notReadyOpen, setNotReadyOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -101,11 +102,15 @@ export function VpatSettingsMenu({
               <DropdownMenuSeparator />
             </>
           )}
-          {!isPublished && (variant !== 'view' || canPublish) && (
+          {!isPublished && (
             <>
               <DropdownMenuItem
-                onSelect={() => setPublishOpen(true)}
-                disabled={!canPublish || isPublishing}
+                onSelect={() =>
+                  variant === 'view' && !canPublish
+                    ? setNotReadyOpen(true)
+                    : setPublishOpen(true)
+                }
+                disabled={variant !== 'view' && (!canPublish || isPublishing)}
               >
                 <Send className="mr-2 h-4 w-4" />
                 Publish
@@ -145,6 +150,21 @@ export function VpatSettingsMenu({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Not ready to publish */}
+      <AlertDialog open={notReadyOpen} onOpenChange={setNotReadyOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Not Ready to Publish</AlertDialogTitle>
+            <AlertDialogDescription>
+              All criteria must be evaluated and the VPAT must be reviewed before publishing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>OK</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Publish confirmation */}
       <AlertDialog open={publishOpen} onOpenChange={setPublishOpen}>

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Save, X } from 'lucide-react';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
+import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import type { VpatData } from '@/lib/db/vpats';
 
@@ -43,6 +44,8 @@ export default function VpatEditPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [hasShownEditWarning, setHasShownEditWarning] = useState(false);
+  const [confirmGenerateAllOpen, setConfirmGenerateAllOpen] = useState(false);
+  const [pendingGenerateCount, setPendingGenerateCount] = useState(0);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewerName, setReviewerName] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
@@ -151,6 +154,16 @@ export default function VpatEditPage() {
     },
     [vpatId]
   );
+
+  const handleRequestGenerateAll = useCallback(() => {
+    const pending = rows.filter((r) => !r.remarks);
+    if (pending.length === 0) {
+      toast('All criteria already have remarks');
+      return;
+    }
+    setPendingGenerateCount(pending.length);
+    setConfirmGenerateAllOpen(true);
+  }, [rows]);
 
   const handleGenerateAll = useCallback(async () => {
     const pending = rows.filter((r) => !r.remarks);
@@ -317,7 +330,7 @@ export default function VpatEditPage() {
           onRowChange={handleRowChange}
           onSaveRemarks={handleSaveRemarks}
           onGenerateRow={handleGenerateRow}
-          onGenerateAll={handleGenerateAll}
+          onGenerateAll={handleRequestGenerateAll}
           generatingRowId={generatingRowId}
           isGeneratingAll={isGeneratingAll}
           readOnly={isPublished}
@@ -339,6 +352,7 @@ export default function VpatEditPage() {
         </Button>
         <Button
           className="ml-auto"
+          variant="success"
           onClick={() => setShowReviewModal(true)}
           disabled={!canReview}
           title={!canReview ? 'All criteria must be evaluated before review' : undefined}
@@ -346,6 +360,13 @@ export default function VpatEditPage() {
           Review
         </Button>
       </div>
+
+      <GenerateAllConfirmDialog
+        open={confirmGenerateAllOpen}
+        onOpenChange={setConfirmGenerateAllOpen}
+        criteriaCount={pendingGenerateCount}
+        onConfirm={handleGenerateAll}
+      />
 
       {/* Edit-warning modal */}
       <Dialog open={showEditWarning} onOpenChange={setShowEditWarning}>

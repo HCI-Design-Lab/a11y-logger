@@ -109,7 +109,7 @@ describe('VpatDetailPage (view)', () => {
     });
   });
 
-  it('does not show Publish in settings menu (view variant)', async () => {
+  it('shows Publish in settings menu even when draft and not reviewed', async () => {
     const user = userEvent.setup();
     render(<VpatDetailPage />);
     await waitFor(() => {
@@ -117,7 +117,21 @@ describe('VpatDetailPage (view)', () => {
     });
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await waitFor(() => {
-      expect(screen.queryByRole('menuitem', { name: /publish/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
+    });
+  });
+
+  it('clicking Publish on unreviewed VPAT shows not-ready modal', async () => {
+    const user = userEvent.setup();
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /vpat settings/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /publish/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(screen.getByText(/criteria must be evaluated/i)).toBeInTheDocument();
     });
   });
 

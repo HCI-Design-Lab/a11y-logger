@@ -137,11 +137,30 @@ describe('VpatSettingsMenu variant="view"', () => {
     expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
   });
 
-  it('does not show Publish option when canPublish is false', async () => {
+  it('shows Publish option even when canPublish is false', async () => {
     const user = userEvent.setup();
     render(<VpatSettingsMenu {...baseProps} canPublish={false} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
-    expect(screen.queryByRole('menuitem', { name: /publish/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
+  });
+
+  it('clicking Publish when canPublish is false shows a not-ready modal', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} canPublish={false} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /publish/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/criteria must be evaluated/i)).toBeInTheDocument();
+    expect(screen.getByText(/reviewed/i)).toBeInTheDocument();
+  });
+
+  it('clicking Publish when canPublish is true shows the publish confirmation', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="view" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /publish/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/publish vpat/i)).toBeInTheDocument();
   });
 });
 
