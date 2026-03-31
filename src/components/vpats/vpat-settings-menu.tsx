@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Settings, Send, Download, Trash2, Pencil } from 'lucide-react';
+import { Settings, Send, Download, Trash2, Pencil, CheckCircle } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,10 +28,14 @@ import {
 interface VpatSettingsMenuProps {
   vpatId: string;
   vpatTitle: string;
-  isPublished: boolean;
-  canPublish: boolean;
+  status: 'draft' | 'reviewed' | 'published';
+  resolvedCount: number;
+  totalCount: number;
   isPublishing: boolean;
+  isReviewing: boolean;
   onPublish: () => void;
+  onUnpublish: () => void;
+  onReview: (reviewerName: string) => void;
   onEdit?: () => void;
   variant?: 'view' | 'edit';
 }
@@ -38,16 +43,31 @@ interface VpatSettingsMenuProps {
 export function VpatSettingsMenu({
   vpatId,
   vpatTitle,
-  isPublished,
-  canPublish,
+  status,
+  resolvedCount,
+  totalCount,
   isPublishing,
+  isReviewing,
   onPublish,
+  onUnpublish,
+  onReview,
   onEdit,
   variant,
 }: VpatSettingsMenuProps) {
   const router = useRouter();
+  const notEvaluated = totalCount - resolvedCount;
+  const isPublished = status === 'published';
+  const countText =
+    notEvaluated === 0
+      ? `All ${totalCount} criteria have been evaluated.`
+      : `${notEvaluated} of ${totalCount} criteria are not yet evaluated.`;
+
   const [publishOpen, setPublishOpen] = useState(false);
   const [notReadyOpen, setNotReadyOpen] = useState(false);
+  const [unpublishOpen, setUnpublishOpen] = useState(false);
+  const [reviewNotReadyOpen, setReviewNotReadyOpen] = useState(false);
+  const [reviewConfirmOpen, setReviewConfirmOpen] = useState(false);
+  const [reviewerName, setReviewerName] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -102,22 +122,35 @@ export function VpatSettingsMenu({
               <DropdownMenuSeparator />
             </>
           )}
-          {!isPublished && (
-            <>
-              <DropdownMenuItem
-                onSelect={() =>
-                  variant === 'view' && !canPublish
-                    ? setNotReadyOpen(true)
-                    : setPublishOpen(true)
-                }
-                disabled={variant !== 'view' && (!canPublish || isPublishing)}
-              >
-                <Send className="mr-2 h-4 w-4" />
-                Publish
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
+          <DropdownMenuItem
+            onSelect={() => {
+              if (notEvaluated > 0) {
+                setReviewNotReadyOpen(true);
+              } else {
+                setReviewConfirmOpen(true);
+              }
+            }}
+            disabled={isReviewing}
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
+            {status === 'draft' ? 'Mark as Reviewed' : 'Update Review'}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              if (isPublished) {
+                setUnpublishOpen(true);
+              } else if (notEvaluated > 0 || status !== 'reviewed') {
+                setNotReadyOpen(true);
+              } else {
+                setPublishOpen(true);
+              }
+            }}
+            disabled={isPublishing}
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {isPublished ? 'Unpublish' : 'Publish'}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <a
               href={`/api/vpats/${vpatId}/export?format=html`}
@@ -141,10 +174,7 @@ export function VpatSettingsMenu({
             </a>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={() => setDeleteOpen(true)}
-            className=""
-          >
+          <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
@@ -156,8 +186,19 @@ export function VpatSettingsMenu({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Not Ready to Publish</AlertDialogTitle>
-            <AlertDialogDescription>
-              All criteria must be evaluated and the VPAT must be reviewed before publishing.
+            <AlertDialogDescription asChild>
+              <div className="space-y-1">
+                <p>{countText}</p>
+                {notEvaluated > 0 && (
+                  <p>All criteria must be evaluated before this VPAT can be published.</p>
+                )}
+                {status !== 'reviewed' && notEvaluated === 0 && (
+                  <p>The VPAT must be reviewed before it can be published.</p>
+                )}
+                {status !== 'reviewed' && notEvaluated > 0 && (
+                  <p>The VPAT must also be reviewed before it can be published.</p>
+                )}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -171,8 +212,11 @@ export function VpatSettingsMenu({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Publish VPAT</AlertDialogTitle>
-            <AlertDialogDescription>
-              Publishing creates a snapshot of the current state. Are you sure?
+            <AlertDialogDescription asChild>
+              <div className="space-y-1">
+                <p>{countText}</p>
+                <p>Publishing creates a snapshot of the current state. Are you sure?</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -186,6 +230,94 @@ export function VpatSettingsMenu({
               disabled={isPublishing}
             >
               {isPublishing ? 'Publishing…' : 'Publish'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Unpublish confirmation */}
+      <AlertDialog open={unpublishOpen} onOpenChange={setUnpublishOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unpublish VPAT?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Unpublishing will reset this VPAT to Draft status. The current published version will be
+              preserved and can be found in Version History.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setUnpublishOpen(false);
+                onUnpublish();
+              }}
+            >
+              Unpublish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Not ready to review */}
+      <AlertDialog open={reviewNotReadyOpen} onOpenChange={setReviewNotReadyOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Not Ready to Review</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-1">
+                <p>{countText}</p>
+                <p>All criteria must be evaluated before this VPAT can be reviewed.</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>OK</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Submit review confirmation */}
+      <AlertDialog
+        open={reviewConfirmOpen}
+        onOpenChange={(open) => {
+          setReviewConfirmOpen(open);
+          if (!open) setReviewerName('');
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Submit Review</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-1">
+                <p>{countText}</p>
+                <p>
+                  By submitting your name, you confirm that you have personally reviewed this VPAT and
+                  that the results accurately reflect the product&apos;s accessibility conformance.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="px-6 pb-2">
+            <Input
+              placeholder="Full name"
+              value={reviewerName}
+              onChange={(e) => setReviewerName(e.target.value)}
+              aria-label="Reviewer full name"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!reviewerName.trim()) return;
+                setReviewConfirmOpen(false);
+                onReview(reviewerName.trim());
+                setReviewerName('');
+              }}
+              disabled={!reviewerName.trim() || isReviewing}
+            >
+              {isReviewing ? 'Submitting…' : 'Submit Review'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -20,10 +20,14 @@ import { VpatSettingsMenu } from '../vpat-settings-menu';
 const baseProps = {
   vpatId: 'vpat-1',
   vpatTitle: 'Test VPAT',
-  isPublished: false,
-  canPublish: true,
+  status: 'draft' as const,
+  resolvedCount: 2,
+  totalCount: 2,
   isPublishing: false,
+  isReviewing: false,
   onPublish: vi.fn(),
+  onUnpublish: vi.fn(),
+  onReview: vi.fn(),
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -35,21 +39,9 @@ describe('VpatSettingsMenu', () => {
   });
 
   it('shows Publish option when draft', async () => {
-    render(<VpatSettingsMenu {...baseProps} isPublished={false} />);
+    render(<VpatSettingsMenu {...baseProps} status="draft" />);
     await userEvent.click(screen.getByRole('button', { name: /vpat settings/i }));
     expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
-  });
-
-  it('Publish option is disabled when canPublish is false', async () => {
-    render(<VpatSettingsMenu {...baseProps} canPublish={false} />);
-    await userEvent.click(screen.getByRole('button', { name: /vpat settings/i }));
-    expect(screen.getByRole('menuitem', { name: /publish/i })).toHaveAttribute('data-disabled');
-  });
-
-  it('does not show Publish option when already published', async () => {
-    render(<VpatSettingsMenu {...baseProps} isPublished={true} />);
-    await userEvent.click(screen.getByRole('button', { name: /vpat settings/i }));
-    expect(screen.queryByRole('menuitem', { name: /^publish$/i })).not.toBeInTheDocument();
   });
 
   it('clicking Publish opens confirmation dialog', async () => {
@@ -61,7 +53,7 @@ describe('VpatSettingsMenu', () => {
 
   it('confirming publish calls onPublish prop', async () => {
     const onPublish = vi.fn();
-    render(<VpatSettingsMenu {...baseProps} onPublish={onPublish} />);
+    render(<VpatSettingsMenu {...baseProps} status="reviewed" onPublish={onPublish} />);
     await userEvent.click(screen.getByRole('button', { name: /vpat settings/i }));
     await userEvent.click(screen.getByRole('menuitem', { name: /publish/i }));
     await userEvent.click(screen.getByRole('button', { name: /^publish$/i }));
@@ -130,23 +122,23 @@ describe('VpatSettingsMenu variant="view"', () => {
     expect(screen.getByRole('menuitem', { name: /edit vpat/i })).toBeInTheDocument();
   });
 
-  it('shows Publish option when canPublish is true', async () => {
+  it('shows Publish option when status is draft', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="draft" variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
   });
 
-  it('shows Publish option even when canPublish is false', async () => {
+  it('shows Publish option when status is reviewed', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} canPublish={false} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="reviewed" variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
   });
 
-  it('clicking Publish when canPublish is false shows a not-ready modal', async () => {
+  it('clicking Publish when notEvaluated > 0 shows a not-ready modal', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} canPublish={false} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="draft" resolvedCount={1} totalCount={3} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /publish/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
@@ -154,9 +146,9 @@ describe('VpatSettingsMenu variant="view"', () => {
     expect(screen.getByText(/reviewed/i)).toBeInTheDocument();
   });
 
-  it('clicking Publish when canPublish is true shows the publish confirmation', async () => {
+  it('clicking Publish when all evaluated shows the publish confirmation', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="reviewed" resolvedCount={2} totalCount={2} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /publish/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
@@ -167,7 +159,7 @@ describe('VpatSettingsMenu variant="view"', () => {
 describe('VpatSettingsMenu variant="edit"', () => {
   it('shows Publish option when draft', async () => {
     const user = userEvent.setup();
-    render(<VpatSettingsMenu {...baseProps} canPublish={true} variant="edit" />);
+    render(<VpatSettingsMenu {...baseProps} status="draft" variant="edit" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     expect(screen.getByRole('menuitem', { name: /publish/i })).toBeInTheDocument();
   });
@@ -184,7 +176,7 @@ describe('VpatSettingsMenu Edit VPAT behavior', () => {
   it('renders Edit VPAT as a link when not published', async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
-    render(<VpatSettingsMenu {...baseProps} isPublished={false} onEdit={onEdit} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="draft" onEdit={onEdit} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     const editItem = screen.getByRole('menuitem', { name: /edit vpat/i });
     expect(editItem.tagName.toLowerCase()).toBe('a');
@@ -193,7 +185,7 @@ describe('VpatSettingsMenu Edit VPAT behavior', () => {
   it('shows confirmation dialog when published and Edit VPAT clicked', async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
-    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="published" onEdit={onEdit} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
     await waitFor(() => {
@@ -205,7 +197,7 @@ describe('VpatSettingsMenu Edit VPAT behavior', () => {
   it('calls onEdit when Edit Anyway confirmed', async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
-    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="published" onEdit={onEdit} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
     await waitFor(() => {
@@ -218,7 +210,7 @@ describe('VpatSettingsMenu Edit VPAT behavior', () => {
   it('does not call onEdit when Cancel clicked', async () => {
     const user = userEvent.setup();
     const onEdit = vi.fn();
-    render(<VpatSettingsMenu {...baseProps} isPublished={true} onEdit={onEdit} variant="view" />);
+    render(<VpatSettingsMenu {...baseProps} status="published" onEdit={onEdit} variant="view" />);
     await user.click(screen.getByRole('button', { name: /vpat settings/i }));
     await user.click(screen.getByRole('menuitem', { name: /edit vpat/i }));
     await waitFor(() => {
@@ -226,5 +218,115 @@ describe('VpatSettingsMenu Edit VPAT behavior', () => {
     });
     await user.click(screen.getByRole('button', { name: /cancel/i }));
     expect(onEdit).not.toHaveBeenCalled();
+  });
+});
+
+describe('VpatSettingsMenu Review item', () => {
+  it('shows "Mark as Reviewed" when status is draft', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="draft" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /mark as reviewed/i })).toBeInTheDocument();
+  });
+
+  it('shows "Update Review" when status is reviewed', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="reviewed" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /update review/i })).toBeInTheDocument();
+  });
+
+  it('shows "Update Review" when status is published', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="published" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /update review/i })).toBeInTheDocument();
+  });
+
+  it('clicking review when notEvaluated > 0 opens not-ready alert', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} resolvedCount={1} totalCount={3} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /mark as reviewed/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/2 of 3 criteria are not yet evaluated/i)).toBeInTheDocument();
+  });
+
+  it('clicking review when all evaluated opens confirmation dialog', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} resolvedCount={3} totalCount={3} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /mark as reviewed/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/all 3 criteria have been evaluated/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /reviewer full name/i })).toBeInTheDocument();
+  });
+
+  it('confirming review calls onReview with reviewer name', async () => {
+    const onReview = vi.fn();
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} resolvedCount={2} totalCount={2} onReview={onReview} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /mark as reviewed/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    await user.type(screen.getByRole('textbox', { name: /reviewer full name/i }), 'Jane Smith');
+    await user.click(screen.getByRole('button', { name: /submit review/i }));
+    expect(onReview).toHaveBeenCalledWith('Jane Smith');
+  });
+});
+
+describe('VpatSettingsMenu Unpublish item', () => {
+  it('shows "Unpublish" when status is published', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="published" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /unpublish/i })).toBeInTheDocument();
+  });
+
+  it('shows "Publish" when status is draft', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="draft" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /^publish$/i })).toBeInTheDocument();
+  });
+
+  it('clicking Unpublish opens unpublish confirmation', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="published" />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /unpublish/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/reset.*draft/i)).toBeInTheDocument();
+  });
+
+  it('confirming unpublish calls onUnpublish', async () => {
+    const onUnpublish = vi.fn();
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="published" onUnpublish={onUnpublish} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /unpublish/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: /^unpublish$/i }));
+    expect(onUnpublish).toHaveBeenCalledOnce();
+  });
+});
+
+describe('VpatSettingsMenu Publish count line', () => {
+  it('not-ready publish dialog shows count when notEvaluated > 0', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="draft" resolvedCount={1} totalCount={4} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /^publish$/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/3 of 4 criteria are not yet evaluated/i)).toBeInTheDocument();
+  });
+
+  it('publish confirm dialog shows "all evaluated" when resolvedCount === totalCount', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} status="reviewed" resolvedCount={4} totalCount={4} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /^publish$/i }));
+    await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
+    expect(screen.getByText(/all 4 criteria have been evaluated/i)).toBeInTheDocument();
   });
 });
