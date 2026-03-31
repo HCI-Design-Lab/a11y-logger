@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Save, X } from 'lucide-react';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
@@ -46,9 +45,6 @@ export default function VpatEditPage() {
   const [hasShownEditWarning, setHasShownEditWarning] = useState(false);
   const [confirmGenerateAllOpen, setConfirmGenerateAllOpen] = useState(false);
   const [pendingGenerateCount, setPendingGenerateCount] = useState(0);
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewerName, setReviewerName] = useState('');
-  const [isReviewing, setIsReviewing] = useState(false);
   const pendingChanges = useRef<Map<string, { conformance?: string; remarks?: string }>>(new Map());
   const cancelGenerateAllRef = useRef(false);
 
@@ -240,31 +236,6 @@ export default function VpatEditPage() {
     [vpat]
   );
 
-  const handleReview = useCallback(async () => {
-    if (!reviewerName.trim()) return;
-    setIsReviewing(true);
-    try {
-      const res = await fetch(`/api/vpats/${vpatId}/review`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewer_name: reviewerName.trim() }),
-      });
-      const json = await res.json();
-      if (!json.success) {
-        toast.error(json.error ?? 'Failed to mark as reviewed');
-        return;
-      }
-      setVpat(json.data);
-      setShowReviewModal(false);
-      setReviewerName('');
-      toast.success('VPAT marked as reviewed');
-    } catch {
-      toast.error('Failed to mark as reviewed');
-    } finally {
-      setIsReviewing(false);
-    }
-  }, [vpatId, reviewerName]);
-
   if (isLoading) return <div className="text-muted-foreground text-sm p-6">Loading…</div>;
   if (!vpat) return null;
 
@@ -272,8 +243,6 @@ export default function VpatEditPage() {
   const isPublished = vpat.status === 'published';
   const resolved = rows.filter((r) => r.conformance !== 'not_evaluated').length;
   const total = rows.length;
-  const canReview = resolved === total && total > 0 && !isReviewed && !isPublished;
-
   const editionLabel = getEditionBadgeLabel(vpat);
 
   return (
@@ -350,15 +319,6 @@ export default function VpatEditPage() {
             Cancel
           </Link>
         </Button>
-        <Button
-          className="ml-auto"
-          variant="success"
-          onClick={() => setShowReviewModal(true)}
-          disabled={!canReview}
-          title={!canReview ? 'All criteria must be evaluated before review' : undefined}
-        >
-          Review
-        </Button>
       </div>
 
       <GenerateAllConfirmDialog
@@ -396,38 +356,6 @@ export default function VpatEditPage() {
             >
               Continue to Edit
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Review modal */}
-      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
-        <DialogContent aria-label="Submit Review" className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Submit Review</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            By submitting your name, you confirm that you have personally reviewed this VPAT and
-            that the results accurately reflect the product&apos;s accessibility conformance.
-          </p>
-          <div className="space-y-3 pt-2">
-            <Input
-              placeholder="Full name"
-              value={reviewerName}
-              onChange={(e) => setReviewerName(e.target.value)}
-              aria-label="Reviewer full name"
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="cancel" onClick={() => setShowReviewModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleReview}
-                disabled={!reviewerName.trim() || isReviewing}
-              >
-                {isReviewing ? 'Submitting…' : 'Submit Review'}
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -227,65 +227,12 @@ describe('VpatEditPage', () => {
     });
   });
 
-  it('Review button is disabled when rows have not_evaluated conformance', async () => {
+  it('does not show a Review button', async () => {
     render(<VpatEditPage />);
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
     });
-    const reviewBtn = screen.getByRole('button', { name: /^review$/i });
-    expect(reviewBtn).toBeDisabled();
-  });
-
-  it('Review button is enabled when all rows are resolved', async () => {
-    vi.spyOn(global, 'fetch').mockImplementation((input) => {
-      const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        } as unknown as Response);
-      }
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({ success: true, data: mockVpatAllResolved }),
-      } as unknown as Response);
-    });
-
-    render(<VpatEditPage />);
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
-    });
-    const reviewBtn = screen.getByRole('button', { name: /^review$/i });
-    expect(reviewBtn).not.toBeDisabled();
-  });
-
-  it('Review modal opens when Review button clicked', async () => {
-    const user = userEvent.setup();
-
-    vi.spyOn(global, 'fetch').mockImplementation((input) => {
-      const url = typeof input === 'string' ? input : (input as Request).url;
-      if (url.includes('/api/issues/by-criterion') || url.includes('/versions')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        } as unknown as Response);
-      }
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({ success: true, data: mockVpatAllResolved }),
-      } as unknown as Response);
-    });
-
-    render(<VpatEditPage />);
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /^review$/i })).not.toBeDisabled();
-    });
-
-    await user.click(screen.getByRole('button', { name: /^review$/i }));
-
-    await waitFor(() => {
-      expect(screen.getByRole('dialog', { name: /submit review/i })).toBeInTheDocument();
-    });
+    expect(screen.queryByRole('button', { name: /^review$/i })).not.toBeInTheDocument();
   });
 
   it('Edit-warning modal shows on page load when VPAT status is reviewed', async () => {
