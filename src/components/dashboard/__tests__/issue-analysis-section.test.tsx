@@ -35,7 +35,7 @@ vi.mock('../status-filter', () => ({
 describe('IssueAnalysisSection', () => {
   it('defaults to open status and shows subtitle', () => {
     render(<IssueAnalysisSection />);
-    expect(screen.getByText('Open issues across all projects')).toBeInTheDocument();
+    expect(screen.getByText('Issues across all projects')).toBeInTheDocument();
   });
 
   it('passes default statuses to all chart components', () => {
@@ -45,10 +45,9 @@ describe('IssueAnalysisSection', () => {
     expect(screen.getByTestId('wcag-criteria').dataset.statuses).toBe('open');
   });
 
-  it('updates subtitle and child statuses when filter changes', () => {
+  it('updates child statuses when filter changes', () => {
     render(<IssueAnalysisSection />);
     fireEvent.click(screen.getByText('Change'));
-    expect(screen.getByText('Open · Resolved issues across all projects')).toBeInTheDocument();
     expect(screen.getByTestId('issue-statistics').dataset.statuses).toBe('open,resolved');
     expect(screen.getByTestId('pour-radar').dataset.statuses).toBe('open,resolved');
     expect(screen.getByTestId('wcag-criteria').dataset.statuses).toBe('open,resolved');

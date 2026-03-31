@@ -5,17 +5,8 @@ import { PourRadar } from './pour-radar';
 import { WcagCriteria } from './wcag-criteria';
 import { StatusFilter } from './status-filter';
 
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
-};
-
 export function IssueAnalysisSection() {
   const [statuses, setStatuses] = useState<string[]>(['open']);
-
-  const subtitle =
-    statuses.map((s) => STATUS_LABELS[s] ?? s).join(' · ') + ' issues across all projects';
 
   return (
     <section aria-labelledby="analysis-heading" className="mt-8">
@@ -24,7 +15,7 @@ export function IssueAnalysisSection() {
           <h2 id="analysis-heading" className="text-lg font-semibold">
             Issue Analysis
           </h2>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-sm text-muted-foreground">Issues across all projects</p>
         </div>
         <StatusFilter statuses={statuses} onChange={setStatuses} />
       </div>

@@ -15,6 +15,12 @@ interface FetchedData {
   total: number;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  open: 'Open',
+  resolved: 'Resolved',
+  wont_fix: "Won't Fix",
+};
+
 const SEVERITY_CONFIG = [
   { key: 'critical' as const, label: 'Critical', color: '#ef4444' },
   { key: 'high' as const, label: 'High', color: '#f97316' },
@@ -23,6 +29,7 @@ const SEVERITY_CONFIG = [
 ];
 
 export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
+  const statusLabel = statuses.map((s) => STATUS_LABELS[s] ?? s).join(' · ');
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [fetchedData, setFetchedData] = useState<FetchedData | null>(null);
   const [resolvedKey, setResolvedKey] = useState<string | null>(null);
@@ -71,7 +78,10 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>Issue Statistics</CardTitle>
+        <div>
+          <CardTitle>Issue Statistics</CardTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">{statusLabel}</p>
+        </div>
         <ChartTableToggle view={view} onChange={setView} />
       </CardHeader>
       <CardContent>
@@ -103,7 +113,7 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-4xl font-bold">{total}</span>
-                    <span className="text-sm text-muted-foreground">Open</span>
+                    <span className="text-sm text-muted-foreground">Issues</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-2 w-full text-center">

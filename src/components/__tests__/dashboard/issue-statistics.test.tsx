@@ -64,7 +64,7 @@ describe('IssueStatistics', () => {
     await waitFor(() => {
       expect(screen.getByText('35')).toBeInTheDocument();
     });
-    expect(screen.getByText('Open')).toBeInTheDocument();
+    expect(screen.getByText('Issues')).toBeInTheDocument();
   });
 
   it('renders all four severity labels in chart view', async () => {
