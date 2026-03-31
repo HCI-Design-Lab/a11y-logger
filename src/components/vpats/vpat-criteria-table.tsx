@@ -64,9 +64,9 @@ const CONFIDENCE_COLORS: Record<string, string> = {
 };
 
 const SUGGESTED_CONFORMANCE_COLORS: Record<string, string> = {
-  supports: 'border-green-500 text-green-700',
-  does_not_support: 'border-red-500 text-red-700',
-  not_applicable: 'border-gray-400 text-gray-600',
+  supports: 'bg-green-100 border-green-500 text-green-700',
+  does_not_support: 'bg-red-100 border-red-500 text-red-700',
+  not_applicable: 'bg-gray-100 border-gray-400 text-gray-600',
 };
 
 const SUGGESTED_CONFORMANCE_LABELS: Record<string, string> = {
@@ -128,211 +128,214 @@ const CriterionTableRow = memo(function CriterionTableRow({
 
   return (
     <>
-    <TableRow
-      data-testid={`row-${row.id}`}
-      className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
-    >
-      <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
-      <TableCell className="align-top pt-3">
-        {onCriterionClick ? (
-          <Button
-            type="button"
-            variant="link"
-            className="h-auto p-0 font-medium text-sm text-left"
-            onClick={() => onCriterionClick(row.criterion_code)}
-            aria-label={`View issues for ${row.criterion_code}`}
-          >
-            {row.criterion_name}
-            {!readOnly && row.issue_count > 0 && (
-              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                ({row.issue_count})
-              </span>
-            )}
-          </Button>
-        ) : (
-          <div className="font-medium text-sm">
-            {row.criterion_name}
-            {!readOnly && row.issue_count > 0 && (
-              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                ({row.issue_count})
-              </span>
-            )}
-          </div>
-        )}
-      </TableCell>
-      <TableCell className="align-top pt-3">
-        {readOnly ? (
-          <span className="text-sm">{conformanceLabel}</span>
-        ) : (
-          <Select
-            value={row.conformance}
-            onValueChange={(v) => onRowChange(row.id, { conformance: v })}
-            disabled={isDisabled}
-          >
-            <SelectTrigger
-              className="h-8 text-sm"
-              aria-label={`Conformance for ${row.criterion_code}`}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CONFORMANCE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </TableCell>
-      <TableCell className="align-top pt-2">
-        {readOnly ? (
-          <span className="text-sm text-muted-foreground whitespace-pre-wrap">{row.remarks || '—'}</span>
-        ) : (
-          <Textarea
-            {...(() => {
-              const { ref, ...rest } = register(row.id, {
-                onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
-              });
-              return {
-                ...rest,
-                ref: (el: HTMLTextAreaElement | null) => {
-                  ref(el);
-                  textareaRef.current = el;
-                },
-              };
-            })()}
-            className="text-sm min-h-10 overflow-hidden"
-            style={{ resize: 'vertical' }}
-            placeholder="Add remarks…"
-            disabled={isDisabled}
-            onInput={(e) => autoResize(e.currentTarget)}
-            aria-label={`Remarks for ${row.criterion_code}`}
-          />
-        )}
-      </TableCell>
-      {aiEnabled && !readOnly && (
-        <TableCell className="align-top pt-3 text-center">
-          <div className="flex items-center justify-center gap-1">
+      <TableRow
+        data-testid={`row-${row.id}`}
+        className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
+      >
+        <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
+        <TableCell className="align-top pt-3">
+          {onCriterionClick ? (
             <Button
               type="button"
-              variant="ai"
-              size="sm"
-              onClick={() => onGenerateRow?.(row.id)}
-              disabled={isDisabled}
-              aria-label={
-                isGenerating
-                  ? `Generating for ${row.criterion_code}`
-                  : `Generate for ${row.criterion_code}`
-              }
+              variant="link"
+              className="h-auto p-0 font-medium text-sm text-left"
+              onClick={() => onCriterionClick(row.criterion_code)}
+              aria-label={`View issues for ${row.criterion_code}`}
             >
-              <Sparkles />
-              {isGenerating ? 'Generating…' : 'Generate'}
+              {row.criterion_name}
+              {!readOnly && row.issue_count > 0 && (
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                  ({row.issue_count})
+                </span>
+              )}
             </Button>
-            {hasAiInfo && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setShowAiInfo(true)}
-                aria-label={`AI info for ${row.criterion_code}`}
-              >
-                <Info className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </TableCell>
-      )}
-    </TableRow>
-
-    {hasAiInfo && (
-      <Dialog open={showAiInfo} onOpenChange={setShowAiInfo}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>AI Analysis — {row.criterion_code}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-1">
-            {row.ai_confidence && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Confidence</span>
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
-                >
-                  {row.ai_confidence}
-                </Badge>
-                {row.ai_confidence === 'low' && (
-                  <span className="text-xs text-amber-600">
-                    Limited evidence — consider additional testing.
-                  </span>
-                )}
-              </div>
-            )}
-
-            {row.ai_suggested_conformance && (
-              <div>
-                <p className="text-sm font-medium mb-1">Suggested Conformance</p>
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${SUGGESTED_CONFORMANCE_COLORS[row.ai_suggested_conformance] ?? ''}`}
-                >
-                  {SUGGESTED_CONFORMANCE_LABELS[row.ai_suggested_conformance]}
-                </Badge>
-                <p className="text-xs text-muted-foreground mt-1">
-                  AI recommendation only — does not update the conformance selector.
-                </p>
-              </div>
-            )}
-
-            <div>
-              <p className="text-sm font-medium mb-1">
-                Issues Referenced
-                {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 && (
-                  <span className="font-normal text-muted-foreground ml-1">
-                    ({row.ai_referenced_issues.length})
-                  </span>
-                )}
-              </p>
-              {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
-                <ul className="space-y-1">
-                  {row.ai_referenced_issues.map((issue, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground flex-1">{issue.title}</span>
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {issue.severity}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">No issues mapped to this criterion.</p>
+          ) : (
+            <div className="font-medium text-sm">
+              {row.criterion_name}
+              {!readOnly && row.issue_count > 0 && (
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                  ({row.issue_count})
+                </span>
               )}
             </div>
+          )}
+        </TableCell>
+        <TableCell className="align-top pt-3">
+          {readOnly ? (
+            <span className="text-sm">{conformanceLabel}</span>
+          ) : (
+            <Select
+              value={row.conformance}
+              onValueChange={(v) => onRowChange(row.id, { conformance: v })}
+              disabled={isDisabled}
+            >
+              <SelectTrigger
+                className="h-8 text-sm"
+                aria-label={`Conformance for ${row.criterion_code}`}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CONFORMANCE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </TableCell>
+        <TableCell className="align-top pt-2">
+          {readOnly ? (
+            <span className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {row.remarks || '—'}
+            </span>
+          ) : (
+            <Textarea
+              {...(() => {
+                const { ref, ...rest } = register(row.id, {
+                  onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
+                });
+                return {
+                  ...rest,
+                  ref: (el: HTMLTextAreaElement | null) => {
+                    ref(el);
+                    textareaRef.current = el;
+                  },
+                };
+              })()}
+              className="text-sm min-h-10 overflow-hidden"
+              style={{ resize: 'vertical' }}
+              placeholder="Add remarks…"
+              disabled={isDisabled}
+              onInput={(e) => autoResize(e.currentTarget)}
+              aria-label={`Remarks for ${row.criterion_code}`}
+            />
+          )}
+        </TableCell>
+        {aiEnabled && !readOnly && (
+          <TableCell className="align-top pt-3 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <Button
+                type="button"
+                variant="ai"
+                size="sm"
+                onClick={() => onGenerateRow?.(row.id)}
+                disabled={isDisabled}
+                aria-label={
+                  isGenerating
+                    ? `Generating for ${row.criterion_code}`
+                    : `Generate for ${row.criterion_code}`
+                }
+              >
+                <Sparkles />
+                {isGenerating ? 'Generating…' : 'Generate'}
+              </Button>
+              {hasAiInfo && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowAiInfo(true)}
+                  aria-label={`AI info for ${row.criterion_code}`}
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </TableCell>
+        )}
+      </TableRow>
 
-            {row.ai_reasoning && (
+      {hasAiInfo && (
+        <Dialog open={showAiInfo} onOpenChange={setShowAiInfo}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>AI Analysis — {row.criterion_code}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-1">
+              {row.ai_confidence && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Confidence</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${CONFIDENCE_COLORS[row.ai_confidence] ?? ''}`}
+                  >
+                    {row.ai_confidence}
+                  </Badge>
+                  {row.ai_confidence === 'low' && (
+                    <span className="text-xs text-amber-600">
+                      Limited evidence — consider additional testing.
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {row.ai_suggested_conformance && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium mb-1">Suggested Conformance</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${SUGGESTED_CONFORMANCE_COLORS[row.ai_suggested_conformance] ?? ''}`}
+                  >
+                    {SUGGESTED_CONFORMANCE_LABELS[row.ai_suggested_conformance]}
+                  </Badge>
+                </div>
+              )}
+
               <div>
-                <p className="text-sm font-medium mb-1">Reasoning</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{row.ai_reasoning}</p>
+                <p className="text-sm font-medium mb-1">
+                  Issues Referenced
+                  {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 && (
+                    <span className="font-normal text-muted-foreground ml-1">
+                      ({row.ai_referenced_issues.length})
+                    </span>
+                  )}
+                </p>
+                {row.ai_referenced_issues && row.ai_referenced_issues.length > 0 ? (
+                  <ul className="space-y-1">
+                    {row.ai_referenced_issues.map((issue, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground flex-1">{issue.title}</span>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {issue.severity}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No issues mapped to this criterion.
+                  </p>
+                )}
               </div>
-            )}
 
-            {row.last_generated_at && (
-              <p className="text-xs text-muted-foreground border-t pt-2">
-                Generated{' '}
-                {new Date(row.last_generated_at).toLocaleString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                })}
-              </p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    )}
+              {row.ai_reasoning && (
+                <div>
+                  <p className="text-sm font-medium mb-1">Reasoning</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {row.ai_reasoning}
+                  </p>
+                </div>
+              )}
+
+              {row.last_generated_at && (
+                <p className="text-xs text-muted-foreground border-t pt-2">
+                  Generated{' '}
+                  {new Date(row.last_generated_at).toLocaleString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}
+                </p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 });
