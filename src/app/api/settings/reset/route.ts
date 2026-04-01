@@ -9,6 +9,7 @@ const USER_DATA_TABLES = [
   'reports',
   'assessments',
   'projects',
+  'users',
 ] as const;
 
 export async function POST() {

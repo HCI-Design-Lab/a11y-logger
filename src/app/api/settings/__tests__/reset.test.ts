@@ -44,16 +44,16 @@ describe('POST /api/settings/reset', () => {
     expect(deletedTables).toContain('reports');
     expect(deletedTables).toContain('assessments');
     expect(deletedTables).toContain('projects');
+    expect(deletedTables).toContain('users');
   });
 
-  it('does not delete settings, criteria, users, or migrations', async () => {
+  it('does not delete settings, criteria, or migrations', async () => {
     await POST();
     const deletedTables = mockPrepare.mock.calls.map((c) =>
       (c[0] as unknown as string).replace('DELETE FROM ', '')
     );
     expect(deletedTables).not.toContain('settings');
     expect(deletedTables).not.toContain('criteria');
-    expect(deletedTables).not.toContain('users');
     expect(deletedTables).not.toContain('_migrations');
   });
 
