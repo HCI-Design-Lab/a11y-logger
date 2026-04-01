@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../reset/route';
 
 const mockRun = vi.fn();
-const mockPrepare = vi.fn(() => ({ run: mockRun }));
+const mockPrepare = vi.fn((_sql: string) => ({ run: mockRun }));
 const mockTransaction = vi.fn((fn: () => void) => () => fn());
 
 vi.mock('@/lib/db/index', () => ({
@@ -35,7 +35,7 @@ describe('POST /api/settings/reset', () => {
     await POST();
     expect(mockTransaction).toHaveBeenCalledOnce();
     const deletedTables = mockPrepare.mock.calls.map((c) =>
-      (c[0] as string).replace('DELETE FROM ', '')
+      (c[0] as unknown as string).replace('DELETE FROM ', '')
     );
     expect(deletedTables).toContain('vpat_snapshots');
     expect(deletedTables).toContain('vpat_criterion_rows');
@@ -49,7 +49,7 @@ describe('POST /api/settings/reset', () => {
   it('does not delete settings, criteria, users, or migrations', async () => {
     await POST();
     const deletedTables = mockPrepare.mock.calls.map((c) =>
-      (c[0] as string).replace('DELETE FROM ', '')
+      (c[0] as unknown as string).replace('DELETE FROM ', '')
     );
     expect(deletedTables).not.toContain('settings');
     expect(deletedTables).not.toContain('criteria');

@@ -7,17 +7,17 @@ vi.mock('sonner', () => ({
 }));
 
 test('renders the authentication card', () => {
-  render(<AuthToggleSection authEnabled={false} />);
+  render(<AuthToggleSection authEnabled={false} hasUsers={true} />);
   expect(screen.getByText('Authentication')).toBeInTheDocument();
 });
 
 test('shows enable auth button when disabled', () => {
-  render(<AuthToggleSection authEnabled={false} />);
+  render(<AuthToggleSection authEnabled={false} hasUsers={true} />);
   expect(screen.getByRole('button', { name: /enable auth/i })).toBeInTheDocument();
 });
 
 test('shows disable auth button when enabled', () => {
-  render(<AuthToggleSection authEnabled={true} />);
+  render(<AuthToggleSection authEnabled={true} hasUsers={true} />);
   expect(screen.getByRole('button', { name: /disable auth/i })).toBeInTheDocument();
 });
 
@@ -27,7 +27,7 @@ test('calls toggle API on button click', async () => {
     json: () => Promise.resolve({ success: true, data: { enabled: true } }),
   } as Response);
 
-  render(<AuthToggleSection authEnabled={false} />);
+  render(<AuthToggleSection authEnabled={false} hasUsers={true} />);
   fireEvent.click(screen.getByRole('button', { name: /enable auth/i }));
 
   await waitFor(() => {

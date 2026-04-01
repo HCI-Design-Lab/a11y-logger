@@ -1,10 +1,11 @@
 import { getSetting } from '@/lib/db/settings';
+import { getUsers } from '@/lib/db/users';
 import { SettingsClient } from '@/components/settings/settings-client';
 
 // This page reads from the local SQLite DB at request time — prevent static prerendering
 export const dynamic = 'force-dynamic';
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
   const aiProvider = (getSetting('ai_provider') as string) ?? '';
   // The API key is encrypted at rest — pass a masked placeholder if one exists
   const rawApiKey = getSetting('ai_api_key');
@@ -12,6 +13,7 @@ export default function SettingsPage() {
   const aiModel = (getSetting('ai_model') as string) ?? '';
   const aiBaseUrl = (getSetting('ai_base_url') as string) ?? '';
   const authEnabled = Boolean(getSetting('auth_enabled'));
+  const users = await getUsers();
 
   const version = process.env.npm_package_version ?? '0.0.0';
 
@@ -36,6 +38,7 @@ export default function SettingsPage() {
         mediaPath="./data/media/"
         version={version}
         authEnabled={authEnabled}
+        users={users}
       />
     </div>
   );

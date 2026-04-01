@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 
 interface AuthToggleSectionProps {
   authEnabled: boolean;
+  hasUsers: boolean;
 }
 
-export function AuthToggleSection({ authEnabled: initialEnabled }: AuthToggleSectionProps) {
+export function AuthToggleSection({ authEnabled: initialEnabled, hasUsers }: AuthToggleSectionProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
   const [loading, setLoading] = useState(false);
 
@@ -61,14 +62,19 @@ export function AuthToggleSection({ authEnabled: initialEnabled }: AuthToggleSec
                 : 'App is open access — no login required.'}
             </p>
           </div>
-          <Button
-            variant={enabled ? 'destructive' : 'default'}
-            onClick={handleToggle}
-            disabled={loading}
-            aria-pressed={enabled}
-          >
-            {loading ? 'Updating…' : enabled ? 'Disable Auth' : 'Enable Auth'}
-          </Button>
+          <div className="flex flex-col items-end gap-1">
+            <Button
+              variant={enabled ? 'destructive' : 'default'}
+              onClick={handleToggle}
+              disabled={loading || !hasUsers}
+              aria-pressed={enabled}
+            >
+              {loading ? 'Updating…' : enabled ? 'Disable Auth' : 'Enable Auth'}
+            </Button>
+            {!hasUsers && (
+              <p className="text-xs text-muted-foreground">Create an account first.</p>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
