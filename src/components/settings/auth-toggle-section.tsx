@@ -9,7 +9,10 @@ interface AuthToggleSectionProps {
   hasUsers: boolean;
 }
 
-export function AuthToggleSection({ authEnabled: initialEnabled, hasUsers }: AuthToggleSectionProps) {
+export function AuthToggleSection({
+  authEnabled: initialEnabled,
+  hasUsers,
+}: AuthToggleSectionProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
   const [loading, setLoading] = useState(false);
 
@@ -71,9 +74,7 @@ export function AuthToggleSection({ authEnabled: initialEnabled, hasUsers }: Aut
             >
               {loading ? 'Updating…' : enabled ? 'Disable Auth' : 'Enable Auth'}
             </Button>
-            {!hasUsers && (
-              <p className="text-xs text-muted-foreground">Create an account first.</p>
-            )}
+            {!hasUsers && <p className="text-xs text-muted-foreground">Create an account first.</p>}
           </div>
         </div>
       </CardContent>

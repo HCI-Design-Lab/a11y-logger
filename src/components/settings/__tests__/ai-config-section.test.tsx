@@ -22,9 +22,7 @@ describe('AIConfigSection — None provider', () => {
     render(<AIConfigSection provider="none" onSave={mockSave} />);
     await user.click(screen.getByRole('button', { name: 'Save Configuration' }));
     await waitFor(() => {
-      expect(mockSave).toHaveBeenCalledWith(
-        expect.objectContaining({ provider: 'none' })
-      );
+      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ provider: 'none' }));
     });
   });
 

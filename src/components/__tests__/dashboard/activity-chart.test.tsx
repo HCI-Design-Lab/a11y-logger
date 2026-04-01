@@ -81,7 +81,10 @@ describe('ActivityChart', () => {
     fireEvent.mouseDown(screen.getByRole('tab', { name: '1 week' }));
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: '1 week' })).toHaveAttribute('data-state', 'active');
-      expect(screen.getByRole('tab', { name: '6 months' })).toHaveAttribute('data-state', 'inactive');
+      expect(screen.getByRole('tab', { name: '6 months' })).toHaveAttribute(
+        'data-state',
+        'inactive'
+      );
     });
   });
 

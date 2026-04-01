@@ -24,7 +24,13 @@ interface SettingsClientProps {
   mediaPath: string;
   version: string;
   authEnabled: boolean;
-  users: { id: string; username: string; role: 'admin' | 'member'; created_at: string; updated_at: string }[];
+  users: {
+    id: string;
+    username: string;
+    role: 'admin' | 'member';
+    created_at: string;
+    updated_at: string;
+  }[];
 }
 
 export function SettingsClient({

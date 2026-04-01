@@ -44,7 +44,7 @@ describe('IssueStatistics subtitle', () => {
     expect(screen.getByText('Resolved')).toBeInTheDocument();
   });
 
-  it("shows \"Won't Fix\" subtitle when statuses is [wont_fix]", async () => {
+  it('shows "Won\'t Fix" subtitle when statuses is [wont_fix]', async () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ data: mockData }),
