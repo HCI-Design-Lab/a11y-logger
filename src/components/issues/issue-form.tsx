@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle, Save, Sparkles, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,9 +16,8 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { WcagSelector } from './wcag-selector';
-import { Section508Selector } from './section508-selector';
-import { EuSelector } from './eu-selector';
+import { AiSuggestionPanel } from './ai-suggestion-panel';
+import { StandardsCriteriaFields } from './standards-criteria-fields';
 import { TagInput } from './tag-input';
 import { MediaUploader } from './media-uploader';
 import { CreateIssueSchema } from '@/lib/validators/issues';
@@ -191,61 +190,13 @@ export function IssueForm({
             )}
 
             {/* AI Assistance Section */}
-            <div className="rounded-md border border-ai p-4 space-y-3">
-              <p className="text-sm text-muted-foreground">
-                You can enter a description here and press <strong>Generate with AI</strong> to have
-                the rest of the issue filled out by the AI. For best results, include:
-              </p>
-              <ol className="text-sm text-muted-foreground list-decimal list-inside space-y-1">
-                <li>
-                  <strong>Component:</strong> What element is affected? (e.g. &ldquo;Search
-                  button&rdquo;)
-                </li>
-                <li>
-                  <strong>Location:</strong> Where does the issue occur? (e.g.
-                  &ldquo;Homepage&rdquo;)
-                </li>
-                <li>
-                  <strong>What&rsquo;s Happening:</strong> What is wrong? (e.g. &ldquo;Not focusable
-                  via keyboard&rdquo;)
-                </li>
-                <li>
-                  <strong>Expected Behavior (Optional):</strong> What is the expected behavior?
-                </li>
-              </ol>
-              <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
-                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>
-                  AI assistance will only fill in fields you&rsquo;ve left empty; it will not
-                  overwrite values you&rsquo;ve already entered.
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="ai_description">AI Assistance Description</Label>
-                <Textarea
-                  id="ai_description"
-                  value={aiDescription}
-                  onChange={(e) => setAiDescription(e.target.value)}
-                  rows={4}
-                  disabled={aiLoading}
-                  placeholder="Example: The search button on the homepage is not operable via keyboard. It should be focusable and activated using the Enter key."
-                />
-              </div>
-
-              {aiError && <p className="text-sm text-destructive">{aiError}</p>}
-
-              <Button
-                type="button"
-                variant="ai"
-                size="sm"
-                onClick={handleAiGenerate}
-                disabled={aiLoading || !aiDescription.trim()}
-              >
-                <Sparkles className="mr-1 h-4 w-4" />
-                {aiLoading ? 'Generating…' : 'Generate with AI'}
-              </Button>
-            </div>
+            <AiSuggestionPanel
+              aiDescription={aiDescription}
+              onDescriptionChange={setAiDescription}
+              onGenerate={handleAiGenerate}
+              aiLoading={aiLoading}
+              aiError={aiError}
+            />
 
             {/* Title */}
             <div className="space-y-1.5">
@@ -424,53 +375,8 @@ export function IssueForm({
               />
             </div>
 
-            {/* WCAG Criteria */}
-            <div className="space-y-1.5">
-              <Label>WCAG Criteria</Label>
-              <Controller
-                name="wcag_codes"
-                control={control}
-                render={({ field }) => (
-                  <WcagSelector
-                    selected={(field.value ?? []) as string[]}
-                    onChange={field.onChange}
-                    disabled={aiLoading}
-                  />
-                )}
-              />
-            </div>
-
-            {/* Section 508 Criteria */}
-            <div className="space-y-1.5">
-              <Label>Section 508 Criteria</Label>
-              <Controller
-                name="section_508_codes"
-                control={control}
-                render={({ field }) => (
-                  <Section508Selector
-                    selected={(field.value ?? []) as string[]}
-                    onChange={field.onChange}
-                    disabled={aiLoading}
-                  />
-                )}
-              />
-            </div>
-
-            {/* EU EN 301 549 Criteria */}
-            <div className="space-y-1.5">
-              <Label>EU EN 301 549 Criteria</Label>
-              <Controller
-                name="eu_codes"
-                control={control}
-                render={({ field }) => (
-                  <EuSelector
-                    selected={(field.value ?? []) as string[]}
-                    onChange={field.onChange}
-                    disabled={aiLoading}
-                  />
-                )}
-              />
-            </div>
+            {/* WCAG / Section 508 / EU EN 301 549 Criteria */}
+            <StandardsCriteriaFields control={control} disabled={aiLoading} />
 
             {/* Tags */}
             <div className="space-y-1.5">
