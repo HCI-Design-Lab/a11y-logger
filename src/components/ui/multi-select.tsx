@@ -46,6 +46,7 @@ export function MultiSelect({
         <div
           role="combobox"
           aria-expanded={open}
+          aria-controls="multi-select-listbox"
           aria-haspopup="listbox"
           aria-label="Open options"
           tabIndex={0}
@@ -98,7 +99,7 @@ export function MultiSelect({
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          <ul role="listbox" className="max-h-60 overflow-y-auto p-1">
+          <ul id="multi-select-listbox" role="listbox" className="max-h-60 overflow-y-auto p-1">
             {filtered.map((o) => (
               <li
                 key={o.value}

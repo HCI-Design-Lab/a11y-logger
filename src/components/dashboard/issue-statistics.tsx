@@ -63,7 +63,7 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
     return () => {
       controller.abort();
     };
-  }, [statusesKey]);
+  }, [statusesKey, projectId]);
 
   const loading = resolvedKey !== statusesKey;
 

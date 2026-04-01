@@ -41,7 +41,7 @@ export default function EditAssessmentPage() {
         router.push(`/projects/${projectId}/assessments`);
       })
       .finally(() => setFetching(false));
-  }, [projectId, assessmentId]);
+  }, [projectId, assessmentId, router]);
 
   useEffect(() => {
     fetch('/api/projects')
