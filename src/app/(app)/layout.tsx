@@ -1,8 +1,16 @@
+import { redirect } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { Toaster } from '@/components/ui/sonner';
+import { getSetting } from '@/lib/db/settings';
+import { getSession } from '@/lib/auth/session';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const authEnabled = getSetting('auth_enabled') === 'true';
+  if (authEnabled) {
+    const userId = await getSession();
+    if (!userId) redirect('/login');
+  }
   return (
     <div className="flex min-h-screen flex-col overflow-hidden">
       <a
