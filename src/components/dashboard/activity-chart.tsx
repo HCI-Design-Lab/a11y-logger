@@ -16,13 +16,22 @@ import type { TimeRange, TimeSeriesEntry } from '@/lib/db/dashboard';
 import { ChartTableToggle } from './chart-table-toggle';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+/**
+ * bucketData — Collapses daily time-series entries into weekly buckets for
+ * ranges longer than one month, keeping the chart readable at scale.
+ *
+ * Short ranges (1w / 1m) are returned as-is (daily granularity), trimmed to
+ * the most recent 20 data points so the chart never renders more lines than
+ * the viewport can comfortably display.
+ */
 function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
   if (range === '1m' || range === '1w') return data.slice(-20);
   // Group by week for longer ranges
   const weeks = new Map<string, TimeSeriesEntry>();
   for (const entry of data) {
     const d = new Date(entry.date);
-    // Get Monday of that week
+    // Normalise to Monday of the same week so each bucket has a stable key
+    // regardless of which day within the week the entry falls on.
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setDate(diff);
@@ -44,6 +53,14 @@ function bucketData(data: TimeSeriesEntry[], range: string): TimeSeriesEntry[] {
   return Array.from(weeks.values()).slice(-20);
 }
 
+/**
+ * formatDate — Converts an ISO date string to a short locale label for axis
+ * ticks and tooltips (e.g. "Jan 5").
+ *
+ * The 'T00:00:00' suffix forces the Date constructor to treat the string as
+ * local midnight rather than UTC midnight, preventing off-by-one day errors
+ * in timezones west of UTC.
+ */
 function formatDate(dateStr: string) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -136,6 +153,22 @@ const RANGES: { label: string; value: TimeRange }[] = [
   { label: '1 week', value: '1w' },
 ];
 
+/**
+ * ActivityChart — Dashboard card showing projects, assessments, and issues
+ * created over time as an interactive line chart or accessible data table.
+ *
+ * Data is fetched client-side on mount and whenever the user changes the time
+ * range. The raw daily series from the API is passed through `bucketData` for
+ * the table view (weekly buckets on longer ranges) while the Recharts line
+ * chart always receives the full daily series for smoother curves.
+ *
+ * The chart and table views share the same fetched data — toggling between
+ * them does not trigger a new network request.
+ *
+ * Custom `ActivityTooltip` and `ActivityLegend` components are used instead
+ * of Recharts defaults so colours and fonts respect the app's CSS variables
+ * (`--foreground`, `--border`, `--card`) rather than being hard-coded.
+ */
 export function ActivityChart() {
   const [range, setRange] = useState<TimeRange>('6m');
   const [view, setView] = useState<'chart' | 'table'>('chart');
@@ -165,6 +198,8 @@ export function ActivityChart() {
     fetchData(range);
   }, [range, fetchData]);
 
+  // Pre-bucket the data for the table view; memoised so switching between
+  // chart and table does not re-run the aggregation on every render.
   const tableData = useMemo(() => bucketData(data, range), [data, range]);
 
   return (

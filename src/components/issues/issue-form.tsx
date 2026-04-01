@@ -42,6 +42,33 @@ interface IssueFormProps {
   externalButtons?: string;
 }
 
+/**
+ * IssueForm — Create or edit an accessibility issue.
+ *
+ * Handles WCAG / Section 508 / EN 301 549 criterion selection, media
+ * attachment, and optional AI-assisted field population via the
+ * `/api/ai/generate-issue` endpoint. When `issue` is provided the form
+ * operates in edit mode and pre-populates every field from the existing
+ * record.
+ *
+ * Buttons can be rendered inline (default) or hoisted to an external
+ * container by passing `externalButtons` (the HTML id of the target form).
+ * This lets page layouts place Save/Cancel outside the card without
+ * duplicating the submit handler.
+ *
+ * @param issue - Existing issue record for edit mode; omit for create mode.
+ * @param projectId - Project that owns the issue, used for media upload paths.
+ * @param assessmentOptions - When provided, shows a top-level assessment
+ *   selector (used on the global /issues/new route where the assessment is
+ *   not known from the URL).
+ * @param onAssessmentChange - Notifies the parent when the user picks a
+ *   different assessment so it can update its own state (e.g. project context).
+ * @param onSubmit - Called with validated form data on submission.
+ * @param loading - Disables the submit button while the parent is persisting.
+ * @param cancelHref - Route to navigate to when the user cancels.
+ * @param externalButtons - HTML form id that wires an external submit button
+ *   to this form element; when set the inline button row is hidden.
+ */
 export function IssueForm({
   issue,
   projectId,
@@ -57,6 +84,9 @@ export function IssueForm({
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
+  // Stable upload ID for the lifetime of the form: reuse the existing issue
+  // ID in edit mode so media is written to the correct directory, or generate
+  // a UUID upfront in create mode so uploads can proceed before the record exists.
   const uploadId = useMemo(() => issue?.id ?? crypto.randomUUID(), [issue?.id]);
 
   const {
@@ -97,6 +127,8 @@ export function IssueForm({
     setAiError(null);
 
     try {
+      // Send existing field values alongside the free-text description so the
+      // AI can fill gaps without overwriting fields the user has already set.
       const current = getValues();
       const res = await fetch('/api/ai/generate-issue', {
         method: 'POST',
@@ -134,6 +166,8 @@ export function IssueForm({
         eu_codes: string[] | null;
       };
 
+      // Merge AI suggestions into RHF without resetting untouched fields.
+      // shouldDirty marks the form as changed so the save button activates.
       const opts = { shouldValidate: true, shouldDirty: true } as const;
       if (data.title) setValue('title', data.title, opts);
       if (data.description) setValue('description', data.description, opts);
@@ -415,6 +449,8 @@ export function IssueForm({
               />
             </div>
 
+            {/* Buttons are only rendered here when the caller has not opted to
+                render them in an external container via the form= attribute. */}
             {!externalButtons && (
               <div className="flex gap-2">
                 <Button type="submit" disabled={loading || aiLoading}>

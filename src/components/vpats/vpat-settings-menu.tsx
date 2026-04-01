@@ -40,6 +40,40 @@ interface VpatSettingsMenuProps {
   variant?: 'view' | 'edit';
 }
 
+/**
+ * VpatSettingsMenu — Settings gear menu that drives the VPAT lifecycle.
+ *
+ * The VPAT moves through three states: draft → reviewed → published. Each
+ * transition has guard conditions (all criteria evaluated, review submitted)
+ * that are enforced here via separate AlertDialog modals rather than
+ * disabling menu items, so users receive an explanation instead of a silent
+ * no-op.
+ *
+ * State machine summary:
+ *  - "Mark as Reviewed" — requires all criteria evaluated; captures reviewer name.
+ *  - "Publish" — requires reviewed status AND all criteria evaluated; creates a
+ *    version snapshot in the parent.
+ *  - "Unpublish" — resets to draft while preserving the published snapshot in
+ *    version history.
+ *  - "Edit" (view variant, published) — warns that editing resets to draft
+ *    before navigating to the edit route.
+ *
+ * Export options (HTML, Word, OpenACR YAML) are always available regardless of
+ * status so auditors can share in-progress drafts.
+ *
+ * @param vpatId - VPAT record ID used for API calls and export URLs.
+ * @param vpatTitle - Display name shown in the delete confirmation.
+ * @param status - Current lifecycle status of the VPAT.
+ * @param resolvedCount - Number of criteria that have a conformance value set.
+ * @param totalCount - Total number of criteria rows in this VPAT.
+ * @param isPublishing - True while the publish API call is in-flight.
+ * @param isReviewing - True while the review API call is in-flight.
+ * @param onPublish - Triggers the publish transition in the parent.
+ * @param onUnpublish - Triggers the unpublish transition in the parent.
+ * @param onReview - Called with the reviewer's name to record the review.
+ * @param onEdit - Called when the user confirms editing a published VPAT.
+ * @param variant - "view" adds an Edit VPAT menu item; omit on the edit page.
+ */
 export function VpatSettingsMenu({
   vpatId,
   vpatTitle,
@@ -104,6 +138,8 @@ export function VpatSettingsMenu({
         <DropdownMenuContent align="end">
           {variant === 'view' && (
             <>
+              {/* Published VPATs cannot be navigated to directly — editing one
+                  requires the user to confirm they understand it resets to draft. */}
               <DropdownMenuItem
                 asChild={!isPublished}
                 onSelect={isPublished ? () => setEditOpen(true) : undefined}
@@ -123,6 +159,7 @@ export function VpatSettingsMenu({
               <DropdownMenuSeparator />
             </>
           )}
+          {/* Guard: all criteria must be evaluated before the reviewer dialog opens. */}
           <DropdownMenuItem
             onSelect={() => {
               if (notEvaluated > 0) {
@@ -136,6 +173,8 @@ export function VpatSettingsMenu({
             <CheckCircle className="mr-2 h-4 w-4" />
             {status === 'draft' ? 'Mark as Reviewed' : 'Update Review'}
           </DropdownMenuItem>
+          {/* Publish guard: must be reviewed AND fully evaluated. If already
+              published, route to the unpublish confirmation instead. */}
           <DropdownMenuItem
             onSelect={() => {
               if (isPublished) {
@@ -279,6 +318,8 @@ export function VpatSettingsMenu({
       </AlertDialog>
 
       {/* Submit review confirmation */}
+      {/* Clear the reviewer name whenever the dialog closes so it does not
+          persist if the user dismisses and re-opens without submitting. */}
       <AlertDialog
         open={reviewConfirmOpen}
         onOpenChange={(open) => {
@@ -286,6 +327,8 @@ export function VpatSettingsMenu({
           if (!open) setReviewerName('');
         }}
       >
+        {/* Radix auto-focuses the cancel button by default; override so the
+            reviewer name field is immediately active when the dialog opens. */}
         <AlertDialogContent
           onOpenAutoFocus={(e) => {
             e.preventDefault();

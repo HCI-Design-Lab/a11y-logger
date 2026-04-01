@@ -39,8 +39,31 @@ interface Props {
   issues: IssueWithContext[];
 }
 
+/**
+ * ReportEditForm — Rich-text editor for an accessibility report's content sections.
+ *
+ * A report's content is stored as a JSON blob (`ReportContent`) whose keys are
+ * optional sections (`executive_summary`, `top_risks`, `quick_wins`,
+ * `user_impact`). Sections that are absent from the blob are replaced by a
+ * dashed `PlaceholderCard` that lets the user add them on demand, keeping
+ * reports flexible — not every audit needs all four sections.
+ *
+ * Each section can also be AI-generated via dedicated endpoints; generation
+ * state is tracked per-section so spinners are scoped to the section being
+ * generated without blocking the rest of the form.
+ *
+ * The issues panel on the right is read-only reference data pulled from the
+ * parent assessment so editors can cross-reference while writing.
+ *
+ * @param report - The existing report record; `report.content` is the
+ *   JSON-serialised `ReportContent` blob.
+ * @param issues - Flat list of issues from the parent assessment, displayed
+ *   read-only in the sidebar for reference while authoring.
+ */
 export function ReportEditForm({ report, issues }: Props) {
   const router = useRouter();
+  // Lazy-initialise from the serialised JSON so parsing only runs once and
+  // a corrupted content field degrades gracefully to an empty report.
   const [content, setContent] = useState<ReportContent>(() => {
     try {
       return JSON.parse(report.content) as ReportContent;
@@ -75,6 +98,8 @@ export function ReportEditForm({ report, issues }: Props) {
 
   const generateSection = async (key: SectionKey) => {
     setGenerating((prev) => ({ ...prev, [key]: true }));
+    // Map section keys to their dedicated AI endpoints rather than a single
+    // generic endpoint so each section can use a tailored prompt server-side.
     const endpointMap: Record<SectionKey, string> = {
       executive_summary: '/api/ai/report/executive-summary',
       top_risks: '/api/ai/report/top-risks',
@@ -121,6 +146,8 @@ export function ReportEditForm({ report, issues }: Props) {
         return;
       }
       toast.success('Report saved');
+      // Navigate to the view page so the user sees the published report rather
+      // than staying on the edit form after a successful save.
       router.push(`/reports/${report.id}`);
     } catch {
       toast.error('Failed to save report');

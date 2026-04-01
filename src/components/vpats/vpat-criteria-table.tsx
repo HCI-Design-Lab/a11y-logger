@@ -155,6 +155,36 @@ interface VpatCriteriaTableProps {
   onCriterionClick?: (criterionCode: string) => void;
 }
 
+/**
+ * VpatCriteriaTable — Editable table of VPAT accessibility conformance criteria.
+ *
+ * Rows are grouped first by standard (WCAG, Section 508, EN 301 549) then by
+ * section within each standard. Each group renders as a collapsible
+ * `CriterionSection` card so auditors can focus on one table at a time.
+ *
+ * Remarks are managed by react-hook-form as uncontrolled inputs, preventing a
+ * full re-render of the table on every keystroke. Saves are debounced per row
+ * (500 ms) so the DB is not written on every character.
+ *
+ * When `aiEnabled` is true an AI panel is available per row and a "Generate
+ * All" button triggers bulk generation via the parent.
+ *
+ * @param rows - Flat list of criterion rows for this VPAT, as stored in the DB.
+ * @param onRowChange - Called immediately when the user changes a conformance
+ *   value so the parent can update its progress counters without waiting for a
+ *   save round-trip.
+ * @param onSaveRemarks - Called after a 500 ms debounce when the user finishes
+ *   typing in a remarks cell.
+ * @param onGenerateRow - Triggers AI generation for a single row.
+ * @param onGenerateAll - Triggers AI generation for every row in the table.
+ * @param generatingRowId - ID of the row currently being AI-generated (used to
+ *   show a spinner on that row only).
+ * @param isGeneratingAll - True while bulk AI generation is running; disables
+ *   per-row controls to avoid conflicting writes.
+ * @param readOnly - Hides edit controls for the published / view mode.
+ * @param aiEnabled - Shows AI controls when an AI provider key is configured.
+ * @param onCriterionClick - Opens the criterion detail panel when a code is clicked.
+ */
 export function VpatCriteriaTable({
   rows,
   onRowChange,
@@ -183,7 +213,9 @@ export function VpatCriteriaTable({
     });
   }, [rows, setValue, getValues]);
 
-  // Per-row debounce timers for remarks saves.
+  // Per-row debounce timers for remarks saves. Stored in a ref so adding or
+  // cancelling a timer never causes a re-render, and the cleanup on unmount
+  // prevents stale callbacks from firing after the component is gone.
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   useEffect(() => {
     const timers = saveTimers.current;
@@ -192,6 +224,8 @@ export function VpatCriteriaTable({
     };
   }, []);
 
+  // Reset the timer for this row on every keystroke so only the final value
+  // after the user pauses is written to the database.
   const scheduleRemarksSave = useCallback(
     (rowId: string, value: string) => {
       const existing = saveTimers.current.get(rowId);
