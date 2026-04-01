@@ -72,3 +72,17 @@ test('confirming delete calls API and navigates to assessment', async () => {
   expect(mockPush).toHaveBeenCalledWith('/projects/p1/assessments/a1');
   expect(mockToastSuccess).toHaveBeenCalledWith('Issue deleted');
 });
+
+test('calls toast.error when DELETE API returns { success: false }', async () => {
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    json: async () => ({ success: false, error: 'Not found' }),
+  });
+  render(<DeleteIssueButton {...defaultProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /delete/i }));
+  await userEvent.click(await screen.findByRole('button', { name: /delete issue/i }));
+  await waitFor(() => {
+    expect(mockToastError).toHaveBeenCalledWith('Failed to delete issue');
+  });
+  expect(mockPush).not.toHaveBeenCalled();
+  expect(mockToastSuccess).not.toHaveBeenCalled();
+});
