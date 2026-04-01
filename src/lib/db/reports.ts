@@ -50,6 +50,8 @@ function getAssessmentIds(reportId: string): string[] {
 
 type ReportRow = Omit<Report, 'assessment_ids' | 'content'> & { content: string | null };
 
+// WARNING: Makes a DB query internally via getAssessmentIds().
+// Do not call this in a loop — use the batch path in getReports() instead.
 function rowToReport(row: ReportRow): Report {
   return {
     ...row,
