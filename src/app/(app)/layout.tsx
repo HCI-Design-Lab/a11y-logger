@@ -6,7 +6,7 @@ import { getSetting } from '@/lib/db/settings';
 import { getSession } from '@/lib/auth/session';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const authEnabled = getSetting('auth_enabled') === 'true';
+  const authEnabled = Boolean(getSetting('auth_enabled'));
   if (authEnabled) {
     const userId = await getSession();
     if (!userId) redirect('/login');
