@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -165,7 +165,7 @@ export function ActivityChart() {
     fetchData(range);
   }, [range, fetchData]);
 
-  const tableData = bucketData(data, range);
+  const tableData = useMemo(() => bucketData(data, range), [data, range]);
 
   return (
     <Card className="h-full">
