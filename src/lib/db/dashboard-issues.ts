@@ -25,6 +25,13 @@ export interface SeverityBreakdown {
   total: number;
 }
 
+/**
+ * Counts issues grouped by severity, filtered by status and optionally by project.
+ *
+ * @param statuses - Array of issue statuses to include (default ['open']).
+ * @param projectId - Optional project UUID; omit to count across all projects.
+ * @returns Object with a per-severity breakdown and a total count.
+ */
 export async function getSeverityBreakdown(
   statuses: string[] = ['open'],
   projectId?: string
@@ -106,6 +113,11 @@ export interface RepeatOffender {
   issue_count: number;
 }
 
+/**
+ * Identifies WCAG criteria that appear across the most projects with open issues.
+ *
+ * @returns Array of repeat offender entries sorted by project_count then issue_count, each with the WCAG code, name, project count, and issue count.
+ */
 export async function getRepeatOffenders(): Promise<RepeatOffender[]> {
   const rows = await db()
     .select({
@@ -151,6 +163,11 @@ export interface EnvironmentEntry {
   count: number;
 }
 
+/**
+ * Counts open issues grouped by device_type and assistive_technology combination.
+ *
+ * @returns Array of environment entries sorted by count descending, each with device_type, assistive_technology, and count.
+ */
 export async function getEnvironmentBreakdown(): Promise<EnvironmentEntry[]> {
   const rows = await db()
     .select({
@@ -174,6 +191,11 @@ export interface TagFrequencyEntry {
   count: number;
 }
 
+/**
+ * Counts how often each tag appears across open issues.
+ *
+ * @returns Array of tag frequency entries sorted by count descending, each with the tag string and its count.
+ */
 export async function getTagFrequency(): Promise<TagFrequencyEntry[]> {
   const rows = await db()
     .select({ tags: issues.tags })
@@ -200,6 +222,13 @@ export async function getTagFrequency(): Promise<TagFrequencyEntry[]> {
     .sort((a, b) => b.count - a.count);
 }
 
+/**
+ * Counts WCAG code occurrences for a specific POUR principle across issues matching the given statuses.
+ *
+ * @param principle - The WCAG POUR principle to filter codes by ('perceivable', 'operable', 'understandable', or 'robust').
+ * @param statuses - Array of issue statuses to include (default ['open']).
+ * @returns Array of WCAG criteria counts sorted by count descending, each with code, name, and count.
+ */
 export async function getWcagCriteriaCounts(
   principle: WcagPrinciple,
   statuses: string[] = ['open']

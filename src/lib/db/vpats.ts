@@ -117,11 +117,23 @@ function parseVpat(raw: VpatRow): Vpat {
   };
 }
 
+/**
+ * Retrieves a single VPAT by its ID.
+ *
+ * @param id - The UUID of the VPAT to retrieve.
+ * @returns The parsed VPAT record, or null if not found.
+ */
 export async function getVpat(id: string): Promise<Vpat | null> {
   const rows = db().select().from(vpats).where(eq(vpats.id, id)).limit(1).all();
   return rows[0] ? parseVpat(rows[0] as VpatRow) : null;
 }
 
+/**
+ * Retrieves VPATs, optionally filtered by project, ordered by creation date descending.
+ *
+ * @param projectId - Optional project UUID; omit to retrieve VPATs across all projects.
+ * @returns Array of parsed VPAT records.
+ */
 export async function getVpats(projectId?: string): Promise<Vpat[]> {
   const rows = projectId
     ? db()
@@ -143,6 +155,12 @@ export interface VpatWithProgress extends VpatWithProject {
   total: number;
 }
 
+/**
+ * Retrieves VPATs with per-VPAT criterion row progress (resolved vs. total), optionally scoped to a project.
+ *
+ * @param projectId - Optional project UUID; omit to retrieve across all projects.
+ * @returns Array of VPATs each including project_name, resolved count, and total criterion row count.
+ */
 export async function getVpatsWithProgress(projectId?: string): Promise<VpatWithProgress[]> {
   type ProgressRow = VpatRow & { project_name: string | null; resolved: number; total: number };
 
@@ -188,6 +206,12 @@ export async function getVpatsWithProgress(projectId?: string): Promise<VpatWith
   }));
 }
 
+/**
+ * Retrieves VPATs joined with their parent project name, optionally scoped to a project.
+ *
+ * @param projectId - Optional project UUID; omit to retrieve across all projects.
+ * @returns Array of VPATs each including project_name (null if project was deleted).
+ */
 export async function getVpatsWithProject(projectId?: string): Promise<VpatWithProject[]> {
   type WithProjectRow = VpatRow & { project_name: string | null };
 
@@ -224,6 +248,12 @@ export async function getVpatsWithProject(projectId?: string): Promise<VpatWithP
   }));
 }
 
+/**
+ * Creates a new VPAT and auto-populates criterion rows based on the chosen edition and product scope.
+ *
+ * @param input - VPAT creation parameters including project_id, title, edition, WCAG version/level, and product_scope.
+ * @returns The newly created VPAT record.
+ */
 export async function createVpat(input: CreateVpatParams): Promise<Vpat> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -285,6 +315,12 @@ export interface ImportVpatInput {
   }>;
 }
 
+/**
+ * Creates a VPAT from an imported OpenACR data structure, inserting criterion rows as provided.
+ *
+ * @param input - Import payload including project_id, title, edition, and an array of criterion rows with conformance data.
+ * @returns The newly created VPAT record.
+ */
 export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpat> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -313,6 +349,13 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
   return (await getVpat(id))!;
 }
 
+/**
+ * Updates a VPAT's title.
+ *
+ * @param id - The UUID of the VPAT to update.
+ * @param input - Update payload; currently only title is updatable via this function.
+ * @returns The updated VPAT record, or null if not found.
+ */
 export async function updateVpat(id: string, input: UpdateVpatInput): Promise<Vpat | null> {
   const existing = await getVpat(id);
   if (!existing) return null;
@@ -325,6 +368,12 @@ export async function updateVpat(id: string, input: UpdateVpatInput): Promise<Vp
   return getVpat(id);
 }
 
+/**
+ * Permanently deletes a VPAT and its criterion rows.
+ *
+ * @param id - The UUID of the VPAT to delete.
+ * @returns True if the VPAT was deleted, false if not found.
+ */
 export async function deleteVpat(id: string): Promise<boolean> {
   const existing = await getVpat(id);
   if (!existing) return false;
@@ -332,6 +381,15 @@ export async function deleteVpat(id: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Marks a VPAT as reviewed after confirming all criterion rows have been evaluated.
+ *
+ * @param id - The UUID of the VPAT to review.
+ * @param reviewerName - Display name of the person completing the review.
+ * @returns The updated VPAT record with status 'reviewed'.
+ * @throws {VpatNotFoundError} If the VPAT does not exist.
+ * @throws {UnresolvedRowsError} If any criterion rows are still 'not_evaluated'.
+ */
 export async function reviewVpat(id: string, reviewerName: string): Promise<Vpat> {
   const existing = await getVpat(id);
   if (!existing) throw new VpatNotFoundError(id);
@@ -346,6 +404,15 @@ export async function reviewVpat(id: string, reviewerName: string): Promise<Vpat
   return (await getVpat(id))!;
 }
 
+/**
+ * Publishes a reviewed VPAT, increments its version_number, and creates an immutable snapshot.
+ *
+ * @param id - The UUID of the VPAT to publish.
+ * @returns The updated VPAT record with status 'published' and incremented version.
+ * @throws {VpatNotFoundError} If the VPAT does not exist.
+ * @throws {UnresolvedRowsError} If any criterion rows are still 'not_evaluated'.
+ * @throws {NotReviewedError} If the VPAT status is not 'reviewed'.
+ */
 export async function publishVpat(id: string): Promise<Vpat> {
   const existing = await getVpat(id);
   if (!existing) throw new VpatNotFoundError(id);
@@ -391,6 +458,14 @@ export async function publishVpat(id: string): Promise<Vpat> {
   return published;
 }
 
+/**
+ * Reverts a published VPAT back to 'draft' status.
+ *
+ * @param id - The UUID of the VPAT to unpublish.
+ * @returns The updated VPAT record with status 'draft'.
+ * @throws {VpatNotFoundError} If the VPAT does not exist.
+ * @throws {NotPublishedError} If the VPAT is not currently published.
+ */
 export async function unpublishVpat(id: string): Promise<Vpat> {
   const existing = await getVpat(id);
   if (!existing) throw new VpatNotFoundError(id);

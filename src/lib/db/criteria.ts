@@ -116,6 +116,18 @@ function computeAutoNotApplicable(criterion: Criterion, productScope: string[]):
   return false;
 }
 
+/**
+ * Retrieves all applicable accessibility criteria for a given VPAT edition, grouped into sections.
+ * WCAG criteria are grouped by level (A/AA/AAA); non-WCAG criteria are grouped by chapter/clause.
+ * Criteria in software-only sections are automatically marked as not-applicable when the product scope
+ * does not include desktop or mobile software.
+ *
+ * @param edition - The VPAT standard edition ('WCAG', '508', 'EU', or 'INT').
+ * @param productScope - Array of product type strings (e.g. ['web', 'software-desktop']).
+ * @param wcagVersion - The WCAG version ceiling to include ('2.0', '2.1', or '2.2').
+ * @param wcagLevel - The WCAG conformance level ceiling to include ('A', 'AA', or 'AAA').
+ * @returns Array of criteria sections each containing a label and the matching criteria records.
+ */
 export async function getCriteriaForEdition(
   edition: StandardEdition,
   productScope: string[],
@@ -224,6 +236,12 @@ export async function getCriteriaForEdition(
   return [...wcagSections, ...nonWcagSections];
 }
 
+/**
+ * Retrieves a single criterion by its ID.
+ *
+ * @param id - The UUID of the criterion to retrieve.
+ * @returns The parsed criterion record, or null if not found.
+ */
 export async function getCriterion(id: string): Promise<Criterion | null> {
   const rows = await db().select().from(criteria).where(eq(criteria.id, id)).limit(1);
   return rows[0] ? parseCriterion(rows[0] as CriterionDbRow) : null;

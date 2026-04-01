@@ -31,6 +31,12 @@ export interface Report {
   assessment_ids: string[]; // derived from report_assessments
 }
 
+/**
+ * Safely parses a JSON-serialized ReportContent string.
+ *
+ * @param content - JSON string from the reports.content column.
+ * @returns Parsed ReportContent object, or an empty object on parse failure.
+ */
 export function parseReportContent(content: string): ReportContent {
   try {
     return JSON.parse(content) as ReportContent;
@@ -60,12 +66,23 @@ function rowToReport(row: ReportRow): Report {
   };
 }
 
+/**
+ * Retrieves a single report by its ID, including linked assessment IDs.
+ *
+ * @param id - The UUID of the report to retrieve.
+ * @returns The report record with assessment_ids, or null if not found.
+ */
 export async function getReport(id: string): Promise<Report | null> {
   const rows = db().select().from(reports).where(eq(reports.id, id)).limit(1).all();
   if (!rows[0]) return null;
   return rowToReport(rows[0] as ReportRow);
 }
 
+/**
+ * Retrieves all reports ordered by creation date descending, with linked assessment IDs batch-fetched.
+ *
+ * @returns Array of report records each including assessment_ids.
+ */
 export async function getReports(): Promise<Report[]> {
   const rows = db()
     .select()
@@ -103,6 +120,12 @@ export async function getReports(): Promise<Report[]> {
   }));
 }
 
+/**
+ * Creates a new report and links it to the specified assessments.
+ *
+ * @param input - Validated report creation payload including title, content, and assessment_ids.
+ * @returns The newly created report record including linked assessment_ids.
+ */
 export async function createReport(input: CreateReportInput): Promise<Report> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -128,6 +151,14 @@ export async function createReport(input: CreateReportInput): Promise<Report> {
   return (await getReport(id))!;
 }
 
+/**
+ * Updates a draft report's title, content, and/or linked assessments.
+ * Published reports are immutable and will return null.
+ *
+ * @param id - The UUID of the report to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @returns The updated report record, or null if not found or the report is published.
+ */
 export async function updateReport(id: string, input: UpdateReportInput): Promise<Report | null> {
   const existing = await getReport(id);
   if (!existing) return null;
@@ -161,6 +192,12 @@ export async function updateReport(id: string, input: UpdateReportInput): Promis
   return getReport(id);
 }
 
+/**
+ * Permanently deletes a report.
+ *
+ * @param id - The UUID of the report to delete.
+ * @returns True if the report was deleted, false if it was not found.
+ */
 export async function deleteReport(id: string): Promise<boolean> {
   const existing = await getReport(id);
   if (!existing) return false;
@@ -168,6 +205,12 @@ export async function deleteReport(id: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Publishes a draft report by setting its status to 'published' and recording published_at.
+ *
+ * @param id - The UUID of the report to publish.
+ * @returns The updated report record, or null if not found. Returns the existing record unchanged if already published.
+ */
 export async function publishReport(id: string): Promise<Report | null> {
   const existing = await getReport(id);
   if (!existing) return null;
@@ -184,6 +227,12 @@ export async function publishReport(id: string): Promise<Report | null> {
   return getReport(id);
 }
 
+/**
+ * Reverts a published report back to 'draft' status, clearing published_at.
+ *
+ * @param id - The UUID of the report to unpublish.
+ * @returns The updated report record, or null if not found. Returns the existing record unchanged if already a draft.
+ */
 export async function unpublishReport(id: string): Promise<Report | null> {
   const existing = await getReport(id);
   if (!existing) return null;
@@ -200,6 +249,12 @@ export async function unpublishReport(id: string): Promise<Report | null> {
   return getReport(id);
 }
 
+/**
+ * Retrieves all issues from the assessments linked to a report.
+ *
+ * @param reportId - The UUID of the report whose linked assessments' issues should be fetched.
+ * @returns Array of issues enriched with project and assessment context, ordered by creation date descending.
+ */
 export async function getReportIssues(reportId: string): Promise<IssueWithContext[]> {
   // Get the assessment IDs linked to this report
   const assessmentIds = getAssessmentIds(reportId);
@@ -265,6 +320,12 @@ export interface ReportStats {
   wcagCriteriaCounts: Array<{ code: string; name: string | null; count: number }>;
 }
 
+/**
+ * Computes aggregate statistics for a report: total issue count, severity breakdown, and WCAG criteria counts.
+ *
+ * @param reportId - The UUID of the report to compute stats for.
+ * @returns Object containing total, severityBreakdown, and wcagCriteriaCounts sorted by frequency.
+ */
 export async function getReportStats(reportId: string): Promise<ReportStats> {
   const issueList = await getReportIssues(reportId);
   const severityBreakdown = { critical: 0, high: 0, medium: 0, low: 0 };

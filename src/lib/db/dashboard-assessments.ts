@@ -17,6 +17,11 @@ export interface DashboardStats {
   severity_breakdown: { critical: number; high: number; medium: number; low: number };
 }
 
+/**
+ * Retrieves high-level counts for all entities in the database, plus a total severity breakdown.
+ *
+ * @returns Object with total counts for projects, assessments, issues, reports, and VPATs, and a severity breakdown across all issues.
+ */
 export async function getDashboardStats(): Promise<DashboardStats> {
   const [projectCount] = await db()
     .select({ n: sql<number>`COUNT(*)`.as('n') })
@@ -67,6 +72,12 @@ export interface ActionableStats {
   open_issues_total: number;
 }
 
+/**
+ * Retrieves actionable dashboard metrics focused on work-in-progress and urgency.
+ *
+ * @returns Object with open critical issue count, in-progress assessment count, issues resolved this month,
+ *          active and total project counts, open severity breakdown, and open issue total.
+ */
 export async function getActionableStats(): Promise<ActionableStats> {
   const [criticalCount] = await db()
     .select({ n: sql<number>`COUNT(*)`.as('n') })

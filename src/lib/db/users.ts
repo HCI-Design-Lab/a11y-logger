@@ -28,6 +28,11 @@ export interface UserWithHash extends User {
 
 const BCRYPT_ROUNDS = 12;
 
+/**
+ * Retrieves all users ordered by creation date ascending, excluding password hashes.
+ *
+ * @returns Array of user records with id, username, role, and timestamps.
+ */
 export async function getUsers(): Promise<User[]> {
   const rows = await db()
     .select({
@@ -42,6 +47,12 @@ export async function getUsers(): Promise<User[]> {
   return rows as User[];
 }
 
+/**
+ * Retrieves a single user by their ID, excluding the password hash.
+ *
+ * @param id - The UUID of the user to retrieve.
+ * @returns The user record, or null if not found.
+ */
 export async function getUser(id: string): Promise<User | null> {
   const rows = await db()
     .select({
@@ -57,11 +68,24 @@ export async function getUser(id: string): Promise<User | null> {
   return (rows[0] as User) ?? null;
 }
 
+/**
+ * Retrieves a user by username, including the password hash for authentication purposes.
+ * Do not expose the returned record to API responses.
+ *
+ * @param username - The exact username to look up.
+ * @returns The full user record including password_hash, or null if not found.
+ */
 export async function getUserByUsername(username: string): Promise<UserWithHash | null> {
   const rows = await db().select().from(users).where(eq(users.username, username)).limit(1);
   return (rows[0] as UserWithHash) ?? null;
 }
 
+/**
+ * Creates a new user with a bcrypt-hashed password.
+ *
+ * @param input - Validated user creation payload including username, password (plaintext), and optional role.
+ * @returns The newly created user record excluding the password hash.
+ */
 export async function createUser(input: CreateUserInput): Promise<User> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -81,6 +105,14 @@ export async function createUser(input: CreateUserInput): Promise<User> {
   return (await getUser(id))!;
 }
 
+/**
+ * Updates an existing user's username, password, and/or role.
+ * Passwords are re-hashed with bcrypt before storage.
+ *
+ * @param id - The UUID of the user to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @returns The updated user record excluding the password hash, or null if not found.
+ */
 export async function updateUser(id: string, input: UpdateUserInput): Promise<User | null> {
   const existing = await getUser(id);
   if (!existing) return null;
@@ -105,6 +137,12 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   return getUser(id);
 }
 
+/**
+ * Permanently deletes a user.
+ *
+ * @param id - The UUID of the user to delete.
+ * @returns True if the user was deleted, false if not found.
+ */
 export async function deleteUser(id: string): Promise<boolean> {
   const result = db().delete(users).where(eq(users.id, id)).run();
   return result.changes > 0;

@@ -29,11 +29,22 @@ export interface ProjectWithCounts extends Project {
   issue_count: number;
 }
 
+/**
+ * Retrieves a single project by its ID.
+ *
+ * @param id - The UUID of the project to retrieve.
+ * @returns The project record, or null if not found.
+ */
 export async function getProject(id: string): Promise<Project | null> {
   const rows = await db().select().from(projects).where(eq(projects.id, id)).limit(1);
   return (rows[0] as Project) ?? null;
 }
 
+/**
+ * Retrieves all projects ordered by creation date descending, with aggregated counts.
+ *
+ * @returns Array of project records each including assessment_count and issue_count.
+ */
 export async function getProjects(): Promise<ProjectWithCounts[]> {
   const rows = await db()
     .select({
@@ -57,6 +68,12 @@ export async function getProjects(): Promise<ProjectWithCounts[]> {
   return rows as ProjectWithCounts[];
 }
 
+/**
+ * Creates a new project in the database.
+ *
+ * @param input - Validated project creation payload (name, description, product_url, status).
+ * @returns The newly created project record including generated id and timestamps.
+ */
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -74,6 +91,13 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
   return (await getProject(id))!;
 }
 
+/**
+ * Updates an existing project with the provided fields.
+ *
+ * @param id - The UUID of the project to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @returns The updated project record, or null if the project does not exist.
+ */
 export async function updateProject(
   id: string,
   input: UpdateProjectInput
@@ -100,6 +124,12 @@ export async function updateProject(
   return getProject(id);
 }
 
+/**
+ * Permanently deletes a project and its cascade-deleted children.
+ *
+ * @param id - The UUID of the project to delete.
+ * @returns True if the project was deleted, false if it was not found.
+ */
 export async function deleteProject(id: string): Promise<boolean> {
   const existing = await getProject(id);
   if (!existing) return false;
@@ -107,6 +137,12 @@ export async function deleteProject(id: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Sets a project's status to 'archived'.
+ *
+ * @param id - The UUID of the project to archive.
+ * @returns The updated project record, or null if the project does not exist.
+ */
 export async function archiveProject(id: string): Promise<Project | null> {
   return updateProject(id, { status: 'archived' });
 }

@@ -118,6 +118,12 @@ const joinedSelect = {
   updated_at: vpatCriterionRows.updated_at,
 };
 
+/**
+ * Bulk-inserts criterion rows for a VPAT in a single database write.
+ *
+ * @param vpatId - The UUID of the parent VPAT.
+ * @param inputs - Array of criterion row creation inputs, each with criterion_id, conformance, and optional remarks.
+ */
 export function createCriterionRows(vpatId: string, inputs: CreateCriterionRowInput[]): void {
   if (inputs.length === 0) return;
   const now = new Date().toISOString();
@@ -136,6 +142,12 @@ export function createCriterionRows(vpatId: string, inputs: CreateCriterionRowIn
     .run();
 }
 
+/**
+ * Retrieves all criterion rows for a VPAT, joined with their criterion metadata, ordered by sort_order.
+ *
+ * @param vpatId - The UUID of the VPAT whose rows should be retrieved.
+ * @returns Array of fully populated criterion row records.
+ */
 export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow[]> {
   const rows = db()
     .select(joinedSelect)
@@ -147,6 +159,13 @@ export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow
   return rows.map(parseRow);
 }
 
+/**
+ * Retrieves criterion rows for a VPAT, each annotated with the count of project issues referencing that criterion's WCAG code.
+ *
+ * @param vpatId - The UUID of the VPAT whose rows should be retrieved.
+ * @param projectId - The UUID of the project used to scope the issue count subquery.
+ * @returns Array of criterion row records including an issue_count for each criterion.
+ */
 export async function getCriterionRowsWithIssueCounts(
   vpatId: string,
   projectId: string
@@ -172,6 +191,12 @@ export async function getCriterionRowsWithIssueCounts(
   return rows.map(parseRow);
 }
 
+/**
+ * Retrieves a single criterion row by its ID, joined with its criterion metadata.
+ *
+ * @param rowId - The UUID of the criterion row to retrieve.
+ * @returns The criterion row record, or null if not found.
+ */
 export async function getCriterionRow(rowId: string): Promise<VpatCriterionRow | null> {
   const row = db()
     .select(joinedSelect)
@@ -183,6 +208,14 @@ export async function getCriterionRow(rowId: string): Promise<VpatCriterionRow |
   return row ? parseRow(row) : null;
 }
 
+/**
+ * Updates a criterion row's conformance, remarks, or AI suggestion fields.
+ * Automatically resets a 'reviewed' parent VPAT to 'draft' if conformance or remarks change.
+ *
+ * @param rowId - The UUID of the criterion row to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @returns The updated criterion row record, or null if not found.
+ */
 export async function updateCriterionRow(
   rowId: string,
   input: UpdateCriterionRowInput
@@ -248,6 +281,12 @@ export async function updateCriterionRow(
   return getCriterionRow(rowId);
 }
 
+/**
+ * Counts the number of criterion rows for a VPAT that still have conformance set to 'not_evaluated'.
+ *
+ * @param vpatId - The UUID of the VPAT to inspect.
+ * @returns The count of unresolved (not_evaluated) rows.
+ */
 export function countUnresolvedRows(vpatId: string): number {
   const notEvaluated = db()
     .select({ count: sql<number>`COUNT(*)`.as('count') })
@@ -259,6 +298,13 @@ export function countUnresolvedRows(vpatId: string): number {
   return notEvaluated.count;
 }
 
+/**
+ * Returns the total and resolved criterion row counts for a VPAT.
+ * A row is considered resolved when its conformance is anything other than 'not_evaluated'.
+ *
+ * @param vpatId - The UUID of the VPAT to check.
+ * @returns Object with total rows and resolved rows counts.
+ */
 export async function getVpatProgress(
   vpatId: string
 ): Promise<{ resolved: number; total: number }> {

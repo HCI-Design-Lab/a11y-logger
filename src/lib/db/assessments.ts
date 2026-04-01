@@ -34,11 +34,23 @@ export interface AssessmentWithProject extends AssessmentWithCounts {
   project_name: string;
 }
 
+/**
+ * Retrieves a single assessment by its ID.
+ *
+ * @param id - The UUID of the assessment to retrieve.
+ * @returns The assessment record, or null if not found.
+ */
 export async function getAssessment(id: string): Promise<Assessment | null> {
   const rows = await db().select().from(assessments).where(eq(assessments.id, id)).limit(1);
   return (rows[0] as Assessment) ?? null;
 }
 
+/**
+ * Retrieves all assessments for a given project, ordered by creation date descending.
+ *
+ * @param projectId - The UUID of the parent project to filter by.
+ * @returns Array of assessments each including an issue_count aggregate.
+ */
 export async function getAssessments(projectId: string): Promise<AssessmentWithCounts[]> {
   const rows = await db()
     .select({
@@ -63,6 +75,13 @@ export async function getAssessments(projectId: string): Promise<AssessmentWithC
   return rows as AssessmentWithCounts[];
 }
 
+/**
+ * Creates a new assessment within the specified project.
+ *
+ * @param projectId - The UUID of the parent project.
+ * @param input - Validated assessment creation payload (name, description, dates, status, assigned_to).
+ * @returns The newly created assessment record including generated id and timestamps.
+ */
 export async function createAssessment(
   projectId: string,
   input: CreateAssessmentInput
@@ -86,6 +105,13 @@ export async function createAssessment(
   return (await getAssessment(id))!;
 }
 
+/**
+ * Updates an existing assessment with the provided fields.
+ *
+ * @param id - The UUID of the assessment to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @returns The updated assessment record, or null if the assessment does not exist.
+ */
 export async function updateAssessment(
   id: string,
   input: UpdateAssessmentInput
@@ -124,6 +150,12 @@ export async function updateAssessment(
   return getAssessment(id);
 }
 
+/**
+ * Permanently deletes an assessment and its associated issues.
+ *
+ * @param id - The UUID of the assessment to delete.
+ * @returns True if the assessment was deleted, false if it was not found.
+ */
 export async function deleteAssessment(id: string): Promise<boolean> {
   const existing = await getAssessment(id);
   if (!existing) return false;
@@ -131,6 +163,11 @@ export async function deleteAssessment(id: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Retrieves all assessments across every project, ordered by creation date descending.
+ *
+ * @returns Array of assessments each including issue_count and the parent project_name.
+ */
 export async function getAllAssessments(): Promise<AssessmentWithProject[]> {
   const rows = await db()
     .select({

@@ -62,6 +62,12 @@ export interface IssueRow extends Omit<
   tags: string;
 }
 
+/**
+ * Converts a raw SQLite row (with JSON string fields) into a typed Issue record.
+ *
+ * @param row - Raw database row where array fields are stored as JSON strings.
+ * @returns Fully deserialized Issue with parsed array fields.
+ */
 export function deserializeIssue(row: IssueRow): Issue {
   return {
     ...row,
@@ -81,6 +87,11 @@ export interface IssueFilters {
   tag?: string;
 }
 
+/**
+ * Retrieves all issues across every project and assessment, ordered by creation date descending.
+ *
+ * @returns Array of issues each enriched with project_id, project_name, and assessment_name.
+ */
 export async function getAllIssues(): Promise<IssueWithContext[]> {
   type IssueWithContextRow = IssueRow & {
     project_id: string;
@@ -135,11 +146,24 @@ export async function getAllIssues(): Promise<IssueWithContext[]> {
   }));
 }
 
+/**
+ * Retrieves a single issue by its ID.
+ *
+ * @param id - The UUID of the issue to retrieve.
+ * @returns The deserialized issue record, or null if not found.
+ */
 export async function getIssue(id: string): Promise<Issue | null> {
   const rows = db().select().from(issues).where(eq(issues.id, id)).limit(1).all();
   return rows[0] ? deserializeIssue(rows[0] as IssueRow) : null;
 }
 
+/**
+ * Retrieves issues for a given assessment, with optional filtering.
+ *
+ * @param assessmentId - The UUID of the parent assessment.
+ * @param filters - Optional filters for severity, status, a WCAG code, or a tag.
+ * @returns Array of matching issues ordered by creation date descending.
+ */
 export async function getIssues(assessmentId: string, filters?: IssueFilters): Promise<Issue[]> {
   const conditions = [eq(issues.assessment_id, assessmentId)];
 
@@ -158,6 +182,13 @@ export async function getIssues(assessmentId: string, filters?: IssueFilters): P
   return rows.map((row) => deserializeIssue(row as IssueRow));
 }
 
+/**
+ * Creates a new issue within the specified assessment.
+ *
+ * @param assessmentId - The UUID of the parent assessment.
+ * @param input - Validated issue creation payload including title, severity, WCAG codes, and media.
+ * @returns The newly created and deserialized issue record.
+ */
 export async function createIssue(assessmentId: string, input: CreateIssueInput): Promise<Issue> {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -193,6 +224,15 @@ export async function createIssue(assessmentId: string, input: CreateIssueInput)
   return (await getIssue(id))!;
 }
 
+/**
+ * Updates an existing issue with the provided fields.
+ * Automatically manages resolved_at and resolved_by when status transitions to/from 'resolved'.
+ *
+ * @param id - The UUID of the issue to update.
+ * @param input - Partial update payload; only provided fields are written.
+ * @param resolvedBy - Optional identifier recorded when the issue is first marked resolved.
+ * @returns The updated and deserialized issue record, or null if not found.
+ */
 export async function updateIssue(
   id: string,
   input: UpdateIssueInput,
@@ -251,6 +291,12 @@ export async function updateIssue(
   return getIssue(id);
 }
 
+/**
+ * Permanently deletes an issue.
+ *
+ * @param id - The UUID of the issue to delete.
+ * @returns True if the issue was deleted, false if it was not found.
+ */
 export async function deleteIssue(id: string): Promise<boolean> {
   const existing = await getIssue(id);
   if (!existing) return false;
@@ -258,10 +304,23 @@ export async function deleteIssue(id: string): Promise<boolean> {
   return true;
 }
 
+/**
+ * Marks an issue as resolved and records who resolved it.
+ *
+ * @param id - The UUID of the issue to resolve.
+ * @param resolvedBy - Identifier (e.g. username) of the person resolving the issue.
+ * @returns The updated issue record, or null if not found.
+ */
 export async function resolveIssue(id: string, resolvedBy: string): Promise<Issue | null> {
   return updateIssue(id, { status: 'resolved' }, resolvedBy);
 }
 
+/**
+ * Retrieves all issues belonging to a project, across all of its assessments.
+ *
+ * @param projectId - The UUID of the project to filter by.
+ * @returns Array of issues ordered by creation date descending.
+ */
 export async function getIssuesByProject(projectId: string): Promise<Issue[]> {
   const rows = db()
     .select({
@@ -302,6 +361,13 @@ export async function getIssuesByProject(projectId: string): Promise<Issue[]> {
   return rows.map((row) => deserializeIssue(row as IssueRow));
 }
 
+/**
+ * Retrieves all issues in a project that reference a specific WCAG criterion code.
+ *
+ * @param projectId - The UUID of the project to filter by.
+ * @param wcagCode - The WCAG success criterion code to match (e.g. '1.4.3').
+ * @returns Array of matching issues ordered by creation date descending.
+ */
 export async function getIssuesByProjectAndWcagCode(
   projectId: string,
   wcagCode: string

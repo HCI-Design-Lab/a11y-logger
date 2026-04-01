@@ -28,6 +28,12 @@ function isSensitiveKey(key: string): key is (typeof SENSITIVE_KEYS)[number] {
   return (SENSITIVE_KEYS as readonly string[]).includes(key);
 }
 
+/**
+ * Retrieves a single setting value by key, automatically decrypting sensitive keys (e.g. API keys).
+ *
+ * @param key - The settings key to retrieve.
+ * @returns The parsed setting value, or null if the key does not exist or parsing fails.
+ */
 export function getSetting(key: string): SettingValue {
   const row = getDb().prepare('SELECT value FROM settings WHERE key = ?').get(key) as
     | SettingRow
@@ -49,6 +55,12 @@ export function getSetting(key: string): SettingValue {
   return parsed;
 }
 
+/**
+ * Persists a setting value, automatically encrypting sensitive keys (e.g. API keys) before storage.
+ *
+ * @param key - The settings key to write.
+ * @param value - The value to store; will be JSON-serialized.
+ */
 export function setSetting(key: string, value: SettingValue): void {
   let stored: SettingValue = value;
 
@@ -61,6 +73,11 @@ export function setSetting(key: string, value: SettingValue): void {
     .run(key, JSON.stringify(stored));
 }
 
+/**
+ * Retrieves all settings as a key-value map. Sensitive keys are returned as '[REDACTED]'.
+ *
+ * @returns Object mapping setting keys to their values, with sensitive fields redacted.
+ */
 export function getSettings(): Record<string, SettingValue> {
   const rows = getDb().prepare('SELECT key, value FROM settings').all() as SettingRow[];
   const result: Record<string, SettingValue> = {};
@@ -83,10 +100,19 @@ export function getSettings(): Record<string, SettingValue> {
   return result;
 }
 
+/**
+ * Removes a setting from the database by key.
+ *
+ * @param key - The settings key to delete.
+ */
 export function deleteSetting(key: string): void {
   getDb().prepare('DELETE FROM settings WHERE key = ?').run(key);
 }
 
+/**
+ * Inserts default setting values for any keys not already present in the settings table.
+ * Called during database initialization to ensure required settings always exist.
+ */
 export function seedDefaultSettings(): void {
   const db = getDb();
   const existing = new Set(

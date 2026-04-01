@@ -15,6 +15,12 @@ export interface ActivityItem {
   created_at: string;
 }
 
+/**
+ * Retrieves the most recently created projects and issues, merged and sorted by creation date.
+ *
+ * @param limit - Maximum number of activity items to return (default 10).
+ * @returns Array of activity items, each with id, type ('project' | 'issue'), title, and created_at.
+ */
 export async function getRecentActivity(limit = 10): Promise<ActivityItem[]> {
   const projectRows = await db()
     .select({
@@ -71,6 +77,12 @@ function rangeToStartDate(range: TimeRange): string {
   return now.toISOString().slice(0, 10);
 }
 
+/**
+ * Retrieves daily creation counts for projects, assessments, and issues over a given time range.
+ *
+ * @param range - Time range to query: '6m' (6 months), '3m' (3 months), '1m' (1 month), or '1w' (1 week).
+ * @returns Array of entries keyed by date string, each with counts for projects, assessments, and issues created on that day.
+ */
 export async function getTimeSeriesData(range: TimeRange): Promise<TimeSeriesEntry[]> {
   const startDate = rangeToStartDate(range);
 
