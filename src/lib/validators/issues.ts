@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { WCAG_CRITERION_CODES, SECTION_508_CRITERION_CODES, EN301549_CRITERION_CODES } from '@/lib/constants';
+import {
+  WCAG_CRITERION_CODES,
+  SECTION_508_CRITERION_CODES,
+  EN301549_CRITERION_CODES,
+} from '@/lib/constants';
 
 const IssueBaseSchema = z.object({
   title: z.string().min(1).max(300),
