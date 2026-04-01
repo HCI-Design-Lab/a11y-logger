@@ -1,3 +1,10 @@
+/**
+ * Issues API — /api/projects/[projectId]/assessments/[assessmentId]/issues
+ *
+ * GET  /api/projects/[projectId]/assessments/[assessmentId]/issues   List all issues for an assessment
+ * POST /api/projects/[projectId]/assessments/[assessmentId]/issues   Create a new issue
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';

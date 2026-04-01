@@ -1,3 +1,9 @@
+/**
+ * VPAT Unpublish API — /api/vpats/[id]/unpublish
+ *
+ * POST /api/vpats/[id]/unpublish   Revert a published VPAT back to draft status
+ */
+
 import { NextResponse } from 'next/server';
 import { unpublishVpat, VpatNotFoundError, NotPublishedError } from '@/lib/db/vpats';
 

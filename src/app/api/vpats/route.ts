@@ -1,3 +1,10 @@
+/**
+ * VPATs API — /api/vpats
+ *
+ * GET  /api/vpats   List all VPATs, optionally filtered by projectId
+ * POST /api/vpats   Create a new VPAT for a project
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject } from '@/lib/db/projects';
 import { getVpats, createVpat } from '@/lib/db/vpats';

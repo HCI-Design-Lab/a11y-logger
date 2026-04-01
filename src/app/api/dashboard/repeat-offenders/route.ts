@@ -1,3 +1,9 @@
+/**
+ * Dashboard Repeat Offenders API — /api/dashboard/repeat-offenders
+ *
+ * GET /api/dashboard/repeat-offenders   Get WCAG criteria with the highest issue counts
+ */
+
 import { NextResponse } from 'next/server';
 import { getRepeatOffenders } from '@/lib/db/dashboard';
 

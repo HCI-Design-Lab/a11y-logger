@@ -1,3 +1,9 @@
+/**
+ * VPAT Criterion Row API — /api/vpats/[id]/rows/[rowId]
+ *
+ * PATCH /api/vpats/[id]/rows/[rowId]   Update conformance status or remarks for a criterion row
+ */
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { updateCriterionRow, getCriterionRow } from '@/lib/db/vpat-criterion-rows';

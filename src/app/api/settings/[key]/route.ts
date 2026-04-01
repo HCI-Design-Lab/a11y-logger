@@ -1,3 +1,10 @@
+/**
+ * Setting API — /api/settings/[key]
+ *
+ * GET /api/settings/[key]   Get a single setting value by key
+ * PUT /api/settings/[key]   Update a single setting value by key
+ */
+
 import { NextResponse } from 'next/server';
 import { getSetting, setSetting } from '@/lib/db/settings';
 import { SENSITIVE_KEYS } from '@/lib/crypto';

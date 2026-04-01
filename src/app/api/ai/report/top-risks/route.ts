@@ -1,3 +1,9 @@
+/**
+ * AI Report Top Risks API — /api/ai/report/top-risks
+ *
+ * POST /api/ai/report/top-risks   Generate an AI top-risks section for a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';

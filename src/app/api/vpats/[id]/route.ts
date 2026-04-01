@@ -1,3 +1,11 @@
+/**
+ * VPAT API — /api/vpats/[id]
+ *
+ * GET    /api/vpats/[id]   Get a single VPAT with its criterion rows and issue counts
+ * PUT    /api/vpats/[id]   Update a VPAT's metadata
+ * DELETE /api/vpats/[id]   Delete a VPAT
+ */
+
 import { NextResponse } from 'next/server';
 import { getVpat, updateVpat, deleteVpat } from '@/lib/db/vpats';
 import { getCriterionRowsWithIssueCounts } from '@/lib/db/vpat-criterion-rows';

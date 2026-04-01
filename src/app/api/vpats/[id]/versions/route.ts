@@ -1,3 +1,9 @@
+/**
+ * VPAT Versions API — /api/vpats/[id]/versions
+ *
+ * GET /api/vpats/[id]/versions   List all published version snapshots for a VPAT
+ */
+
 import { NextResponse } from 'next/server';
 import { getVpat } from '@/lib/db/vpats';
 import { listVpatSnapshots } from '@/lib/db/vpat-snapshots';

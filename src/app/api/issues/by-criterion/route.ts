@@ -1,3 +1,9 @@
+/**
+ * Issues By Criterion API — /api/issues/by-criterion
+ *
+ * GET /api/issues/by-criterion   List issues for a project filtered by WCAG criterion code
+ */
+
 import { NextResponse } from 'next/server';
 import { getIssuesByProjectAndWcagCode } from '@/lib/db/issues';
 

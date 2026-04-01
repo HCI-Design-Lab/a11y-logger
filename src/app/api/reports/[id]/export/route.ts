@@ -1,3 +1,9 @@
+/**
+ * Report Export API — /api/reports/[id]/export
+ *
+ * GET /api/reports/[id]/export   Export a report as HTML, PDF, or DOCX (format query param)
+ */
+
 import { NextResponse } from 'next/server';
 import { getReport, getReportStats, getReportIssues } from '@/lib/db/reports';
 import { getProject } from '@/lib/db/projects';

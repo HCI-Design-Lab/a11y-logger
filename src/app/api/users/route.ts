@@ -1,3 +1,10 @@
+/**
+ * Users API — /api/users
+ *
+ * GET  /api/users   List all users (requires auth)
+ * POST /api/users   Create a new user (requires auth)
+ */
+
 import { NextResponse } from 'next/server';
 import { getUsers, createUser } from '@/lib/db/users';
 import { CreateUserSchema } from '@/lib/validators/users';

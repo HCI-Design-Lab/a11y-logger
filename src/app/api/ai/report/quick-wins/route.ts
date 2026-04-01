@@ -1,3 +1,9 @@
+/**
+ * AI Report Quick Wins API — /api/ai/report/quick-wins
+ *
+ * POST /api/ai/report/quick-wins   Generate an AI quick-wins section for a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';

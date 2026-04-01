@@ -1,3 +1,11 @@
+/**
+ * User API — /api/users/[id]
+ *
+ * GET    /api/users/[id]   Get a single user by ID
+ * PUT    /api/users/[id]   Update a user's details or password
+ * DELETE /api/users/[id]   Delete a user
+ */
+
 import { NextResponse } from 'next/server';
 import { getUser, updateUser, deleteUser } from '@/lib/db/users';
 import { UpdateUserSchema } from '@/lib/validators/users';

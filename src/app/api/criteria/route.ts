@@ -1,3 +1,9 @@
+/**
+ * Criteria API — /api/criteria
+ *
+ * GET /api/criteria   List WCAG/508/EU/INT criteria, filtered by edition, version, and level
+ */
+
 import { NextResponse } from 'next/server';
 import { getCriteriaForEdition } from '@/lib/db/criteria';
 

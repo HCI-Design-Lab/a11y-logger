@@ -1,3 +1,9 @@
+/**
+ * Issues Import API — /api/projects/[projectId]/assessments/[assessmentId]/issues/import
+ *
+ * POST /api/projects/[projectId]/assessments/[assessmentId]/issues/import   Bulk import issues from mapped CSV rows
+ */
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createIssue } from '@/lib/db/issues';

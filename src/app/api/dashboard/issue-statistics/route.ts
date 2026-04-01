@@ -1,3 +1,9 @@
+/**
+ * Dashboard Issue Statistics API — /api/dashboard/issue-statistics
+ *
+ * GET /api/dashboard/issue-statistics   Get issue counts broken down by severity
+ */
+
 import { NextResponse } from 'next/server';
 import { getSeverityBreakdown } from '@/lib/db/dashboard';
 

@@ -1,3 +1,9 @@
+/**
+ * AI Generate Issue API — /api/ai/generate-issue
+ *
+ * POST /api/ai/generate-issue   Generate or improve an issue description using AI
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 

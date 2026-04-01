@@ -1,3 +1,9 @@
+/**
+ * VPAT Version Export API — /api/vpats/[id]/versions/[version]/export
+ *
+ * GET /api/vpats/[id]/versions/[version]/export   Export a specific published VPAT version as DOCX or OpenACR YAML
+ */
+
 import { NextResponse } from 'next/server';
 import { getVpat } from '@/lib/db/vpats';
 import { getProject } from '@/lib/db/projects';

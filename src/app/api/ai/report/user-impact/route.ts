@@ -1,3 +1,9 @@
+/**
+ * AI Report User Impact API — /api/ai/report/user-impact
+ *
+ * POST /api/ai/report/user-impact   Generate an AI user-impact section for a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';

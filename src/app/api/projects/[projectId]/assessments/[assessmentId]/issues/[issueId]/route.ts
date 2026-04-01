@@ -1,3 +1,11 @@
+/**
+ * Issue API — /api/projects/[projectId]/assessments/[assessmentId]/issues/[issueId]
+ *
+ * GET    /api/projects/[projectId]/assessments/[assessmentId]/issues/[issueId]   Get a single issue
+ * PUT    /api/projects/[projectId]/assessments/[assessmentId]/issues/[issueId]   Update an issue
+ * DELETE /api/projects/[projectId]/assessments/[assessmentId]/issues/[issueId]   Delete an issue
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment } from '@/lib/db/assessments';

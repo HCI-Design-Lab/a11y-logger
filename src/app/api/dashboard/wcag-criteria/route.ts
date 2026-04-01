@@ -1,3 +1,9 @@
+/**
+ * Dashboard WCAG Criteria API — /api/dashboard/wcag-criteria
+ *
+ * GET /api/dashboard/wcag-criteria   Get issue counts per WCAG criterion, filtered by principle
+ */
+
 import { NextResponse } from 'next/server';
 import { getWcagCriteriaCounts } from '@/lib/db/dashboard';
 import { WCAG_PRINCIPLES, type WcagPrinciple } from '@/lib/wcag-criteria';

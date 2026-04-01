@@ -1,3 +1,9 @@
+/**
+ * Dashboard Environment API — /api/dashboard/environment
+ *
+ * GET /api/dashboard/environment   Get issue counts broken down by environment
+ */
+
 import { NextResponse } from 'next/server';
 import { getEnvironmentBreakdown } from '@/lib/db/dashboard';
 

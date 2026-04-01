@@ -1,3 +1,10 @@
+/**
+ * Settings API — /api/settings
+ *
+ * GET /api/settings   List all settings as key/value pairs
+ * PUT /api/settings   Batch update multiple settings at once
+ */
+
 import { NextResponse } from 'next/server';
 import { getSettings, setSetting } from '@/lib/db/settings';
 import { BatchUpdateSettingsSchema } from '@/lib/validators/settings';

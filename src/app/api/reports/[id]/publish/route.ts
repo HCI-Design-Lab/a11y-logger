@@ -1,3 +1,10 @@
+/**
+ * Report Publish API — /api/reports/[id]/publish
+ *
+ * POST   /api/reports/[id]/publish   Publish a report
+ * DELETE /api/reports/[id]/publish   Unpublish a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getReport, publishReport, unpublishReport } from '@/lib/db/reports';
 

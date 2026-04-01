@@ -1,3 +1,9 @@
+/**
+ * AI Report Executive Summary API — /api/ai/report/executive-summary
+ *
+ * POST /api/ai/report/executive-summary   Generate an AI executive summary for a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';

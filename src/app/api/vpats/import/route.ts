@@ -1,3 +1,9 @@
+/**
+ * VPAT Import API — /api/vpats/import
+ *
+ * POST /api/vpats/import   Import a VPAT from an OpenACR YAML file
+ */
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import jsYaml from 'js-yaml';

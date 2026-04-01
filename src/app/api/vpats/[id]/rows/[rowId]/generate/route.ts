@@ -1,3 +1,9 @@
+/**
+ * VPAT Row Generate API — /api/vpats/[id]/rows/[rowId]/generate
+ *
+ * POST /api/vpats/[id]/rows/[rowId]/generate   Generate AI narrative for a single VPAT criterion row
+ */
+
 import { NextResponse } from 'next/server';
 import { getCriterionRow, updateCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import { getVpat } from '@/lib/db/vpats';

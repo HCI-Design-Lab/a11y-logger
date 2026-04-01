@@ -1,3 +1,9 @@
+/**
+ * Report Issues API — /api/reports/[id]/issues
+ *
+ * GET /api/reports/[id]/issues   List all issues included in a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getReport, getReportIssues } from '@/lib/db/reports';
 

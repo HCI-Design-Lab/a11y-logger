@@ -1,3 +1,9 @@
+/**
+ * Dashboard Tags API — /api/dashboard/tags
+ *
+ * GET /api/dashboard/tags   Get tag usage frequency across all issues
+ */
+
 import { NextResponse } from 'next/server';
 import { getTagFrequency } from '@/lib/db/dashboard';
 

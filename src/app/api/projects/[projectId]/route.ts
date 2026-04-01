@@ -1,3 +1,11 @@
+/**
+ * Project API — /api/projects/[projectId]
+ *
+ * GET    /api/projects/[projectId]   Get a single project
+ * PUT    /api/projects/[projectId]   Update a project
+ * DELETE /api/projects/[projectId]   Delete a project
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject, updateProject, deleteProject } from '@/lib/db/projects';
 import { UpdateProjectSchema } from '@/lib/validators/projects';

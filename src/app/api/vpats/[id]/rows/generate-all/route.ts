@@ -1,3 +1,9 @@
+/**
+ * VPAT Generate All Rows API — /api/vpats/[id]/rows/generate-all
+ *
+ * POST /api/vpats/[id]/rows/generate-all   Generate AI narratives for all unevaluated criterion rows
+ */
+
 import { NextResponse } from 'next/server';
 import { getCriterionRows, updateCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import { getVpat } from '@/lib/db/vpats';

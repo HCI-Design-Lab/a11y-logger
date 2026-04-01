@@ -1,3 +1,9 @@
+/**
+ * Media Upload API — /api/media/upload
+ *
+ * POST /api/media/upload   Upload a media file (image or video) to local storage
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';

@@ -1,3 +1,11 @@
+/**
+ * Assessment API — /api/projects/[projectId]/assessments/[assessmentId]
+ *
+ * GET    /api/projects/[projectId]/assessments/[assessmentId]   Get a single assessment
+ * PUT    /api/projects/[projectId]/assessments/[assessmentId]   Update an assessment
+ * DELETE /api/projects/[projectId]/assessments/[assessmentId]   Delete an assessment
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject } from '@/lib/db/projects';
 import { getAssessment, updateAssessment, deleteAssessment } from '@/lib/db/assessments';

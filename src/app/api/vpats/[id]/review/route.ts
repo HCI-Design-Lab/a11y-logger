@@ -1,3 +1,9 @@
+/**
+ * VPAT Review API — /api/vpats/[id]/review
+ *
+ * POST /api/vpats/[id]/review   Mark a VPAT as reviewed with a reviewer name
+ */
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { reviewVpat, VpatNotFoundError, UnresolvedRowsError } from '@/lib/db/vpats';

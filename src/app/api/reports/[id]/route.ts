@@ -1,3 +1,11 @@
+/**
+ * Report API — /api/reports/[id]
+ *
+ * GET    /api/reports/[id]   Get a single report
+ * PUT    /api/reports/[id]   Update a report
+ * DELETE /api/reports/[id]   Delete a report
+ */
+
 import { NextResponse } from 'next/server';
 import { getReport, updateReport, deleteReport } from '@/lib/db/reports';
 import { UpdateReportSchema } from '@/lib/validators/reports';

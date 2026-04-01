@@ -1,3 +1,9 @@
+/**
+ * Project Issues API — /api/projects/[projectId]/issues
+ *
+ * GET /api/projects/[projectId]/issues   List all issues across all assessments for a project
+ */
+
 import { NextResponse } from 'next/server';
 import { getIssuesByProject } from '@/lib/db/issues';
 

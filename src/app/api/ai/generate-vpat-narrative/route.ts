@@ -1,3 +1,9 @@
+/**
+ * AI Generate VPAT Narrative API — /api/ai/generate-vpat-narrative
+ *
+ * POST /api/ai/generate-vpat-narrative   Generate a VPAT narrative section using AI
+ */
+
 import { NextResponse } from 'next/server';
 import { getAIProvider } from '@/lib/ai';
 import { getProject } from '@/lib/db/projects';

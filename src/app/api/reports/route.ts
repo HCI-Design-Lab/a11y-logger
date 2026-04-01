@@ -1,3 +1,10 @@
+/**
+ * Reports API — /api/reports
+ *
+ * GET  /api/reports   List all reports
+ * POST /api/reports   Create a new report
+ */
+
 import { NextResponse } from 'next/server';
 import { getReports, createReport } from '@/lib/db/reports';
 import { getAssessment } from '@/lib/db/assessments';

@@ -1,3 +1,9 @@
+/**
+ * VPAT Publish API — /api/vpats/[id]/publish
+ *
+ * POST /api/vpats/[id]/publish   Publish a reviewed VPAT, creating a versioned snapshot
+ */
+
 import { NextResponse } from 'next/server';
 import {
   publishVpat,

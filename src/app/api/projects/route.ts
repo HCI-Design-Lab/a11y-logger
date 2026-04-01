@@ -1,3 +1,10 @@
+/**
+ * Projects API — /api/projects
+ *
+ * GET  /api/projects   List all projects
+ * POST /api/projects   Create a new project
+ */
+
 import { NextResponse } from 'next/server';
 import { getProjects, createProject } from '@/lib/db/projects';
 import { CreateProjectSchema } from '@/lib/validators/projects';

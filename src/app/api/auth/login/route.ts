@@ -1,3 +1,9 @@
+/**
+ * Auth Login API — /api/auth/login
+ *
+ * POST /api/auth/login   Authenticate a user and create a session
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getUserByUsername } from '@/lib/db/users';

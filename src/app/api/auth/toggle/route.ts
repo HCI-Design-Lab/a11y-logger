@@ -1,3 +1,10 @@
+/**
+ * Auth Toggle API — /api/auth/toggle
+ *
+ * GET  /api/auth/toggle   Get whether authentication is currently enabled
+ * POST /api/auth/toggle   Enable or disable authentication
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getSetting, setSetting } from '@/lib/db/settings';
 import { getUsers } from '@/lib/db/users';

@@ -1,3 +1,10 @@
+/**
+ * Assessments API — /api/projects/[projectId]/assessments
+ *
+ * GET  /api/projects/[projectId]/assessments   List all assessments for a project
+ * POST /api/projects/[projectId]/assessments   Create a new assessment
+ */
+
 import { NextResponse } from 'next/server';
 import { getProject } from '@/lib/db/projects';
 import { getAssessments, createAssessment } from '@/lib/db/assessments';

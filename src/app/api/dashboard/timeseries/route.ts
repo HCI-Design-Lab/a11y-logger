@@ -1,3 +1,9 @@
+/**
+ * Dashboard Timeseries API — /api/dashboard/timeseries
+ *
+ * GET /api/dashboard/timeseries   Get issue counts over time for a given range (1w, 1m, 3m, 6m)
+ */
+
 import { NextResponse } from 'next/server';
 import { getTimeSeriesData, type TimeRange } from '@/lib/db/dashboard';
 

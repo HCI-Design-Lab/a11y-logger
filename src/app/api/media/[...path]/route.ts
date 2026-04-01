@@ -1,3 +1,9 @@
+/**
+ * Media Serve API — /api/media/[...path]
+ *
+ * GET /api/media/[...path]   Serve a locally stored media file by path
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';

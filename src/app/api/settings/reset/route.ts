@@ -1,3 +1,9 @@
+/**
+ * Settings Reset API — /api/settings/reset
+ *
+ * POST /api/settings/reset   Delete all user data and reset the database to a clean state
+ */
+
 import { NextResponse } from 'next/server';
 import { getDb, getDbClient } from '@/lib/db/client';
 

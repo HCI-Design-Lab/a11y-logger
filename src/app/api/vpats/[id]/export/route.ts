@@ -1,3 +1,9 @@
+/**
+ * VPAT Export API — /api/vpats/[id]/export
+ *
+ * GET /api/vpats/[id]/export   Export a VPAT as HTML, PDF, DOCX, or OpenACR YAML (format query param)
+ */
+
 import { NextResponse } from 'next/server';
 import { getVpat } from '@/lib/db/vpats';
 import { getProject } from '@/lib/db/projects';
