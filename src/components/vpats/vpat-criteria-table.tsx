@@ -3,35 +3,19 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormRegister } from 'react-hook-form';
-import { ChevronDown, ChevronUp, Info, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VpatAiPanel } from '@/components/vpats/vpat-ai-panel';
+import { VpatCriteriaRow } from '@/components/vpats/vpat-criteria-row';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
-
-const CONFORMANCE_OPTIONS = [
-  { value: 'not_evaluated', label: 'Not Evaluated' },
-  { value: 'supports', label: 'Supports' },
-  { value: 'partially_supports', label: 'Partial Support' },
-  { value: 'does_not_support', label: 'Does Not Support' },
-  { value: 'not_applicable', label: 'Not Applicable' },
-] as const;
 
 const SECTION_LABELS: Record<string, string> = {
   A: 'Table 1: Success Criteria, Level A',
@@ -57,184 +41,6 @@ const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
 const WCAG_PRINCIPLE_SECTIONS = new Set(['Perceivable', 'Operable', 'Understandable', 'Robust']);
 
 type RemarksFormValues = Record<string, string>;
-
-interface CriterionTableRowProps {
-  row: VpatCriterionRow;
-  isEven: boolean;
-  readOnly: boolean;
-  aiEnabled: boolean;
-  isGenerating: boolean;
-  isGeneratingAll: boolean;
-  onRowChange: (rowId: string, update: { conformance?: string }) => void;
-  scheduleRemarksSave: (rowId: string, value: string) => void;
-  onGenerateRow?: (rowId: string) => void;
-  onCriterionClick?: (criterionCode: string) => void;
-  onAiInfoClick?: (row: VpatCriterionRow) => void;
-  register: UseFormRegister<RemarksFormValues>;
-}
-
-const CriterionTableRow = memo(function CriterionTableRow({
-  row,
-  isEven,
-  readOnly,
-  aiEnabled,
-  isGenerating,
-  isGeneratingAll,
-  onRowChange,
-  scheduleRemarksSave,
-  onGenerateRow,
-  onCriterionClick,
-  onAiInfoClick,
-  register,
-}: CriterionTableRowProps) {
-  const isDisabled = isGenerating || isGeneratingAll;
-  const hasAiInfo = !!(
-    row.ai_confidence ||
-    row.ai_reasoning ||
-    row.ai_suggested_conformance ||
-    row.ai_referenced_issues
-  );
-
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }, []);
-
-  // Resize after row.remarks changes — rAF lets the parent's setValue update the DOM first.
-  useEffect(() => {
-    requestAnimationFrame(() => autoResize(textareaRef.current));
-  }, [row.remarks, autoResize]);
-
-  const isUnresolved = row.conformance === 'not_evaluated';
-  const conformanceLabel =
-    CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
-
-  return (
-    <>
-      <TableRow
-        data-testid={`row-${row.id}`}
-        className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
-      >
-        <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
-        <TableCell className="align-top pt-3">
-          {onCriterionClick ? (
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0 font-medium text-sm text-left"
-              onClick={() => onCriterionClick(row.criterion_code)}
-              aria-label={`View issues for ${row.criterion_code}`}
-            >
-              {row.criterion_name}
-              {!readOnly && row.issue_count > 0 && (
-                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                  ({row.issue_count})
-                </span>
-              )}
-            </Button>
-          ) : (
-            <div className="font-medium text-sm">
-              {row.criterion_name}
-              {!readOnly && row.issue_count > 0 && (
-                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                  ({row.issue_count})
-                </span>
-              )}
-            </div>
-          )}
-        </TableCell>
-        <TableCell className="align-top pt-3">
-          {readOnly ? (
-            <span className="text-sm">{conformanceLabel}</span>
-          ) : (
-            <Select
-              value={row.conformance}
-              onValueChange={(v) => onRowChange(row.id, { conformance: v })}
-              disabled={isDisabled}
-            >
-              <SelectTrigger
-                className="h-8 text-sm"
-                aria-label={`Conformance for ${row.criterion_code}`}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CONFORMANCE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </TableCell>
-        <TableCell className="align-top pt-2">
-          {readOnly ? (
-            <span className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {row.remarks || '—'}
-            </span>
-          ) : (
-            <Textarea
-              {...(() => {
-                const { ref, ...rest } = register(row.id, {
-                  onChange: (e) => scheduleRemarksSave(row.id, e.target.value),
-                });
-                return {
-                  ...rest,
-                  ref: (el: HTMLTextAreaElement | null) => {
-                    ref(el);
-                    textareaRef.current = el;
-                  },
-                };
-              })()}
-              className="text-sm min-h-10 overflow-hidden"
-              style={{ resize: 'vertical' }}
-              placeholder="Add remarks…"
-              disabled={isDisabled}
-              onInput={(e) => autoResize(e.currentTarget)}
-              aria-label={`Remarks for ${row.criterion_code}`}
-            />
-          )}
-        </TableCell>
-        {aiEnabled && !readOnly && (
-          <TableCell className="align-top pt-3 text-center">
-            <div className="flex items-center justify-center gap-1">
-              <Button
-                type="button"
-                variant="ai"
-                size="sm"
-                onClick={() => onGenerateRow?.(row.id)}
-                disabled={isDisabled}
-                aria-label={
-                  isGenerating
-                    ? `Generating for ${row.criterion_code}`
-                    : `Generate for ${row.criterion_code}`
-                }
-              >
-                <Sparkles />
-                {isGenerating ? 'Generating…' : 'Generate'}
-              </Button>
-              {hasAiInfo && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onAiInfoClick?.(row)}
-                  aria-label={`AI info for ${row.criterion_code}`}
-                >
-                  <Info className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </TableCell>
-        )}
-      </TableRow>
-    </>
-  );
-});
 
 interface CriterionSectionProps {
   section: string;
@@ -310,7 +116,7 @@ const CriterionSection = memo(function CriterionSection({
             </TableHeader>
             <TableBody>
               {sectionRows.map((row, i) => (
-                <CriterionTableRow
+                <VpatCriteriaRow
                   key={row.id}
                   row={row}
                   isEven={i % 2 === 0}
