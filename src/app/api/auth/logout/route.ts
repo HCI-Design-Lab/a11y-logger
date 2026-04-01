@@ -3,5 +3,5 @@ import { destroySession } from '@/lib/auth/session';
 
 export async function POST() {
   await destroySession();
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, data: null });
 }

@@ -26,7 +26,7 @@ export async function POST() {
 
     deleteAll();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, data: null });
   } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to reset database', code: 'INTERNAL_ERROR' },

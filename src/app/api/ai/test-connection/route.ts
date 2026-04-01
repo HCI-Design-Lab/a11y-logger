@@ -13,6 +13,6 @@ export async function POST() {
     const result = await provider.testConnection();
     return NextResponse.json({ success: true, data: result });
   } catch {
-    return NextResponse.json({ success: false, error: 'Connection test failed' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Connection test failed', code: 'AI_ERROR' }, { status: 500 });
   }
 }
