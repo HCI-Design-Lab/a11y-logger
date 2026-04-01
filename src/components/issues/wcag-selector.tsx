@@ -1,6 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-import { WCAG_CRITERION_CODES, WCAG_CRITERION_NAMES } from '@/lib/constants/wcag';
+import { WCAG_CRITERION_CODES, WCAG_CRITERION_NAMES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 interface WcagSelectorProps {

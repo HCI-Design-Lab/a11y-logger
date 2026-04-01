@@ -1,6 +1,6 @@
 'use client';
 import { X } from 'lucide-react';
-import { EN301549_CRITERION_CODES, EN301549_CRITERION_NAMES } from '@/lib/constants/en301549';
+import { EN301549_CRITERION_CODES, EN301549_CRITERION_NAMES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 interface EuSelectorProps {

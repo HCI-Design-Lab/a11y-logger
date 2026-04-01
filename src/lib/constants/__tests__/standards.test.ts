@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SECTION_508_CRITERION_CODES } from '@/lib/constants/section508';
-import { EN301549_CRITERION_CODES } from '@/lib/constants/en301549';
+import { SECTION_508_CRITERION_CODES, EN301549_CRITERION_CODES } from '@/lib/constants';
 
 describe('SECTION_508_CRITERION_CODES', () => {
   it('contains all expected Section 508 codes', () => {
