@@ -69,8 +69,36 @@ export async function getReports(): Promise<Report[]> {
     .select()
     .from(reports)
     .orderBy(sql`${reports.created_at} DESC`)
+    .all() as ReportRow[];
+
+  if (rows.length === 0) return [];
+
+  // Batch-fetch all assessment IDs for all reports in one query instead of N per-report queries
+  const reportIds = rows.map((r) => r.id);
+  const allAssessmentLinks = db()
+    .select({
+      report_id: reportAssessments.report_id,
+      assessment_id: reportAssessments.assessment_id,
+    })
+    .from(reportAssessments)
+    .where(inArray(reportAssessments.report_id, reportIds))
     .all();
-  return (rows as ReportRow[]).map(rowToReport);
+
+  const assessmentIdsByReport = new Map<string, string[]>();
+  for (const link of allAssessmentLinks) {
+    const existing = assessmentIdsByReport.get(link.report_id);
+    if (existing) {
+      existing.push(link.assessment_id);
+    } else {
+      assessmentIdsByReport.set(link.report_id, [link.assessment_id]);
+    }
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    content: row.content ?? '{}',
+    assessment_ids: assessmentIdsByReport.get(row.id) ?? [],
+  }));
 }
 
 export async function createReport(input: CreateReportInput): Promise<Report> {
