@@ -1,16 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import type { UseFormRegister } from 'react-hook-form';
 import { Table, TableBody } from '@/components/ui/table';
 import { VpatCriteriaRow } from '@/components/vpats/vpat-criteria-row';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
 // react-hook-form register mock — returns ref + name so the Textarea spread works.
-const mockRegister = (name: string) => ({
+type RemarksFormValues = Record<string, string>;
+const mockRegister = ((name: string) => ({
   name,
   ref: vi.fn(),
   onChange: vi.fn(),
   onBlur: vi.fn(),
-});
+})) as unknown as UseFormRegister<RemarksFormValues>;
 
 const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow => ({
   id: '1',
@@ -53,7 +55,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByText('1.1.1')).toBeInTheDocument();
@@ -71,7 +73,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByTestId('row-1')).toHaveClass('border-amber-400');
@@ -88,7 +90,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByTestId('row-1')).not.toHaveClass('border-amber-400');
@@ -105,7 +107,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByRole('combobox', { name: /conformance for 1.1.1/i })).toBeInTheDocument();
@@ -122,7 +124,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -141,7 +143,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={onRowChange}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     const select = screen.getByRole('combobox', { name: /conformance for 1.1.1/i });
@@ -161,7 +163,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByRole('textbox', { name: /remarks for 1.1.1/i })).toBeInTheDocument();
@@ -178,7 +180,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByText('Some remarks')).toBeInTheDocument();
@@ -197,7 +199,7 @@ describe('VpatCriteriaRow', () => {
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByRole('button', { name: /generate for 1.1.1/i })).toBeInTheDocument();
@@ -215,7 +217,7 @@ describe('VpatCriteriaRow', () => {
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.queryByRole('button', { name: /generate for 1.1.1/i })).not.toBeInTheDocument();
@@ -234,7 +236,7 @@ describe('VpatCriteriaRow', () => {
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={onGenerateRow}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     fireEvent.click(screen.getByRole('button', { name: /generate for 1.1.1/i }));
@@ -253,7 +255,7 @@ describe('VpatCriteriaRow', () => {
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     const btn = screen.getByRole('button', { name: /generating for 1.1.1/i });
@@ -271,7 +273,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByText('(3)')).toBeInTheDocument();
@@ -288,7 +290,7 @@ describe('VpatCriteriaRow', () => {
         isGeneratingAll={false}
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
@@ -307,7 +309,7 @@ describe('VpatCriteriaRow', () => {
         onRowChange={vi.fn()}
         scheduleRemarksSave={vi.fn()}
         onCriterionClick={onCriterionClick}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     const btn = screen.getByRole('button', { name: /view issues for 1.1.1/i });
@@ -328,7 +330,7 @@ describe('VpatCriteriaRow', () => {
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={vi.fn()}
         onAiInfoClick={vi.fn()}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     expect(screen.getByRole('button', { name: /ai info for 1.1.1/i })).toBeInTheDocument();
@@ -349,7 +351,7 @@ describe('VpatCriteriaRow', () => {
         scheduleRemarksSave={vi.fn()}
         onGenerateRow={vi.fn()}
         onAiInfoClick={onAiInfoClick}
-        register={mockRegister as any}
+        register={mockRegister}
       />
     );
     fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
