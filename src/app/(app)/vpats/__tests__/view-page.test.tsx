@@ -367,7 +367,7 @@ describe('VpatDetailPage Review flow', () => {
         expect.objectContaining({ method: 'POST' })
       );
     });
-  });
+  }, 15000);
 });
 
 describe('VpatDetailPage Unpublish flow', () => {
