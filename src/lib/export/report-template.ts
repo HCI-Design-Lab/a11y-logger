@@ -421,8 +421,25 @@ function buildSectionsHtml(content: ReportContent): string {
 }
 
 /**
- * Generates a complete, standalone HTML document for a report.
- * Suitable for direct download or browser print-to-PDF.
+ * Generates a complete, standalone HTML document for an accessibility report.
+ *
+ * The output is a self-contained HTML file with embedded CSS that is suitable for direct
+ * browser download or print-to-PDF. Content sections (executive summary, top risks, quick
+ * wins, user impact) are rendered from the report's stored JSON. Optional extras controlled
+ * by `variant` add an issue statistics chart and/or a full issues list. When `autoPrint` is
+ * true a table of contents page is prepended and a `window.print()` call is injected.
+ *
+ * Executive summary HTML is sanitized via `isomorphic-dompurify` before rendering.
+ *
+ * @param report - The report record including `title`, `content` (JSON string), `status`, and metadata.
+ * @param project - The project record providing the project name and optional product URL.
+ * @param variant - Controls which optional sections are included:
+ *   `"default"` (content only), `"with-chart"` (adds stats), `"with-issues"` (adds issues list),
+ *   `"with-all"` (adds both). Defaults to `"default"`.
+ * @param extras - Optional `stats` (severity breakdown, WCAG counts) and `issues` array used by non-default variants.
+ * @param baseUrl - Optional base URL prepended to issue deep-links in the issues list. Defaults to `""`.
+ * @param autoPrint - When `true`, injects a table of contents page and triggers `window.print()` on load. Defaults to `false`.
+ * @returns A complete HTML string ready to be served as `text/html` or written to a file.
  */
 export function generateReportHtml(
   report: Report,

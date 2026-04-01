@@ -24,18 +24,57 @@ export const TOP_RISKS_SECTION =
 
 // ─── User message builders ────────────────────────────────────────────────────
 
+/**
+ * Builds the user-turn message for generating a named report section.
+ *
+ * Intended to be used with `REPORT_WRITER_SYSTEM` as the system prompt.
+ *
+ * @param context - A text summary of the audit data relevant to this section.
+ * @param sectionTitle - The name of the section to generate (e.g. `"Top Risks"`).
+ * @returns A formatted prompt string instructing the AI to write the requested section.
+ */
 export function buildReportSectionUser(context: string, sectionTitle: string): string {
   return `Write the "${sectionTitle}" section based on this context:\n\n${context}`;
 }
 
+/**
+ * Builds the user-turn message for generating an executive summary in HTML.
+ *
+ * Instructs the AI to produce a three-part HTML executive summary: an opening paragraph,
+ * a severity breakdown list, and a closing paragraph. Intended to be used with
+ * `EXECUTIVE_SUMMARY_SYSTEM` as the system prompt. The AI response will contain only
+ * `<p>`, `<ul>`, `<li>`, and `<strong>` tags — no markdown.
+ *
+ * @param context - A text summary of the audit data (issue counts, severity breakdown, etc.).
+ * @returns A formatted prompt string instructing the AI to write the executive summary.
+ */
 export function buildExecutiveSummaryUser(context: string): string {
   return `Write an Executive Summary for an accessibility audit report using the data below. Follow this exact structure:\n\n1. A single opening <p> (max 300 words) describing what was audited, its purpose (WCAG compliance), and the total number of issues found.\n2. A <ul> listing only the count of issues per severity level that has at least one issue (e.g. <li><strong>High Severity Issues (6):</strong></li>). Do not list individual issues.\n3. A single closing <p> about the importance of addressing these issues for users with disabilities and WCAG compliance.\n\nData:\n${context}`;
 }
 
+/**
+ * Builds the user-turn message for generating a VPAT conformance remark.
+ *
+ * Intended to be used with `VPAT_REMARKS_SYSTEM` as the system prompt.
+ *
+ * @param issueSummary - A text summary of issues relevant to the criterion.
+ * @param criterion - The WCAG or Section 508 criterion code (e.g. `"1.1.1"`).
+ * @returns A formatted prompt string instructing the AI to write the VPAT remark.
+ */
 export function buildVpatRemarksUser(issueSummary: string, criterion: string): string {
   return `Write a VPAT remark for criterion ${criterion} based on: ${issueSummary}`;
 }
 
+/**
+ * Builds a prompt that asks the AI to generate a per-disability-type user impact analysis.
+ *
+ * The AI is instructed to respond with JSON only (no markdown), matching the shape:
+ * `{ screen_reader, low_vision, color_vision, keyboard_only, cognitive, deaf_hard_of_hearing }`.
+ * Each field should be a short plain-text description of how that user group is affected.
+ *
+ * @param context - A text summary of the audit findings to base the analysis on.
+ * @returns A formatted prompt string instructing the AI to produce the user impact JSON.
+ */
 export function buildUserImpactPrompt(context: string): string {
   return `${context}\n\nGenerate a user impact analysis. Respond with JSON only, no markdown, matching exactly this shape:
 {
@@ -53,6 +92,17 @@ export function buildUserImpactPrompt(context: string): string {
 const VALID_CONFIDENCE = ['high', 'medium', 'low'] as const;
 const VALID_SUGGESTED_CONFORMANCE = ['supports', 'does_not_support', 'not_applicable'] as const;
 
+/**
+ * Builds a structured prompt for AI-assisted VPAT criterion row generation.
+ *
+ * The prompt asks the AI to reason step-by-step about the mapped issues before producing
+ * a JSON response matching `VpatRowGenerationResult`:
+ * `{ reasoning, remarks, confidence, referenced_issues, suggested_conformance }`.
+ *
+ * @param context - The generation context including the WCAG criterion metadata and an array of
+ *   mapped issues (title, severity, url, description).
+ * @returns A formatted prompt string ready to send directly to a language model (no system prompt needed).
+ */
 export function buildVpatRowPrompt(context: VpatGenerationContext): string {
   const { criterion, issues } = context;
   const issueList =
@@ -98,6 +148,17 @@ For referenced_issues: list only the issues from the input that directly informe
 Return only valid JSON, no markdown.`;
 }
 
+/**
+ * Parses and validates a raw JSON string returned by the AI for a VPAT row.
+ *
+ * Validates that the parsed object contains all required fields with the correct types,
+ * including that `confidence` is one of `"high" | "medium" | "low"` and
+ * `suggested_conformance` is one of `"supports" | "does_not_support" | "not_applicable"`.
+ *
+ * @param raw - The raw JSON string from the AI response (no surrounding markdown).
+ * @returns A validated `VpatRowGenerationResult` object.
+ * @throws {Error} If `raw` is not valid JSON or any required field is missing or invalid.
+ */
 export function parseVpatRowResponse(raw: string): VpatRowGenerationResult {
   let result: Record<string, unknown>;
   try {

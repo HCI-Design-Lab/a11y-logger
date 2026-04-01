@@ -5,6 +5,26 @@ import { getSetting } from '@/lib/db/settings';
 import { VercelAIProvider } from './vercel-provider';
 import type { AIProvider } from './types';
 
+/**
+ * Resolves and returns the configured AI provider, or `null` if none is active.
+ *
+ * Supports BYOK (Bring Your Own Key) for OpenAI, Anthropic, and Google Gemini, plus
+ * Ollama for local models and a generic OpenAI-compatible endpoint. Configuration is
+ * read from environment variables first (`AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`,
+ * `AI_BASE_URL`), falling back to values stored in the application settings table.
+ *
+ * Provider selection:
+ * - `"openai"` — requires `AI_API_KEY`; defaults to `gpt-4o-mini`.
+ * - `"anthropic"` — requires `AI_API_KEY`; defaults to `claude-haiku-4-5-20251001`.
+ * - `"google"` — requires `AI_API_KEY`; defaults to `gemini-2.0-flash`.
+ * - `"ollama"` — requires `AI_MODEL`; defaults base URL to `http://localhost:11434/v1`.
+ * - `"openai-compatible"` — requires both `AI_BASE_URL` and `AI_MODEL`.
+ * - `"none"` or unset — returns `null`.
+ *
+ * All providers are wrapped in `VercelAIProvider` which implements the `AIProvider` interface.
+ *
+ * @returns An `AIProvider` instance if a valid provider is configured, or `null` otherwise.
+ */
 export function getAIProvider(): AIProvider | null {
   // Env vars take priority over DB settings
   const provider = (

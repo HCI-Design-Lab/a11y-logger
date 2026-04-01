@@ -74,7 +74,18 @@ function getConformanceClass(conformance: string): string {
 
 /**
  * Generates a complete, standalone HTML document for a VPAT.
- * Suitable for direct download or browser print-to-PDF.
+ *
+ * The output is a self-contained HTML file with embedded CSS suitable for direct browser
+ * download or print-to-PDF (A4 landscape). Criterion rows are grouped by WCAG level and
+ * additional section keys, sorted numerically by criterion code, and rendered in canonical
+ * VPAT 2.x section order. Conformance level values are mapped to human-readable display
+ * labels and styled with colour-coded CSS classes. All text content is HTML-escaped before
+ * rendering. No external template file or network requests are required.
+ *
+ * @param vpat - The VPAT record including title, version number, WCAG version/level, and status.
+ * @param project - The project record providing the product name and optional product URL.
+ * @param rows - The criterion rows containing criterion codes, names, levels, conformance, and remarks.
+ * @returns A complete HTML string ready to be served as `text/html` or written to a file.
  */
 export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriterionRow[]): string {
   const generatedDate = new Date().toLocaleDateString('en-US', {

@@ -57,6 +57,18 @@ export interface OpenAcrReport {
   chapters: Record<string, OpenAcrChapter>;
 }
 
+/**
+ * Builds a structured OpenACR report object from VPAT data.
+ *
+ * Maps VPAT criterion rows to OpenACR chapters grouped by WCAG level (A, AA, AAA).
+ * Non-web chapters (hardware, software) are automatically set to "not-applicable".
+ * The catalog ID is resolved from the VPAT's standard edition and WCAG version.
+ *
+ * @param vpat - The VPAT record including title, standard edition, and WCAG version.
+ * @param project - The project associated with the VPAT, used for the product name.
+ * @param rows - The criterion rows containing conformance levels and remarks.
+ * @returns A structured `OpenAcrReport` object ready for YAML serialization.
+ */
 export function generateOpenAcr(
   vpat: Vpat,
   project: Project,
@@ -114,6 +126,18 @@ export function generateOpenAcr(
   };
 }
 
+/**
+ * Generates an OpenACR-compliant YAML string from VPAT data.
+ *
+ * Calls `generateOpenAcr` internally, then serializes the result to YAML.
+ * Date strings are forced to double-quoted scalars so YAML 1.1 parsers do not
+ * misinterpret them as timestamps.
+ *
+ * @param vpat - The VPAT record including title, standard edition, and WCAG version.
+ * @param project - The project associated with the VPAT, used for the product name.
+ * @param rows - The criterion rows containing conformance levels and remarks.
+ * @returns A YAML string conforming to the OpenACR specification.
+ */
 export function generateOpenAcrYaml(
   vpat: Vpat,
   project: Project,

@@ -101,6 +101,20 @@ function criterionRow(row: VpatCriterionRow): TableRow {
   });
 }
 
+/**
+ * Generates a DOCX VPAT document from the provided VPAT data.
+ *
+ * Produces a Word-compatible `.docx` file structured according to the VPAT 2.x template.
+ * Criterion rows are grouped by WCAG level (A, AA, AAA) and additional section keys
+ * (e.g. Chapter3, Clause4), then sorted numerically by criterion code within each section.
+ * Sections appear in canonical VPAT order; any unrecognised section keys are appended at the end.
+ * Uses the `docx` library — no external template file is required.
+ *
+ * @param vpat - The VPAT record including title, WCAG version/level, status, and optional review metadata.
+ * @param project - The project record providing the product name.
+ * @param rows - The criterion rows containing criterion codes, names, levels, conformance, and remarks.
+ * @returns A Promise resolving to a `Buffer` containing the `.docx` file contents.
+ */
 export async function generateVpatDocx(
   vpat: Vpat,
   project: Project,

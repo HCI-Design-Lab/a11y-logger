@@ -92,6 +92,20 @@ function issueDetailRow(label: string, value: string): TableRow {
   return new TableRow({ children: [labelCell(label), valueCell(value)] });
 }
 
+/**
+ * Generates a DOCX report document from the provided report data.
+ *
+ * Produces a Word-compatible `.docx` file containing: report title and project name,
+ * executive summary, top risks, quick wins, user impact table, WCAG criteria breakdown,
+ * and individual issue detail tables (each starting on a new page).
+ * Uses the `docx` library — no external template file is required.
+ *
+ * @param report - The full report record including `title`, `content` (JSON string), and metadata.
+ * @param project - The project record providing the project name.
+ * @param stats - Optional statistics including severity breakdown and WCAG criteria counts.
+ * @param issues - Optional array of issues with full context (WCAG codes, tags, etc.) to append.
+ * @returns A Promise resolving to a `Buffer` containing the `.docx` file contents.
+ */
 export async function generateReportDocx(
   report: Report,
   project: Project,
