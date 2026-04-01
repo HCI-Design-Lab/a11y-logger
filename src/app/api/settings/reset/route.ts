@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/client';
+import { getDb, getDbClient } from '@/lib/db/client';
 
 const USER_DATA_TABLES = [
   'vpat_snapshots',
@@ -14,6 +14,7 @@ const USER_DATA_TABLES = [
 
 export async function POST() {
   try {
+    getDbClient(); // ensure lazy init runs before accessing raw connection
     const db = getDb();
     if (!db) throw new Error('Database not available');
 

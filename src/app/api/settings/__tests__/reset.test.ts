@@ -10,6 +10,7 @@ vi.mock('@/lib/db/index', () => ({
 }));
 
 vi.mock('@/lib/db/client', () => ({
+  getDbClient: vi.fn(),
   getDb: vi.fn(() => ({
     prepare: mockPrepare,
     transaction: mockTransaction,
