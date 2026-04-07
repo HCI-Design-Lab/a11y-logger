@@ -1,0 +1,63 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "assessments": "Assessments",
+    "issues": "Issues",
+    "reports": "Reports",
+    "vpats": "VPATs",
+    "settings": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading…",
+    "error": "An error occurred"
+  },
+  "vpats": {
+    "conformance": {
+      "not_evaluated": "Not Evaluated",
+      "supports": "Supports",
+      "partially_supports": "Partial Support",
+      "does_not_support": "Does Not Support",
+      "not_applicable": "Not Applicable"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived",
+      "reviewed": "Reviewed"
+    },
+    "sections": {
+      "tableA": "Table 1: Success Criteria, Level A",
+      "tableAA": "Table 2: Success Criteria, Level AA",
+      "tableAAA": "Table 3: Success Criteria, Level AAA",
+      "chapter3": "Chapter 3: Functional Performance Criteria",
+      "chapter5": "Chapter 5: Software",
+      "chapter6": "Chapter 6: Support Documentation and Services",
+      "clause4": "Clause 4: Functional Performance Statements",
+      "clause5": "Clause 5: Generic Requirements",
+      "clause11": "Clause 11: Non-Web Software",
+      "clause12": "Clause 12: Documentation and Support Services"
+    },
+    "pdf": {
+      "title": "Export to PDF",
+      "description": "Generate a PDF export of this VPAT.",
+      "generate": "Generate PDF",
+      "download": "Download PDF",
+      "generating": "Generating…"
+    }
+  },
+  "settings": {
+    "language": {
+      "label": "Language",
+      "en": "English",
+      "fr": "French",
+      "es": "Spanish",
+      "de": "German"
+    }
+  }
+}
