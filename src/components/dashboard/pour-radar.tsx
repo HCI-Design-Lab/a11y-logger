@@ -100,7 +100,7 @@ export function PourRadar({ statuses }: PourRadarProps) {
                     fill="var(--chart-1)"
                     fillOpacity={0.65}
                   />
-                  <Tooltip formatter={(v: number | undefined) => [v ?? 0, 'Issues']} />
+                  <Tooltip formatter={(v) => [(v as number) ?? 0, 'Issues']} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

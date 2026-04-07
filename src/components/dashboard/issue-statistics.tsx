@@ -108,7 +108,7 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
                         strokeWidth={5}
                         stroke="var(--card)"
                       />
-                      <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Issues']} />
+                      <Tooltip formatter={(value) => [(value as number) ?? 0, 'Issues']} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
