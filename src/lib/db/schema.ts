@@ -108,6 +108,13 @@ export const criteria = sqliteTable('criteria', {
   product_types: text('product_types').notNull().default('[]'),
   wcag_equivalent_id: text('wcag_equivalent_id'),
   sort_order: integer('sort_order').notNull().default(0),
+  // i18n translation columns (nullable — NULL means fall back to English)
+  name_fr: text('name_fr'),
+  name_es: text('name_es'),
+  name_de: text('name_de'),
+  description_fr: text('description_fr'),
+  description_es: text('description_es'),
+  description_de: text('description_de'),
 });
 
 export const vpatCriterionRows = sqliteTable('vpat_criterion_rows', {

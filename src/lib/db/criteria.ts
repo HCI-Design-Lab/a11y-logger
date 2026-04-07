@@ -26,6 +26,13 @@ export interface Criterion {
   product_types: string[];
   sort_order: number;
   autoNotApplicable?: boolean;
+  // Translation fields (nullable — null means no translation available; fall back to English)
+  name_fr: string | null;
+  name_es: string | null;
+  name_de: string | null;
+  description_fr: string | null;
+  description_es: string | null;
+  description_de: string | null;
 }
 
 export interface CriteriaSection {
@@ -62,6 +69,12 @@ interface CriterionDbRow {
   editions: string;
   product_types: string;
   sort_order: number;
+  name_fr: string | null;
+  name_es: string | null;
+  name_de: string | null;
+  description_fr: string | null;
+  description_es: string | null;
+  description_de: string | null;
 }
 
 function parseCriterion(row: CriterionDbRow): Criterion {
@@ -77,6 +90,12 @@ function parseCriterion(row: CriterionDbRow): Criterion {
     editions: JSON.parse(row.editions || '[]'),
     product_types: JSON.parse(row.product_types || '[]'),
     sort_order: row.sort_order,
+    name_fr: row.name_fr ?? null,
+    name_es: row.name_es ?? null,
+    name_de: row.name_de ?? null,
+    description_fr: row.description_fr ?? null,
+    description_es: row.description_es ?? null,
+    description_de: row.description_de ?? null,
   };
 }
 

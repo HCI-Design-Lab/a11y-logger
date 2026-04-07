@@ -104,3 +104,32 @@ describe('getCriterion', () => {
     expect(await getCriterion('non-existent')).toBeNull();
   });
 });
+
+describe('Criterion translation fields', () => {
+  it('includes optional translation fields on criteria returned by getCriteriaForEdition', async () => {
+    const sections = await getCriteriaForEdition('WCAG', ['web'], '2.1', 'AA');
+    const first = sections[0]!.criteria[0]!;
+    // Fields exist on the type (may be null/undefined — columns are nullable and unseeded)
+    expect('name_fr' in first).toBe(true);
+    expect('name_es' in first).toBe(true);
+    expect('name_de' in first).toBe(true);
+    expect('description_fr' in first).toBe(true);
+    expect('description_es' in first).toBe(true);
+    expect('description_de' in first).toBe(true);
+  });
+
+  it('translation fields default to null when not set', async () => {
+    const sections = await getCriteriaForEdition('WCAG', ['web'], '2.1', 'AA');
+    const first = sections[0]!.criteria[0]!;
+    expect(first.name_fr).toBeNull();
+    expect(first.description_fr).toBeNull();
+  });
+
+  it('getCriterion returns translation fields', async () => {
+    const sections = await getCriteriaForEdition('WCAG', ['web'], '2.1', 'AA');
+    const firstId = sections[0]!.criteria[0]!.id;
+    const criterion = await getCriterion(firstId);
+    expect(criterion).not.toBeNull();
+    expect('name_fr' in criterion!).toBe(true);
+  });
+});
