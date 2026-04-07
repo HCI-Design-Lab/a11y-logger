@@ -9,6 +9,7 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   criterion_id: 'c1',
   criterion_code: '1.1.1',
   criterion_name: 'Non-text Content',
+  criterion_name_translated: null,
   criterion_description: 'All non-text content has a text alternative.',
   criterion_level: 'A',
   criterion_section: 'Perceivable',
