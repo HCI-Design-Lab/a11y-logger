@@ -17,6 +17,7 @@ export interface VpatCriterionRow {
   criterion_id: string;
   criterion_code: string;
   criterion_name: string;
+  criterion_name_translated: string | null;
   criterion_description: string;
   criterion_level: string | null;
   criterion_section: string;
@@ -78,11 +79,19 @@ interface CriterionRowDbRow {
   last_generated_at: string | null;
   updated_at: string;
   issue_count?: number;
+  criterion_name_fr: string | null;
+  criterion_name_es: string | null;
+  criterion_name_de: string | null;
 }
 
-function parseRow(raw: CriterionRowDbRow): VpatCriterionRow {
+function parseRow(raw: CriterionRowDbRow, locale = 'en'): VpatCriterionRow {
+  const translatedName =
+    locale !== 'en'
+      ? ((raw[`criterion_name_${locale}` as keyof typeof raw] as string | null) ?? null)
+      : null;
   return {
     ...raw,
+    criterion_name_translated: translatedName,
     conformance: raw.conformance as VpatCriterionRow['conformance'],
     ai_confidence: raw.ai_confidence as VpatCriterionRow['ai_confidence'],
     ai_suggested_conformance:
@@ -116,6 +125,9 @@ const joinedSelect = {
   ai_suggested_conformance: vpatCriterionRows.ai_suggested_conformance,
   last_generated_at: vpatCriterionRows.last_generated_at,
   updated_at: vpatCriterionRows.updated_at,
+  criterion_name_fr: criteria.name_fr,
+  criterion_name_es: criteria.name_es,
+  criterion_name_de: criteria.name_de,
 };
 
 /**
@@ -148,7 +160,7 @@ export function createCriterionRows(vpatId: string, inputs: CreateCriterionRowIn
  * @param vpatId - The UUID of the VPAT whose rows should be retrieved.
  * @returns Array of fully populated criterion row records.
  */
-export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow[]> {
+export async function getCriterionRows(vpatId: string, locale = 'en'): Promise<VpatCriterionRow[]> {
   const rows = db()
     .select(joinedSelect)
     .from(vpatCriterionRows)
@@ -156,7 +168,7 @@ export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow
     .where(eq(vpatCriterionRows.vpat_id, vpatId))
     .orderBy(criteria.sort_order)
     .all() as CriterionRowDbRow[];
-  return rows.map(parseRow);
+  return rows.map((r) => parseRow(r, locale));
 }
 
 /**
@@ -168,7 +180,8 @@ export async function getCriterionRows(vpatId: string): Promise<VpatCriterionRow
  */
 export async function getCriterionRowsWithIssueCounts(
   vpatId: string,
-  projectId: string
+  projectId: string,
+  locale = 'en'
 ): Promise<VpatCriterionRow[]> {
   // issue_count uses a subquery — keep raw SQL for this complex aggregation
   type RowWithCount = CriterionRowDbRow & { issue_count: number };
@@ -188,7 +201,7 @@ export async function getCriterionRowsWithIssueCounts(
     .where(eq(vpatCriterionRows.vpat_id, vpatId))
     .orderBy(criteria.sort_order)
     .all() as RowWithCount[];
-  return rows.map(parseRow);
+  return rows.map((r) => parseRow(r, locale));
 }
 
 /**
@@ -197,7 +210,10 @@ export async function getCriterionRowsWithIssueCounts(
  * @param rowId - The UUID of the criterion row to retrieve.
  * @returns The criterion row record, or null if not found.
  */
-export async function getCriterionRow(rowId: string): Promise<VpatCriterionRow | null> {
+export async function getCriterionRow(
+  rowId: string,
+  locale = 'en'
+): Promise<VpatCriterionRow | null> {
   const row = db()
     .select(joinedSelect)
     .from(vpatCriterionRows)
@@ -205,7 +221,7 @@ export async function getCriterionRow(rowId: string): Promise<VpatCriterionRow |
     .where(eq(vpatCriterionRows.id, rowId))
     .limit(1)
     .get() as CriterionRowDbRow | undefined;
-  return row ? parseRow(row) : null;
+  return row ? parseRow(row, locale) : null;
 }
 
 /**

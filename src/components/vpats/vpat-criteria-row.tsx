@@ -27,6 +27,7 @@ type RemarksFormValues = Record<string, string>;
 
 export interface VpatCriteriaRowProps {
   row: VpatCriterionRow;
+  locale?: string;
   isEven: boolean;
   readOnly: boolean;
   aiEnabled: boolean;
@@ -42,6 +43,7 @@ export interface VpatCriteriaRowProps {
 
 export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   row,
+  locale = 'en',
   isEven,
   readOnly,
   aiEnabled,
@@ -55,6 +57,8 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   register,
 }: VpatCriteriaRowProps) {
   const isDisabled = isGenerating || isGeneratingAll;
+  const displayName = row.criterion_name_translated ?? row.criterion_name;
+  const showEnBadge = locale !== 'en' && row.criterion_name_translated === null;
   const hasAiInfo = !!(
     row.ai_confidence ||
     row.ai_reasoning ||
@@ -94,7 +98,8 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
               onClick={() => onCriterionClick(row.criterion_code)}
               aria-label={`View issues for ${row.criterion_code}`}
             >
-              {row.criterion_name}
+              {displayName}
+              {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
               {!readOnly && row.issue_count > 0 && (
                 <span className="ml-1.5 text-xs font-normal text-muted-foreground">
                   ({row.issue_count})
@@ -103,7 +108,8 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
             </Button>
           ) : (
             <div className="font-medium text-sm">
-              {row.criterion_name}
+              {displayName}
+              {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
               {!readOnly && row.issue_count > 0 && (
                 <span className="ml-1.5 text-xs font-normal text-muted-foreground">
                   ({row.issue_count})

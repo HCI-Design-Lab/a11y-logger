@@ -20,6 +20,7 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   criterion_id: 'c1',
   criterion_code: '1.1.1',
   criterion_name: 'Non-text Content',
+  criterion_name_translated: null,
   criterion_description: 'All non-text content has a text alternative.',
   criterion_level: 'A',
   criterion_section: 'Perceivable',
@@ -356,5 +357,79 @@ describe('VpatCriteriaRow', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
     expect(onAiInfoClick).toHaveBeenCalledWith(row);
+  });
+});
+
+describe('EN badge for untranslated criteria', () => {
+  it('shows EN badge when locale is not en and criterion_name_translated is null', () => {
+    wrap(
+      <VpatCriteriaRow
+        row={makeRow({ criterion_name_translated: null })}
+        locale="fr"
+        isEven={false}
+        readOnly={true}
+        aiEnabled={false}
+        isGenerating={false}
+        isGeneratingAll={false}
+        onRowChange={vi.fn()}
+        scheduleRemarksSave={vi.fn()}
+        register={mockRegister}
+      />
+    );
+    expect(screen.getByText('EN')).toBeInTheDocument();
+  });
+
+  it('does not show EN badge when locale is en', () => {
+    wrap(
+      <VpatCriteriaRow
+        row={makeRow({ criterion_name_translated: null })}
+        locale="en"
+        isEven={false}
+        readOnly={true}
+        aiEnabled={false}
+        isGenerating={false}
+        isGeneratingAll={false}
+        onRowChange={vi.fn()}
+        scheduleRemarksSave={vi.fn()}
+        register={mockRegister}
+      />
+    );
+    expect(screen.queryByText('EN')).not.toBeInTheDocument();
+  });
+
+  it('does not show EN badge when criterion_name_translated is provided', () => {
+    wrap(
+      <VpatCriteriaRow
+        row={makeRow({ criterion_name_translated: 'Contenu non textuel' })}
+        locale="fr"
+        isEven={false}
+        readOnly={true}
+        aiEnabled={false}
+        isGenerating={false}
+        isGeneratingAll={false}
+        onRowChange={vi.fn()}
+        scheduleRemarksSave={vi.fn()}
+        register={mockRegister}
+      />
+    );
+    expect(screen.queryByText('EN')).not.toBeInTheDocument();
+  });
+
+  it('shows translated name when criterion_name_translated is provided', () => {
+    wrap(
+      <VpatCriteriaRow
+        row={makeRow({ criterion_name_translated: 'Contenu non textuel' })}
+        locale="fr"
+        isEven={false}
+        readOnly={true}
+        aiEnabled={false}
+        isGenerating={false}
+        isGeneratingAll={false}
+        onRowChange={vi.fn()}
+        scheduleRemarksSave={vi.fn()}
+        register={mockRegister}
+      />
+    );
+    expect(screen.getByText('Contenu non textuel')).toBeInTheDocument();
   });
 });
