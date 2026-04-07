@@ -30,6 +30,7 @@ export default function VpatEditPage() {
 
   const [vpat, setVpat] = useState<VpatData | null>(null);
   const [rows, setRows] = useState<VpatCriterionRow[]>([]);
+  const [locale, setLocale] = useState('en');
   const [isLoading, setIsLoading] = useState(true);
 
   const [generatingRowId, setGeneratingRowId] = useState<string | null>(null);
@@ -60,6 +61,7 @@ export default function VpatEditPage() {
         }
         setVpat(json.data);
         setRows(json.data.criterion_rows);
+        setLocale((json.data.locale as string) ?? 'en');
         // Show edit-warning immediately if VPAT is already reviewed
         if (json.data.status === 'reviewed') {
           setShowEditWarning(true);
@@ -296,6 +298,7 @@ export default function VpatEditPage() {
         <VpatCriteriaTable
           key={tableKey}
           rows={rows}
+          locale={locale}
           onRowChange={handleRowChange}
           onSaveRemarks={handleSaveRemarks}
           onGenerateRow={handleGenerateRow}

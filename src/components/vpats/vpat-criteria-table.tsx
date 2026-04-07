@@ -39,6 +39,7 @@ type RemarksFormValues = Record<string, string>;
 interface CriterionSectionProps {
   section: string;
   sectionRows: VpatCriterionRow[];
+  locale?: string;
   readOnly: boolean;
   aiEnabled: boolean;
   generatingRowId?: string | null;
@@ -55,6 +56,7 @@ interface CriterionSectionProps {
 const CriterionSection = memo(function CriterionSection({
   section,
   sectionRows,
+  locale = 'en',
   readOnly,
   aiEnabled,
   generatingRowId,
@@ -113,6 +115,7 @@ const CriterionSection = memo(function CriterionSection({
                 <VpatCriteriaRow
                   key={row.id}
                   row={row}
+                  locale={locale}
                   isEven={i % 2 === 0}
                   readOnly={readOnly}
                   aiEnabled={aiEnabled}
@@ -136,6 +139,7 @@ const CriterionSection = memo(function CriterionSection({
 
 interface VpatCriteriaTableProps {
   rows: VpatCriterionRow[];
+  locale?: string;
   /** Called immediately for conformance changes (updates progress bar in parent). */
   onRowChange: (rowId: string, update: { conformance?: string }) => void;
   /** Called after 500ms debounce when the user finishes typing remarks. */
@@ -181,6 +185,7 @@ interface VpatCriteriaTableProps {
  */
 export function VpatCriteriaTable({
   rows,
+  locale = 'en',
   onRowChange,
   onSaveRemarks,
   onGenerateRow,
@@ -273,6 +278,7 @@ export function VpatCriteriaTable({
                 key={section}
                 section={section}
                 sectionRows={sections.get(section)!}
+                locale={locale}
                 readOnly={readOnly}
                 aiEnabled={aiEnabled}
                 generatingRowId={generatingRowId}

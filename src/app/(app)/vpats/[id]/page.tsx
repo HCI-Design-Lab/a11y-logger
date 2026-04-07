@@ -25,6 +25,7 @@ export default function VpatDetailPage() {
   const vpatId = params.id;
 
   const [vpat, setVpat] = useState<VpatData | null>(null);
+  const [locale, setLocale] = useState('en');
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
@@ -49,6 +50,7 @@ export default function VpatDetailPage() {
           return;
         }
         setVpat(json.data);
+        setLocale((json.data.locale as string) ?? 'en');
         // Load version history
         try {
           const snapRes = await fetch(`/api/vpats/${vpatId}/versions`);
@@ -219,6 +221,7 @@ export default function VpatDetailPage() {
           <div className="space-y-6">
             <VpatCriteriaTable
               rows={vpat.criterion_rows}
+              locale={locale}
               onRowChange={() => {}}
               onSaveRemarks={() => {}}
               onGenerateRow={() => {}}
