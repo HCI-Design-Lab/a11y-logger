@@ -6,6 +6,10 @@ vi.mock('next-themes', () => ({
   useTheme: () => ({ theme: 'dark', setTheme: mockSetTheme }),
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 import { Header } from '@/components/layout/header';
 
 test('renders app wordmark', () => {
