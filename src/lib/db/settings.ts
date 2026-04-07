@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: Record<string, SettingValue> = {
   auth_enabled: false,
   app_version: '1.0.0',
   schema_version: 1,
+  language: 'en',
 };
 
 function isSensitiveKey(key: string): key is (typeof SENSITIVE_KEYS)[number] {

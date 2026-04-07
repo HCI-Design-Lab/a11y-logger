@@ -112,4 +112,9 @@ describe('seedDefaultSettings', () => {
     seedDefaultSettings();
     expect(getSetting('ai_provider')).toBe('openai'); // not overwritten
   });
+
+  it('seeds language setting with default value "en"', () => {
+    seedDefaultSettings();
+    expect(getSetting('language')).toBe('en');
+  });
 });
