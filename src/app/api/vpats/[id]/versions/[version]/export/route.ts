@@ -94,6 +94,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       criterion_id: `snap-${i}`,
       criterion_code: r.criterion_code,
       criterion_name: r.criterion_name,
+      criterion_name_translated: null,
       criterion_description: r.criterion_description,
       criterion_level: r.criterion_level,
       criterion_section: r.criterion_section,

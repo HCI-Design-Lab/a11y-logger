@@ -9,8 +9,15 @@ function isSupportedLocale(value: unknown): value is SupportedLocale {
 }
 
 export default getRequestConfig(async () => {
-  const stored = getSetting('language');
-  const locale = isSupportedLocale(stored) ? stored : 'en';
+  let locale: SupportedLocale = 'en';
+  try {
+    const stored = getSetting('language');
+    if (isSupportedLocale(stored)) {
+      locale = stored;
+    }
+  } catch {
+    // Database not available at build time; fall back to English
+  }
 
   const messages = (await import(`../messages/${locale}.json`)) as {
     default: Record<string, unknown>;

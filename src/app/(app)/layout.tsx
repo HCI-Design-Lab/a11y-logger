@@ -6,6 +6,10 @@ import { getSetting } from '@/lib/db/settings';
 import { getSession } from '@/lib/auth/session';
 import { getLocale } from 'next-intl/server';
 
+// All pages under this layout read from the database at request time —
+// prevent Next.js from attempting static pre-rendering.
+export const dynamic = 'force-dynamic';
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const authEnabled = Boolean(getSetting('auth_enabled'));
   if (authEnabled) {
