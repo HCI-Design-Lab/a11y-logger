@@ -221,6 +221,12 @@ describe('core tables schema', () => {
         'product_types',
         'wcag_equivalent_id',
         'sort_order',
+        'name_fr',
+        'name_es',
+        'name_de',
+        'description_fr',
+        'description_es',
+        'description_de',
       ]);
     });
   });
