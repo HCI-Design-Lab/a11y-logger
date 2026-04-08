@@ -4,6 +4,16 @@ import { vi } from 'vitest';
 import { IssueForm } from '@/components/issues/issue-form';
 import type { Issue } from '@/lib/db/issues';
 
+// Mock heavy criteria constants so render stays fast in this validation-focused test.
+vi.mock('@/lib/constants', () => ({
+  WCAG_CRITERION_CODES: ['1.1.1', '1.4.3'],
+  WCAG_CRITERION_NAMES: { '1.1.1': 'Non-text Content', '1.4.3': 'Contrast (Minimum)' },
+  SECTION_508_CRITERION_CODES: ['302.1'],
+  SECTION_508_CRITERION_NAMES: { '302.1': 'Without Vision' },
+  EN301549_CRITERION_CODES: ['4.2.1'],
+  EN301549_CRITERION_NAMES: { '4.2.1': 'Usage without vision' },
+}));
+
 const mockIssue: Issue = {
   id: 'i1',
   assessment_id: 'a1',
