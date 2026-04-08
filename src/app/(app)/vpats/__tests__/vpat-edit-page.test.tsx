@@ -158,6 +158,11 @@ describe('VpatEditPage', () => {
     render(<VpatEditPage />);
 
     await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Level A' })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('tab', { name: 'Level A' }));
+
+    await waitFor(() => {
       expect(screen.getByRole('button', { name: /view issues for 1\.1\.1/i })).toBeInTheDocument();
     });
 

@@ -164,6 +164,11 @@ interface VpatCriteriaTableProps {
   readOnly?: boolean;
   aiEnabled?: boolean;
   onCriterionClick?: (criterionCode: string) => void;
+  /**
+   * When provided, render only the single section matching this key —
+   * no standard group headers, no "Generate All" button.
+   */
+  sectionKey?: string;
 }
 
 /**
@@ -208,6 +213,7 @@ export function VpatCriteriaTable({
   readOnly = false,
   aiEnabled = false,
   onCriterionClick,
+  sectionKey,
 }: VpatCriteriaTableProps) {
   const [aiPanelRow, setAiPanelRow] = useState<VpatCriterionRow | null>(null);
 
@@ -263,6 +269,35 @@ export function VpatCriteriaTable({
       }, new Map()),
     [rows]
   );
+
+  // Single-section mode: render just the one section, no group headers or Generate All.
+  if (sectionKey) {
+    const sectionRows = sections.get(sectionKey) ?? [];
+    return (
+      <div>
+        {sectionRows.length > 0 ? (
+          <CriterionSection
+            section={sectionKey}
+            sectionRows={sectionRows}
+            locale={locale}
+            readOnly={readOnly}
+            aiEnabled={aiEnabled}
+            generatingRowId={generatingRowId}
+            isGeneratingAll={isGeneratingAll}
+            onRowChange={onRowChange}
+            scheduleRemarksSave={scheduleRemarksSave}
+            onGenerateRow={onGenerateRow}
+            onCriterionClick={onCriterionClick}
+            onAiInfoClick={setAiPanelRow}
+            register={register}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground py-4">No criteria in this section.</p>
+        )}
+        {aiPanelRow && <VpatAiPanel row={aiPanelRow} onClose={() => setAiPanelRow(null)} />}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

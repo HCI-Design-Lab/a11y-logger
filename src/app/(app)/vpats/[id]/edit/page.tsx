@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Save, X } from 'lucide-react';
+import { Save, X, Sparkles, FileText } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 import type { VpatData } from '@/lib/db/vpats';
+import { EDITION_SECTION_KEYS, SECTION_TAB_LABELS } from '@/lib/vpat-tabs';
 
 function getEditionBadgeLabel(vpat: VpatData): string {
   if (vpat.standard_edition === '508') return 'Section 508';
@@ -278,38 +280,77 @@ export default function VpatEditPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Progress */}
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-sm font-medium">
-              {resolved} of {total} criteria resolved
-            </p>
-            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Progress */}
+      <Card>
+        <CardContent className="pt-4">
+          <p className="text-sm font-medium">
+            {resolved} of {total} criteria resolved
+          </p>
+          <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: total > 0 ? `${(resolved / total) * 100}%` : '0%' }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Criteria Table — key resets RHF defaults after generate-all */}
-        <VpatCriteriaTable
-          key={tableKey}
-          rows={rows}
-          locale={locale}
-          onRowChange={handleRowChange}
-          onSaveRemarks={handleSaveRemarks}
-          onGenerateRow={handleGenerateRow}
-          onGenerateAll={handleRequestGenerateAll}
-          generatingRowId={generatingRowId}
-          isGeneratingAll={isGeneratingAll}
-          readOnly={isPublished}
-          aiEnabled={true}
-          onCriterionClick={handleCriterionClick}
-        />
-      </div>
+      {/* Per-section tabs */}
+      {(() => {
+        const sectionKeys = EDITION_SECTION_KEYS[vpat.standard_edition] ?? ['A', 'AA', 'AAA'];
+        return (
+          <div className="space-y-4">
+            {!isPublished && (
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="ai"
+                  size="sm"
+                  onClick={handleRequestGenerateAll}
+                  disabled={isGeneratingAll}
+                >
+                  <Sparkles />
+                  Generate All
+                </Button>
+              </div>
+            )}
+            <Tabs defaultValue="cover-sheet">
+              <TabsList variant="line" className="mb-4 flex-wrap h-auto">
+                <TabsTrigger value="cover-sheet">
+                  <FileText className="h-4 w-4" />
+                  Cover Sheet
+                </TabsTrigger>
+                {sectionKeys.map((key) => (
+                  <TabsTrigger key={key} value={key}>
+                    {SECTION_TAB_LABELS[key] ?? key}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value="cover-sheet">
+                <p className="text-sm text-muted-foreground py-4">Cover Sheet coming soon.</p>
+              </TabsContent>
+              {sectionKeys.map((key) => (
+                <TabsContent key={key} value={key}>
+                  <VpatCriteriaTable
+                    key={`${tableKey}-${key}`}
+                    rows={rows}
+                    locale={locale}
+                    sectionKey={key}
+                    onRowChange={handleRowChange}
+                    onSaveRemarks={handleSaveRemarks}
+                    onGenerateRow={handleGenerateRow}
+                    generatingRowId={generatingRowId}
+                    isGeneratingAll={isGeneratingAll}
+                    readOnly={isPublished}
+                    aiEnabled={true}
+                    onCriterionClick={handleCriterionClick}
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        );
+      })()}
 
       <div className="flex items-center gap-2">
         <Button onClick={handleSave} disabled={isSaving}>

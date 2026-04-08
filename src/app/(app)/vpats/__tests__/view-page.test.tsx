@@ -140,9 +140,13 @@ describe('VpatDetailPage (view)', () => {
     });
   });
 
-  it('shows criteria table', async () => {
+  it('shows criteria table when Level A tab is active', async () => {
+    const user = userEvent.setup();
     render(<VpatDetailPage />);
-
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Level A' })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('tab', { name: 'Level A' }));
     await waitFor(() => {
       expect(screen.getByText('1.1.1')).toBeInTheDocument();
     });
@@ -368,6 +372,26 @@ describe('VpatDetailPage Review flow', () => {
       );
     });
   }, 15000);
+});
+
+describe('VpatDetailPage tab structure', () => {
+  it('renders Cover Sheet, Level A, Level AA, and Version History tabs for WCAG VPAT', async () => {
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Cover Sheet' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: 'Level A' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: 'Level AA' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /Version History/i })).toBeInTheDocument();
+    });
+  });
+
+  it('does not render the old "Criteria" tab', async () => {
+    render(<VpatDetailPage />);
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Test VPAT' })).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('tab', { name: 'Criteria' })).not.toBeInTheDocument();
+  });
 });
 
 describe('VpatDetailPage Unpublish flow', () => {

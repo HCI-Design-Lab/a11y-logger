@@ -5,12 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { History } from 'lucide-react';
+import { History, FileText } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import { VpatVersionHistoryTable } from '@/components/vpats/vpat-version-history-table';
 import type { VpatData } from '@/lib/db/vpats';
+import { EDITION_SECTION_KEYS, SECTION_TAB_LABELS } from '@/lib/vpat-tabs';
 
 function getEditionBadgeLabel(vpat: VpatData): string {
   if (vpat.standard_edition === '508') return 'Section 508';
@@ -206,37 +207,51 @@ export default function VpatDetailPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="criteria">
-        <TabsList variant="segmented" className="mb-4">
-          <TabsTrigger value="criteria">Criteria</TabsTrigger>
-          <TabsTrigger value="history">
-            <History className="h-4 w-4" />
-            Version History
-            {snapshots.length > 0 && (
-              <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="criteria">
-          <div className="space-y-6">
-            <VpatCriteriaTable
-              rows={vpat.criterion_rows}
-              locale={locale}
-              onRowChange={() => {}}
-              onSaveRemarks={() => {}}
-              onGenerateRow={() => {}}
-              onGenerateAll={() => {}}
-              generatingRowId={null}
-              readOnly={true}
-              aiEnabled={false}
-              onCriterionClick={() => {}}
-            />
-          </div>
-        </TabsContent>
-        <TabsContent value="history">
-          <VpatVersionHistoryTable vpatId={vpatId} snapshots={snapshots} />
-        </TabsContent>
-      </Tabs>
+      {(() => {
+        const sectionKeys = EDITION_SECTION_KEYS[vpat.standard_edition] ?? ['A', 'AA', 'AAA'];
+        return (
+          <Tabs defaultValue="cover-sheet">
+            <TabsList variant="line" className="mb-4 flex-wrap h-auto">
+              <TabsTrigger value="cover-sheet">
+                <FileText className="h-4 w-4" />
+                Cover Sheet
+              </TabsTrigger>
+              {sectionKeys.map((key) => (
+                <TabsTrigger key={key} value={key}>
+                  {SECTION_TAB_LABELS[key] ?? key}
+                </TabsTrigger>
+              ))}
+              <TabsTrigger value="history">
+                <History className="h-4 w-4" />
+                Version History
+                {snapshots.length > 0 && (
+                  <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="cover-sheet">
+              <p className="text-sm text-muted-foreground py-4">Cover Sheet coming soon.</p>
+            </TabsContent>
+            {sectionKeys.map((key) => (
+              <TabsContent key={key} value={key}>
+                <VpatCriteriaTable
+                  rows={vpat.criterion_rows}
+                  locale={locale}
+                  sectionKey={key}
+                  onRowChange={() => {}}
+                  onSaveRemarks={() => {}}
+                  readOnly={true}
+                  aiEnabled={false}
+                  onCriterionClick={() => {}}
+                />
+              </TabsContent>
+            ))}
+            <TabsContent value="history">
+              <VpatVersionHistoryTable vpatId={vpatId} snapshots={snapshots} />
+            </TabsContent>
+          </Tabs>
+        );
+      })()}
     </div>
   );
 }
