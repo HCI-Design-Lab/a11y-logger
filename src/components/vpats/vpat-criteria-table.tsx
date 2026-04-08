@@ -26,8 +26,21 @@ const SECTION_LABELS: Record<string, string> = {
 // Canonical standard groups — defines display order and which sections belong to each standard.
 const STANDARD_GROUPS: { label: string; sections: string[] }[] = [
   { label: 'WCAG', sections: ['A', 'AA', 'AAA'] },
-  { label: 'Section 508', sections: ['Chapter3', 'Chapter5', 'Chapter6'] },
-  { label: 'EN 301 549', sections: ['Clause4', 'Clause5', 'Clause12'] },
+  { label: 'Section 508', sections: ['Chapter3', 'Chapter4', 'Chapter5', 'Chapter6'] },
+  {
+    label: 'EN 301 549',
+    sections: [
+      'Clause4',
+      'Clause5',
+      'Clause6',
+      'Clause7',
+      'Clause8',
+      'Clause10',
+      'Clause11',
+      'Clause12',
+      'Clause13',
+    ],
+  },
 ];
 
 // WCAG rows are stored with criterion_section = principle name (Perceivable etc.)

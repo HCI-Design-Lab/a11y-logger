@@ -48,12 +48,18 @@ const SECTION_LABELS: Record<string, string> = {
   AA: 'Table 2: Success Criteria, Level AA',
   AAA: 'Table 3: Success Criteria, Level AAA',
   Chapter3: 'Chapter 3: Functional Performance Criteria',
+  Chapter4: 'Chapter 4: Hardware',
   Chapter5: 'Chapter 5: Software',
   Chapter6: 'Chapter 6: Support Documentation and Services',
   Clause4: 'Clause 4: Functional Performance Statements',
   Clause5: 'Clause 5: Generic Requirements',
-  Clause11: 'Clause 11: Non-Web Software',
+  Clause6: 'Clause 6: ICT with Two-Way Voice Communication',
+  Clause7: 'Clause 7: ICT with Video Capabilities',
+  Clause8: 'Clause 8: Hardware',
+  Clause10: 'Clause 10: Non-Web Documents',
+  Clause11: 'Clause 11: Software',
   Clause12: 'Clause 12: Documentation and Support Services',
+  Clause13: 'Clause 13: ICT Providing Relay or Emergency Service Access',
 };
 
 // Raw DB row shape (JSON fields as strings)

@@ -1,0 +1,3 @@
+-- Migration 016: missing criteria
+-- Section 508 Chapter 4 (Hardware) and EN 301 549 Clauses 6, 7, 8, 10, 11, 13
+-- are added by criteria-seed.ts idempotent guards at initDb() time.
