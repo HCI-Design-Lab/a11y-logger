@@ -12,6 +12,7 @@ import {
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import type { VpatCoverSheetRow } from '@/lib/db/schema';
 
 const CONFORMANCE_DISPLAY: Record<string, string> = {
   supports: 'Supports',
@@ -118,7 +119,8 @@ function criterionRow(row: VpatCriterionRow): TableRow {
 export async function generateVpatDocx(
   vpat: Vpat,
   project: Project,
-  rows: VpatCriterionRow[]
+  rows: VpatCriterionRow[],
+  coverSheet?: VpatCoverSheetRow | null
 ): Promise<Buffer> {
   const generatedDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -188,6 +190,37 @@ export async function generateVpatDocx(
   }
 
   children.push(new Paragraph({ text: '' }));
+
+  // Cover sheet section
+  if (coverSheet) {
+    children.push(new Paragraph({ text: 'Cover Sheet', heading: HeadingLevel.HEADING_2 }));
+    const coverRows: [string, string | null | undefined][] = [
+      ['Product Name', coverSheet.product_name],
+      ['Version', coverSheet.product_version],
+      ['Description', coverSheet.product_description],
+      ['Vendor', coverSheet.vendor_company],
+      ['Contact', coverSheet.vendor_contact_name],
+      ['Email', coverSheet.vendor_contact_email],
+      ['Phone', coverSheet.vendor_contact_phone],
+      ['Website', coverSheet.vendor_website],
+      ['Report Date', coverSheet.report_date],
+      ['Evaluation Methods', coverSheet.evaluation_methods],
+      ['Notes', coverSheet.notes],
+    ];
+    for (const [label, value] of coverRows) {
+      if (value) {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: `${label}: `, bold: true }),
+              new TextRun({ text: value }),
+            ],
+          })
+        );
+      }
+    }
+    children.push(new Paragraph({ text: '' }));
+  }
 
   for (const section of orderedSections) {
     const sectionRows = bySection.get(section)!;

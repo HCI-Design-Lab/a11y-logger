@@ -2,6 +2,7 @@ import { Document, visit } from 'yaml';
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import type { VpatCoverSheetRow } from '@/lib/db/schema';
 
 // OpenACR adherence levels (hyphenated per spec)
 const ADHERENCE_MAP: Record<string, string> = {
@@ -72,7 +73,8 @@ export interface OpenAcrReport {
 export function generateOpenAcr(
   vpat: Vpat,
   project: Project,
-  rows: VpatCriterionRow[]
+  rows: VpatCriterionRow[],
+  coverSheet?: VpatCoverSheetRow | null
 ): OpenAcrReport {
   const date = new Date().toISOString().split('T')[0]!;
 
@@ -112,15 +114,24 @@ export function generateOpenAcr(
 
   return {
     title: vpat.title,
-    product: { name: project.name, version: String(vpat.version_number) },
-    author: { name: '', email: '' },
-    vendor: { name: '', email: '' },
-    report_date: date,
+    product: {
+      name: coverSheet?.product_name ?? project.name,
+      version: coverSheet?.product_version ?? String(vpat.version_number),
+    },
+    author: {
+      name: coverSheet?.vendor_contact_name ?? '',
+      email: coverSheet?.vendor_contact_email ?? '',
+    },
+    vendor: {
+      name: coverSheet?.vendor_company ?? '',
+      email: coverSheet?.vendor_contact_email ?? '',
+    },
+    report_date: coverSheet?.report_date ?? date,
     version: 1,
     license: 'CC-BY-4.0',
     catalog: resolveCatalog(vpat.standard_edition, vpat.wcag_version),
-    notes: vpat.description ?? '',
-    evaluation_methods_used: '',
+    notes: coverSheet?.notes ?? vpat.description ?? '',
+    evaluation_methods_used: coverSheet?.evaluation_methods ?? '',
     legal_disclaimer: '',
     chapters,
   };
@@ -141,9 +152,10 @@ export function generateOpenAcr(
 export function generateOpenAcrYaml(
   vpat: Vpat,
   project: Project,
-  rows: VpatCriterionRow[]
+  rows: VpatCriterionRow[],
+  coverSheet?: VpatCoverSheetRow | null
 ): string {
-  const report = generateOpenAcr(vpat, project, rows);
+  const report = generateOpenAcr(vpat, project, rows, coverSheet);
   const doc = new Document(report);
   // Force date strings to be quoted so YAML 1.1 parsers don't interpret them as timestamps
   visit(doc, {

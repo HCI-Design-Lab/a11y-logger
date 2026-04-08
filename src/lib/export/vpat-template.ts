@@ -1,6 +1,7 @@
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import type { VpatCoverSheetRow } from '@/lib/db/schema';
 
 const SECTION_ORDER = [
   'A',
@@ -87,7 +88,12 @@ function getConformanceClass(conformance: string): string {
  * @param rows - The criterion rows containing criterion codes, names, levels, conformance, and remarks.
  * @returns A complete HTML string ready to be served as `text/html` or written to a file.
  */
-export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriterionRow[]): string {
+export function generateVpatHtml(
+  vpat: Vpat,
+  project: Project,
+  rows: VpatCriterionRow[],
+  coverSheet?: VpatCoverSheetRow | null
+): string {
   const generatedDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -413,6 +419,29 @@ export function generateVpatHtml(vpat: Vpat, project: Project, rows: VpatCriteri
       </dl>
     </header>
 
+    ${
+      coverSheet
+        ? `<section class="principle-section">
+      <h2>Cover Sheet</h2>
+      <table>
+        <colgroup><col style="width:30%"><col style="width:70%"></colgroup>
+        <tbody>
+          ${coverSheet.product_name ? `<tr><th scope="row">Product Name</th><td>${escapeHtml(coverSheet.product_name)}</td></tr>` : ''}
+          ${coverSheet.product_version ? `<tr><th scope="row">Version</th><td>${escapeHtml(coverSheet.product_version)}</td></tr>` : ''}
+          ${coverSheet.product_description ? `<tr><th scope="row">Description</th><td>${escapeHtml(coverSheet.product_description)}</td></tr>` : ''}
+          ${coverSheet.vendor_company ? `<tr><th scope="row">Vendor</th><td>${escapeHtml(coverSheet.vendor_company)}</td></tr>` : ''}
+          ${coverSheet.vendor_contact_name ? `<tr><th scope="row">Contact</th><td>${escapeHtml(coverSheet.vendor_contact_name)}</td></tr>` : ''}
+          ${coverSheet.vendor_contact_email ? `<tr><th scope="row">Email</th><td>${escapeHtml(coverSheet.vendor_contact_email)}</td></tr>` : ''}
+          ${coverSheet.vendor_contact_phone ? `<tr><th scope="row">Phone</th><td>${escapeHtml(coverSheet.vendor_contact_phone)}</td></tr>` : ''}
+          ${coverSheet.vendor_website ? `<tr><th scope="row">Website</th><td>${escapeHtml(coverSheet.vendor_website)}</td></tr>` : ''}
+          ${coverSheet.report_date ? `<tr><th scope="row">Report Date</th><td>${escapeHtml(coverSheet.report_date)}</td></tr>` : ''}
+          ${coverSheet.evaluation_methods ? `<tr><th scope="row">Evaluation Methods</th><td>${escapeHtml(coverSheet.evaluation_methods)}</td></tr>` : ''}
+          ${coverSheet.notes ? `<tr><th scope="row">Notes</th><td>${escapeHtml(coverSheet.notes)}</td></tr>` : ''}
+        </tbody>
+      </table>
+    </section>`
+        : ''
+    }
     <main>
       ${sectionsHtml}
       ${noRowsHtml}

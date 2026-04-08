@@ -8,6 +8,7 @@ import { NextResponse } from 'next/server';
 import { getVpat } from '@/lib/db/vpats';
 import { getProject } from '@/lib/db/projects';
 import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
+import { getCoverSheet } from '@/lib/db/vpat-cover-sheet';
 import { generateVpatHtml } from '@/lib/export/vpat-template';
 import { generateVpatDocx } from '@/lib/export/vpat-docx';
 import { generateOpenAcrYaml } from '@/lib/export/openacr';
@@ -73,10 +74,11 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     const rows = await getCriterionRows(id);
+    const coverSheet = getCoverSheet(id);
     const slug = safeTitle(vpat.title);
 
     if ((format as SupportedFormat) === 'docx') {
-      const buffer = await generateVpatDocx(vpat, project, rows);
+      const buffer = await generateVpatDocx(vpat, project, rows, coverSheet);
       return new Response(new Uint8Array(buffer), {
         status: 200,
         headers: {
@@ -87,7 +89,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     if ((format as SupportedFormat) === 'openacr') {
-      const yaml = generateOpenAcrYaml(vpat, project, rows);
+      const yaml = generateOpenAcrYaml(vpat, project, rows, coverSheet);
       return new Response(yaml, {
         status: 200,
         headers: {
@@ -98,7 +100,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     // html (default)
-    const html = generateVpatHtml(vpat, project, rows);
+    const html = generateVpatHtml(vpat, project, rows, coverSheet);
     const filename = `vpat-${slug}.html`;
 
     return new Response(html, {
