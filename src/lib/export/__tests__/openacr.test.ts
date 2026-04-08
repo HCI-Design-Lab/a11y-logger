@@ -171,3 +171,69 @@ describe('generateOpenAcrYaml', () => {
     expect(yaml).toMatch(/report_date: "\d{4}-\d{2}-\d{2}"/);
   });
 });
+
+describe('generateOpenAcr — cover sheet', () => {
+  const mockCoverSheet = {
+    id: 'cs-1',
+    vpat_id: 'v1',
+    product_name: 'My Product',
+    product_version: '3.0',
+    product_description: 'A product',
+    vendor_company: 'My Corp',
+    vendor_contact_name: 'Jane Doe',
+    vendor_contact_email: 'jane@mycorp.com',
+    vendor_contact_phone: null,
+    vendor_website: null,
+    report_date: '2026-04-08',
+    evaluation_methods: 'Manual testing',
+    notes: 'Extra notes',
+    created_at: '2026-04-08T00:00:00Z',
+    updated_at: '2026-04-08T00:00:00Z',
+  };
+
+  it('uses cover sheet product name and version when provided', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result.product.name).toBe('My Product');
+    expect(result.product.version).toBe('3.0');
+  });
+
+  it('uses cover sheet vendor and contact info', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result.vendor.name).toBe('My Corp');
+    expect(result.author.name).toBe('Jane Doe');
+    expect(result.author.email).toBe('jane@mycorp.com');
+  });
+
+  it('uses cover sheet report_date', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result.report_date).toBe('2026-04-08');
+  });
+
+  it('uses cover sheet notes and evaluation_methods', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result.notes).toBe('Extra notes');
+    expect(result.evaluation_methods_used).toBe('Manual testing');
+  });
+
+  it('falls back to project name when cover sheet has no product_name', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, {
+      ...mockCoverSheet,
+      product_name: null,
+    });
+    expect(result.product.name).toBe(mockProject.name);
+  });
+
+  it('falls back to vpat version_number when cover sheet has no product_version', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, {
+      ...mockCoverSheet,
+      product_version: null,
+    });
+    expect(result.product.version).toBe(String(mockVpat.version_number));
+  });
+
+  it('falls back gracefully when coverSheet is null', () => {
+    const result = generateOpenAcr(mockVpat, mockProject, mockRows, null);
+    expect(result.product.name).toBe(mockProject.name);
+    expect(result.vendor.name).toBe('');
+  });
+});

@@ -200,3 +200,70 @@ describe('generateVpatHtml', () => {
     expect(result).toContain('Table 2: Success Criteria, Level AA');
   });
 });
+
+describe('generateVpatHtml — cover sheet', () => {
+  const mockCoverSheet = {
+    id: 'cs-1',
+    vpat_id: 'vpat-1',
+    product_name: 'Acme App',
+    product_version: '2.0',
+    product_description: 'A great product',
+    vendor_company: 'Acme Corp',
+    vendor_contact_name: 'Jane Doe',
+    vendor_contact_email: 'jane@acme.com',
+    vendor_contact_phone: '+1 555 000 0000',
+    vendor_website: 'https://acme.com',
+    report_date: '2026-04-08',
+    evaluation_methods: 'Manual and automated testing',
+    notes: 'Some notes here',
+    created_at: '2026-04-08T00:00:00Z',
+    updated_at: '2026-04-08T00:00:00Z',
+  };
+
+  it('renders Cover Sheet section when coverSheet is provided', () => {
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result).toContain('Cover Sheet');
+    expect(result).toContain('Acme App');
+    expect(result).toContain('Acme Corp');
+  });
+
+  it('renders all populated cover sheet fields', () => {
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows, mockCoverSheet);
+    expect(result).toContain('Jane Doe');
+    expect(result).toContain('jane@acme.com');
+    expect(result).toContain('+1 555 000 0000');
+    expect(result).toContain('https://acme.com');
+    expect(result).toContain('2026-04-08');
+    expect(result).toContain('Manual and automated testing');
+    expect(result).toContain('Some notes here');
+  });
+
+  it('omits cover sheet section when coverSheet is null', () => {
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows, null);
+    expect(result).not.toContain('Cover Sheet');
+  });
+
+  it('omits cover sheet section when coverSheet is undefined', () => {
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows);
+    expect(result).not.toContain('Cover Sheet');
+  });
+
+  it('skips null fields in the cover sheet table', () => {
+    const partial = {
+      ...mockCoverSheet,
+      vendor_contact_phone: null,
+      vendor_website: null,
+      notes: null,
+    };
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows, partial);
+    expect(result).toContain('Acme App');
+    expect(result).not.toContain('+1 555 000 0000');
+  });
+
+  it('escapes HTML in cover sheet fields', () => {
+    const xss = { ...mockCoverSheet, product_name: '<script>alert("xss")</script>' };
+    const result = generateVpatHtml(mockVpat, mockProject, mockRows, xss);
+    expect(result).not.toContain('<script>');
+    expect(result).toContain('&lt;script&gt;');
+  });
+});

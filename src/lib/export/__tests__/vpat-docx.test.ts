@@ -115,4 +115,47 @@ describe('generateVpatDocx', () => {
       expect(text).not.toContain('Reviewed by');
     });
   });
+
+  describe('cover sheet', () => {
+    const mockCoverSheet = {
+      id: 'cs-1',
+      vpat_id: 'v1',
+      product_name: 'Acme App',
+      product_version: '2.0',
+      product_description: 'A great product',
+      vendor_company: 'Acme Corp',
+      vendor_contact_name: 'Jane Doe',
+      vendor_contact_email: 'jane@acme.com',
+      vendor_contact_phone: '+1 555 000 0000',
+      vendor_website: 'https://acme.com',
+      report_date: '2026-04-08',
+      evaluation_methods: 'Manual testing',
+      notes: 'Some notes',
+      created_at: '2026-04-08T00:00:00Z',
+      updated_at: '2026-04-08T00:00:00Z',
+    };
+
+    it('includes cover sheet fields when provided', async () => {
+      const buffer = await generateVpatDocx(mockVpat, mockProject, mockRows, mockCoverSheet);
+      const text = await extractDocxText(buffer);
+      expect(text).toContain('Cover Sheet');
+      expect(text).toContain('Acme App');
+      expect(text).toContain('Acme Corp');
+      expect(text).toContain('Jane Doe');
+    });
+
+    it('omits cover sheet section when not provided', async () => {
+      const buffer = await generateVpatDocx(mockVpat, mockProject, mockRows);
+      const text = await extractDocxText(buffer);
+      expect(text).not.toContain('Cover Sheet');
+    });
+
+    it('skips null fields in cover sheet', async () => {
+      const partial = { ...mockCoverSheet, vendor_contact_phone: null, notes: null };
+      const buffer = await generateVpatDocx(mockVpat, mockProject, mockRows, partial);
+      const text = await extractDocxText(buffer);
+      expect(text).toContain('Acme App');
+      expect(text).not.toContain('+1 555 000 0000');
+    });
+  });
 });
