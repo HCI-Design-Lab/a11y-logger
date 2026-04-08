@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Save, X, Sparkles, FileText } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
+import { VpatCoverSheetForm } from '@/components/vpats/vpat-cover-sheet-form';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -327,7 +328,7 @@ export default function VpatEditPage() {
                 ))}
               </TabsList>
               <TabsContent value="cover-sheet">
-                <p className="text-sm text-muted-foreground py-4">Cover Sheet coming soon.</p>
+                <VpatCoverSheetForm vpatId={vpatId} readOnly={isPublished} />
               </TabsContent>
               {sectionKeys.map((key) => (
                 <TabsContent key={key} value={key}>

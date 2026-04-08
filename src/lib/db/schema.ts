@@ -156,7 +156,31 @@ export const users = sqliteTable('users', {
   updated_at: text('updated_at').notNull(),
 });
 
+export const vpatCoverSheets = sqliteTable('vpat_cover_sheets', {
+  id: text('id').primaryKey(),
+  vpat_id: text('vpat_id').notNull().unique(),
+  // Product information
+  product_name: text('product_name'),
+  product_version: text('product_version'),
+  product_description: text('product_description'),
+  // Vendor / contact
+  vendor_company: text('vendor_company'),
+  vendor_contact_name: text('vendor_contact_name'),
+  vendor_contact_email: text('vendor_contact_email'),
+  vendor_contact_phone: text('vendor_contact_phone'),
+  vendor_website: text('vendor_website'),
+  // Dates
+  report_date: text('report_date'),
+  // Notes
+  evaluation_methods: text('evaluation_methods'),
+  notes: text('notes'),
+  // Timestamps
+  created_at: text('created_at').notNull(),
+  updated_at: text('updated_at').notNull(),
+});
+
 // TypeScript types inferred from schema — used by all data access files
+export type VpatCoverSheetRow = typeof vpatCoverSheets.$inferSelect;
 export type ProjectRow = typeof projects.$inferSelect;
 export type AssessmentRow = typeof assessments.$inferSelect;
 export type IssueRow = typeof issues.$inferSelect;

@@ -8,6 +8,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { History, FileText } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
+import { VpatCoverSheetForm } from '@/components/vpats/vpat-cover-sheet-form';
 import { VpatSettingsMenu } from '@/components/vpats/vpat-settings-menu';
 import { VpatVersionHistoryTable } from '@/components/vpats/vpat-version-history-table';
 import type { VpatData } from '@/lib/db/vpats';
@@ -230,7 +231,7 @@ export default function VpatDetailPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="cover-sheet">
-              <p className="text-sm text-muted-foreground py-4">Cover Sheet coming soon.</p>
+              <VpatCoverSheetForm vpatId={vpatId} readOnly={true} />
             </TabsContent>
             {sectionKeys.map((key) => (
               <TabsContent key={key} value={key}>
