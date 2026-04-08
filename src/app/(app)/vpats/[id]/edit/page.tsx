@@ -12,7 +12,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Save, X, Sparkles, FileText } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
-import { VpatCoverSheetForm } from '@/components/vpats/vpat-cover-sheet-form';
+import {
+  VpatCoverSheetForm,
+  type VpatCoverSheetFormHandle,
+} from '@/components/vpats/vpat-cover-sheet-form';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -51,6 +54,7 @@ export default function VpatEditPage() {
   const [pendingGenerateCount, setPendingGenerateCount] = useState(0);
   const pendingChanges = useRef<Map<string, { conformance?: string; remarks?: string }>>(new Map());
   const cancelGenerateAllRef = useRef(false);
+  const coverSheetRef = useRef<VpatCoverSheetFormHandle>(null);
 
   useEffect(() => {
     async function load() {
@@ -110,9 +114,12 @@ export default function VpatEditPage() {
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
+      const saves: Promise<unknown>[] = [];
+
+      // Save pending criterion row changes
       const entries = Array.from(pendingChanges.current.entries());
       if (entries.length > 0) {
-        const results = await Promise.all(
+        const rowSave = Promise.all(
           entries.map(([rowId, changes]) =>
             fetch(`/api/vpats/${vpatId}/rows/${rowId}`, {
               method: 'PATCH',
@@ -120,15 +127,21 @@ export default function VpatEditPage() {
               body: JSON.stringify(changes),
             }).then((r) => r.json())
           )
-        );
-        if (results.some((r) => !r.success)) {
-          toast.error('Some changes failed to save');
-          return;
-        }
+        ).then((results) => {
+          if (results.some((r) => !r.success)) throw new Error('Some changes failed to save');
+        });
+        saves.push(rowSave);
       }
+
+      // Save cover sheet if the form is mounted
+      if (coverSheetRef.current) {
+        saves.push(coverSheetRef.current.save());
+      }
+
+      await Promise.all(saves);
       router.push(`/vpats/${vpatId}`);
-    } catch {
-      toast.error('Failed to save');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setIsSaving(false);
     }
@@ -328,7 +341,7 @@ export default function VpatEditPage() {
                 ))}
               </TabsList>
               <TabsContent value="cover-sheet">
-                <VpatCoverSheetForm vpatId={vpatId} readOnly={isPublished} />
+                <VpatCoverSheetForm ref={coverSheetRef} vpatId={vpatId} readOnly={isPublished} />
               </TabsContent>
               {sectionKeys.map((key) => (
                 <TabsContent key={key} value={key}>
