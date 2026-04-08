@@ -11,8 +11,8 @@ describe('SECTION_508_CRITERION_CODES', () => {
     expect(SECTION_508_CRITERION_CODES).toContain('603.2');
   });
 
-  it('has 18 codes total', () => {
-    expect(SECTION_508_CRITERION_CODES).toHaveLength(18);
+  it('has 56 codes total', () => {
+    expect(SECTION_508_CRITERION_CODES).toHaveLength(56);
   });
 });
 
@@ -26,7 +26,7 @@ describe('EN301549_CRITERION_CODES', () => {
     expect(EN301549_CRITERION_CODES).toContain('12.2.4');
   });
 
-  it('has 21 codes total', () => {
-    expect(EN301549_CRITERION_CODES).toHaveLength(21);
+  it('has 147 codes total', () => {
+    expect(EN301549_CRITERION_CODES).toHaveLength(147);
   });
 });
