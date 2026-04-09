@@ -73,6 +73,7 @@ export async function POST(request: Request) {
         | 'not_applicable'
         | 'not_evaluated';
       remarks: string | null;
+      components?: Array<{ component_name: string; conformance: string; remarks?: string | null }>;
     }> = [];
 
     for (const criterion of openacr.criteria) {
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
         criterion_id: criterionId,
         conformance: criterion.conformance,
         remarks: criterion.remarks,
+        components: criterion.components,
       });
     }
 

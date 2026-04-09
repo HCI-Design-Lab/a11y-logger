@@ -5,13 +5,24 @@ export type ConformanceLevel =
   | 'not_applicable'
   | 'not_evaluated';
 
+export interface OpenAcrParsedComponent {
+  component_name: string;
+  conformance: ConformanceLevel;
+  remarks: string | null;
+}
+
 export interface OpenAcrParseResult {
   title: string;
   description: string | null;
   standard_edition: 'WCAG' | '508' | 'EU' | 'INT';
   wcag_version: '2.1' | '2.2';
   wcag_level: 'A' | 'AA' | 'AAA';
-  criteria: Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }>;
+  criteria: Array<{
+    code: string;
+    conformance: ConformanceLevel;
+    remarks: string | null;
+    components: OpenAcrParsedComponent[];
+  }>;
 }
 
 const CATALOG_MAP: Record<
@@ -51,10 +62,18 @@ export function mapConformance(level: string): ConformanceLevel {
   return CONFORMANCE_MAP[level] ?? 'not_evaluated';
 }
 
-export function extractCriteria(
-  chapters: Record<string, unknown>
-): Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }> {
-  const result: Array<{ code: string; conformance: ConformanceLevel; remarks: string | null }> = [];
+export function extractCriteria(chapters: Record<string, unknown>): Array<{
+  code: string;
+  conformance: ConformanceLevel;
+  remarks: string | null;
+  components: OpenAcrParsedComponent[];
+}> {
+  const result: Array<{
+    code: string;
+    conformance: ConformanceLevel;
+    remarks: string | null;
+    components: OpenAcrParsedComponent[];
+  }> = [];
   const levelKeys = [
     'success_criteria_level_a',
     'success_criteria_level_aa',
@@ -68,14 +87,26 @@ export function extractCriteria(
     for (const entry of chapter.criteria) {
       const c = entry as {
         num: string;
-        components?: Array<{ adherence?: { level?: string; notes?: string } }>;
+        components?: Array<{ name?: string; adherence?: { level?: string; notes?: string } }>;
       };
-      const adherence = c.components?.[0]?.adherence;
-      const notes = adherence?.notes ?? '';
+      const rawComponents = c.components ?? [];
+      const firstAdherence = rawComponents[0]?.adherence;
+      const firstNotes = firstAdherence?.notes ?? '';
+
+      const components: OpenAcrParsedComponent[] = rawComponents.map((comp) => {
+        const notes = comp.adherence?.notes ?? '';
+        return {
+          component_name: comp.name ?? 'web',
+          conformance: mapConformance(comp.adherence?.level ?? 'not-evaluated'),
+          remarks: notes.trim() ? notes : null,
+        };
+      });
+
       result.push({
         code: c.num,
-        conformance: mapConformance(adherence?.level ?? 'not-evaluated'),
-        remarks: notes.trim() ? notes : null,
+        conformance: mapConformance(firstAdherence?.level ?? 'not-evaluated'),
+        remarks: firstNotes.trim() ? firstNotes : null,
+        components,
       });
     }
   }
