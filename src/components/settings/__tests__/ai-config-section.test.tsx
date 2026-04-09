@@ -64,7 +64,7 @@ describe('AIConfigSection — env var overrides', () => {
     expect(screen.getByText(/set via environment variable/i)).toBeInTheDocument();
   });
 
-  it('shows env model value in model field when model is from env', () => {
+  it('shows env override banner when model is from env', () => {
     render(
       <AIConfigSection
         provider="ollama"
@@ -72,9 +72,9 @@ describe('AIConfigSection — env var overrides', () => {
         envSource={{ provider: null, apiKey: false, model: 'llama3.2', baseUrl: null }}
       />
     );
-    const modelInput = screen.getByLabelText(/model name/i);
-    expect(modelInput).toHaveValue('llama3.2');
-    expect(modelInput).toBeDisabled();
+    // The per-task model selectors are shown; the env banner is shown because model is set
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
   });
 
   it('shows env baseUrl value in base URL field when baseUrl is from env', () => {
@@ -93,5 +93,102 @@ describe('AIConfigSection — env var overrides', () => {
     const baseUrlInput = screen.getByLabelText(/base url/i);
     expect(baseUrlInput).toHaveValue('http://localhost:11434/v1');
     expect(baseUrlInput).toBeDisabled();
+  });
+});
+
+describe('AIConfigSection — per-task model selectors', () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+
+  it('shows task model section when provider is openai', () => {
+    render(
+      <AIConfigSection
+        provider="openai"
+        onSave={onSave}
+        modelIssues=""
+        modelVpat=""
+        modelReports=""
+        modelVpatReview=""
+        reviewPassEnabled={false}
+      />
+    );
+    expect(screen.getByText('Issue Analysis')).toBeInTheDocument();
+    expect(screen.getByText('VPAT Generation')).toBeInTheDocument();
+    expect(screen.getByText('Report Writing')).toBeInTheDocument();
+    expect(screen.getByText('AI Review Pass')).toBeInTheDocument();
+  });
+
+  it('does not show review model selector when toggle is off', () => {
+    render(
+      <AIConfigSection
+        provider="openai"
+        onSave={onSave}
+        modelIssues=""
+        modelVpat=""
+        modelReports=""
+        modelVpatReview=""
+        reviewPassEnabled={false}
+      />
+    );
+    expect(screen.queryByLabelText(/ai review pass model/i)).not.toBeInTheDocument();
+  });
+
+  it('shows review model selector when toggle is switched on', async () => {
+    const user = userEvent.setup();
+    render(
+      <AIConfigSection
+        provider="openai"
+        onSave={onSave}
+        modelIssues=""
+        modelVpat=""
+        modelReports=""
+        modelVpatReview=""
+        reviewPassEnabled={false}
+      />
+    );
+    await user.click(screen.getByRole('switch', { name: /enable ai review pass/i }));
+    expect(screen.getByLabelText(/ai review pass model/i)).toBeInTheDocument();
+  });
+
+  it('calls onSave with all model fields and reviewPassEnabled', async () => {
+    const user = userEvent.setup();
+    const mockSave = vi.fn().mockResolvedValue(undefined);
+    render(
+      <AIConfigSection
+        provider="openai"
+        onSave={mockSave}
+        modelIssues="gpt-4o"
+        modelVpat="gpt-4o-mini"
+        modelReports=""
+        modelVpatReview=""
+        reviewPassEnabled={true}
+      />
+    );
+    await user.click(screen.getByRole('button', { name: 'Save Configuration' }));
+    await waitFor(() => {
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          modelIssues: 'gpt-4o',
+          modelVpat: 'gpt-4o-mini',
+          modelReports: '',
+          modelVpatReview: '',
+          reviewPassEnabled: true,
+        })
+      );
+    });
+  });
+
+  it('hides task model section when provider is none', () => {
+    render(
+      <AIConfigSection
+        provider="none"
+        onSave={onSave}
+        modelIssues=""
+        modelVpat=""
+        modelReports=""
+        modelVpatReview=""
+        reviewPassEnabled={false}
+      />
+    );
+    expect(screen.queryByText('Issue Analysis')).not.toBeInTheDocument();
   });
 });

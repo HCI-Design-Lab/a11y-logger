@@ -1,9 +1,11 @@
 'use client';
+
 import { useState } from 'react';
 import { Eye, EyeOff, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -12,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { KNOWN_MODELS, AI_TASKS } from '@/lib/ai/models';
 
 interface AIEnvSource {
   provider: string | null;
@@ -23,14 +26,22 @@ interface AIEnvSource {
 interface AIConfigSectionProps {
   provider?: string;
   apiKey?: string;
-  model?: string;
   baseUrl?: string;
+  modelIssues?: string;
+  modelVpat?: string;
+  modelReports?: string;
+  modelVpatReview?: string;
+  reviewPassEnabled?: boolean;
   envSource?: AIEnvSource;
   onSave: (data: {
     provider: string;
     apiKey: string;
-    model: string;
     baseUrl: string;
+    modelIssues: string;
+    modelVpat: string;
+    modelReports: string;
+    modelVpatReview: string;
+    reviewPassEnabled: boolean;
   }) => Promise<void>;
 }
 
@@ -43,31 +54,122 @@ const PROVIDERS = [
   { value: 'openai-compatible', label: 'OpenAI-compatible (custom)' },
 ];
 
-const MODEL_PLACEHOLDERS: Record<string, string> = {
-  openai: 'gpt-4o-mini',
-  anthropic: 'claude-haiku-4-5-20251001',
-  google: 'gemini-2.0-flash',
-  ollama: 'llama3.2',
-  'openai-compatible': 'model-name',
-};
-
 const needsApiKey = (p: string) =>
   ['openai', 'anthropic', 'google', 'openai-compatible'].includes(p);
 const needsBaseUrl = (p: string) => ['ollama', 'openai-compatible'].includes(p);
-const needsModel = (p: string) => ['ollama', 'openai-compatible'].includes(p);
+
+// ─── TaskModelSelector ────────────────────────────────────────────────────────
+
+interface TaskModelSelectorProps {
+  id: string;
+  label: string;
+  description: string;
+  provider: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}
+
+function TaskModelSelector({
+  id,
+  label,
+  description,
+  provider,
+  value,
+  onChange,
+  disabled,
+}: TaskModelSelectorProps) {
+  const knownModels = KNOWN_MODELS[provider] ?? [];
+  const isCustomValue = value !== '' && !knownModels.some((m) => m.value === value);
+  const [showOther, setShowOther] = useState(isCustomValue);
+
+  const PROVIDER_DEFAULT = '__default__';
+  const dropdownValue = showOther ? 'other' : value === '' ? PROVIDER_DEFAULT : value;
+
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      <p className="text-xs text-muted-foreground">{description}</p>
+      {knownModels.length > 0 ? (
+        <>
+          <Select
+            value={dropdownValue}
+            onValueChange={(v) => {
+              if (v === 'other') {
+                setShowOther(true);
+                onChange('');
+              } else if (v === PROVIDER_DEFAULT) {
+                setShowOther(false);
+                onChange('');
+              } else {
+                setShowOther(false);
+                onChange(v);
+              }
+            }}
+            disabled={disabled}
+          >
+            <SelectTrigger id={id} aria-label={label}>
+              <SelectValue placeholder="Provider default" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={PROVIDER_DEFAULT}>Provider default</SelectItem>
+              {knownModels.map((m) => (
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
+              ))}
+              <SelectItem value="other">Other…</SelectItem>
+            </SelectContent>
+          </Select>
+          {showOther && (
+            <Input
+              id={`${id}-other`}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              disabled={disabled}
+              placeholder="model-name"
+              aria-label={`${label} custom model name`}
+            />
+          )}
+        </>
+      ) : (
+        <Input
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          placeholder="model-name"
+          aria-label={label}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── AIConfigSection ──────────────────────────────────────────────────────────
 
 export function AIConfigSection({
   provider = '',
   apiKey = '',
-  model = '',
   baseUrl = '',
+  modelIssues = '',
+  modelVpat = '',
+  modelReports = '',
+  modelVpatReview = '',
+  reviewPassEnabled = false,
   envSource,
   onSave,
 }: AIConfigSectionProps) {
   const [selectedProvider, setSelectedProvider] = useState(envSource?.provider ?? provider);
   const [key, setKey] = useState(apiKey);
-  const [selectedModel, setSelectedModel] = useState(envSource?.model ?? model);
   const [selectedBaseUrl, setSelectedBaseUrl] = useState(envSource?.baseUrl ?? baseUrl);
+  const [models, setModels] = useState({
+    issues: modelIssues,
+    vpat: modelVpat,
+    reports: modelReports,
+    vpat_review: modelVpatReview,
+  });
+  const [reviewEnabled, setReviewEnabled] = useState(reviewPassEnabled);
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -85,13 +187,19 @@ export function AIConfigSection({
       await onSave({
         provider: selectedProvider,
         apiKey: key,
-        model: selectedModel,
         baseUrl: selectedBaseUrl,
+        modelIssues: models.issues,
+        modelVpat: models.vpat,
+        modelReports: models.reports,
+        modelVpatReview: models.vpat_review,
+        reviewPassEnabled: reviewEnabled,
       });
     } finally {
       setLoading(false);
     }
   };
+
+  const showTaskModels = selectedProvider && selectedProvider !== 'none';
 
   return (
     <Card>
@@ -117,6 +225,7 @@ export function AIConfigSection({
           </div>
         )}
 
+        {/* Provider */}
         <div className="space-y-1.5">
           <Label htmlFor="ai-provider">
             AI Provider
@@ -142,12 +251,13 @@ export function AIConfigSection({
 
         {selectedProvider === 'openai-compatible' && (
           <p className="text-sm text-muted-foreground">
-            Any API that follows the OpenAI chat format works here. That includes Groq, Together AI,
-            LM Studio, and most self-hosted models. Point it at the base URL, pick a model name, and
-            it will behave the same as OpenAI.
+            Any API that follows the OpenAI chat format works here — Groq, Together AI, LM Studio,
+            and most self-hosted models. Point it at the base URL, pick a model name, and it will
+            behave the same as OpenAI.
           </p>
         )}
 
+        {/* API Key */}
         {needsApiKey(selectedProvider) && (
           <div className="space-y-1.5">
             <Label htmlFor="api-key">
@@ -183,6 +293,7 @@ export function AIConfigSection({
           </div>
         )}
 
+        {/* Base URL */}
         {needsBaseUrl(selectedProvider) && (
           <div className="space-y-1.5">
             <Label htmlFor="base-url">
@@ -204,19 +315,60 @@ export function AIConfigSection({
           </div>
         )}
 
-        {needsModel(selectedProvider) && (
-          <div className="space-y-1.5">
-            <Label htmlFor="ai-model">
-              Model Name
-              {envSource?.model && <EnvBadge />}
-            </Label>
-            <Input
-              id="ai-model"
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              disabled={!!envSource?.model}
-              placeholder={MODEL_PLACEHOLDERS[selectedProvider] ?? 'model-name'}
-            />
+        {/* Per-task model selectors */}
+        {showTaskModels && (
+          <div className="space-y-4 border-t pt-4">
+            <p className="text-sm font-medium">Model per Task</p>
+            <p className="text-xs text-muted-foreground">
+              Choose which model to use for each task. Leave a task on &quot;Provider default&quot;
+              to use the model your provider selects automatically.
+            </p>
+
+            {AI_TASKS.filter((t) => t.key !== 'vpat_review').map((task) => (
+              <TaskModelSelector
+                key={task.key}
+                id={`ai-model-${task.key}`}
+                label={task.label}
+                description={task.description}
+                provider={selectedProvider}
+                value={models[task.key as keyof typeof models]}
+                onChange={(v) => setModels((prev) => ({ ...prev, [task.key]: v }))}
+              />
+            ))}
+
+            {/* AI Review Pass section */}
+            <div className="border-t pt-4 space-y-3">
+              <p className="text-sm font-medium">AI Review Pass</p>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="review-pass-toggle" className="text-sm">
+                    Enable AI Review Pass
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    After generating a VPAT criterion row, a second AI call reviews the result and
+                    corrects the conformance call if the evidence does not support it. This doubles
+                    the number of AI calls for VPAT generation.
+                  </p>
+                </div>
+                <Switch
+                  id="review-pass-toggle"
+                  checked={reviewEnabled}
+                  onCheckedChange={setReviewEnabled}
+                  aria-label="Enable AI Review Pass"
+                />
+              </div>
+
+              {reviewEnabled && (
+                <TaskModelSelector
+                  id="ai-model-vpat-review"
+                  label="AI Review Pass Model"
+                  description="Used for the review critique pass. A smaller, faster model often works well here."
+                  provider={selectedProvider}
+                  value={models.vpat_review}
+                  onChange={(v) => setModels((prev) => ({ ...prev, vpat_review: v }))}
+                />
+              )}
+            </div>
           </div>
         )}
 
