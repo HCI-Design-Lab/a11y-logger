@@ -267,3 +267,20 @@ describe('generateVpatHtml — cover sheet', () => {
     expect(result).toContain('&lt;script&gt;');
   });
 });
+
+describe('print CSS', () => {
+  it('includes @media print block', () => {
+    const html = generateVpatHtml(mockVpat, mockProject, []);
+    expect(html).toContain('@media print');
+  });
+
+  it('hides .no-print elements in print CSS', () => {
+    const html = generateVpatHtml(mockVpat, mockProject, []);
+    expect(html).toContain('.no-print { display: none !important; }');
+  });
+
+  it('avoids page breaks inside tables in print CSS', () => {
+    const html = generateVpatHtml(mockVpat, mockProject, []);
+    expect(html).toContain('page-break-inside: avoid');
+  });
+});

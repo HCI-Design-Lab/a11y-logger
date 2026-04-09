@@ -334,6 +334,7 @@ export function generateVpatHtml(
 
     /* Print styles */
     @media print {
+      .no-print { display: none !important; }
       body {
         font-size: 10pt;
       }
