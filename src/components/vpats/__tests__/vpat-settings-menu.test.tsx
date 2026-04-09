@@ -13,6 +13,9 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }));
 vi.mock('sonner', () => ({ toast: { success: mockToastSuccess, error: mockToastError } }));
+vi.mock('../pdf-export-modal', () => ({
+  PdfExportModal: ({ open }: { open: boolean }) => (open ? <div data-testid="pdf-modal" /> : null),
+}));
 global.fetch = vi.fn();
 
 import { VpatSettingsMenu } from '../vpat-settings-menu';
@@ -346,5 +349,22 @@ describe('VpatSettingsMenu Publish count line', () => {
     await user.click(screen.getByRole('menuitem', { name: /^publish$/i }));
     await waitFor(() => expect(screen.getByRole('alertdialog')).toBeInTheDocument());
     expect(screen.getByText(/all 4 criteria have been evaluated/i)).toBeInTheDocument();
+  });
+});
+
+describe('PDF export', () => {
+  it('shows a "Print to PDF…" menu item', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    expect(screen.getByRole('menuitem', { name: /print to pdf/i })).toBeInTheDocument();
+  });
+
+  it('clicking "Print to PDF…" opens the PDF modal', async () => {
+    const user = userEvent.setup();
+    render(<VpatSettingsMenu {...baseProps} />);
+    await user.click(screen.getByRole('button', { name: /vpat settings/i }));
+    await user.click(screen.getByRole('menuitem', { name: /print to pdf/i }));
+    expect(screen.getByTestId('pdf-modal')).toBeInTheDocument();
   });
 });

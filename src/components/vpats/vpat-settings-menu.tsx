@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { Settings, Send, Download, Trash2, Pencil, CheckCircle } from 'lucide-react';
+import { PdfExportModal } from './pdf-export-modal';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -104,6 +105,7 @@ export function VpatSettingsMenu({
   const [reviewerName, setReviewerName] = useState('');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const reviewerInputRef = useRef<HTMLInputElement>(null);
 
@@ -212,6 +214,10 @@ export function VpatSettingsMenu({
               <Download className="mr-2 h-4 w-4" />
               OpenACR (YAML)
             </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setPdfOpen(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            Print to PDF…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>
@@ -417,6 +423,8 @@ export function VpatSettingsMenu({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PdfExportModal open={pdfOpen} onOpenChange={setPdfOpen} vpatId={vpatId} />
     </>
   );
 }
