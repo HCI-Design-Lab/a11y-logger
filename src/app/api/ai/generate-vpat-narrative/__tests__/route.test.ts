@@ -54,6 +54,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       generateReportSection: vi.fn(),
       generateVpatRemarks: vi.fn(),
       generateVpatRow: vi.fn(),
+      reviewVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
       testConnection: vi.fn(),
     });
@@ -77,6 +78,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       generateReportSection: vi.fn(),
       generateVpatRemarks: vi.fn(),
       generateVpatRow: vi.fn(),
+      reviewVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
       testConnection: vi.fn(),
     });
@@ -103,6 +105,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       generateReportSection: vi.fn(),
       generateVpatRemarks: mockRemarks,
       generateVpatRow: vi.fn(),
+      reviewVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
       testConnection: vi.fn(),
     });
@@ -130,6 +133,7 @@ describe('POST /api/ai/generate-vpat-narrative', () => {
       generateReportSection: vi.fn(),
       generateVpatRemarks: mockRemarks,
       generateVpatRow: vi.fn(),
+      reviewVpatRow: vi.fn(),
       generateExecutiveSummaryHtml: vi.fn(),
       testConnection: vi.fn(),
     });
