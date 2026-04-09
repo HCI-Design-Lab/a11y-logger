@@ -13,6 +13,8 @@ import {
   buildVpatRowPrompt,
   parseVpatRowResponse,
 } from '../prompts';
+import { buildVpatReviewPrompt } from '../prompts';
+import type { VpatGenerationContext, VpatRowGenerationResult } from '../types';
 
 describe('system prompt constants', () => {
   it('ANALYZE_ISSUE_SYSTEM contains key instructions', () => {
@@ -208,5 +210,57 @@ describe('parseVpatRowResponse', () => {
         })
       )
     ).toThrow('AI response missing required fields');
+  });
+});
+
+describe('buildVpatReviewPrompt', () => {
+  const context: VpatGenerationContext = {
+    criterion: {
+      code: '1.1.1',
+      name: 'Non-text Content',
+      description: 'Provide text alternatives.',
+    },
+    issues: [
+      {
+        title: 'Missing alt',
+        severity: 'high',
+        url: 'https://example.com',
+        description: 'No alt.',
+      },
+    ],
+  };
+  const firstPass: VpatRowGenerationResult = {
+    remarks: 'Does not support 1.1.1.',
+    confidence: 'high',
+    reasoning: 'One high severity issue found.',
+    referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+    suggested_conformance: 'does_not_support',
+  };
+
+  it('includes the criterion code and name', () => {
+    const prompt = buildVpatReviewPrompt(context, firstPass);
+    expect(prompt).toContain('1.1.1');
+    expect(prompt).toContain('Non-text Content');
+  });
+
+  it('includes the first-pass conformance and remarks', () => {
+    const prompt = buildVpatReviewPrompt(context, firstPass);
+    expect(prompt).toContain('does_not_support');
+    expect(prompt).toContain('Does not support 1.1.1.');
+  });
+
+  it('instructs the model to return valid JSON', () => {
+    const prompt = buildVpatReviewPrompt(context, firstPass);
+    expect(prompt).toContain('Return only valid JSON');
+  });
+
+  it('includes issue count in the prompt', () => {
+    const prompt = buildVpatReviewPrompt(context, firstPass);
+    expect(prompt).toContain('1 total');
+  });
+
+  it('shows "No issues" text when issues array is empty', () => {
+    const prompt = buildVpatReviewPrompt({ ...context, issues: [] }, firstPass);
+    expect(prompt).toContain('No issues mapped');
   });
 });

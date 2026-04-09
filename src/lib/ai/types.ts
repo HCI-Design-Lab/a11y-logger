@@ -29,5 +29,9 @@ export interface AIProvider {
   generateExecutiveSummaryHtml(context: string): Promise<string>;
   generateVpatRemarks(issueSummary: string, criterion: string): Promise<string>;
   generateVpatRow(context: VpatGenerationContext): Promise<VpatRowGenerationResult>;
+  reviewVpatRow(
+    context: VpatGenerationContext,
+    firstPass: VpatRowGenerationResult
+  ): Promise<VpatRowGenerationResult>;
   testConnection(): Promise<{ ok: boolean; error?: string }>;
 }

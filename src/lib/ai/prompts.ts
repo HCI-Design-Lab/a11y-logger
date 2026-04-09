@@ -149,6 +149,54 @@ Return only valid JSON, no markdown.`;
 }
 
 /**
+ * Builds a review prompt that asks the AI to critique and correct a first-pass VPAT row result.
+ *
+ * @param context - The original criterion metadata and mapped issues.
+ * @param firstPass - The result produced by the first-pass `generateVpatRow` call.
+ * @returns A formatted prompt string ready to send to a language model.
+ */
+export function buildVpatReviewPrompt(
+  context: VpatGenerationContext,
+  firstPass: VpatRowGenerationResult
+): string {
+  const { criterion, issues } = context;
+  const issueList =
+    issues.length > 0
+      ? issues.map((i) => `- [${i.severity}] ${i.title}`).join('\n')
+      : 'No issues mapped to this criterion.';
+
+  return `You are reviewing a VPAT conformance remark written by another AI. Your job is to verify the conformance call and correct it if the evidence does not support it.
+
+Criterion: ${criterion.code} — ${criterion.name}
+Description: ${criterion.description}
+
+Mapped issues (${issues.length} total):
+${issueList}
+
+First-pass result:
+- Suggested conformance: ${firstPass.suggested_conformance}
+- Confidence: ${firstPass.confidence}
+- Remarks: ${firstPass.remarks}
+- Reasoning: ${firstPass.reasoning}
+
+Review the first-pass result:
+1. Does the suggested_conformance match the evidence?
+2. Is the confidence level appropriate given the number and severity of issues?
+3. Are the remarks accurate and professional?
+
+If the first pass is correct, return it unchanged. If not, return a corrected version.
+
+Return only valid JSON, no markdown:
+{
+  "reasoning": "your review analysis",
+  "remarks": "corrected or unchanged 2-4 sentence professional conformance statement",
+  "confidence": "high | medium | low",
+  "referenced_issues": [{ "title": "...", "severity": "..." }],
+  "suggested_conformance": "supports | does_not_support | not_applicable"
+}`;
+}
+
+/**
  * Parses and validates a raw JSON string returned by the AI for a VPAT row.
  *
  * Validates that the parsed object contains all required fields with the correct types,
