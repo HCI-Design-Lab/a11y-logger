@@ -27,8 +27,8 @@ describe('createVpat — component rows', () => {
       product_scope: ['web'],
     });
     const rows = await getCriterionRows(v.id);
-    expect(rows.every((r) => r.components.length === 1)).toBe(true);
-    expect(rows.every((r) => r.components[0]!.component_name === 'web')).toBe(true);
+    expect(rows.every((r) => r.components!.length === 1)).toBe(true);
+    expect(rows.every((r) => r.components![0]!.component_name === 'web')).toBe(true);
   });
 
   it('creates two components per row for web + electronic-docs', async () => {
@@ -40,7 +40,7 @@ describe('createVpat — component rows', () => {
       product_scope: ['web', 'documents'],
     });
     const rows = await getCriterionRows(v.id);
-    expect(rows.every((r) => r.components.length === 2)).toBe(true);
+    expect(rows.every((r) => r.components!.length === 2)).toBe(true);
   });
 });
 
@@ -77,9 +77,9 @@ describe('importVpatFromOpenAcr — component rows', () => {
     const rows = await getCriterionRows(v.id);
     const row = rows.find((r) => r.criterion_code === '1.1.1');
     expect(row).toBeDefined();
-    expect(row!.components).toHaveLength(2);
-    const webComp = row!.components.find((c) => c.component_name === 'web');
-    const docsComp = row!.components.find((c) => c.component_name === 'electronic-docs');
+    expect(row!.components!).toHaveLength(2);
+    const webComp = row!.components!.find((c) => c.component_name === 'web');
+    const docsComp = row!.components!.find((c) => c.component_name === 'electronic-docs');
     expect(webComp!.conformance).toBe('supports');
     expect(docsComp!.conformance).toBe('partially_supports');
   });

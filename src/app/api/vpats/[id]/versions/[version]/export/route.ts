@@ -107,6 +107,7 @@ export async function GET(request: Request, { params }: RouteContext) {
       last_generated_at: null,
       updated_at: snapshot.published_at,
       issue_count: 0,
+      components: [],
     }));
 
     const slug = safeTitle(snapshot.data.title);

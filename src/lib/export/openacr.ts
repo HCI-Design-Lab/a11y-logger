@@ -96,7 +96,7 @@ export function generateOpenAcr(
         num: row.criterion_code,
         components:
           (row.components?.length ?? 0) > 0
-            ? row.components.map((comp) => ({
+            ? (row.components ?? []).map((comp) => ({
                 name: comp.component_name,
                 adherence: {
                   level: ADHERENCE_MAP[comp.conformance] ?? comp.conformance,

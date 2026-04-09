@@ -18,7 +18,7 @@ import {
 } from '@/components/vpats/vpat-cover-sheet-form';
 import { VpatIssuesPanel, type PanelIssue } from '@/components/vpats/vpat-issues-panel';
 import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
-import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import type { VpatCriterionRow, VpatCriterionComponent } from '@/lib/db/vpat-criterion-rows';
 import type { VpatData } from '@/lib/db/vpats';
 import { EDITION_SECTION_KEYS, SECTION_TAB_LABELS } from '@/lib/vpat-tabs';
 
@@ -100,8 +100,16 @@ export default function VpatEditPage() {
             r.id === rowId
               ? {
                   ...r,
-                  components: r.components.map((c) =>
-                    c.component_name === component_name ? { ...c, ...componentUpdate } : c
+                  components: (r.components ?? []).map((c) =>
+                    c.component_name === component_name
+                      ? {
+                          ...c,
+                          ...(componentUpdate.conformance !== undefined && {
+                            conformance:
+                              componentUpdate.conformance as VpatCriterionComponent['conformance'],
+                          }),
+                        }
+                      : c
                   ),
                 }
               : r

@@ -38,9 +38,9 @@ describe('VpatCriterionComponent — data layer', () => {
     const rows = await getCriterionRows(vpatId);
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(row.components).toHaveLength(1);
-      expect(row.components[0]!.component_name).toBe('web');
-      expect(row.components[0]!.conformance).toBe('not_evaluated');
+      expect(row.components!).toHaveLength(1);
+      expect(row.components![0]!.component_name).toBe('web');
+      expect(row.components![0]!.conformance).toBe('not_evaluated');
     }
   });
 
@@ -55,8 +55,8 @@ describe('VpatCriterionComponent — data layer', () => {
     const rows = await getCriterionRows(v2.id);
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(row.components).toHaveLength(2);
-      const names = row.components.map((c) => c.component_name).sort();
+      expect(row.components!).toHaveLength(2);
+      const names = row.components!.map((c) => c.component_name).sort();
       expect(names).toEqual(['electronic-docs', 'web']);
     }
   });
@@ -71,8 +71,8 @@ describe('VpatCriterionComponent — data layer', () => {
     });
     const rows = await getCriterionRows(v3.id);
     for (const row of rows) {
-      expect(row.components).toHaveLength(1);
-      expect(row.components[0]!.component_name).toBe('software');
+      expect(row.components!).toHaveLength(1);
+      expect(row.components![0]!.component_name).toBe('software');
     }
   });
 
@@ -87,7 +87,7 @@ describe('VpatCriterionComponent — data layer', () => {
   it('upsertCriterionComponent updates conformance and remarks', async () => {
     const rows = await getCriterionRows(vpatId);
     const first = rows[0]!;
-    const comp = first.components[0]!;
+    const comp = first.components![0]!;
     await upsertCriterionComponent(first.id, comp.component_name, {
       conformance: 'supports',
       remarks: 'Fully accessible',
@@ -108,7 +108,7 @@ describe('VpatCriterionComponent — data layer', () => {
     const first = rows[0]!;
     const row = await getCriterionRow(first.id);
     expect(row).not.toBeNull();
-    expect(row!.components).toHaveLength(1);
-    expect(row!.components[0]!.component_name).toBe('web');
+    expect(row!.components!).toHaveLength(1);
+    expect(row!.components![0]!.component_name).toBe('web');
   });
 });

@@ -129,7 +129,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
           <TableCell colSpan={colSpan - 2} className="p-0">
             <table data-testid="component-sub-table" className="w-full">
               <tbody>
-                {row.components.map((comp) => {
+                {(row.components ?? []).map((comp) => {
                   const compConformanceLabel =
                     CONFORMANCE_OPTIONS.find((o) => o.value === comp.conformance)?.label ??
                     comp.conformance;

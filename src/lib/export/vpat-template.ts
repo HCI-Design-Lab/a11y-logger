@@ -132,8 +132,8 @@ export function generateVpatHtml(
 
           if (isMultiComponent && (row.components?.length ?? 0) > 1) {
             // Render one <tr> per component with rowspan on the criteria cell
-            const count = row.components.length;
-            return row.components
+            const count = (row.components ?? []).length;
+            return (row.components ?? [])
               .map((comp, i) => {
                 const conformance = comp.conformance ?? 'not_evaluated';
                 const remarks = comp.remarks ?? '';

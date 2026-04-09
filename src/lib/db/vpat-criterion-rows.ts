@@ -58,7 +58,7 @@ export interface VpatCriterionRow {
   last_generated_at: string | null;
   updated_at: string;
   issue_count: number;
-  components: VpatCriterionComponent[];
+  components?: VpatCriterionComponent[];
 }
 
 export interface CreateCriterionRowInput {
