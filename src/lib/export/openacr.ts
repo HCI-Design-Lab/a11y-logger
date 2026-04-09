@@ -94,22 +94,33 @@ export function generateOpenAcr(
     chapters[chapterKey] = {
       criteria: levelRows.map((row) => ({
         num: row.criterion_code,
-        components: [
-          {
-            name: 'web',
-            adherence: {
-              level: ADHERENCE_MAP[row.conformance] ?? row.conformance,
-              notes: row.remarks ?? '',
-            },
-          },
-        ],
+        components:
+          (row.components?.length ?? 0) > 0
+            ? row.components.map((comp) => ({
+                name: comp.component_name,
+                adherence: {
+                  level: ADHERENCE_MAP[comp.conformance] ?? comp.conformance,
+                  notes: comp.remarks ?? '',
+                },
+              }))
+            : [
+                {
+                  name: 'web',
+                  adherence: {
+                    level: ADHERENCE_MAP[row.conformance] ?? row.conformance,
+                    notes: row.remarks ?? '',
+                  },
+                },
+              ],
       })),
     };
   }
 
-  // Standard non-web chapters for a web-only VPAT
-  chapters.hardware = { conformance: 'not-applicable', notes: 'Web-based product' };
-  chapters.software = { conformance: 'not-applicable', notes: 'Web-based product' };
+  const scope = vpat.product_scope ?? [];
+  const hasHardware = scope.includes('hardware');
+  const hasSoftware = scope.includes('software-desktop') || scope.includes('software-mobile');
+  if (hasHardware) chapters.hardware = { conformance: 'not-applicable', notes: '' };
+  if (hasSoftware) chapters.software = { conformance: 'not-applicable', notes: '' };
   chapters.support_documentation_and_services = { criteria: [] };
 
   return {
