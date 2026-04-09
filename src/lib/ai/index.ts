@@ -3,30 +3,22 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { getSetting } from '@/lib/db/settings';
 import { VercelAIProvider } from './vercel-provider';
+import { TASK_MODEL_SETTINGS } from './models';
 import type { AIProvider } from './types';
+import type { AITask } from './models';
 
 /**
- * Resolves and returns the configured AI provider, or `null` if none is active.
+ * Resolves and returns the configured AI provider for the given task, or `null` if none is active.
  *
- * Supports BYOK (Bring Your Own Key) for OpenAI, Anthropic, and Google Gemini, plus
- * Ollama for local models and a generic OpenAI-compatible endpoint. Configuration is
- * read from environment variables first (`AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`,
- * `AI_BASE_URL`), falling back to values stored in the application settings table.
+ * Model resolution order (first non-empty wins):
+ *   1. `AI_MODEL` env var
+ *   2. Task-specific setting (e.g. `ai_model_vpat`) if `task` is provided
+ *   3. Global `ai_model` setting (legacy fallback)
+ *   4. Hardcoded provider default (e.g. gpt-4o-mini for OpenAI)
  *
- * Provider selection:
- * - `"openai"` — requires `AI_API_KEY`; defaults to `gpt-4o-mini`.
- * - `"anthropic"` — requires `AI_API_KEY`; defaults to `claude-haiku-4-5-20251001`.
- * - `"google"` — requires `AI_API_KEY`; defaults to `gemini-2.0-flash`.
- * - `"ollama"` — requires `AI_MODEL`; defaults base URL to `http://localhost:11434/v1`.
- * - `"openai-compatible"` — requires both `AI_BASE_URL` and `AI_MODEL`.
- * - `"none"` or unset — returns `null`.
- *
- * All providers are wrapped in `VercelAIProvider` which implements the `AIProvider` interface.
- *
- * @returns An `AIProvider` instance if a valid provider is configured, or `null` otherwise.
+ * Provider and API key are read from env vars first, then DB settings.
  */
-export function getAIProvider(): AIProvider | null {
-  // Env vars take priority over DB settings
+export function getAIProvider(task?: AITask): AIProvider | null {
   const provider = (
     process.env.AI_PROVIDER ??
     (getSetting('ai_provider') as string | null) ??
@@ -34,10 +26,13 @@ export function getAIProvider(): AIProvider | null {
   ).toLowerCase();
 
   const apiKey = process.env.AI_API_KEY ?? (getSetting('ai_api_key') as string | null) ?? '';
-
-  const model = process.env.AI_MODEL ?? (getSetting('ai_model') as string | null) ?? '';
-
   const baseUrl = process.env.AI_BASE_URL ?? (getSetting('ai_base_url') as string | null) ?? '';
+
+  // Task-specific model > env var > global ai_model fallback
+  const taskModelKey = task ? TASK_MODEL_SETTINGS[task] : null;
+  const taskModel = taskModelKey ? ((getSetting(taskModelKey) as string | null) ?? '') : '';
+  const model =
+    process.env.AI_MODEL ?? (taskModel || ((getSetting('ai_model') as string | null) ?? ''));
 
   if (!provider || provider === 'none') return null;
 
