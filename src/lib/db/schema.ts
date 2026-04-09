@@ -179,6 +179,18 @@ export const vpatCoverSheets = sqliteTable('vpat_cover_sheets', {
   updated_at: text('updated_at').notNull(),
 });
 
+export const vpatCriterionComponents = sqliteTable('vpat_criterion_components', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  criterion_row_id: text('criterion_row_id').notNull(),
+  component_name: text('component_name').notNull(),
+  conformance: text('conformance').notNull().default('not_evaluated'),
+  remarks: text('remarks'),
+  created_at: text('created_at').notNull().default(''),
+  updated_at: text('updated_at').notNull().default(''),
+});
+
+export type VpatCriterionComponentRow = typeof vpatCriterionComponents.$inferSelect;
+
 // TypeScript types inferred from schema — used by all data access files
 export type VpatCoverSheetRow = typeof vpatCoverSheets.$inferSelect;
 export type ProjectRow = typeof projects.$inferSelect;
