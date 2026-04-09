@@ -8,6 +8,9 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({ push: vi.fn(), refresh: vi.fn() })),
   useParams: () => ({ id: 'vpat-1' }),
 }));
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
 
 const mockVpat = {
   id: 'vpat-1',

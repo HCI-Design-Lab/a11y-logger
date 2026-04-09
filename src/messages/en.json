@@ -49,6 +49,13 @@
       "generate": "Generate PDF",
       "download": "Download PDF",
       "generating": "Generating…"
+    },
+    "pdf_modal": {
+      "title": "Print to PDF",
+      "browser_warning": "Your browser will generate a PDF file. Note: browser-generated PDFs are not tagged and may not be accessible to screen reader users.",
+      "accessible_alternative": "For an accessible PDF suitable for formal disclosure, download the DOCX and use Word or LibreOffice's 'Export as PDF' with accessibility options enabled.",
+      "continue_to_print": "Continue to Print",
+      "download_docx": "Download DOCX instead"
     }
   },
   "settings": {

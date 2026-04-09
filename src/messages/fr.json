@@ -49,6 +49,13 @@
       "generate": "Generate PDF",
       "download": "Download PDF",
       "generating": "Generating…"
+    },
+    "pdf_modal": {
+      "title": "Imprimer en PDF",
+      "browser_warning": "Votre navigateur générera un fichier PDF. Remarque : les PDF générés par le navigateur ne sont pas balisés et peuvent ne pas être accessibles aux lecteurs d'écran.",
+      "accessible_alternative": "Pour un PDF accessible adapté à une divulgation formelle, téléchargez le DOCX et utilisez l'option « Exporter en PDF » de Word ou LibreOffice avec les options d'accessibilité activées.",
+      "continue_to_print": "Continuer vers l'impression",
+      "download_docx": "Télécharger DOCX à la place"
     }
   },
   "settings": {
