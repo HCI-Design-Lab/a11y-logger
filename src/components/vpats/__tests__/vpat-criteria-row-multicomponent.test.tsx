@@ -161,6 +161,52 @@ describe('VpatCriteriaRow — multi-component', () => {
     expect(screen.getByLabelText('Conformance for 1.1.1 — electronic-docs')).toBeDefined();
   });
 
+  it('renders Generate button for multi-component row when aiEnabled', () => {
+    const row = {
+      id: 'row1',
+      vpat_id: 'vpat1',
+      criterion_code: '1.1.1',
+      criterion_name: 'Non-text Content',
+      criterion_description: '',
+      criterion_name_translated: null,
+      section: 'wcag',
+      conformance: 'not_evaluated',
+      remarks: null,
+      issue_count: 0,
+      ai_confidence: null,
+      ai_reasoning: null,
+      ai_suggested_conformance: null,
+      ai_referenced_issues: null,
+      last_generated_at: null,
+      components: [
+        { component_name: 'Web', conformance: 'not_evaluated', remarks: null },
+        { component_name: 'Docs', conformance: 'not_evaluated', remarks: null },
+      ],
+    };
+    const onGenerateRow = vi.fn();
+    render(
+      <table>
+        <tbody>
+          <VpatCriteriaRow
+            row={row as never}
+            isEven={false}
+            readOnly={false}
+            aiEnabled={true}
+            isGenerating={false}
+            isGeneratingAll={false}
+            onRowChange={vi.fn()}
+            scheduleRemarksSave={vi.fn()}
+            onGenerateRow={onGenerateRow}
+            register={vi
+              .fn()
+              .mockReturnValue({ ref: vi.fn(), name: 'row1', onChange: vi.fn(), onBlur: vi.fn() })}
+          />
+        </tbody>
+      </table>
+    );
+    expect(screen.getByRole('button', { name: /generate for 1\.1\.1/i })).toBeInTheDocument();
+  });
+
   it('renders in readOnly mode without throwing', () => {
     const row = makeRow({
       components: [

@@ -188,6 +188,39 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
               </tbody>
             </table>
           </TableCell>
+          {aiEnabled && !readOnly && (
+            <TableCell className="align-top pt-3 text-center">
+              <div className="flex items-center justify-center gap-1">
+                <Button
+                  type="button"
+                  variant="ai"
+                  size="sm"
+                  onClick={() => onGenerateRow?.(row.id)}
+                  disabled={isDisabled}
+                  aria-label={
+                    isGenerating
+                      ? `Generating for ${row.criterion_code}`
+                      : `Generate for ${row.criterion_code}`
+                  }
+                >
+                  <Sparkles />
+                  {isGenerating ? 'Generating…' : 'Generate'}
+                </Button>
+                {hasAiInfo && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => onAiInfoClick?.(row)}
+                    aria-label={`AI info for ${row.criterion_code}`}
+                  >
+                    <Info className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </TableCell>
+          )}
         </TableRow>
       </>
     );
