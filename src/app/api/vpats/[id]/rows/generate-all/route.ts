@@ -74,11 +74,25 @@ export async function POST(_request: Request, { params }: RouteContext) {
         result = await reviewer.reviewVpatRow(context, result);
       }
 
+      const issueByTitle = new Map(issues.map((i) => [i.title, i]));
+      const enrichedReferencedIssues = result.referenced_issues.map((ref) => {
+        const match = issueByTitle.get(ref.title);
+        if (match) {
+          return {
+            ...ref,
+            id: match.id,
+            assessment_id: match.assessment_id,
+            project_id: vpat.project_id,
+          };
+        }
+        return ref;
+      });
+
       await updateCriterionRow(row.id, {
         remarks: result.remarks,
         ai_confidence: result.confidence,
         ai_reasoning: result.reasoning,
-        ai_referenced_issues: result.referenced_issues,
+        ai_referenced_issues: enrichedReferencedIssues,
         ai_suggested_conformance: result.suggested_conformance,
       });
       generated++;

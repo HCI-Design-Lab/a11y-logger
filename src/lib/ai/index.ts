@@ -28,7 +28,7 @@ export function getAIProvider(task?: AITask): AIProvider | null {
   const apiKey = process.env.AI_API_KEY ?? (getSetting('ai_api_key') as string | null) ?? '';
   const baseUrl = process.env.AI_BASE_URL ?? (getSetting('ai_base_url') as string | null) ?? '';
 
-  // Task-specific model > env var > global ai_model fallback
+  // env var > task-specific setting > global ai_model fallback > provider default
   const taskModelKey = task ? TASK_MODEL_SETTINGS[task] : null;
   const taskModel = taskModelKey ? ((getSetting(taskModelKey) as string | null) ?? '') : '';
   const model =
