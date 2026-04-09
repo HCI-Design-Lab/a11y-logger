@@ -33,7 +33,7 @@ export interface VpatCriteriaRowProps {
   aiEnabled: boolean;
   isGenerating: boolean;
   isGeneratingAll: boolean;
-  onRowChange: (rowId: string, update: { conformance?: string }) => void;
+  onRowChange: (rowId: string, update: { conformance?: string; component_name?: string }) => void;
   scheduleRemarksSave: (rowId: string, value: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onCriterionClick?: (criterionCode: string) => void;
@@ -82,6 +82,117 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   const conformanceLabel =
     CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
 
+  const isMultiComponent = (row.components?.length ?? 0) > 1;
+
+  const criterionNameCell = (
+    <TableCell className="align-top pt-3">
+      {onCriterionClick ? (
+        <Button
+          type="button"
+          variant="link"
+          className="h-auto p-0 font-medium text-sm text-left"
+          onClick={() => onCriterionClick(row.criterion_code)}
+          aria-label={`View issues for ${row.criterion_code}`}
+        >
+          {displayName}
+          {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
+          {!readOnly && row.issue_count > 0 && (
+            <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+              ({row.issue_count})
+            </span>
+          )}
+        </Button>
+      ) : (
+        <div className="font-medium text-sm">
+          {displayName}
+          {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
+          {!readOnly && row.issue_count > 0 && (
+            <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+              ({row.issue_count})
+            </span>
+          )}
+        </div>
+      )}
+    </TableCell>
+  );
+
+  if (isMultiComponent) {
+    const colSpan = aiEnabled && !readOnly ? 5 : 4;
+    return (
+      <>
+        <TableRow
+          data-testid={`row-${row.id}`}
+          className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
+        >
+          <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
+          {criterionNameCell}
+          <TableCell colSpan={colSpan - 2} className="p-0">
+            <table data-testid="component-sub-table" className="w-full">
+              <tbody>
+                {row.components.map((comp) => {
+                  const compConformanceLabel =
+                    CONFORMANCE_OPTIONS.find((o) => o.value === comp.conformance)?.label ??
+                    comp.conformance;
+                  return (
+                    <tr key={comp.component_name}>
+                      <td className="px-3 py-2 text-sm w-32 font-medium">{comp.component_name}</td>
+                      <td className="px-3 py-2 w-40">
+                        {readOnly ? (
+                          <span className="text-sm">{compConformanceLabel}</span>
+                        ) : (
+                          <Select
+                            value={comp.conformance}
+                            onValueChange={(v) =>
+                              onRowChange(row.id, {
+                                conformance: v,
+                                component_name: comp.component_name,
+                              })
+                            }
+                            disabled={isDisabled}
+                          >
+                            <SelectTrigger
+                              className="h-8 text-sm"
+                              aria-label={`Conformance for ${row.criterion_code} — ${comp.component_name}`}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CONFORMANCE_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        {readOnly ? (
+                          <span className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {comp.remarks || '—'}
+                          </span>
+                        ) : (
+                          <Textarea
+                            className="text-sm min-h-10 overflow-hidden"
+                            style={{ resize: 'vertical' }}
+                            placeholder="Add remarks…"
+                            disabled={isDisabled}
+                            defaultValue={comp.remarks ?? ''}
+                            aria-label={`Remarks for ${row.criterion_code} — ${comp.component_name}`}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </TableCell>
+        </TableRow>
+      </>
+    );
+  }
+
   return (
     <>
       <TableRow
@@ -89,35 +200,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
         className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
       >
         <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
-        <TableCell className="align-top pt-3">
-          {onCriterionClick ? (
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0 font-medium text-sm text-left"
-              onClick={() => onCriterionClick(row.criterion_code)}
-              aria-label={`View issues for ${row.criterion_code}`}
-            >
-              {displayName}
-              {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
-              {!readOnly && row.issue_count > 0 && (
-                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                  ({row.issue_count})
-                </span>
-              )}
-            </Button>
-          ) : (
-            <div className="font-medium text-sm">
-              {displayName}
-              {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
-              {!readOnly && row.issue_count > 0 && (
-                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                  ({row.issue_count})
-                </span>
-              )}
-            </div>
-          )}
-        </TableCell>
+        {criterionNameCell}
         <TableCell className="align-top pt-3">
           {readOnly ? (
             <span className="text-sm">{conformanceLabel}</span>
