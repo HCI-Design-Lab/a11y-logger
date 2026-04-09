@@ -10,7 +10,7 @@ import { buildIssueContext } from '../_shared';
 import { TOP_RISKS_SECTION } from '@/lib/ai/prompts';
 
 export async function POST(request: Request) {
-  const ai = getAIProvider();
+  const ai = getAIProvider('reports');
   if (!ai) {
     return NextResponse.json(
       { success: false, error: 'AI not configured', code: 'AI_NOT_CONFIGURED' },

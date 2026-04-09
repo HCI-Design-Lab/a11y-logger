@@ -19,7 +19,7 @@ interface CurrentFields {
 }
 
 export async function POST(request: Request) {
-  const ai = getAIProvider();
+  const ai = getAIProvider('issues');
   if (!ai) {
     return NextResponse.json(
       { success: false, error: 'AI not configured', code: 'AI_NOT_CONFIGURED' },

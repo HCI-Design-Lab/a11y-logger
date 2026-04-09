@@ -9,7 +9,7 @@ import { getAIProvider } from '@/lib/ai';
 import { buildIssueContext } from '../_shared';
 
 export async function POST(request: Request) {
-  const ai = getAIProvider();
+  const ai = getAIProvider('reports');
   if (!ai) {
     return NextResponse.json(
       { success: false, error: 'AI not configured', code: 'AI_NOT_CONFIGURED' },

@@ -11,7 +11,7 @@ import { getAssessments } from '@/lib/db/assessments';
 import { getIssues } from '@/lib/db/issues';
 
 export async function POST(request: Request) {
-  const ai = getAIProvider();
+  const ai = getAIProvider('vpat');
   if (!ai) {
     return NextResponse.json(
       { success: false, error: 'AI not configured', code: 'AI_NOT_CONFIGURED' },
