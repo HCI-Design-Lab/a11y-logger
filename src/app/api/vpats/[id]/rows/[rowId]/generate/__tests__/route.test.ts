@@ -5,6 +5,15 @@ import { createProject } from '@/lib/db/projects';
 import { createVpat } from '@/lib/db/vpats';
 import { getCriterionRows } from '@/lib/db/vpat-criterion-rows';
 import { POST } from '../route';
+import { getAIProvider } from '@/lib/ai';
+import { getSetting } from '@/lib/db/settings';
+
+const mockGetAIProvider = vi.mocked(getAIProvider);
+const mockGetSetting = vi.mocked(getSetting);
+
+vi.mock('@/lib/ai', () => ({
+  getAIProvider: vi.fn(),
+}));
 
 vi.mock('@/lib/db/settings', () => ({
   getSetting: vi.fn().mockReturnValue(null),
@@ -60,8 +69,7 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   });
 
   it('returns 404 for unknown row', async () => {
-    vi.stubEnv('AI_PROVIDER', 'openai');
-    vi.stubEnv('AI_API_KEY', 'test-key');
+    mockGetAIProvider.mockReturnValue({ generateVpatRow: vi.fn() } as never);
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId: 'unknown-row-id' }),
     });
@@ -71,8 +79,7 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   });
 
   it('returns 404 for unknown VPAT', async () => {
-    vi.stubEnv('AI_PROVIDER', 'openai');
-    vi.stubEnv('AI_API_KEY', 'test-key');
+    mockGetAIProvider.mockReturnValue({ generateVpatRow: vi.fn() } as never);
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: 'unknown-vpat-id', rowId }),
     });
@@ -82,8 +89,7 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   });
 
   it('returns 404 when row belongs to different VPAT', async () => {
-    vi.stubEnv('AI_PROVIDER', 'openai');
-    vi.stubEnv('AI_API_KEY', 'test-key');
+    mockGetAIProvider.mockReturnValue({ generateVpatRow: vi.fn() } as never);
     const otherProject = await createProject({ name: 'Other' });
     const otherVpat = await createVpat({
       title: 'Other',
@@ -100,19 +106,16 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   });
 
   it('returns updated row after successful generation', async () => {
-    vi.stubEnv('AI_PROVIDER', 'openai');
-    vi.stubEnv('AI_API_KEY', 'test-key');
-
-    const { generateText } = await import('ai');
-    vi.mocked(generateText).mockResolvedValue({
-      text: JSON.stringify({
-        reasoning: 'No issues found.',
-        remarks: 'The product supports this criterion.',
-        confidence: 'high',
-        referenced_issues: [],
-        suggested_conformance: 'supports',
-      }),
-    } as Awaited<ReturnType<typeof generateText>>);
+    const firstPassResult = {
+      remarks: 'The product supports this criterion.',
+      confidence: 'high' as const,
+      reasoning: 'No issues found.',
+      referenced_issues: [],
+      suggested_conformance: 'supports' as const,
+    };
+    mockGetAIProvider.mockReturnValue({
+      generateVpatRow: vi.fn().mockResolvedValue(firstPassResult),
+    } as never);
 
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId }),
@@ -128,19 +131,16 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
   });
 
   it('stores referenced issues as snapshot', async () => {
-    vi.stubEnv('AI_PROVIDER', 'openai');
-    vi.stubEnv('AI_API_KEY', 'test-key');
-
-    const { generateText } = await import('ai');
-    vi.mocked(generateText).mockResolvedValue({
-      text: JSON.stringify({
-        reasoning: 'One issue found.',
-        remarks: 'Does not support.',
-        confidence: 'high',
-        referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
-        suggested_conformance: 'does_not_support',
-      }),
-    } as Awaited<ReturnType<typeof generateText>>);
+    const firstPassResult = {
+      remarks: 'Does not support.',
+      confidence: 'high' as const,
+      reasoning: 'One issue found.',
+      referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+      suggested_conformance: 'does_not_support' as const,
+    };
+    mockGetAIProvider.mockReturnValue({
+      generateVpatRow: vi.fn().mockResolvedValue(firstPassResult),
+    } as never);
 
     const res = await POST(new Request('http://localhost/', { method: 'POST' }), {
       params: Promise.resolve({ id: vpatId, rowId }),
@@ -149,5 +149,76 @@ describe('POST /api/vpats/[id]/rows/[rowId]/generate', () => {
     const body = await res.json();
     expect(body.data.ai_referenced_issues).toEqual([{ title: 'Missing alt', severity: 'high' }]);
     expect(body.data.ai_suggested_conformance).toBe('does_not_support');
+  });
+});
+
+describe('POST generate — AI Review Pass', () => {
+  const firstPassResult = {
+    remarks: 'Does not support.',
+    confidence: 'medium' as const,
+    reasoning: 'One issue.',
+    referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+    suggested_conformance: 'does_not_support' as const,
+  };
+  const reviewedResult = {
+    remarks: 'Does not support 1.1.1.',
+    confidence: 'high' as const,
+    reasoning: 'Reviewed: correct.',
+    referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+    suggested_conformance: 'does_not_support' as const,
+  };
+
+  it('does not call reviewVpatRow when ai_review_pass_enabled is false', async () => {
+    mockGetSetting.mockImplementation((key: string) => {
+      if (key === 'ai_review_pass_enabled') return false;
+      return null;
+    });
+    const reviewVpatRow = vi.fn();
+    vi.mocked(getAIProvider).mockReturnValueOnce({
+      generateVpatRow: vi.fn().mockResolvedValue(firstPassResult),
+      reviewVpatRow,
+    } as never);
+
+    const req = new Request('http://localhost', { method: 'POST' });
+    await POST(req, { params: Promise.resolve({ id: vpatId, rowId }) });
+
+    expect(reviewVpatRow).not.toHaveBeenCalled();
+  });
+
+  it('calls reviewVpatRow when ai_review_pass_enabled is true and review provider is available', async () => {
+    mockGetSetting.mockImplementation((key: string) => {
+      if (key === 'ai_review_pass_enabled') return true;
+      return null;
+    });
+    const reviewVpatRow = vi.fn().mockResolvedValue(reviewedResult);
+    vi.mocked(getAIProvider)
+      .mockReturnValueOnce({ generateVpatRow: vi.fn().mockResolvedValue(firstPassResult) } as never)
+      .mockReturnValueOnce({ reviewVpatRow } as never);
+
+    const req = new Request('http://localhost', { method: 'POST' });
+    const res = await POST(req, { params: Promise.resolve({ id: vpatId, rowId }) });
+    const json = await res.json();
+
+    expect(json.success).toBe(true);
+    expect(reviewVpatRow).toHaveBeenCalledWith(
+      expect.objectContaining({ criterion: expect.any(Object) }),
+      firstPassResult
+    );
+  });
+
+  it('uses first-pass result when review provider is null', async () => {
+    mockGetSetting.mockImplementation((key: string) => {
+      if (key === 'ai_review_pass_enabled') return true;
+      return null;
+    });
+    vi.mocked(getAIProvider)
+      .mockReturnValueOnce({ generateVpatRow: vi.fn().mockResolvedValue(firstPassResult) } as never)
+      .mockReturnValueOnce(null);
+
+    const req = new Request('http://localhost', { method: 'POST' });
+    const res = await POST(req, { params: Promise.resolve({ id: vpatId, rowId }) });
+    const json = await res.json();
+
+    expect(json.success).toBe(true);
   });
 });
