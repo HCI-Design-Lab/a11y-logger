@@ -9,6 +9,24 @@ import {
   Packer,
   WidthType,
 } from 'docx';
+
+// Usable page width: Letter 8.5" − 2" margins = 6.5" = 9360 twips (DXA)
+const PAGE_WIDTH = 9360;
+
+// 3-column layout: Criteria 45%, Conformance 20%, Remarks 35%
+const COL3 = {
+  criteria: Math.round(PAGE_WIDTH * 0.45), // 4212
+  conformance: Math.round(PAGE_WIDTH * 0.2), // 1872
+  remarks: Math.round(PAGE_WIDTH * 0.35), // 3276
+};
+
+// 4-column layout: Criteria 40%, Component 15%, Conformance 20%, Remarks 25%
+const COL4 = {
+  criteria: Math.round(PAGE_WIDTH * 0.4), // 3744
+  component: Math.round(PAGE_WIDTH * 0.15), // 1404
+  conformance: Math.round(PAGE_WIDTH * 0.2), // 1872
+  remarks: Math.round(PAGE_WIDTH * 0.25), // 2340
+};
 import type { Vpat } from '@/lib/db/vpats';
 import type { Project } from '@/lib/db/projects';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -63,39 +81,58 @@ function compareCode(a: string, b: string): number {
 }
 
 function headerRow(): TableRow {
-  const cols = [
-    { text: 'Criteria', width: 45 },
-    { text: 'Conformance Level', width: 20 },
-    { text: 'Remarks and Explanations', width: 35 },
-  ];
   return new TableRow({
     tableHeader: true,
-    children: cols.map(
-      ({ text, width }) =>
-        new TableCell({
-          width: { size: width, type: WidthType.PERCENTAGE },
-          children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
-        })
-    ),
+    children: [
+      new TableCell({
+        width: { size: COL3.criteria, type: WidthType.DXA },
+        children: [new Paragraph({ children: [new TextRun({ text: 'Criteria', bold: true })] })],
+      }),
+      new TableCell({
+        width: { size: COL3.conformance, type: WidthType.DXA },
+        children: [
+          new Paragraph({ children: [new TextRun({ text: 'Conformance Level', bold: true })] }),
+        ],
+      }),
+      new TableCell({
+        width: { size: COL3.remarks, type: WidthType.DXA },
+        children: [
+          new Paragraph({
+            children: [new TextRun({ text: 'Remarks and Explanations', bold: true })],
+          }),
+        ],
+      }),
+    ],
   });
 }
 
 function multiComponentHeaderRow(): TableRow {
-  const cols = [
-    { text: 'Criteria', width: 40 },
-    { text: 'Component', width: 15 },
-    { text: 'Conformance Level', width: 20 },
-    { text: 'Remarks and Explanations', width: 25 },
-  ];
   return new TableRow({
     tableHeader: true,
-    children: cols.map(
-      ({ text, width }) =>
-        new TableCell({
-          width: { size: width, type: WidthType.PERCENTAGE },
-          children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
-        })
-    ),
+    children: [
+      new TableCell({
+        width: { size: COL4.criteria, type: WidthType.DXA },
+        children: [new Paragraph({ children: [new TextRun({ text: 'Criteria', bold: true })] })],
+      }),
+      new TableCell({
+        width: { size: COL4.component, type: WidthType.DXA },
+        children: [new Paragraph({ children: [new TextRun({ text: 'Component', bold: true })] })],
+      }),
+      new TableCell({
+        width: { size: COL4.conformance, type: WidthType.DXA },
+        children: [
+          new Paragraph({ children: [new TextRun({ text: 'Conformance Level', bold: true })] }),
+        ],
+      }),
+      new TableCell({
+        width: { size: COL4.remarks, type: WidthType.DXA },
+        children: [
+          new Paragraph({
+            children: [new TextRun({ text: 'Remarks and Explanations', bold: true })],
+          }),
+        ],
+      }),
+    ],
   });
 }
 
@@ -104,17 +141,17 @@ function criterionRow(row: VpatCriterionRow): TableRow {
   return new TableRow({
     children: [
       new TableCell({
-        width: { size: 45, type: WidthType.PERCENTAGE },
+        width: { size: COL3.criteria, type: WidthType.DXA },
         children: [new Paragraph({ text: criteriaText })],
       }),
       new TableCell({
-        width: { size: 20, type: WidthType.PERCENTAGE },
+        width: { size: COL3.conformance, type: WidthType.DXA },
         children: [
           new Paragraph({ text: CONFORMANCE_DISPLAY[row.conformance] ?? row.conformance }),
         ],
       }),
       new TableCell({
-        width: { size: 35, type: WidthType.PERCENTAGE },
+        width: { size: COL3.remarks, type: WidthType.DXA },
         children: [new Paragraph({ text: row.remarks ?? '' })],
       }),
     ],
@@ -130,21 +167,21 @@ function multiComponentCriterionRows(row: VpatCriterionRow): TableRow[] {
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 40, type: WidthType.PERCENTAGE },
+            width: { size: COL4.criteria, type: WidthType.DXA },
             children: [new Paragraph({ text: criteriaText })],
           }),
           new TableCell({
-            width: { size: 15, type: WidthType.PERCENTAGE },
+            width: { size: COL4.component, type: WidthType.DXA },
             children: [new Paragraph({ text: '' })],
           }),
           new TableCell({
-            width: { size: 20, type: WidthType.PERCENTAGE },
+            width: { size: COL4.conformance, type: WidthType.DXA },
             children: [
               new Paragraph({ text: CONFORMANCE_DISPLAY[row.conformance] ?? row.conformance }),
             ],
           }),
           new TableCell({
-            width: { size: 25, type: WidthType.PERCENTAGE },
+            width: { size: COL4.remarks, type: WidthType.DXA },
             children: [new Paragraph({ text: row.remarks ?? '' })],
           }),
         ],
@@ -159,24 +196,24 @@ function multiComponentCriterionRows(row: VpatCriterionRow): TableRow[] {
           ...(i === 0
             ? [
                 new TableCell({
-                  width: { size: 40, type: WidthType.PERCENTAGE },
+                  width: { size: COL4.criteria, type: WidthType.DXA },
                   rowSpan: components.length,
                   children: [new Paragraph({ text: criteriaText })],
                 }),
               ]
             : []),
           new TableCell({
-            width: { size: 15, type: WidthType.PERCENTAGE },
+            width: { size: COL4.component, type: WidthType.DXA },
             children: [new Paragraph({ text: comp.component_name })],
           }),
           new TableCell({
-            width: { size: 20, type: WidthType.PERCENTAGE },
+            width: { size: COL4.conformance, type: WidthType.DXA },
             children: [
               new Paragraph({ text: CONFORMANCE_DISPLAY[comp.conformance] ?? comp.conformance }),
             ],
           }),
           new TableCell({
-            width: { size: 25, type: WidthType.PERCENTAGE },
+            width: { size: COL4.remarks, type: WidthType.DXA },
             children: [new Paragraph({ text: comp.remarks ?? '' })],
           }),
         ],
@@ -312,10 +349,14 @@ export async function generateVpatDocx(
     const tableRows = isMultiComponent
       ? [multiComponentHeaderRow(), ...sectionRows.flatMap(multiComponentCriterionRows)]
       : [headerRow(), ...sectionRows.map(criterionRow)];
+    const columnWidths = isMultiComponent
+      ? [COL4.criteria, COL4.component, COL4.conformance, COL4.remarks]
+      : [COL3.criteria, COL3.conformance, COL3.remarks];
     children.push(
       new Paragraph({ text: label, heading: HeadingLevel.HEADING_2 }),
       new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
+        width: { size: PAGE_WIDTH, type: WidthType.DXA },
+        columnWidths,
         rows: tableRows,
       }),
       new Paragraph({ text: '' })
