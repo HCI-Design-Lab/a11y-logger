@@ -149,3 +149,61 @@ describe('VercelAIProvider.generateVpatRow', () => {
     expect(result.confidence).toBe('medium');
   });
 });
+
+describe('VercelAIProvider.reviewVpatRow', () => {
+  const context = {
+    criterion: {
+      code: '1.1.1',
+      name: 'Non-text Content',
+      description: 'Provide text alternatives.',
+    },
+    issues: [
+      {
+        title: 'Missing alt',
+        severity: 'high',
+        url: 'https://example.com',
+        description: 'No alt.',
+      },
+    ],
+  };
+  const firstPass = {
+    remarks: 'Does not support.',
+    confidence: 'medium' as const,
+    reasoning: 'One high issue.',
+    referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+    suggested_conformance: 'does_not_support' as const,
+  };
+  const reviewedResult = {
+    remarks: 'Does not support 1.1.1 due to missing alt text.',
+    confidence: 'high' as const,
+    reasoning: 'First pass was correct.',
+    referenced_issues: [{ title: 'Missing alt', severity: 'high' }],
+    suggested_conformance: 'does_not_support' as const,
+  };
+
+  it('returns parsed VpatRowGenerationResult on valid JSON', async () => {
+    mockGenerateText.mockResolvedValue({ text: JSON.stringify(reviewedResult) } as never);
+    const provider = new VercelAIProvider(fakeModel);
+    const result = await provider.reviewVpatRow(context, firstPass);
+    expect(result.remarks).toBe('Does not support 1.1.1 due to missing alt text.');
+    expect(result.suggested_conformance).toBe('does_not_support');
+  });
+
+  it('throws on invalid JSON', async () => {
+    mockGenerateText.mockResolvedValue({ text: 'not json' } as never);
+    const provider = new VercelAIProvider(fakeModel);
+    await expect(provider.reviewVpatRow(context, firstPass)).rejects.toThrow(
+      'Invalid response from AI provider'
+    );
+  });
+
+  it('throws when required fields are missing', async () => {
+    mockGenerateText.mockResolvedValue({
+      text: JSON.stringify({ remarks: 'only remarks' }),
+    } as never);
+    const provider = new VercelAIProvider(fakeModel);
+    await expect(provider.reviewVpatRow(context, firstPass)).rejects.toThrow(
+      'AI response missing required fields'
+    );
+  });
+});

@@ -15,6 +15,7 @@ import {
   buildExecutiveSummaryUser,
   buildVpatRemarksUser,
   buildVpatRowPrompt,
+  buildVpatReviewPrompt,
   parseVpatRowResponse,
 } from './prompts';
 
@@ -159,6 +160,25 @@ export class VercelAIProvider implements AIProvider {
     const { text } = await generateText({
       model: this.model,
       prompt: buildVpatRowPrompt(context),
+    });
+    return parseVpatRowResponse(text);
+  }
+
+  /**
+   * Critiques and optionally corrects a first-pass VPAT row result.
+   *
+   * @param context - The original criterion metadata and array of mapped issues.
+   * @param firstPass - The result from the first `generateVpatRow` call.
+   * @returns A Promise resolving to a validated `VpatRowGenerationResult`.
+   * @throws {Error} If the AI response is not valid JSON or is missing required fields.
+   */
+  async reviewVpatRow(
+    context: VpatGenerationContext,
+    firstPass: VpatRowGenerationResult
+  ): Promise<VpatRowGenerationResult> {
+    const { text } = await generateText({
+      model: this.model,
+      prompt: buildVpatReviewPrompt(context, firstPass),
     });
     return parseVpatRowResponse(text);
   }
