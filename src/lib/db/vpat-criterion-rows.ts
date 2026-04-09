@@ -356,18 +356,17 @@ export async function updateCriterionRow(
  * @returns The count of unresolved (not_evaluated) rows.
  */
 export function countUnresolvedRows(vpatId: string): number {
-  // A row is unresolved if:
-  // - it has component rows AND at least one component has conformance = 'not_evaluated'
-  // - OR it has no component rows AND its own conformance = 'not_evaluated'
+  // A row is resolved when EITHER:
+  //   (a) its row-level conformance is not 'not_evaluated' (explicit override), OR
+  //   (b) it has component rows AND all components have conformance != 'not_evaluated'
+  // A row is unresolved when NEITHER condition holds.
   const result = db().get(sql`
     SELECT COUNT(*) as count FROM vpat_criterion_rows r
     WHERE r.vpat_id = ${vpatId}
-      AND (
-        (EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id)
-          AND EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id AND c.conformance = 'not_evaluated'))
-        OR
-        (NOT EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id)
-          AND r.conformance = 'not_evaluated')
+      AND r.conformance = 'not_evaluated'
+      AND NOT (
+        EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id)
+        AND NOT EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id AND c.conformance = 'not_evaluated')
       )
   `) as { count: number };
   return result.count;
@@ -383,18 +382,17 @@ export function countUnresolvedRows(vpatId: string): number {
 export async function getVpatProgress(
   vpatId: string
 ): Promise<{ resolved: number; total: number }> {
-  // A row is resolved when:
-  // - it has component rows AND ALL components have conformance != 'not_evaluated'
-  // - OR it has no component rows AND its own conformance != 'not_evaluated'
+  // A row is resolved when EITHER:
+  //   (a) its row-level conformance is not 'not_evaluated', OR
+  //   (b) it has component rows AND ALL components have conformance != 'not_evaluated'
   const result = db().get(sql`
     SELECT
       COUNT(*) as total,
       SUM(CASE
+        WHEN r.conformance != 'not_evaluated'
+        THEN 1
         WHEN EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id)
           AND NOT EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id AND c.conformance = 'not_evaluated')
-        THEN 1
-        WHEN NOT EXISTS (SELECT 1 FROM vpat_criterion_components c WHERE c.criterion_row_id = r.id)
-          AND r.conformance != 'not_evaluated'
         THEN 1
         ELSE 0
       END) as resolved
