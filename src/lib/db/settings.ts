@@ -16,8 +16,13 @@ interface SettingRow {
 const DEFAULT_SETTINGS: Record<string, SettingValue> = {
   ai_provider: 'none',
   ai_api_key: '',
-  ai_model: '',
+  ai_model: '', // kept as global fallback for existing installs
   ai_base_url: '',
+  ai_model_issues: '',
+  ai_model_vpat: '',
+  ai_model_reports: '',
+  ai_model_vpat_review: '',
+  ai_review_pass_enabled: false,
   media_directory: './data/media',
   auth_enabled: false,
   app_version: '1.0.0',
