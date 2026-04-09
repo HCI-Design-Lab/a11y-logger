@@ -80,6 +80,25 @@ function headerRow(): TableRow {
   });
 }
 
+function multiComponentHeaderRow(): TableRow {
+  const cols = [
+    { text: 'Criteria', width: 40 },
+    { text: 'Component', width: 15 },
+    { text: 'Conformance Level', width: 20 },
+    { text: 'Remarks and Explanations', width: 25 },
+  ];
+  return new TableRow({
+    tableHeader: true,
+    children: cols.map(
+      ({ text, width }) =>
+        new TableCell({
+          width: { size: width, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text, bold: true })] })],
+        })
+    ),
+  });
+}
+
 function criterionRow(row: VpatCriterionRow): TableRow {
   const criteriaText = `${row.criterion_code} ${row.criterion_name}${row.criterion_level ? ` (Level ${row.criterion_level})` : ''}`;
   return new TableRow({
@@ -100,6 +119,69 @@ function criterionRow(row: VpatCriterionRow): TableRow {
       }),
     ],
   });
+}
+
+function multiComponentCriterionRows(row: VpatCriterionRow): TableRow[] {
+  const criteriaText = `${row.criterion_code} ${row.criterion_name}${row.criterion_level ? ` (Level ${row.criterion_level})` : ''}`;
+  const components = row.components ?? [];
+
+  if (components.length === 0) {
+    return [
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 40, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ text: criteriaText })],
+          }),
+          new TableCell({
+            width: { size: 15, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ text: '' })],
+          }),
+          new TableCell({
+            width: { size: 20, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({ text: CONFORMANCE_DISPLAY[row.conformance] ?? row.conformance }),
+            ],
+          }),
+          new TableCell({
+            width: { size: 25, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ text: row.remarks ?? '' })],
+          }),
+        ],
+      }),
+    ];
+  }
+
+  return components.map(
+    (comp, i) =>
+      new TableRow({
+        children: [
+          ...(i === 0
+            ? [
+                new TableCell({
+                  width: { size: 40, type: WidthType.PERCENTAGE },
+                  rowSpan: components.length,
+                  children: [new Paragraph({ text: criteriaText })],
+                }),
+              ]
+            : []),
+          new TableCell({
+            width: { size: 15, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ text: comp.component_name })],
+          }),
+          new TableCell({
+            width: { size: 20, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({ text: CONFORMANCE_DISPLAY[comp.conformance] ?? comp.conformance }),
+            ],
+          }),
+          new TableCell({
+            width: { size: 25, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ text: comp.remarks ?? '' })],
+          }),
+        ],
+      })
+  );
 }
 
 /**
@@ -222,14 +304,19 @@ export async function generateVpatDocx(
     children.push(new Paragraph({ text: '' }));
   }
 
+  const isMultiComponent = rows.some((r) => (r.components?.length ?? 0) > 1);
+
   for (const section of orderedSections) {
     const sectionRows = bySection.get(section)!;
     const label = SECTION_LABELS[section] ?? section;
+    const tableRows = isMultiComponent
+      ? [multiComponentHeaderRow(), ...sectionRows.flatMap(multiComponentCriterionRows)]
+      : [headerRow(), ...sectionRows.map(criterionRow)];
     children.push(
       new Paragraph({ text: label, heading: HeadingLevel.HEADING_2 }),
       new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: [headerRow(), ...sectionRows.map(criterionRow)],
+        rows: tableRows,
       }),
       new Paragraph({ text: '' })
     );
