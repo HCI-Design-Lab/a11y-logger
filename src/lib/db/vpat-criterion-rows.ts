@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { getDbClient } from './client';
-import { vpatCriterionRows, criteria } from './schema';
+import { vpatCriterionRows, vpatCriterionComponents, criteria } from './schema';
 import type * as sqliteSchema from './schema';
 
 // Cast helper: the union type BetterSQLite3Database | PostgresJsDatabase does not
@@ -9,6 +9,21 @@ import type * as sqliteSchema from './schema';
 // At runtime the correct driver is used transparently by Drizzle.
 function db(): BetterSQLite3Database<typeof sqliteSchema> {
   return getDbClient() as BetterSQLite3Database<typeof sqliteSchema>;
+}
+
+export interface VpatCriterionComponent {
+  id: number;
+  criterion_row_id: string;
+  component_name: string;
+  conformance:
+    | 'not_evaluated'
+    | 'supports'
+    | 'partially_supports'
+    | 'does_not_support'
+    | 'not_applicable';
+  remarks: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface VpatCriterionRow {
@@ -43,6 +58,7 @@ export interface VpatCriterionRow {
   last_generated_at: string | null;
   updated_at: string;
   issue_count: number;
+  components: VpatCriterionComponent[];
 }
 
 export interface CreateCriterionRowInput {
@@ -84,7 +100,11 @@ interface CriterionRowDbRow {
   criterion_name_de: string | null;
 }
 
-function parseRow(raw: CriterionRowDbRow, locale = 'en'): VpatCriterionRow {
+function parseRow(
+  raw: CriterionRowDbRow,
+  components: VpatCriterionComponent[] = [],
+  locale = 'en'
+): VpatCriterionRow {
   const translatedName =
     locale !== 'en'
       ? ((raw[`criterion_name_${locale}` as keyof typeof raw] as string | null) ?? null)
@@ -105,7 +125,33 @@ function parseRow(raw: CriterionRowDbRow, locale = 'en'): VpatCriterionRow {
       }
     })(),
     issue_count: raw.issue_count ?? 0,
+    components,
   };
+}
+
+/**
+ * Batch-loads all component rows for a set of criterion row IDs.
+ * Returns a Map from criterion_row_id to its components array.
+ */
+function loadComponentsMap(rowIds: string[]): Map<string, VpatCriterionComponent[]> {
+  if (rowIds.length === 0) return new Map();
+  const allComponents = db()
+    .select()
+    .from(vpatCriterionComponents)
+    .where(
+      sql`${vpatCriterionComponents.criterion_row_id} IN (${sql.join(
+        rowIds.map((id) => sql`${id}`),
+        sql`, `
+      )})`
+    )
+    .all() as VpatCriterionComponent[];
+  const map = new Map<string, VpatCriterionComponent[]>();
+  for (const comp of allComponents) {
+    const arr = map.get(comp.criterion_row_id) ?? [];
+    arr.push(comp);
+    map.set(comp.criterion_row_id, arr);
+  }
+  return map;
 }
 
 const joinedSelect = {
@@ -168,7 +214,9 @@ export async function getCriterionRows(vpatId: string, locale = 'en'): Promise<V
     .where(eq(vpatCriterionRows.vpat_id, vpatId))
     .orderBy(criteria.sort_order)
     .all() as CriterionRowDbRow[];
-  return rows.map((r) => parseRow(r, locale));
+  const rowIds = rows.map((r) => r.id);
+  const componentsMap = loadComponentsMap(rowIds);
+  return rows.map((r) => parseRow(r, componentsMap.get(r.id) ?? [], locale));
 }
 
 /**
@@ -201,7 +249,9 @@ export async function getCriterionRowsWithIssueCounts(
     .where(eq(vpatCriterionRows.vpat_id, vpatId))
     .orderBy(criteria.sort_order)
     .all() as RowWithCount[];
-  return rows.map((r) => parseRow(r, locale));
+  const rowIds = rows.map((r) => r.id);
+  const componentsMap = loadComponentsMap(rowIds);
+  return rows.map((r) => parseRow(r, componentsMap.get(r.id) ?? [], locale));
 }
 
 /**
@@ -221,7 +271,9 @@ export async function getCriterionRow(
     .where(eq(vpatCriterionRows.id, rowId))
     .limit(1)
     .get() as CriterionRowDbRow | undefined;
-  return row ? parseRow(row, locale) : null;
+  if (!row) return null;
+  const components = await getComponentsForRow(rowId);
+  return parseRow(row, components, locale);
 }
 
 /**
@@ -339,4 +391,96 @@ export async function getVpatProgress(
     total: result?.total ?? 0,
     resolved: result?.resolved ?? 0,
   };
+}
+
+/**
+ * Returns all component rows for a given criterion row ID.
+ */
+export async function getComponentsForRow(rowId: string): Promise<VpatCriterionComponent[]> {
+  return db()
+    .select()
+    .from(vpatCriterionComponents)
+    .where(eq(vpatCriterionComponents.criterion_row_id, rowId))
+    .all() as VpatCriterionComponent[];
+}
+
+/**
+ * Returns a single component row by row ID and component name, or null if not found.
+ */
+export async function getCriterionComponent(
+  rowId: string,
+  componentName: string
+): Promise<VpatCriterionComponent | null> {
+  const result = db()
+    .select()
+    .from(vpatCriterionComponents)
+    .where(
+      sql`${vpatCriterionComponents.criterion_row_id} = ${rowId} AND ${vpatCriterionComponents.component_name} = ${componentName}`
+    )
+    .limit(1)
+    .get() as VpatCriterionComponent | undefined;
+  return result ?? null;
+}
+
+/**
+ * Upserts (inserts or updates) a component row for a criterion row.
+ */
+export async function upsertCriterionComponent(
+  rowId: string,
+  componentName: string,
+  update: { conformance?: string; remarks?: string }
+): Promise<VpatCriterionComponent> {
+  const now = new Date().toISOString();
+  const existing = await getCriterionComponent(rowId, componentName);
+  if (existing) {
+    const values: Partial<typeof vpatCriterionComponents.$inferInsert> = { updated_at: now };
+    if (update.conformance !== undefined) values.conformance = update.conformance;
+    if (update.remarks !== undefined) values.remarks = update.remarks;
+    db()
+      .update(vpatCriterionComponents)
+      .set(values)
+      .where(
+        sql`${vpatCriterionComponents.criterion_row_id} = ${rowId} AND ${vpatCriterionComponents.component_name} = ${componentName}`
+      )
+      .run();
+  } else {
+    db()
+      .insert(vpatCriterionComponents)
+      .values({
+        criterion_row_id: rowId,
+        component_name: componentName,
+        conformance: update.conformance ?? 'not_evaluated',
+        remarks: update.remarks ?? null,
+        created_at: now,
+        updated_at: now,
+      })
+      .run();
+  }
+  return (await getCriterionComponent(rowId, componentName))!;
+}
+
+/**
+ * Bulk-creates component rows for all criterion rows of a VPAT.
+ * Called by createVpat() after createCriterionRows().
+ */
+export function createComponentRowsForVpat(vpatId: string, componentNames: string[]): void {
+  if (componentNames.length === 0) return;
+  const rowIds = db()
+    .select({ id: vpatCriterionRows.id })
+    .from(vpatCriterionRows)
+    .where(eq(vpatCriterionRows.vpat_id, vpatId))
+    .all() as { id: string }[];
+  if (rowIds.length === 0) return;
+  const now = new Date().toISOString();
+  const values = rowIds.flatMap((row) =>
+    componentNames.map((name) => ({
+      criterion_row_id: row.id,
+      component_name: name,
+      conformance: 'not_evaluated' as const,
+      remarks: null,
+      created_at: now,
+      updated_at: now,
+    }))
+  );
+  db().insert(vpatCriterionComponents).values(values).run();
 }

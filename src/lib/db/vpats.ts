@@ -4,7 +4,13 @@ import { getDbClient } from './client';
 import { vpats, projects, vpatCriterionRows } from './schema';
 import type * as sqliteSchema from './schema';
 import { getCriteriaForEdition } from './criteria';
-import { createCriterionRows, countUnresolvedRows, getCriterionRows } from './vpat-criterion-rows';
+import {
+  createCriterionRows,
+  countUnresolvedRows,
+  getCriterionRows,
+  createComponentRowsForVpat,
+  upsertCriterionComponent,
+} from './vpat-criterion-rows';
 import type { VpatCriterionRow } from './vpat-criterion-rows';
 import { createVpatSnapshot } from './vpat-snapshots';
 import type { VpatSnapshotData } from './vpat-snapshots';
@@ -46,6 +52,19 @@ export class NotPublishedError extends Error {
     super(`VPAT ${id} is not published`);
     this.name = 'NotPublishedError';
   }
+}
+
+/**
+ * Maps product_scope values to OpenACR component names.
+ * software-desktop and software-mobile both map to 'software'.
+ */
+export function getScopeComponents(productScope: string[]): string[] {
+  const components = new Set<string>();
+  if (productScope.includes('web')) components.add('web');
+  if (productScope.includes('software-desktop') || productScope.includes('software-mobile'))
+    components.add('software');
+  if (productScope.includes('documents')) components.add('electronic-docs');
+  return Array.from(components);
 }
 
 export interface VpatData {
@@ -292,6 +311,7 @@ export async function createVpat(input: CreateVpatParams): Promise<Vpat> {
     }))
   );
   createCriterionRows(id, rowInputs);
+  createComponentRowsForVpat(id, getScopeComponents(productScope));
 
   return (await getVpat(id))!;
 }
@@ -312,6 +332,11 @@ export interface ImportVpatInput {
       | 'not_applicable'
       | 'not_evaluated';
     remarks?: string | null;
+    components?: Array<{
+      component_name: string;
+      conformance: string;
+      remarks?: string | null;
+    }>;
   }>;
 }
 
@@ -325,6 +350,20 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
+  // Derive product_scope from component names across all rows
+  const componentNamesUnion = new Set<string>();
+  for (const row of input.rows) {
+    for (const comp of row.components ?? []) {
+      componentNamesUnion.add(comp.component_name);
+    }
+  }
+  // Reverse map: component_name → product_scope value
+  const derivedScope = new Set<string>();
+  if (componentNamesUnion.has('web')) derivedScope.add('web');
+  if (componentNamesUnion.has('software')) derivedScope.add('software-desktop');
+  if (componentNamesUnion.has('electronic-docs')) derivedScope.add('documents');
+  const productScope = derivedScope.size > 0 ? Array.from(derivedScope) : ['web'];
+
   db()
     .insert(vpats)
     .values({
@@ -335,7 +374,7 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
       standard_edition: input.standard_edition,
       wcag_version: input.wcag_version,
       wcag_level: input.wcag_level,
-      product_scope: JSON.stringify(['web']), // OpenACR YAML has no product_scope concept; default to web
+      product_scope: JSON.stringify(productScope),
       created_at: now,
       updated_at: now,
     })
@@ -345,6 +384,34 @@ export async function importVpatFromOpenAcr(input: ImportVpatInput): Promise<Vpa
     id,
     input.rows.map((r) => ({ ...r, remarks: r.remarks ?? undefined }))
   );
+
+  // Create per-component rows
+  const criterionRowsForVpat = db()
+    .select({ id: vpatCriterionRows.id, criterion_id: vpatCriterionRows.criterion_id })
+    .from(vpatCriterionRows)
+    .where(eq(vpatCriterionRows.vpat_id, id))
+    .all() as { id: string; criterion_id: string }[];
+
+  const criterionIdToRowId = new Map(criterionRowsForVpat.map((r) => [r.criterion_id, r.id]));
+
+  for (const row of input.rows) {
+    const rowId = criterionIdToRowId.get(row.criterion_id);
+    if (!rowId) continue;
+    if (row.components && row.components.length > 0) {
+      for (const comp of row.components) {
+        await upsertCriterionComponent(rowId, comp.component_name, {
+          conformance: comp.conformance,
+          remarks: comp.remarks ?? undefined,
+        });
+      }
+    } else {
+      // Fall back to single web component
+      await upsertCriterionComponent(rowId, 'web', {
+        conformance: row.conformance,
+        remarks: row.remarks ?? undefined,
+      });
+    }
+  }
 
   return (await getVpat(id))!;
 }
