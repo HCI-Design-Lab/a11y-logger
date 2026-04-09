@@ -17,8 +17,12 @@ interface AIEnvSource {
 interface SettingsClientProps {
   aiProvider: string;
   aiApiKey: string;
-  aiModel: string;
   aiBaseUrl: string;
+  aiModelIssues: string;
+  aiModelVpat: string;
+  aiModelReports: string;
+  aiModelVpatReview: string;
+  aiReviewPassEnabled: boolean;
   aiEnvSource?: AIEnvSource;
   dbPath: string;
   mediaPath: string;
@@ -36,8 +40,12 @@ interface SettingsClientProps {
 export function SettingsClient({
   aiProvider,
   aiApiKey,
-  aiModel,
   aiBaseUrl,
+  aiModelIssues,
+  aiModelVpat,
+  aiModelReports,
+  aiModelVpatReview,
+  aiReviewPassEnabled,
   aiEnvSource,
   dbPath,
   mediaPath,
@@ -48,44 +56,67 @@ export function SettingsClient({
   const handleSaveAI = async (data: {
     provider: string;
     apiKey: string;
-    model: string;
     baseUrl: string;
+    modelIssues: string;
+    modelVpat: string;
+    modelReports: string;
+    modelVpatReview: string;
+    reviewPassEnabled: boolean;
   }) => {
     try {
-      const providerRes = await fetch('/api/settings/ai_provider', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: data.provider }),
-      });
-      const providerJson = await providerRes.json();
-      if (!providerJson.success) throw new Error(providerJson.error);
+      const saves: Promise<Response>[] = [
+        fetch('/api/settings/ai_provider', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.provider }),
+        }),
+        fetch('/api/settings/ai_base_url', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.baseUrl }),
+        }),
+        fetch('/api/settings/ai_model_issues', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.modelIssues }),
+        }),
+        fetch('/api/settings/ai_model_vpat', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.modelVpat }),
+        }),
+        fetch('/api/settings/ai_model_reports', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.modelReports }),
+        }),
+        fetch('/api/settings/ai_model_vpat_review', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.modelVpatReview }),
+        }),
+        fetch('/api/settings/ai_review_pass_enabled', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: data.reviewPassEnabled }),
+        }),
+      ];
 
       // Only update API key if it's not the redacted placeholder
       if (data.apiKey !== '[REDACTED]') {
-        const keyRes = await fetch('/api/settings/ai_api_key', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: data.apiKey }),
-        });
-        const keyJson = await keyRes.json();
-        if (!keyJson.success) throw new Error(keyJson.error);
+        saves.push(
+          fetch('/api/settings/ai_api_key', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: data.apiKey }),
+          })
+        );
       }
 
-      const modelRes = await fetch('/api/settings/ai_model', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: data.model }),
-      });
-      const modelJson = await modelRes.json();
-      if (!modelJson.success) throw new Error(modelJson.error);
-
-      const baseUrlRes = await fetch('/api/settings/ai_base_url', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: data.baseUrl }),
-      });
-      const baseUrlJson = await baseUrlRes.json();
-      if (!baseUrlJson.success) throw new Error(baseUrlJson.error);
+      const results = await Promise.all(saves);
+      const jsons = await Promise.all(results.map((r) => r.json()));
+      const failed = jsons.find((j: { success: boolean; error?: string }) => !j.success);
+      if (failed) throw new Error((failed as { error?: string }).error);
 
       toast.success('AI configuration saved');
     } catch {
@@ -105,8 +136,12 @@ export function SettingsClient({
         <AIConfigSection
           provider={aiProvider}
           apiKey={aiApiKey}
-          model={aiModel}
           baseUrl={aiBaseUrl}
+          modelIssues={aiModelIssues}
+          modelVpat={aiModelVpat}
+          modelReports={aiModelReports}
+          modelVpatReview={aiModelVpatReview}
+          reviewPassEnabled={aiReviewPassEnabled}
           envSource={aiEnvSource}
           onSave={handleSaveAI}
         />

@@ -10,8 +10,12 @@ export default async function SettingsPage() {
   // The API key is encrypted at rest — pass a masked placeholder if one exists
   const rawApiKey = getSetting('ai_api_key');
   const aiApiKey = rawApiKey ? '[REDACTED]' : '';
-  const aiModel = (getSetting('ai_model') as string) ?? '';
   const aiBaseUrl = (getSetting('ai_base_url') as string) ?? '';
+  const aiModelIssues = (getSetting('ai_model_issues') as string) ?? '';
+  const aiModelVpat = (getSetting('ai_model_vpat') as string) ?? '';
+  const aiModelReports = (getSetting('ai_model_reports') as string) ?? '';
+  const aiModelVpatReview = (getSetting('ai_model_vpat_review') as string) ?? '';
+  const aiReviewPassEnabled = Boolean(getSetting('ai_review_pass_enabled'));
   const authEnabled = Boolean(getSetting('auth_enabled'));
   const users = await getUsers();
 
@@ -31,8 +35,12 @@ export default async function SettingsPage() {
       <SettingsClient
         aiProvider={aiProvider}
         aiApiKey={aiApiKey}
-        aiModel={aiModel}
         aiBaseUrl={aiBaseUrl}
+        aiModelIssues={aiModelIssues}
+        aiModelVpat={aiModelVpat}
+        aiModelReports={aiModelReports}
+        aiModelVpatReview={aiModelVpatReview}
+        aiReviewPassEnabled={aiReviewPassEnabled}
         aiEnvSource={hasAnyEnvOverride ? aiEnvSource : undefined}
         dbPath={process.env.DATABASE_PATH ?? './data/a11y-logger.db'}
         mediaPath="./data/media/"
