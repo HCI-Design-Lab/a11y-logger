@@ -85,10 +85,36 @@ export default function VpatEditPage() {
   }, [vpatId, router]);
 
   // Updates local state + queues change for save.
+  // When update.component_name is set, immediately PUTs to the component API
+  // instead of queuing to the row-level PATCH batch.
   const handleRowChange = useCallback(
-    (rowId: string, update: { conformance?: string }) => {
+    (rowId: string, update: { conformance?: string; component_name?: string }) => {
       if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
         setShowEditWarning(true);
+      }
+      if (update.component_name) {
+        // Per-component update — call component API immediately, update components in local state
+        const { component_name, ...componentUpdate } = update;
+        setRows((prev) =>
+          prev.map((r) =>
+            r.id === rowId
+              ? {
+                  ...r,
+                  components: r.components.map((c) =>
+                    c.component_name === component_name ? { ...c, ...componentUpdate } : c
+                  ),
+                }
+              : r
+          )
+        );
+        fetch(`/api/vpats/${vpatId}/rows/${rowId}/components/${component_name}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(componentUpdate),
+        }).catch(() => {
+          // Optimistic update already applied; swallow error for now
+        });
+        return;
       }
       setRows((prev) =>
         prev.map((r) => (r.id === rowId ? ({ ...r, ...update } as VpatCriterionRow) : r))
@@ -96,7 +122,7 @@ export default function VpatEditPage() {
       const existing = pendingChanges.current.get(rowId) ?? {};
       pendingChanges.current.set(rowId, { ...existing, ...update });
     },
-    [vpat, hasShownEditWarning]
+    [vpat, hasShownEditWarning, vpatId]
   );
 
   // Called by the table after 500ms debounce — queues remarks for save.
