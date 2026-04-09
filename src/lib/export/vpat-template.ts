@@ -118,6 +118,9 @@ export function generateVpatHtml(
   const unknownSections = [...bySection.keys()].filter((s) => !SECTION_ORDER.includes(s));
   const orderedSections = [...knownSections, ...unknownSections];
 
+  // Detect if any row has multiple components — if so, render a Component column
+  const isMultiComponent = rows.some((r) => (r.components?.length ?? 0) > 1);
+
   const sectionsHtml = orderedSections
     .map((section) => {
       const sectionRows = bySection.get(section)!;
@@ -125,18 +128,49 @@ export function generateVpatHtml(
 
       const rowsHtml = sectionRows
         .map((row) => {
-          const conformance = row.conformance ?? 'not_evaluated';
-          const remarks = row.remarks ?? '';
           const criteriaLabel = `${escapeHtml(row.criterion_code)} ${escapeHtml(row.criterion_name)}${row.criterion_level ? ` (Level ${escapeHtml(row.criterion_level)})` : ''}`;
 
+          if (isMultiComponent && (row.components?.length ?? 0) > 1) {
+            // Render one <tr> per component with rowspan on the criteria cell
+            const count = row.components.length;
+            return row.components
+              .map((comp, i) => {
+                const conformance = comp.conformance ?? 'not_evaluated';
+                const remarks = comp.remarks ?? '';
+                const criteriaCell =
+                  i === 0
+                    ? `<td class="criterion-cell" rowspan="${count}">${criteriaLabel}</td>`
+                    : '';
+                return `
+          <tr>
+            ${criteriaCell}
+            <td class="component-cell">${escapeHtml(comp.component_name)}</td>
+            <td class="conformance-cell ${getConformanceClass(conformance)}">${escapeHtml(getConformanceDisplay(conformance))}</td>
+            <td class="remarks-cell">${remarks ? escapeHtml(remarks) : '<span class="no-remarks">—</span>'}</td>
+          </tr>`;
+              })
+              .join('\n');
+          }
+
+          // Single-component or no-component row
+          const conformance = row.conformance ?? 'not_evaluated';
+          const remarks = row.remarks ?? '';
+          const componentCell = isMultiComponent
+            ? `<td class="component-cell">${row.components?.[0] ? escapeHtml(row.components[0].component_name) : ''}</td>`
+            : '';
           return `
           <tr>
             <td class="criterion-cell">${criteriaLabel}</td>
+            ${componentCell}
             <td class="conformance-cell ${getConformanceClass(conformance)}">${escapeHtml(getConformanceDisplay(conformance))}</td>
             <td class="remarks-cell">${remarks ? escapeHtml(remarks) : '<span class="no-remarks">—</span>'}</td>
           </tr>`;
         })
         .join('\n');
+
+      const componentHeader = isMultiComponent
+        ? '<th scope="col" style="width:15%">Component</th>'
+        : '';
 
       return `
         <section class="principle-section">
@@ -144,9 +178,10 @@ export function generateVpatHtml(
           <table>
             <thead>
               <tr>
-                <th scope="col" style="width:45%">Criteria</th>
+                <th scope="col" style="width:${isMultiComponent ? '30%' : '45%'}">Criteria</th>
+                ${componentHeader}
                 <th scope="col" style="width:20%">Conformance Level</th>
-                <th scope="col" style="width:35%">Remarks and Explanations</th>
+                <th scope="col" style="width:${isMultiComponent ? '35%' : '35%'}">Remarks and Explanations</th>
               </tr>
             </thead>
             <tbody>
