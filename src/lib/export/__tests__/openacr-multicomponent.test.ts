@@ -116,4 +116,22 @@ describe('generateOpenAcr — multi-component', () => {
     const report = generateOpenAcr(baseVpat, baseProject, []);
     expect(report.chapters['software']).toBeUndefined();
   });
+
+  it('includes hardware chapter when product scope includes hardware', () => {
+    const vpat = { ...baseVpat, product_scope: ['web', 'hardware'] };
+    const report = generateOpenAcr(vpat, baseProject, []);
+    expect(report.chapters['hardware']).toBeDefined();
+  });
+
+  it('includes software chapter when product scope includes software-desktop', () => {
+    const vpat = { ...baseVpat, product_scope: ['web', 'software-desktop'] };
+    const report = generateOpenAcr(vpat, baseProject, []);
+    expect(report.chapters['software']).toBeDefined();
+  });
+
+  it('includes software chapter when product scope includes software-mobile', () => {
+    const vpat = { ...baseVpat, product_scope: ['software-mobile'] };
+    const report = generateOpenAcr(vpat, baseProject, []);
+    expect(report.chapters['software']).toBeDefined();
+  });
 });

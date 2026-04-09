@@ -121,4 +121,34 @@ describe('generateVpatDocx — multi-component', () => {
     const xml = await zip.file('word/document.xml')!.async('string');
     expect(xml).toContain('Component');
   });
+
+  it('renders multi-component table with a row that has no components (empty fallback)', async () => {
+    // Mix: one row with 2 components (triggers isMultiComponent), one with 0
+    const rows = [
+      makeRow('1.1.1', 'A', [
+        {
+          id: 1,
+          criterion_row_id: 'row-1.1.1',
+          component_name: 'web',
+          conformance: 'supports',
+          remarks: null,
+          created_at: '',
+          updated_at: '',
+        },
+        {
+          id: 2,
+          criterion_row_id: 'row-1.1.1',
+          component_name: 'electronic-docs',
+          conformance: 'partially_supports',
+          remarks: null,
+          created_at: '',
+          updated_at: '',
+        },
+      ]),
+      makeRow('1.2.1', 'A', []),
+    ];
+    const buf = await generateVpatDocx(baseVpat, baseProject, rows);
+    expect(Buffer.isBuffer(buf)).toBe(true);
+    expect(buf.length).toBeGreaterThan(0);
+  });
 });
