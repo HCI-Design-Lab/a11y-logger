@@ -182,6 +182,7 @@ export function AIConfigSection({
   const providerFromEnv = !!envSource?.provider;
 
   const handleSave = async () => {
+    if (loading) return;
     setLoading(true);
     try {
       await onSave({
@@ -372,9 +373,7 @@ export function AIConfigSection({
           </div>
         )}
 
-        <Button onClick={handleSave} disabled={loading || !selectedProvider || providerFromEnv}>
-          {loading ? 'Saving…' : 'Save Configuration'}
-        </Button>
+        <Button onClick={handleSave}>{loading ? 'Saving…' : 'Save Configuration'}</Button>
       </CardContent>
     </Card>
   );
