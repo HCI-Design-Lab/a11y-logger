@@ -73,9 +73,15 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
     el.style.height = `${el.scrollHeight}px`;
   }, []);
 
-  // Resize after row.remarks changes — rAF lets the parent's setValue update the DOM first.
+  // Sync textarea value when row.remarks changes externally (e.g. AI generation).
+  // Direct DOM update is more reliable than relying on RHF setValue from the parent.
   useEffect(() => {
-    requestAnimationFrame(() => autoResize(textareaRef.current));
+    const el = textareaRef.current;
+    if (!el) return;
+    if (el.value !== (row.remarks ?? '')) {
+      el.value = row.remarks ?? '';
+    }
+    requestAnimationFrame(() => autoResize(el));
   }, [row.remarks, autoResize]);
 
   const isUnresolved = row.conformance === 'not_evaluated';
