@@ -57,8 +57,11 @@ interface CriterionSectionProps {
   aiEnabled: boolean;
   generatingRowId?: string | null;
   isGeneratingAll: boolean;
-  onRowChange: (rowId: string, update: { conformance?: string }) => void;
-  scheduleRemarksSave: (rowId: string, value: string) => void;
+  onRowChange: (
+    rowId: string,
+    update: { conformance?: string; remarks?: string; component_name?: string }
+  ) => void;
+  scheduleRemarksSave: (rowId: string, value: string, componentName?: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onCriterionClick?: (criterionCode: string) => void;
   onAiInfoClick?: (row: VpatCriterionRow) => void;
@@ -153,9 +156,12 @@ const CriterionSection = memo(function CriterionSection({
 interface VpatCriteriaTableProps {
   rows: VpatCriterionRow[];
   locale?: string;
-  /** Called immediately for conformance changes (updates progress bar in parent). */
-  onRowChange: (rowId: string, update: { conformance?: string }) => void;
-  /** Called after 500ms debounce when the user finishes typing remarks. */
+  /** Called immediately for conformance changes; for components also handles debounced remarks. */
+  onRowChange: (
+    rowId: string,
+    update: { conformance?: string; remarks?: string; component_name?: string }
+  ) => void;
+  /** Called after 500ms debounce when the user finishes typing remarks on a single-component row. */
   onSaveRemarks: (rowId: string, remarks: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onGenerateAll?: () => void;
@@ -244,16 +250,25 @@ export function VpatCriteriaTable({
 
   // Reset the timer for this row on every keystroke so only the final value
   // after the user pauses is written to the database.
+  // For multi-component rows, componentName is passed and the save goes through
+  // onRowChange (which calls the component API directly) instead of the batch queue.
   const scheduleRemarksSave = useCallback(
-    (rowId: string, value: string) => {
-      const existing = saveTimers.current.get(rowId);
+    (rowId: string, value: string, componentName?: string) => {
+      const timerKey = componentName ? `${rowId}::${componentName}` : rowId;
+      const existing = saveTimers.current.get(timerKey);
       if (existing) clearTimeout(existing);
       saveTimers.current.set(
-        rowId,
-        setTimeout(() => onSaveRemarks(rowId, value), 500)
+        timerKey,
+        setTimeout(() => {
+          if (componentName) {
+            onRowChange(rowId, { remarks: value, component_name: componentName });
+          } else {
+            onSaveRemarks(rowId, value);
+          }
+        }, 500)
       );
     },
-    [onSaveRemarks]
+    [onSaveRemarks, onRowChange]
   );
 
   // Group rows: WCAG rows by criterion_level (A/AA/AAA), all others by criterion_section.

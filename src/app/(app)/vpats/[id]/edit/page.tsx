@@ -88,7 +88,10 @@ export default function VpatEditPage() {
   // When update.component_name is set, immediately PUTs to the component API
   // instead of queuing to the row-level PATCH batch.
   const handleRowChange = useCallback(
-    (rowId: string, update: { conformance?: string; component_name?: string }) => {
+    (
+      rowId: string,
+      update: { conformance?: string; remarks?: string; component_name?: string }
+    ) => {
       if (vpat?.status === 'reviewed' && !hasShownEditWarning) {
         setShowEditWarning(true);
       }
@@ -107,6 +110,9 @@ export default function VpatEditPage() {
                           ...(componentUpdate.conformance !== undefined && {
                             conformance:
                               componentUpdate.conformance as VpatCriterionComponent['conformance'],
+                          }),
+                          ...(componentUpdate.remarks !== undefined && {
+                            remarks: componentUpdate.remarks,
                           }),
                         }
                       : c

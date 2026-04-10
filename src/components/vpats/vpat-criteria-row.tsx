@@ -34,7 +34,7 @@ export interface VpatCriteriaRowProps {
   isGenerating: boolean;
   isGeneratingAll: boolean;
   onRowChange: (rowId: string, update: { conformance?: string; component_name?: string }) => void;
-  scheduleRemarksSave: (rowId: string, value: string) => void;
+  scheduleRemarksSave: (rowId: string, value: string, componentName?: string) => void;
   onGenerateRow?: (rowId: string) => void;
   onCriterionClick?: (criterionCode: string) => void;
   onAiInfoClick?: (row: VpatCriterionRow) => void;
@@ -123,7 +123,6 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   );
 
   if (isMultiComponent) {
-    const colSpan = aiEnabled && !readOnly ? 5 : 4;
     return (
       <>
         <TableRow
@@ -132,7 +131,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
         >
           <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
           {criterionNameCell}
-          <TableCell colSpan={colSpan - 2} className="p-0">
+          <TableCell colSpan={2} className="p-0">
             <table data-testid="component-sub-table" className="w-full">
               <tbody>
                 {(row.components ?? []).map((comp) => {
@@ -184,6 +183,9 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                             placeholder="Add remarks…"
                             disabled={isDisabled}
                             defaultValue={comp.remarks ?? ''}
+                            onChange={(e) =>
+                              scheduleRemarksSave(row.id, e.target.value, comp.component_name)
+                            }
                             aria-label={`Remarks for ${row.criterion_code} — ${comp.component_name}`}
                           />
                         )}
