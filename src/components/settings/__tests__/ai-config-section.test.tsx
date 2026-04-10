@@ -11,9 +11,9 @@ describe('AIConfigSection — None provider', () => {
     expect(screen.getByRole('button', { name: 'Save Configuration' })).not.toBeDisabled();
   });
 
-  it('Save button is disabled when no provider is selected', () => {
+  it('Save button is always enabled regardless of provider selection', () => {
     render(<AIConfigSection provider="" onSave={onSave} />);
-    expect(screen.getByRole('button', { name: 'Save Configuration' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save Configuration' })).not.toBeDisabled();
   });
 
   it('calls onSave with provider=none when None is saved', async () => {
@@ -54,9 +54,9 @@ describe('AIConfigSection — env var overrides', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('disables Save button when provider is from env', () => {
+  it('Save button remains enabled even when provider is from env', () => {
     render(<AIConfigSection provider="none" onSave={onSave} envSource={envSource} />);
-    expect(screen.getByRole('button', { name: 'Save Configuration' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save Configuration' })).not.toBeDisabled();
   });
 
   it('shows "Set via environment variable" for API key when apiKey is from env', () => {
