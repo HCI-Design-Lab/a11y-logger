@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="relative w-14 shrink-0">
           <Sidebar />
         </div>
-        <main className="flex-1 overflow-auto p-6" id="main-content">
+        <main className="flex-1 overflow-auto p-8" id="main-content">
           <div className="max-w-350"> {children}</div>
         </main>
       </div>

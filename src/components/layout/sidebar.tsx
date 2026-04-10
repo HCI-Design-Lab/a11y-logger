@@ -26,7 +26,7 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <nav
-      className="group absolute left-0 top-0 z-10 flex h-full w-12 hover:w-48 flex-col overflow-hidden border-r bg-sidebar py-4 gap-1 transition-[width] duration-200 ease-in-out"
+      className="group absolute left-0 top-0 z-10 flex h-full w-14 hover:w-48 flex-col overflow-hidden bg-sidebar py-4 gap-1 transition-[width] duration-200 ease-in-out"
       aria-label="Main navigation"
     >
       {navItems.map(({ href, icon: Icon, label }) => (
@@ -36,8 +36,10 @@ export function Sidebar() {
           aria-label={label}
           aria-current={pathname === href || pathname.startsWith(href + '/') ? 'page' : undefined}
           className={cn(
-            'flex h-10 w-full items-center gap-3 rounded-lg px-3 transition-colors hover:bg-sidebar-accent',
-            (pathname === href || pathname.startsWith(href + '/')) && 'bg-sidebar-accent'
+            'relative flex h-10 w-full items-center gap-3 px-3 transition-colors text-muted-foreground hover:text-foreground',
+            pathname === href || pathname.startsWith(href + '/')
+              ? 'text-foreground before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:bg-foreground'
+              : ''
           )}
         >
           <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
