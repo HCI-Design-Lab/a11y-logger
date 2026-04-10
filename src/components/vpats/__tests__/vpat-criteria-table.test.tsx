@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
@@ -346,5 +346,77 @@ describe('VpatCriteriaTable', () => {
     vi.runAllTimers();
     expect(onSaveRemarks).toHaveBeenCalledWith('1', 'New remark');
     vi.useRealTimers();
+  });
+
+  it('closes the AI panel when the close button is clicked', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow({ ai_confidence: 'high', remarks: 'text' })]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+        onGenerateRow={vi.fn()}
+        aiEnabled
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /ai info for 1.1.1/i }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^close$/i }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('renders single section when sectionKey is provided', () => {
+    const rows = [
+      makeRow({
+        id: '1',
+        criterion_code: '1.1.1',
+        criterion_level: 'A',
+        criterion_section: 'Perceivable',
+      }),
+      makeRow({
+        id: '2',
+        criterion_code: '2.1.1',
+        criterion_level: 'A',
+        criterion_section: 'Operable',
+      }),
+    ];
+    render(
+      <VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} sectionKey="A" />
+    );
+    // Only the one card for Level A — no standard group headings
+    expect(screen.queryByRole('heading', { name: /wcag/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId('row-1')).toBeInTheDocument();
+    expect(screen.getByTestId('row-2')).toBeInTheDocument();
+  });
+
+  it('shows "No criteria" message when sectionKey matches no rows', () => {
+    render(
+      <VpatCriteriaTable
+        rows={[makeRow()]}
+        onRowChange={vi.fn()}
+        onSaveRemarks={vi.fn()}
+        sectionKey="AAA"
+      />
+    );
+    expect(screen.getByText(/no criteria in this section/i)).toBeInTheDocument();
+  });
+
+  it('syncs form values when row remarks change externally', () => {
+    const row = makeRow({ remarks: 'initial' });
+    const { rerender } = render(
+      <VpatCriteriaTable rows={[row]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />
+    );
+    const textarea = screen.getByRole('textbox', { name: /remarks for 1.1.1/i });
+    expect(textarea).toHaveValue('initial');
+
+    act(() => {
+      rerender(
+        <VpatCriteriaTable
+          rows={[{ ...row, remarks: 'updated externally' }]}
+          onRowChange={vi.fn()}
+          onSaveRemarks={vi.fn()}
+        />
+      );
+    });
+    expect(textarea).toHaveValue('updated externally');
   });
 });
