@@ -67,6 +67,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   );
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const compRemarkRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
     if (!el) return;
     el.style.height = 'auto';
@@ -83,6 +84,17 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
     }
     requestAnimationFrame(() => autoResize(el));
   }, [row.remarks, autoResize]);
+
+  // Sync per-component textarea values when component remarks change externally (AI generation).
+  useEffect(() => {
+    (row.components ?? []).forEach((comp) => {
+      const el = compRemarkRefs.current.get(comp.component_name);
+      if (el && el.value !== (comp.remarks ?? '')) {
+        el.value = comp.remarks ?? '';
+        requestAnimationFrame(() => autoResize(el));
+      }
+    });
+  }, [row.components, autoResize]);
 
   const isUnresolved = row.conformance === 'not_evaluated';
   const conformanceLabel =
@@ -178,6 +190,10 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                           </span>
                         ) : (
                           <Textarea
+                            ref={(el) => {
+                              if (el) compRemarkRefs.current.set(comp.component_name, el);
+                              else compRemarkRefs.current.delete(comp.component_name);
+                            }}
                             className="text-sm min-h-10 overflow-hidden"
                             style={{ resize: 'vertical' }}
                             placeholder="Add remarks…"

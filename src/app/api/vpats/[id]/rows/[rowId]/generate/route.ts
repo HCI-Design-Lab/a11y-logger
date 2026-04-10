@@ -5,7 +5,11 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getCriterionRow, updateCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import {
+  getCriterionRow,
+  updateCriterionRow,
+  upsertCriterionComponent,
+} from '@/lib/db/vpat-criterion-rows';
 import { getVpat } from '@/lib/db/vpats';
 import { getDb } from '@/lib/db';
 import { getSetting } from '@/lib/db/settings';
@@ -103,6 +107,19 @@ export async function POST(_request: Request, { params }: RouteContext) {
       ai_referenced_issues: enrichedReferencedIssues,
       ai_suggested_conformance: result.suggested_conformance,
     });
+
+    // For multi-component rows, distribute the generated remarks to every component
+    // so the per-component textareas in the UI reflect the AI output.
+    const components = updated?.components ?? [];
+    if (components.length > 1) {
+      for (const comp of components) {
+        await upsertCriterionComponent(rowId, comp.component_name, {
+          remarks: result.remarks,
+        });
+      }
+      const withComponents = await getCriterionRow(rowId);
+      return NextResponse.json({ success: true, data: withComponents });
+    }
 
     return NextResponse.json({ success: true, data: updated });
   } catch {
