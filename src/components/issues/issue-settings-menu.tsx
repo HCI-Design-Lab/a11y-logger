@@ -62,7 +62,7 @@ export function IssueSettingsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Issue settings">
+          <Button variant="outline" size="icon" aria-label="Issue settings" className="bg-card">
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

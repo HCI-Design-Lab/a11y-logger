@@ -1,7 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { Settings, Plus, Upload, Pencil, CirclePlay, CircleCheck, Ban, Trash2 } from 'lucide-react';
+import {
+  Settings,
+  Plus,
+  Upload,
+  Pencil,
+  CirclePlay,
+  CircleCheck,
+  Ban,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -101,7 +111,12 @@ export function AssessmentSettingsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Assessment settings">
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Assessment settings"
+            className="bg-card"
+          >
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -157,8 +172,12 @@ export function AssessmentSettingsMenu({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              <X />
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              <Trash2 />
               {isDeleting ? 'Deleting…' : 'Delete Assessment'}
             </AlertDialogAction>
           </AlertDialogFooter>
