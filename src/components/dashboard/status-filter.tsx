@@ -30,6 +30,7 @@ export function StatusFilter({ statuses, onChange }: StatusFilterProps) {
           type="button"
           key={value}
           variant={statuses.includes(value) ? 'default' : 'outline'}
+          className={statuses.includes(value) ? '' : 'bg-card hover:underline'}
           onClick={() => toggle(value)}
           aria-pressed={statuses.includes(value)}
         >
