@@ -26,7 +26,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
         onClick={() => onChange('chart')}
         aria-pressed={view === 'chart'}
         aria-label="Chart view"
-        className={`relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full ${view !== 'chart' ? 'hover:bg-accent dark:hover:bg-muted hover:border hover:border-border dark:hover:border-muted-foreground/40' : ''}`}
+        className="relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full"
       >
         <ChartPie
           className={`h-3.5 w-3.5 ${view === 'chart' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
@@ -39,7 +39,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
         onClick={() => onChange('table')}
         aria-pressed={view === 'table'}
         aria-label="Table view"
-        className={`relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full ${view !== 'table' ? 'hover:bg-accent dark:hover:bg-muted hover:border hover:border-border dark:hover:border-muted-foreground/40' : ''}`}
+        className="relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full"
       >
         <Table
           className={`h-3.5 w-3.5 ${view === 'table' ? 'text-primary-foreground' : 'text-muted-foreground'}`}
