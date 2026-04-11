@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -62,6 +63,9 @@ interface Props {
  */
 export function ReportEditForm({ report, issues }: Props) {
   const router = useRouter();
+  const tSections = useTranslations('reports.sections');
+  const tForm = useTranslations('reports.form');
+  const tPanel = useTranslations('reports.panel');
   // Lazy-initialise from the serialised JSON so parsing only runs once and
   // a corrupted content field degrades gracefully to an empty report.
   const [content, setContent] = useState<ReportContent>(() => {
@@ -163,7 +167,7 @@ export function ReportEditForm({ report, issues }: Props) {
         {/* Executive Summary — full width */}
         {!hasSection('executive_summary') ? (
           <PlaceholderCard
-            label="Add Executive Summary"
+            label={tSections('executive_summary_add')}
             onAdd={() => addSection('executive_summary')}
           />
         ) : (
@@ -179,7 +183,10 @@ export function ReportEditForm({ report, issues }: Props) {
         {/* Top Risks + Quick Wins — side by side */}
         <div className="grid grid-cols-2 gap-4">
           {!hasSection('top_risks') ? (
-            <PlaceholderCard label="Add Top Risks" onAdd={() => addSection('top_risks')} />
+            <PlaceholderCard
+              label={tSections('top_risks_add')}
+              onAdd={() => addSection('top_risks')}
+            />
           ) : (
             <TopRisksSection
               items={content.top_risks?.items ?? []}
@@ -190,7 +197,10 @@ export function ReportEditForm({ report, issues }: Props) {
             />
           )}
           {!hasSection('quick_wins') ? (
-            <PlaceholderCard label="Add Quick Wins" onAdd={() => addSection('quick_wins')} />
+            <PlaceholderCard
+              label={tSections('quick_wins_add')}
+              onAdd={() => addSection('quick_wins')}
+            />
           ) : (
             <QuickWinsSection
               items={content.quick_wins?.items ?? []}
@@ -204,7 +214,10 @@ export function ReportEditForm({ report, issues }: Props) {
 
         {/* User Impact — full width */}
         {!hasSection('user_impact') ? (
-          <PlaceholderCard label="Add User Impact" onAdd={() => addSection('user_impact')} />
+          <PlaceholderCard
+            label={tSections('user_impact_add')}
+            onAdd={() => addSection('user_impact')}
+          />
         ) : (
           <UserImpactSection
             data={content.user_impact ?? { ...EMPTY_USER_IMPACT }}
@@ -219,12 +232,12 @@ export function ReportEditForm({ report, issues }: Props) {
           <div className="flex gap-2">
             <Button onClick={handleSave} disabled={isSaving}>
               <Save />
-              {isSaving ? 'Saving…' : 'Save Report'}
+              {isSaving ? tForm('save_button_loading') : tForm('save_button')}
             </Button>
             <Button asChild variant="cancel">
               <Link href={`/reports/${report.id}`}>
                 <X />
-                Cancel
+                {tForm('cancel_button')}
               </Link>
             </Button>
           </div>
@@ -235,7 +248,7 @@ export function ReportEditForm({ report, issues }: Props) {
       <aside>
         <Card>
           <CardHeader>
-            <CardTitle>Assessment Issues</CardTitle>
+            <CardTitle>{tPanel('assessment_issues_heading')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ReportIssuesPanel issues={issues} />

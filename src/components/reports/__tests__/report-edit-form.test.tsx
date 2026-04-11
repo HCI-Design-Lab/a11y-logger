@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -10,6 +11,37 @@ vi.mock('@/components/ui/rich-text-editor', () => ({
 }));
 
 import { ReportEditForm } from '@/components/reports/report-edit-form';
+
+const messages = {
+  reports: {
+    sections: {
+      executive_summary_title: 'Executive Summary',
+      executive_summary_add: 'Add Executive Summary',
+      top_risks_title: 'Top Risks',
+      top_risks_add: 'Add Top Risks',
+      quick_wins_title: 'Quick Wins',
+      quick_wins_add: 'Add Quick Wins',
+      user_impact_title: 'User Impact',
+      user_impact_add: 'Add User Impact',
+    },
+    panel: {
+      assessment_issues_heading: 'Assessment Issues',
+    },
+    form: {
+      save_button: 'Save Report',
+      save_button_loading: 'Saving…',
+      cancel_button: 'Cancel',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockReport = {
   id: 'r1',
@@ -32,7 +64,7 @@ describe('ReportEditForm', () => {
   });
 
   it('renders section placeholder cards when content is empty', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     expect(screen.getByText(/add executive summary/i)).toBeInTheDocument();
     expect(screen.getByText(/add top risks/i)).toBeInTheDocument();
     expect(screen.getByText(/add quick wins/i)).toBeInTheDocument();
@@ -40,13 +72,13 @@ describe('ReportEditForm', () => {
   });
 
   it('expands executive summary section when + clicked', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
     expect(screen.getByTestId('rich-text-editor')).toBeInTheDocument();
   });
 
   it('shows delete modal when trash icon clicked', async () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => {
@@ -55,7 +87,7 @@ describe('ReportEditForm', () => {
   });
 
   it('removes section after delete confirmed', async () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => screen.getByText(/permanently remove/i));
@@ -66,7 +98,7 @@ describe('ReportEditForm', () => {
   });
 
   it('renders Save Report button', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     expect(screen.getByRole('button', { name: /save report/i })).toBeInTheDocument();
   });
 
@@ -76,7 +108,7 @@ describe('ReportEditForm', () => {
     } as Response);
 
     const { toast } = await import('sonner');
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByRole('button', { name: /save report/i }));
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Server error');
@@ -90,7 +122,7 @@ describe('ReportEditForm', () => {
     });
     vi.spyOn(global, 'fetch').mockReturnValueOnce(pending);
 
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByRole('button', { name: /save report/i }));
 
     await waitFor(() => {
@@ -102,31 +134,31 @@ describe('ReportEditForm', () => {
   });
 
   it('adds Top Risks section when placeholder is clicked', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add top risks/i));
     expect(screen.getByText('Top Risks')).toBeInTheDocument();
   });
 
   it('adds Quick Wins section when placeholder is clicked', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add quick wins/i));
     expect(screen.getByText('Quick Wins')).toBeInTheDocument();
   });
 
   it('adds User Impact section when placeholder is clicked', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add user impact/i));
     expect(screen.getByText('Screen Reader User')).toBeInTheDocument();
   });
 
   it('renders Cancel link pointing to report detail', () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     const cancelLink = screen.getByRole('link', { name: /cancel/i });
     expect(cancelLink).toHaveAttribute('href', '/reports/r1');
   });
 
   it('closes delete modal when cancel is clicked', async () => {
-    render(<ReportEditForm report={mockReport} issues={[]} />);
+    renderWithIntl(<ReportEditForm report={mockReport} issues={[]} />);
     fireEvent.click(screen.getByText(/add executive summary/i));
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     await waitFor(() => screen.getByText(/permanently remove/i));

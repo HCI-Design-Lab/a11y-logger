@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Report } from '@/lib/db/reports';
@@ -9,6 +10,7 @@ interface ReportCardProps {
 }
 
 export function ReportCard({ report }: ReportCardProps) {
+  const t = useTranslations('reports.status');
   const dateObj = new Date(report.updated_at);
   const updatedDate = isNaN(dateObj.getTime())
     ? 'Unknown'
@@ -22,7 +24,7 @@ export function ReportCard({ report }: ReportCardProps) {
             <CardTitle className="text-base">{report.title}</CardTitle>
             <div className="flex gap-2 shrink-0">
               <Badge className={getStatusBadgeClass(report.status)}>
-                {report.status === 'published' ? 'Published' : 'Draft'}
+                {report.status === 'published' ? t('published') : t('draft')}
               </Badge>
             </div>
           </div>

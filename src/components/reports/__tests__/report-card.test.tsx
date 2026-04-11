@@ -1,5 +1,23 @@
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { ReportCard } from '@/components/reports/report-card';
+
+const messages = {
+  reports: {
+    status: {
+      draft: 'Draft',
+      published: 'Published',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockReport = {
   id: '1',
@@ -17,22 +35,22 @@ const mockReport = {
 };
 
 test('renders report title', () => {
-  render(<ReportCard report={mockReport} />);
+  renderWithIntl(<ReportCard report={mockReport} />);
   expect(screen.getByText('Q1 Accessibility Report')).toBeInTheDocument();
 });
 
 test('renders status badge', () => {
-  render(<ReportCard report={mockReport} />);
+  renderWithIntl(<ReportCard report={mockReport} />);
   expect(screen.getByText(/draft/i)).toBeInTheDocument();
 });
 
 test('links to report detail page', () => {
-  render(<ReportCard report={mockReport} />);
+  renderWithIntl(<ReportCard report={mockReport} />);
   expect(screen.getByRole('link')).toHaveAttribute('href', '/reports/1');
 });
 
 test('renders updated_at date formatted as locale string', () => {
-  render(<ReportCard report={mockReport} />);
+  renderWithIntl(<ReportCard report={mockReport} />);
   const expectedDate = new Date('2026-01-15T00:00:00').toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -42,6 +60,6 @@ test('renders updated_at date formatted as locale string', () => {
 });
 
 test('renders "Unknown" for invalid updated_at date', () => {
-  render(<ReportCard report={{ ...mockReport, updated_at: 'not-a-date' }} />);
+  renderWithIntl(<ReportCard report={{ ...mockReport, updated_at: 'not-a-date' }} />);
   expect(screen.getByText('Updated Unknown')).toBeInTheDocument();
 });
