@@ -93,7 +93,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                       </CardHeader>
                       <CardContent>
                         <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-                          {content.top_risks.items.map((item, i) => (
+                          {content.top_risks.items.filter(Boolean).map((item, i) => (
                             <li key={i}>{item}</li>
                           ))}
                         </ul>
@@ -107,7 +107,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                       </CardHeader>
                       <CardContent>
                         <ul className="list-disc list-inside space-y-1 text-sm leading-relaxed">
-                          {content.quick_wins.items.map((item, i) => (
+                          {content.quick_wins.items.filter(Boolean).map((item, i) => (
                             <li key={i}>{item}</li>
                           ))}
                         </ul>
