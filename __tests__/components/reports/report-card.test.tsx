@@ -1,6 +1,24 @@
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { ReportCard } from '@/components/reports/report-card';
 import type { Report } from '@/lib/db/reports';
+
+const messages = {
+  reports: {
+    status: {
+      draft: 'Draft',
+      published: 'Published',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockReport: Report = {
   id: 'r1',
@@ -19,18 +37,18 @@ const mockReport: Report = {
 
 describe('ReportCard', () => {
   it('renders title as a link', () => {
-    render(<ReportCard report={mockReport} />);
+    renderWithIntl(<ReportCard report={mockReport} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/reports/r1');
     expect(screen.getByText('Accessibility Report Q1')).toBeInTheDocument();
   });
 
   it('renders status badge', () => {
-    render(<ReportCard report={mockReport} />);
+    renderWithIntl(<ReportCard report={mockReport} />);
     expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
   it('renders updated date', () => {
-    render(<ReportCard report={mockReport} />);
+    renderWithIntl(<ReportCard report={mockReport} />);
     expect(screen.getByText(/jun/i)).toBeInTheDocument();
   });
 });

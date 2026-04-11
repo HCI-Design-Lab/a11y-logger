@@ -1,7 +1,30 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { NextIntlClientProvider } from 'next-intl';
 import { ReportsListView } from '@/components/reports/reports-list-view';
 import type { Report } from '@/lib/db/reports';
+
+const messages = {
+  reports: {
+    status: {
+      draft: 'Draft',
+      published: 'Published',
+    },
+    list: {
+      empty_heading: 'No reports yet',
+      empty_description: 'Create your first report to get started.',
+      new_button: 'New Report',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockReports: Report[] = [
   {
@@ -22,12 +45,12 @@ const mockReports: Report[] = [
 
 describe('ReportsListView', () => {
   it('defaults to table view', () => {
-    render(<ReportsListView reports={mockReports} />);
+    renderWithIntl(<ReportsListView reports={mockReports} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('switches to grid view', async () => {
-    render(<ReportsListView reports={mockReports} />);
+    renderWithIntl(<ReportsListView reports={mockReports} />);
     await userEvent.click(screen.getByRole('button', { name: /grid view/i }));
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.getByText('Q1 Report')).toBeInTheDocument();
