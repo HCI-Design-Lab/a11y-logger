@@ -87,6 +87,55 @@
       "de": "German"
     }
   },
+  "assessments": {
+    "form": {
+      "name_label": "Name",
+      "name_placeholder": "e.g. Mobile App Q1 Audit",
+      "description_label": "Description",
+      "description_placeholder": "Brief description of this assessment",
+      "project_label": "Project",
+      "project_placeholder": "Select a project",
+      "start_date_label": "Start Date",
+      "end_date_label": "End Date",
+      "status_label": "Status",
+      "status_options": {
+        "ready": "Ready",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+      },
+      "save_button": "Save Assessment",
+      "save_button_loading": "Saving…",
+      "cancel_button": "Cancel"
+    },
+    "settings_menu": {
+      "aria_label": "Assessment settings",
+      "edit": "Edit Assessment",
+      "delete": "Delete Assessment"
+    },
+    "delete_dialog": {
+      "title": "Delete Assessment?",
+      "description": "This will permanently delete this assessment and all its issues. This cannot be undone.",
+      "confirm_button": "Delete Assessment",
+      "cancel_button": "Cancel"
+    },
+    "card": {
+      "issues_count": "{count, plural, one {# issue} other {# issues}}",
+      "no_issues": "No issues yet"
+    },
+    "list": {
+      "empty_heading": "No assessments yet",
+      "empty_description": "Create your first assessment to get started.",
+      "new_button": "New Assessment"
+    },
+    "toast": {
+      "created": "Assessment created",
+      "updated": "Assessment updated",
+      "deleted": "Assessment deleted",
+      "create_failed": "Failed to create assessment",
+      "update_failed": "Failed to update assessment",
+      "delete_failed": "Failed to delete assessment"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Project Name",

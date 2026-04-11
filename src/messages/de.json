@@ -87,6 +87,55 @@
       "de": "German"
     }
   },
+  "assessments": {
+    "form": {
+      "name_label": "Name",
+      "name_placeholder": "z.B. Mobile App Q1-Prüfung",
+      "description_label": "Beschreibung",
+      "description_placeholder": "Kurze Beschreibung dieser Bewertung",
+      "project_label": "Projekt",
+      "project_placeholder": "Projekt auswählen",
+      "start_date_label": "Startdatum",
+      "end_date_label": "Enddatum",
+      "status_label": "Status",
+      "status_options": {
+        "ready": "Bereit",
+        "in_progress": "In Bearbeitung",
+        "completed": "Abgeschlossen"
+      },
+      "save_button": "Bewertung speichern",
+      "save_button_loading": "Speichern…",
+      "cancel_button": "Abbrechen"
+    },
+    "settings_menu": {
+      "aria_label": "Bewertungseinstellungen",
+      "edit": "Bewertung bearbeiten",
+      "delete": "Bewertung löschen"
+    },
+    "delete_dialog": {
+      "title": "Bewertung löschen?",
+      "description": "Dadurch wird diese Bewertung sowie alle zugehörigen Probleme dauerhaft gelöscht.",
+      "confirm_button": "Bewertung löschen",
+      "cancel_button": "Abbrechen"
+    },
+    "card": {
+      "issues_count": "{count, plural, one {# Problem} other {# Probleme}}",
+      "no_issues": "Noch keine Probleme"
+    },
+    "list": {
+      "empty_heading": "Noch keine Bewertungen",
+      "empty_description": "Erstellen Sie Ihre erste Bewertung, um zu beginnen.",
+      "new_button": "Neue Bewertung"
+    },
+    "toast": {
+      "created": "Bewertung erstellt",
+      "updated": "Bewertung aktualisiert",
+      "deleted": "Bewertung gelöscht",
+      "create_failed": "Bewertung konnte nicht erstellt werden",
+      "update_failed": "Bewertung konnte nicht aktualisiert werden",
+      "delete_failed": "Bewertung konnte nicht gelöscht werden"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Projektname",

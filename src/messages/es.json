@@ -87,6 +87,55 @@
       "de": "German"
     }
   },
+  "assessments": {
+    "form": {
+      "name_label": "Nombre",
+      "name_placeholder": "ej. Auditoría T1 de la aplicación móvil",
+      "description_label": "Descripción",
+      "description_placeholder": "Breve descripción de esta evaluación",
+      "project_label": "Proyecto",
+      "project_placeholder": "Seleccionar un proyecto",
+      "start_date_label": "Fecha de inicio",
+      "end_date_label": "Fecha de fin",
+      "status_label": "Estado",
+      "status_options": {
+        "ready": "Listo",
+        "in_progress": "En progreso",
+        "completed": "Completado"
+      },
+      "save_button": "Guardar evaluación",
+      "save_button_loading": "Guardando…",
+      "cancel_button": "Cancelar"
+    },
+    "settings_menu": {
+      "aria_label": "Configuración de la evaluación",
+      "edit": "Editar evaluación",
+      "delete": "Eliminar evaluación"
+    },
+    "delete_dialog": {
+      "title": "¿Eliminar evaluación?",
+      "description": "Esto eliminará permanentemente esta evaluación y todos sus problemas.",
+      "confirm_button": "Eliminar evaluación",
+      "cancel_button": "Cancelar"
+    },
+    "card": {
+      "issues_count": "{count, plural, one {# problema} other {# problemas}}",
+      "no_issues": "Sin problemas todavía"
+    },
+    "list": {
+      "empty_heading": "Sin evaluaciones todavía",
+      "empty_description": "Crea tu primera evaluación para comenzar.",
+      "new_button": "Nueva evaluación"
+    },
+    "toast": {
+      "created": "Evaluación creada",
+      "updated": "Evaluación actualizada",
+      "deleted": "Evaluación eliminada",
+      "create_failed": "Error al crear la evaluación",
+      "update_failed": "Error al actualizar la evaluación",
+      "delete_failed": "Error al eliminar la evaluación"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nombre del proyecto",

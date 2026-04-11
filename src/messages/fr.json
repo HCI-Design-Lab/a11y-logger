@@ -87,6 +87,55 @@
       "de": "German"
     }
   },
+  "assessments": {
+    "form": {
+      "name_label": "Nom",
+      "name_placeholder": "ex. Audit T1 de l'application mobile",
+      "description_label": "Description",
+      "description_placeholder": "Brève description de cette évaluation",
+      "project_label": "Projet",
+      "project_placeholder": "Sélectionner un projet",
+      "start_date_label": "Date de début",
+      "end_date_label": "Date de fin",
+      "status_label": "Statut",
+      "status_options": {
+        "ready": "Prêt",
+        "in_progress": "En cours",
+        "completed": "Terminé"
+      },
+      "save_button": "Enregistrer l'évaluation",
+      "save_button_loading": "Enregistrement…",
+      "cancel_button": "Annuler"
+    },
+    "settings_menu": {
+      "aria_label": "Paramètres de l'évaluation",
+      "edit": "Modifier l'évaluation",
+      "delete": "Supprimer l'évaluation"
+    },
+    "delete_dialog": {
+      "title": "Supprimer l'évaluation ?",
+      "description": "Cela supprimera définitivement cette évaluation et tous ses problèmes.",
+      "confirm_button": "Supprimer l'évaluation",
+      "cancel_button": "Annuler"
+    },
+    "card": {
+      "issues_count": "{count, plural, one {# problème} other {# problèmes}}",
+      "no_issues": "Aucun problème pour l'instant"
+    },
+    "list": {
+      "empty_heading": "Aucune évaluation pour l'instant",
+      "empty_description": "Créez votre première évaluation pour commencer.",
+      "new_button": "Nouvelle évaluation"
+    },
+    "toast": {
+      "created": "Évaluation créée",
+      "updated": "Évaluation mise à jour",
+      "deleted": "Évaluation supprimée",
+      "create_failed": "Échec de la création de l'évaluation",
+      "update_failed": "Échec de la mise à jour de l'évaluation",
+      "delete_failed": "Échec de la suppression de l'évaluation"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nom du projet",
