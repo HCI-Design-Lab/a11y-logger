@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 import { Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +27,7 @@ const IMPACT_FIELDS: { key: keyof UserImpact; label: string }[] = [
 ];
 
 export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGenerating }: Props) {
+  const t = useTranslations('reports.sections');
   const handleFieldChange = (key: keyof UserImpact, value: string) => {
     onChange({ ...data, [key]: value });
   };
@@ -33,7 +35,7 @@ export function UserImpactSection({ data, onChange, onDelete, onGenerate, isGene
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>User Impact</CardTitle>
+        <CardTitle>{t('user_impact_title')}</CardTitle>
         <div className="flex items-center gap-1">
           <Button type="button" variant="ai" size="sm" onClick={onGenerate} disabled={isGenerating}>
             <Sparkles />

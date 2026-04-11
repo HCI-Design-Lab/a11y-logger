@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 
 vi.mock('@/components/ui/rich-text-editor', () => ({
   RichTextEditor: ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
@@ -12,9 +13,32 @@ vi.mock('@/components/ui/rich-text-editor', () => ({
 
 import { ExecutiveSummarySection } from '@/components/reports/report-section-executive-summary';
 
+const messages = {
+  reports: {
+    sections: {
+      executive_summary_title: 'Executive Summary',
+      executive_summary_add: 'Add Executive Summary',
+      top_risks_title: 'Top Risks',
+      top_risks_add: 'Add Top Risks',
+      quick_wins_title: 'Quick Wins',
+      quick_wins_add: 'Add Quick Wins',
+      user_impact_title: 'User Impact',
+      user_impact_add: 'Add User Impact',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 describe('ExecutiveSummarySection', () => {
   it('renders the rich text editor with current value', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body="<p>Current summary</p>"
         onChange={vi.fn()}
@@ -29,7 +53,7 @@ describe('ExecutiveSummarySection', () => {
 
   it('calls onChange when editor changes', () => {
     const onChange = vi.fn();
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={onChange}
@@ -44,7 +68,7 @@ describe('ExecutiveSummarySection', () => {
 
   it('calls onDelete when trash icon clicked', () => {
     const onDelete = vi.fn();
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -58,7 +82,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('disables generate button while generating', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -71,7 +95,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('shows generating overlay when isGenerating is true', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -85,7 +109,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('does not show generating overlay when isGenerating is false', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -99,7 +123,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('disables delete button while generating', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -112,7 +136,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('marks fields inert while generating', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -125,7 +149,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('does not mark fields inert when not generating', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -138,7 +162,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('generate button uses ai variant', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}
@@ -151,7 +175,7 @@ describe('ExecutiveSummarySection', () => {
   });
 
   it('delete button uses destructive variant', () => {
-    render(
+    renderWithIntl(
       <ExecutiveSummarySection
         body=""
         onChange={vi.fn()}

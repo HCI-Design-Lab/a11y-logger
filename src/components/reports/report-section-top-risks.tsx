@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 import { Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function TopRisksSection({ items, onChange, onDelete, onGenerate, isGenerating }: Props) {
+  const t = useTranslations('reports.sections');
   const normalizedItems = Array.from({ length: 5 }, (_, i) => items[i] ?? '');
 
   const handleItemChange = (index: number, value: string) => {
@@ -24,7 +26,7 @@ export function TopRisksSection({ items, onChange, onDelete, onGenerate, isGener
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>Top Risks</CardTitle>
+        <CardTitle>{t('top_risks_title')}</CardTitle>
         <div className="flex items-center gap-1">
           <Button type="button" variant="ai" size="sm" onClick={onGenerate} disabled={isGenerating}>
             <Sparkles />
