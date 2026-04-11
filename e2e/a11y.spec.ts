@@ -103,6 +103,13 @@ test.describe('dynamic routes', () => {
     vpatId = vpat.data.id;
   });
 
+  test.afterAll(async ({ request }) => {
+    // Deleting the project cascades to assessments and issues
+    if (vpatId) await request.delete(`/api/vpats/${vpatId}`);
+    if (reportId) await request.delete(`/api/reports/${reportId}`);
+    if (projectId) await request.delete(`/api/projects/${projectId}`);
+  });
+
   test('project detail has no accessibility violations', async ({ page }) => {
     await page.goto(`/projects/${projectId}`);
     await page.waitForLoadState('networkidle');
