@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ViewToggle } from '@/components/ui/view-toggle';
 import { AllIssuesTable } from '@/components/issues/all-issues-table';
 import { IssueCard } from '@/components/issues/issue-card';
@@ -21,8 +22,13 @@ interface IssuesListViewProps {
 export function IssuesListView({ issues }: IssuesListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
   const [query, setQuery] = useState('');
+  const router = useRouter();
   const searchParams = useSearchParams();
   const severity = searchParams.get('severity');
+
+  function handleSeverityChange(value: string) {
+    router.push(value ? `/issues?severity=${value}` : '/issues');
+  }
 
   const afterSeverity =
     severity && SEVERITIES.includes(severity as (typeof SEVERITIES)[number])
@@ -61,32 +67,16 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
       {view === 'grid' && (
         /* Severity filter + Search — grid view only; in table view these live inside the card */
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm flex-wrap">
-            <span className="text-muted-foreground">Filter by severity:</span>
-            <Link
-              href="/issues"
-              className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
-                !severity
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
-              }`}
-            >
-              All
-            </Link>
-            {SEVERITIES.map((s) => (
-              <Link
-                key={s}
-                href={`/issues?severity=${s}`}
-                className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
-                  severity === s
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
-                }`}
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </Link>
-            ))}
-          </div>
+          <Tabs value={severity ?? ''} onValueChange={handleSeverityChange}>
+            <TabsList variant="segmented">
+              <TabsTrigger value="">All</TabsTrigger>
+              {SEVERITIES.map((s) => (
+                <TabsTrigger key={s} value={s}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
 
           <div className="flex items-center gap-2">
             <label htmlFor="issues-search" className="sr-only">
@@ -119,32 +109,16 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           <CardContent>
             {/* Severity filter + Search — inside card in table view */}
             <div className="flex items-center justify-between gap-4 pb-4">
-              <div className="flex items-center gap-2 text-sm flex-wrap">
-                <span className="text-muted-foreground">Filter by severity:</span>
-                <Link
-                  href="/issues"
-                  className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
-                    !severity
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
-                  }`}
-                >
-                  All
-                </Link>
-                {SEVERITIES.map((s) => (
-                  <Link
-                    key={s}
-                    href={`/issues?severity=${s}`}
-                    className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${
-                      severity === s
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'border-border hover:border-dashed hover:underline dark:hover:border-dashed dark:hover:border-white'
-                    }`}
-                  >
-                    {s.charAt(0).toUpperCase() + s.slice(1)}
-                  </Link>
-                ))}
-              </div>
+              <Tabs value={severity ?? ''} onValueChange={handleSeverityChange}>
+                <TabsList variant="segmented">
+                  <TabsTrigger value="">All</TabsTrigger>
+                  {SEVERITIES.map((s) => (
+                    <TabsTrigger key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
 
               <div className="flex items-center gap-2">
                 <label htmlFor="issues-search" className="sr-only">

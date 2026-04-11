@@ -1,5 +1,8 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IssuesTable } from '@/components/issues/issues-table';
 import type { Issue } from '@/lib/db/issues';
 
@@ -18,27 +21,27 @@ export function AssessmentIssuesCard({
   issues,
   selectedSeverity,
 }: AssessmentIssuesCardProps) {
+  const router = useRouter();
   const baseUrl = `/projects/${projectId}/assessments/${assessmentId}`;
+
+  function handleTabChange(value: string) {
+    router.push(value ? `${baseUrl}?severity=${value}` : baseUrl);
+  }
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Issues ({issues.length})</CardTitle>
-        <div className="flex items-center gap-1 text-sm">
-          {(['', ...SEVERITIES] as const).map((s) => (
-            <Link
-              key={s || 'all'}
-              href={s ? `${baseUrl}?severity=${s}` : baseUrl}
-              className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-                (selectedSeverity ?? '') === s
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border hover:bg-muted'
-              }`}
-            >
-              {s ? s.charAt(0).toUpperCase() + s.slice(1) : 'All'}
-            </Link>
-          ))}
-        </div>
+        <Tabs value={selectedSeverity ?? ''} onValueChange={handleTabChange}>
+          <TabsList variant="segmented">
+            <TabsTrigger value="">All</TabsTrigger>
+            {SEVERITIES.map((s) => (
+              <TabsTrigger key={s} value={s}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </CardHeader>
       <CardContent>
         {issues.length === 0 ? (
