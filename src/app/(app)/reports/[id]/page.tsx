@@ -126,7 +126,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                       Object.keys(content.user_impact) as Array<keyof typeof content.user_impact>
                     ).map((key) => (
                       <Card key={key}>
-                        <CardHeader className="pb-2">
+                        <CardHeader>
                           <CardTitle className="text-sm font-semibold">
                             {PERSONA_LABELS[key] ?? key}
                           </CardTitle>
