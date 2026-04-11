@@ -203,179 +203,185 @@ export function AIConfigSection({
   const showTaskModels = selectedProvider && selectedProvider !== 'none';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>AI Configuration</CardTitle>
-        <CardDescription>
-          Configure your AI provider to enable AI-assisted features. Supports cloud providers
-          (OpenAI, Anthropic, Google Gemini) and local offline models via Ollama. Your API key is
-          stored locally and never sent to our servers.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {hasEnvOverride && (
-          <div
-            role="alert"
-            className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
-          >
-            <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            <p>
-              Some settings are controlled by environment variables and are read-only here. Remove
-              the corresponding environment variables to manage them from this page.
-            </p>
-          </div>
-        )}
+    <div className="space-y-4">
+      {/* Provider Setup */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Provider Setup</CardTitle>
+          <CardDescription>
+            Configure your AI provider to enable AI-assisted features. Supports cloud providers
+            (OpenAI, Anthropic, Google Gemini) and local offline models via Ollama. Your API key is
+            stored locally and never sent to our servers.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {hasEnvOverride && (
+            <div
+              role="alert"
+              className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+            >
+              <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <p>
+                Some settings are controlled by environment variables and are read-only here. Remove
+                the corresponding environment variables to manage them from this page.
+              </p>
+            </div>
+          )}
 
-        {/* Provider */}
-        <div className="space-y-1.5">
-          <Label htmlFor="ai-provider">
-            AI Provider
-            {providerFromEnv && <EnvBadge />}
-          </Label>
-          <Select
-            value={selectedProvider}
-            onValueChange={setSelectedProvider}
-            disabled={providerFromEnv}
-          >
-            <SelectTrigger id="ai-provider">
-              <SelectValue placeholder="Select provider" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROVIDERS.map((p) => (
-                <SelectItem key={p.value} value={p.value}>
-                  {p.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {selectedProvider === 'openai-compatible' && (
-          <p className="text-sm text-muted-foreground">
-            Any API that follows the OpenAI chat format works here — Groq, Together AI, LM Studio,
-            and most self-hosted models. Point it at the base URL, pick a model name, and it will
-            behave the same as OpenAI.
-          </p>
-        )}
-
-        {/* API Key */}
-        {needsApiKey(selectedProvider) && (
           <div className="space-y-1.5">
-            <Label htmlFor="api-key">
-              API Key{' '}
-              {selectedProvider === 'openai-compatible' && (
-                <span className="text-muted-foreground">(optional)</span>
-              )}
-              {envSource?.apiKey && <EnvBadge />}
+            <Label htmlFor="ai-provider">
+              AI Provider
+              {providerFromEnv && <EnvBadge />}
             </Label>
-            {envSource?.apiKey ? (
-              <p className="text-sm text-muted-foreground">Set via environment variable</p>
-            ) : (
-              <div className="flex gap-2">
-                <Input
-                  id="api-key"
-                  type={showKey ? 'text' : 'password'}
-                  value={key}
-                  onChange={(e) => setKey(e.target.value)}
-                  placeholder="sk-..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setShowKey(!showKey)}
-                  aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                >
-                  {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            )}
+            <Select
+              value={selectedProvider}
+              onValueChange={setSelectedProvider}
+              disabled={providerFromEnv}
+            >
+              <SelectTrigger id="ai-provider">
+                <SelectValue placeholder="Select provider" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROVIDERS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
 
-        {/* Base URL */}
-        {needsBaseUrl(selectedProvider) && (
-          <div className="space-y-1.5">
-            <Label htmlFor="base-url">
-              Base URL
-              {envSource?.baseUrl && <EnvBadge />}
-            </Label>
-            <Input
-              id="base-url"
-              type="url"
-              value={selectedBaseUrl}
-              onChange={(e) => setSelectedBaseUrl(e.target.value)}
-              disabled={!!envSource?.baseUrl}
-              placeholder={
-                selectedProvider === 'ollama'
-                  ? 'http://localhost:11434/v1'
-                  : 'https://api.example.com/v1'
-              }
-            />
-          </div>
-        )}
-
-        {/* Per-task model selectors */}
-        {showTaskModels && (
-          <div className="space-y-4 border-t pt-4">
-            <p className="text-sm font-medium">Model per Task</p>
-            <p className="text-xs text-muted-foreground">
-              Choose which model to use for each task. Leave a task on &quot;Provider default&quot;
-              to use the model your provider selects automatically.
+          {selectedProvider === 'openai-compatible' && (
+            <p className="text-sm text-muted-foreground">
+              Any API that follows the OpenAI chat format works here — Groq, Together AI, LM Studio,
+              and most self-hosted models. Point it at the base URL, pick a model name, and it will
+              behave the same as OpenAI.
             </p>
+          )}
 
-            {AI_TASKS.filter((t) => t.key !== 'vpat_review').map((task) => (
-              <TaskModelSelector
-                key={task.key}
-                id={`ai-model-${task.key}`}
-                label={task.label}
-                description={task.description}
-                provider={selectedProvider}
-                value={models[task.key as keyof typeof models]}
-                onChange={(v) => setModels((prev) => ({ ...prev, [task.key]: v }))}
-              />
-            ))}
-
-            {/* AI Review Pass section */}
-            <div className="border-t pt-4 space-y-3">
-              <p className="text-sm font-medium">AI Review Pass</p>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="review-pass-toggle" className="text-sm">
-                    Enable AI Review Pass
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    After generating a VPAT criterion row, a second AI call reviews the result and
-                    corrects the conformance call if the evidence does not support it. This doubles
-                    the number of AI calls for VPAT generation.
-                  </p>
+          {needsApiKey(selectedProvider) && (
+            <div className="space-y-1.5">
+              <Label htmlFor="api-key">
+                API Key{' '}
+                {selectedProvider === 'openai-compatible' && (
+                  <span className="text-muted-foreground">(optional)</span>
+                )}
+                {envSource?.apiKey && <EnvBadge />}
+              </Label>
+              {envSource?.apiKey ? (
+                <p className="text-sm text-muted-foreground">Set via environment variable</p>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="api-key"
+                    type={showKey ? 'text' : 'password'}
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    placeholder="sk-..."
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowKey(!showKey)}
+                    aria-label={showKey ? 'Hide API key' : 'Show API key'}
+                  >
+                    {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
                 </div>
-                <Switch
-                  id="review-pass-toggle"
-                  checked={reviewEnabled}
-                  onCheckedChange={setReviewEnabled}
-                  aria-label="Enable AI Review Pass"
-                />
-              </div>
-
-              {reviewEnabled && (
-                <TaskModelSelector
-                  id="ai-model-vpat-review"
-                  label="AI Review Pass Model"
-                  description="Used for the review critique pass. A smaller, faster model often works well here."
-                  provider={selectedProvider}
-                  value={models.vpat_review}
-                  onChange={(v) => setModels((prev) => ({ ...prev, vpat_review: v }))}
-                />
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        <Button onClick={handleSave}>{loading ? 'Saving…' : 'Save Configuration'}</Button>
-      </CardContent>
-    </Card>
+          {needsBaseUrl(selectedProvider) && (
+            <div className="space-y-1.5">
+              <Label htmlFor="base-url">
+                Base URL
+                {envSource?.baseUrl && <EnvBadge />}
+              </Label>
+              <Input
+                id="base-url"
+                type="url"
+                value={selectedBaseUrl}
+                onChange={(e) => setSelectedBaseUrl(e.target.value)}
+                disabled={!!envSource?.baseUrl}
+                placeholder={
+                  selectedProvider === 'ollama'
+                    ? 'http://localhost:11434/v1'
+                    : 'https://api.example.com/v1'
+                }
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Model per Task */}
+      {showTaskModels && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Model per Task</CardTitle>
+            <CardDescription>
+              Choose which model to use for each task. Leave a task on &quot;Provider default&quot;
+              to use the model your provider selects automatically.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {AI_TASKS.filter((t) => t.key !== 'vpat_review').map((task) => (
+                <TaskModelSelector
+                  key={task.key}
+                  id={`ai-model-${task.key}`}
+                  label={task.label}
+                  description={task.description}
+                  provider={selectedProvider}
+                  value={models[task.key as keyof typeof models]}
+                  onChange={(v) => setModels((prev) => ({ ...prev, [task.key]: v }))}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Review Pass */}
+      {showTaskModels && (
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Review Pass</CardTitle>
+            <CardDescription>
+              After generating a VPAT criterion row, a second AI call reviews the result and
+              corrects the conformance call if the evidence does not support it. This doubles the
+              number of AI calls for VPAT generation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <Label htmlFor="review-pass-toggle">Enable AI Review Pass</Label>
+              <Switch
+                id="review-pass-toggle"
+                checked={reviewEnabled}
+                onCheckedChange={setReviewEnabled}
+                aria-label="Enable AI Review Pass"
+              />
+            </div>
+            {reviewEnabled && (
+              <TaskModelSelector
+                id="ai-model-vpat-review"
+                label="AI Review Pass Model"
+                description="Used for the review critique pass. A smaller, faster model often works well here."
+                provider={selectedProvider}
+                value={models.vpat_review}
+                onChange={(v) => setModels((prev) => ({ ...prev, vpat_review: v }))}
+              />
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Button onClick={handleSave}>{loading ? 'Saving…' : 'Save Configuration'}</Button>
+    </div>
   );
 }
 
