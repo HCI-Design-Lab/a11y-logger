@@ -12,6 +12,7 @@ import { LoginSchema, type LoginInput } from '@/lib/validators/users';
 export function LoginForm() {
   const router = useRouter();
   const tLogin = useTranslations('auth.login');
+  const tToast = useTranslations('auth.toast');
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,10 +38,10 @@ export function LoginForm() {
       if (json.success) {
         router.push('/dashboard');
       } else {
-        setServerError(json.error ?? 'Login failed');
+        setServerError(json.error ?? tToast('login_failed'));
       }
     } catch {
-      setServerError('Network error. Please try again.');
+      setServerError(tToast('login_error'));
     } finally {
       setLoading(false);
     }
