@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -12,19 +13,43 @@ global.fetch = vi.fn();
 import { DeleteAssessmentButton } from '@/components/assessments/delete-assessment-button';
 import { toast } from 'sonner';
 
+const messages = {
+  assessments: {
+    delete_dialog: {
+      title: 'Delete Assessment?',
+      description:
+        'This will permanently delete this assessment and all its issues. This cannot be undone.',
+      confirm_button: 'Delete Assessment',
+      cancel_button: 'Cancel',
+    },
+    toast: {
+      deleted: 'Assessment deleted',
+      delete_failed: 'Failed to delete assessment',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 test('renders the Delete trigger button', () => {
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
   expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 });
 
 test('shows the assessment name in the confirmation dialog', async () => {
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
   fireEvent.click(screen.getByRole('button', { name: /delete/i }));
@@ -36,7 +61,7 @@ test('calls the correct DELETE API endpoint on confirm', async () => {
     json: async () => ({ success: true }),
   });
 
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
 
@@ -57,7 +82,7 @@ test('redirects to project page on success', async () => {
     json: async () => ({ success: true }),
   });
 
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
 
@@ -71,7 +96,7 @@ test('redirects to project page on success', async () => {
 });
 
 test('Cancel button in confirm dialog has an icon', async () => {
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
   fireEvent.click(screen.getByRole('button', { name: /delete/i }));
@@ -84,7 +109,7 @@ test('shows an error toast on API failure', async () => {
     json: async () => ({ success: false }),
   });
 
-  render(
+  renderWithIntl(
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
 
@@ -94,5 +119,23 @@ test('shows an error toast on API failure', async () => {
 
   await waitFor(() => {
     expect(toast.error).toHaveBeenCalled();
+  });
+});
+
+describe('i18n integration — real NextIntlClientProvider', () => {
+  it('renders Delete Assessment confirm button from catalog', async () => {
+    renderWithIntl(
+      <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    expect(await screen.findByRole('button', { name: 'Delete Assessment' })).toBeInTheDocument();
+  });
+
+  it('renders Cancel button from catalog', async () => {
+    renderWithIntl(
+      <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    expect(await screen.findByRole('button', { name: /cancel/i })).toBeInTheDocument();
   });
 });
