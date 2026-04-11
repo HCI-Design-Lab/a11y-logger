@@ -198,14 +198,12 @@ describe('VpatCriteriaRow — multi-component', () => {
               onRowChange={vi.fn()}
               scheduleRemarksSave={vi.fn()}
               onGenerateRow={onGenerateRow}
-              register={vi
-                .fn()
-                .mockReturnValue({
-                  ref: vi.fn(),
-                  name: 'row1',
-                  onChange: vi.fn(),
-                  onBlur: vi.fn(),
-                })}
+              register={vi.fn().mockReturnValue({
+                ref: vi.fn(),
+                name: 'row1',
+                onChange: vi.fn(),
+                onBlur: vi.fn(),
+              })}
             />
           </tbody>
         </table>
