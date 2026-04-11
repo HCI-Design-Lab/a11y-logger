@@ -1,6 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { TagTreemap } from '@/components/dashboard/tag-treemap';
+
+const messages = {
+  dashboard: {
+    tag_treemap: {
+      title: 'Issue Tags',
+      subtitle: 'Open issues by tag frequency',
+      loading: 'Loading…',
+      error: 'Failed to load data.',
+      empty: 'No tags found.',
+      col_tag: 'Tag',
+      col_issues: 'Issues',
+      col_percent: '% of Total',
+    },
+    chart_table_toggle: {
+      group_aria_label: 'View toggle',
+      chart_aria_label: 'Chart view',
+      table_aria_label: 'Table view',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 // Mock Recharts — it uses browser APIs not available in jsdom
 vi.mock('recharts', () => ({
@@ -49,13 +78,13 @@ describe('TagTreemap', () => {
       'fetch',
       vi.fn().mockReturnValue(new Promise(() => {})) // never resolves
     );
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
     expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
   it('shows "Failed to load data." when fetch returns a non-ok response', async () => {
     mockFetchError();
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
     await waitFor(() => {
       expect(screen.getByText('Failed to load data.')).toBeInTheDocument();
     });
@@ -63,7 +92,7 @@ describe('TagTreemap', () => {
 
   it('shows "Failed to load data." when fetch rejects', async () => {
     mockFetchReject();
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
     await waitFor(() => {
       expect(screen.getByText('Failed to load data.')).toBeInTheDocument();
     });
@@ -71,7 +100,7 @@ describe('TagTreemap', () => {
 
   it('shows "No tags found." when API returns an empty array', async () => {
     mockFetchSuccess([]);
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
     await waitFor(() => {
       expect(screen.getByText('No tags found.')).toBeInTheDocument();
     });
@@ -79,7 +108,7 @@ describe('TagTreemap', () => {
 
   it('renders the treemap chart container when data exists and view is chart', async () => {
     mockFetchSuccess(mockTags);
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
     await waitFor(() => {
       expect(screen.getByTestId('treemap-chart')).toBeInTheDocument();
     });
@@ -87,7 +116,7 @@ describe('TagTreemap', () => {
 
   it('renders a table with correct rows and percentage calculations in table view', async () => {
     mockFetchSuccess(mockTags);
-    render(<TagTreemap />);
+    renderWithIntl(<TagTreemap />);
 
     // Wait for data to load, then switch to table view
     await waitFor(() => {

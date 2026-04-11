@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 import { ChartTableToggle } from './chart-table-toggle';
 
 interface PourTotals {
@@ -18,18 +19,20 @@ interface PourTotals {
   robust: number;
 }
 
-const PRINCIPLE_LABELS: Record<keyof PourTotals, string> = {
-  perceivable: 'Perceivable',
-  operable: 'Operable',
-  understandable: 'Understandable',
-  robust: 'Robust',
-};
-
 interface PourRadarProps {
   statuses: string[];
 }
 
 export function PourRadar({ statuses }: PourRadarProps) {
+  const t = useTranslations('dashboard.pour_radar');
+
+  const PRINCIPLE_LABELS: Record<keyof PourTotals, string> = {
+    perceivable: t('principle_perceivable'),
+    operable: t('principle_operable'),
+    understandable: t('principle_understandable'),
+    robust: t('principle_robust'),
+  };
+
   const [data, setData] = useState<PourTotals | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -68,23 +71,21 @@ export function PourRadar({ statuses }: PourRadarProps) {
   return (
     <div className="rounded-lg border bg-card p-4 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold">Issues by POUR Principle</h2>
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
         <ChartTableToggle view={view} onChange={setView} />
       </div>
 
       {loading && !data && (
-        <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
+        <p className="text-sm text-muted-foreground py-8 text-center">{t('loading')}</p>
       )}
-      {error && !data && (
-        <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>
-      )}
+      {error && !data && <p className="text-sm text-destructive py-8 text-center">{t('error')}</p>}
 
       {data && (
         <div
           className={`flex flex-col flex-1 min-h-0${loading ? ' opacity-50 pointer-events-none' : ''}`}
         >
           {total === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No open issues found.</p>
+            <p className="text-sm text-muted-foreground py-8 text-center">{t('empty')}</p>
           ) : view === 'chart' ? (
             <div aria-hidden="true" inert className="flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
@@ -100,18 +101,18 @@ export function PourRadar({ statuses }: PourRadarProps) {
                     fill="var(--chart-1)"
                     fillOpacity={0.65}
                   />
-                  <Tooltip formatter={(v) => [(v as number) ?? 0, 'Issues']} />
+                  <Tooltip formatter={(v) => [(v as number) ?? 0, t('col_issues')]} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
           ) : (
             <table className="w-full text-sm">
-              <caption className="sr-only">Issues by POUR Principle — open issues only</caption>
+              <caption className="sr-only">{t('caption')}</caption>
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 font-medium">Principle</th>
-                  <th className="pb-2 font-medium text-right">Issues</th>
-                  <th className="pb-2 font-medium text-right">% of Total</th>
+                  <th className="pb-2 font-medium">{t('col_principle')}</th>
+                  <th className="pb-2 font-medium text-right">{t('col_issues')}</th>
+                  <th className="pb-2 font-medium text-right">{t('col_percent')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -127,7 +128,7 @@ export function PourRadar({ statuses }: PourRadarProps) {
               </tbody>
               <tfoot>
                 <tr className="text-muted-foreground">
-                  <td className="pt-2 font-medium">Total</td>
+                  <td className="pt-2 font-medium">{t('row_total')}</td>
                   <td className="pt-2 text-right font-medium">{total}</td>
                   <td className="pt-2 text-right text-muted-foreground">100%</td>
                 </tr>

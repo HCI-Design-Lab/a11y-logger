@@ -2,6 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useTranslations } from 'next-intl';
 import { ChartTableToggle } from './chart-table-toggle';
 
 interface RepeatOffender {
@@ -12,6 +13,7 @@ interface RepeatOffender {
 }
 
 export function RepeatOffenders() {
+  const t = useTranslations('dashboard.repeat_offenders');
   const [data, setData] = useState<RepeatOffender[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -42,16 +44,16 @@ export function RepeatOffenders() {
     <div className="rounded-lg border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold">Repeat Offender Criteria</h2>
-          <p className="text-xs text-muted-foreground">Ranked by projects affected</p>
+          <h2 className="text-sm font-semibold">{t('title')}</h2>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
         <ChartTableToggle view={view} onChange={setView} />
       </div>
 
-      {loading && <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>}
-      {error && <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>}
+      {loading && <p className="text-sm text-muted-foreground py-8 text-center">{t('loading')}</p>}
+      {error && <p className="text-sm text-destructive py-8 text-center">{t('error')}</p>}
       {!loading && !error && data.length === 0 && (
-        <p className="text-sm text-muted-foreground py-8 text-center">No data yet.</p>
+        <p className="text-sm text-muted-foreground py-8 text-center">{t('empty')}</p>
       )}
 
       {!loading && !error && data.length > 0 && view === 'chart' && (
@@ -60,7 +62,7 @@ export function RepeatOffenders() {
             <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
               <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
               <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={48} />
-              <Tooltip formatter={(v) => [(v as number) ?? 0, 'Projects']} />
+              <Tooltip formatter={(v) => [(v as number) ?? 0, t('tooltip_projects')]} />
               <Bar dataKey="projects" radius={[0, 3, 3, 0]}>
                 {chartData.map((_, i) => (
                   <Cell key={_.label} fill={`var(--chart-1)`} opacity={1 - i * 0.07} />
@@ -79,16 +81,16 @@ export function RepeatOffenders() {
           <thead>
             <tr className="border-b text-left text-muted-foreground">
               <th scope="col" className="pb-2 font-medium">
-                Code
+                {t('col_code')}
               </th>
               <th scope="col" className="pb-2 font-medium">
-                Criterion
+                {t('col_criterion')}
               </th>
               <th scope="col" className="pb-2 font-medium text-right">
-                Projects
+                {t('col_projects')}
               </th>
               <th scope="col" className="pb-2 font-medium text-right">
-                Issues
+                {t('col_issues')}
               </th>
             </tr>
           </thead>

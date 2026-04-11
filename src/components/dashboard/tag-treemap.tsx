@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
+import { useTranslations } from 'next-intl';
 import { ChartTableToggle } from './chart-table-toggle';
 
 interface TagEntry {
@@ -65,6 +66,7 @@ function CustomContent(props: {
 }
 
 export function TagTreemap() {
+  const t = useTranslations('dashboard.tag_treemap');
   const [data, setData] = useState<TagEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -93,16 +95,16 @@ export function TagTreemap() {
     <div className="rounded-lg border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold">Issue Tags</h2>
-          <p className="text-xs text-muted-foreground">Open issues by tag frequency</p>
+          <h2 className="text-sm font-semibold">{t('title')}</h2>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
         <ChartTableToggle view={view} onChange={setView} />
       </div>
 
-      {loading && <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>}
-      {error && <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>}
+      {loading && <p className="text-sm text-muted-foreground py-8 text-center">{t('loading')}</p>}
+      {error && <p className="text-sm text-destructive py-8 text-center">{t('error')}</p>}
       {!loading && !error && data.length === 0 && (
-        <p className="text-sm text-muted-foreground py-8 text-center">No tags found.</p>
+        <p className="text-sm text-muted-foreground py-8 text-center">{t('empty')}</p>
       )}
 
       {!loading && !error && data.length > 0 && view === 'chart' && (
@@ -121,13 +123,13 @@ export function TagTreemap() {
           <thead>
             <tr className="border-b text-left text-muted-foreground">
               <th scope="col" className="pb-2 font-medium">
-                Tag
+                {t('col_tag')}
               </th>
               <th scope="col" className="pb-2 font-medium text-right">
-                Issues
+                {t('col_issues')}
               </th>
               <th scope="col" className="pb-2 font-medium text-right">
-                % of Total
+                {t('col_percent')}
               </th>
             </tr>
           </thead>

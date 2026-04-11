@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ChartTableToggle } from './chart-table-toggle';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +20,7 @@ function heatColor(count: number, max: number): string {
 }
 
 export function EnvironmentHeatmap() {
+  const t = useTranslations('dashboard.environment_heatmap');
   const [data, setData] = useState<EnvironmentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -51,25 +53,23 @@ export function EnvironmentHeatmap() {
     <div className="rounded-lg border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-sm font-semibold">Issues by Environment</h2>
-          <p className="text-xs text-muted-foreground">Device × Assistive Technology</p>
+          <h2 className="text-sm font-semibold">{t('title')}</h2>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
         <ChartTableToggle view={view} onChange={setView} />
       </div>
 
-      {loading && <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>}
-      {error && <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>}
+      {loading && <p className="text-sm text-muted-foreground py-8 text-center">{t('loading')}</p>}
+      {error && <p className="text-sm text-destructive py-8 text-center">{t('error')}</p>}
       {!loading && !error && data.length === 0 && (
-        <p className="text-sm text-muted-foreground py-8 text-center">No environment data yet.</p>
+        <p className="text-sm text-muted-foreground py-8 text-center">{t('empty')}</p>
       )}
 
       {!loading && !error && data.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <caption className="sr-only">
-              {view === 'chart'
-                ? 'Heatmap of open issues by device type and assistive technology. Darker cells indicate more issues.'
-                : 'Open issues by device type and assistive technology'}
+              {view === 'chart' ? t('caption_heatmap') : t('caption_table')}
             </caption>
             <thead>
               <tr>
@@ -77,7 +77,7 @@ export function EnvironmentHeatmap() {
                   scope="col"
                   className="pb-2 pr-3 text-left text-xs text-muted-foreground font-medium"
                 >
-                  Device
+                  {t('col_device')}
                 </th>
                 {ats.map((at) => (
                   <th

@@ -1,6 +1,30 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { IssueAnalysisSection } from '../issue-analysis-section';
+
+const messages = {
+  dashboard: {
+    issue_analysis: {
+      heading: 'Issue Analysis',
+      subtitle: 'Issues across all projects',
+    },
+    status_filter: {
+      group_aria_label: 'Filter by status',
+      open: 'Open',
+      resolved: 'Resolved',
+      wont_fix: "Won't Fix",
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 // Mock all child components so we can inspect what props they receive
 vi.mock('../issue-statistics', () => ({
@@ -34,19 +58,19 @@ vi.mock('../status-filter', () => ({
 
 describe('IssueAnalysisSection', () => {
   it('defaults to open status and shows subtitle', () => {
-    render(<IssueAnalysisSection />);
+    renderWithIntl(<IssueAnalysisSection />);
     expect(screen.getByText('Issues across all projects')).toBeInTheDocument();
   });
 
   it('passes default statuses to all chart components', () => {
-    render(<IssueAnalysisSection />);
+    renderWithIntl(<IssueAnalysisSection />);
     expect(screen.getByTestId('issue-statistics').dataset.statuses).toBe('open');
     expect(screen.getByTestId('pour-radar').dataset.statuses).toBe('open');
     expect(screen.getByTestId('wcag-criteria').dataset.statuses).toBe('open');
   });
 
   it('updates child statuses when filter changes', () => {
-    render(<IssueAnalysisSection />);
+    renderWithIntl(<IssueAnalysisSection />);
     fireEvent.click(screen.getByText('Change'));
     expect(screen.getByTestId('issue-statistics').dataset.statuses).toBe('open,resolved');
     expect(screen.getByTestId('pour-radar').dataset.statuses).toBe('open,resolved');
@@ -54,7 +78,7 @@ describe('IssueAnalysisSection', () => {
   });
 
   it('renders the section heading', () => {
-    render(<IssueAnalysisSection />);
+    renderWithIntl(<IssueAnalysisSection />);
     expect(screen.getByRole('heading', { name: 'Issue Analysis' })).toBeInTheDocument();
   });
 });

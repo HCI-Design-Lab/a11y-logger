@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   LineChart,
   Line,
@@ -146,13 +147,6 @@ function ActivityTooltip({
   );
 }
 
-const RANGES: { label: string; value: TimeRange }[] = [
-  { label: '6 months', value: '6m' },
-  { label: '3 months', value: '3m' },
-  { label: '1 month', value: '1m' },
-  { label: '1 week', value: '1w' },
-];
-
 /**
  * ActivityChart — Dashboard card showing projects, assessments, and issues
  * created over time as an interactive line chart or accessible data table.
@@ -170,6 +164,15 @@ const RANGES: { label: string; value: TimeRange }[] = [
  * (`--foreground`, `--border`, `--card`) rather than being hard-coded.
  */
 export function ActivityChart() {
+  const t = useTranslations('dashboard.activity_chart');
+
+  const RANGES: { label: string; value: TimeRange }[] = [
+    { label: t('range_6m'), value: '6m' },
+    { label: t('range_3m'), value: '3m' },
+    { label: t('range_1m'), value: '1m' },
+    { label: t('range_1w'), value: '1w' },
+  ];
+
   const [range, setRange] = useState<TimeRange>('6m');
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [data, setData] = useState<TimeSeriesEntry[]>([]);
@@ -185,13 +188,14 @@ export function ActivityChart() {
       if (json.success) {
         setData(json.data);
       } else {
-        setError('Failed to load chart data.');
+        setError(t('error'));
       }
     } catch {
-      setError('Failed to load chart data.');
+      setError(t('error'));
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -206,7 +210,7 @@ export function ActivityChart() {
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle>Projects, Assessments, and Issues</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           {data.length > 0 && data[0] && data[data.length - 1] && (
             <p className="text-xs text-muted-foreground mt-0.5">
               {formatDate(data[0].date)} – {formatDate(data[data.length - 1]!.date)}
@@ -229,7 +233,7 @@ export function ActivityChart() {
       <CardContent>
         {loading ? (
           <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
-            Loading…
+            {t('loading')}
           </div>
         ) : error ? (
           <div className="h-48 flex items-center justify-center text-sm text-destructive">
@@ -237,7 +241,7 @@ export function ActivityChart() {
           </div>
         ) : data.length === 0 ? (
           <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
-            No activity in this period.
+            {t('empty')}
           </div>
         ) : (
           <>
@@ -260,7 +264,7 @@ export function ActivityChart() {
                     stroke="#6366f1"
                     strokeWidth={2}
                     dot={false}
-                    name="Projects"
+                    name={t('line_projects')}
                   />
                   <Line
                     type="monotone"
@@ -268,7 +272,7 @@ export function ActivityChart() {
                     stroke="#22c55e"
                     strokeWidth={2}
                     dot={false}
-                    name="Assessments"
+                    name={t('line_assessments')}
                   />
                   <Line
                     type="monotone"
@@ -276,7 +280,7 @@ export function ActivityChart() {
                     stroke="#f97316"
                     strokeWidth={2}
                     dot={false}
-                    name="Issues"
+                    name={t('line_issues')}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -284,26 +288,25 @@ export function ActivityChart() {
             {view === 'table' && (
               <div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Showing most recent {tableData.length}{' '}
-                  {range !== '1m' && range !== '1w' ? 'weeks' : 'days'}
+                  {range !== '1m' && range !== '1w'
+                    ? t('table_showing_weeks', { count: tableData.length })
+                    : t('table_showing_days', { count: tableData.length })}
                 </p>
                 <table className="w-full text-sm">
-                  <caption className="sr-only">
-                    Projects, assessments, and issues created over time
-                  </caption>
+                  <caption className="sr-only">{t('caption')}</caption>
                   <thead>
                     <tr className="border-b text-left text-muted-foreground">
                       <th scope="col" className="pb-2 font-medium">
-                        Date
+                        {t('col_date')}
                       </th>
                       <th scope="col" className="pb-2 font-medium text-right">
-                        Projects
+                        {t('col_projects')}
                       </th>
                       <th scope="col" className="pb-2 font-medium text-right">
-                        Assessments
+                        {t('col_assessments')}
                       </th>
                       <th scope="col" className="pb-2 font-medium text-right">
-                        Issues
+                        {t('col_issues')}
                       </th>
                     </tr>
                   </thead>

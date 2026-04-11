@@ -1,23 +1,27 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WCAG_PRINCIPLES, type WcagPrinciple } from '@/lib/wcag-criteria';
 import type { WcagCriteriaCount } from '@/lib/db/dashboard';
-
-const PRINCIPLE_LABELS: Record<WcagPrinciple, string> = {
-  perceivable: 'Perceivable',
-  operable: 'Operable',
-  understandable: 'Understandable',
-  robust: 'Robust',
-};
 
 interface WcagCriteriaProps {
   statuses: string[];
 }
 
 export function WcagCriteria({ statuses }: WcagCriteriaProps) {
+  const t = useTranslations('dashboard.wcag_criteria');
+  const tp = useTranslations('dashboard.pour_radar');
+
+  const PRINCIPLE_LABELS: Record<WcagPrinciple, string> = {
+    perceivable: tp('principle_perceivable'),
+    operable: tp('principle_operable'),
+    understandable: tp('principle_understandable'),
+    robust: tp('principle_robust'),
+  };
+
   const [principle, setPrinciple] = useState<WcagPrinciple>('perceivable');
   const [rows, setRows] = useState<WcagCriteriaCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,15 +41,15 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
         if (json.success) {
           setRows(json.data);
         } else {
-          setError('Failed to load WCAG criteria.');
+          setError(t('error'));
         }
       } catch {
-        setError('Failed to load WCAG criteria.');
+        setError(t('error'));
       } finally {
         setLoading(false);
       }
     },
-    [statusesKey]
+    [statusesKey, t]
   );
 
   useEffect(() => {
@@ -59,8 +63,8 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>WCAG Criteria</CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">Filtered by principle</p>
+            <CardTitle>{t('title')}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('subtitle')}</p>
           </div>
           <Tabs value={principle} onValueChange={(v) => setPrinciple(v as WcagPrinciple)}>
             <TabsList variant="segmented">
@@ -75,14 +79,14 @@ export function WcagCriteria({ statuses }: WcagCriteriaProps) {
       </CardHeader>
       <CardContent>
         {loading && rows.length === 0 && (
-          <p className="text-sm text-muted-foreground py-4">Loading…</p>
+          <p className="text-sm text-muted-foreground py-4">{t('loading')}</p>
         )}
         {!loading && error && rows.length === 0 && (
           <p className="text-sm text-destructive py-4">{error}</p>
         )}
         {!loading && !error && rows.length === 0 && (
           <p className="text-sm text-muted-foreground py-4">
-            No issues logged for {PRINCIPLE_LABELS[principle]} criteria yet.
+            {t('empty', { principle: PRINCIPLE_LABELS[principle] })}
           </p>
         )}
         {rows.length > 0 && (

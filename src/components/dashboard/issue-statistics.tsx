@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartTableToggle } from './chart-table-toggle';
 
@@ -15,20 +16,30 @@ interface FetchedData {
   total: number;
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Open',
-  resolved: 'Resolved',
-  wont_fix: "Won't Fix",
+const SEVERITY_KEYS = ['critical', 'high', 'medium', 'low'] as const;
+type SeverityKey = (typeof SEVERITY_KEYS)[number];
+const SEVERITY_COLORS: Record<SeverityKey, string> = {
+  critical: '#ef4444',
+  high: '#f97316',
+  medium: '#eab308',
+  low: '#3b82f6',
 };
 
-const SEVERITY_CONFIG = [
-  { key: 'critical' as const, label: 'Critical', color: '#ef4444' },
-  { key: 'high' as const, label: 'High', color: '#f97316' },
-  { key: 'medium' as const, label: 'Medium', color: '#eab308' },
-  { key: 'low' as const, label: 'Low', color: '#3b82f6' },
-];
-
 export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
+  const t = useTranslations('dashboard.issue_statistics');
+
+  const STATUS_LABELS: Record<string, string> = {
+    open: t('status_open'),
+    resolved: t('status_resolved'),
+    wont_fix: t('status_wont_fix'),
+  };
+
+  const SEVERITY_CONFIG = SEVERITY_KEYS.map((key) => ({
+    key,
+    label: t(`severity_${key}`),
+    color: SEVERITY_COLORS[key],
+  }));
+
   const statusLabel = statuses.map((s) => STATUS_LABELS[s] ?? s).join(' · ');
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [fetchedData, setFetchedData] = useState<FetchedData | null>(null);
@@ -79,17 +90,17 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle>Issue Statistics</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <p className="text-xs text-muted-foreground mt-0.5">{statusLabel}</p>
         </div>
         <ChartTableToggle view={view} onChange={setView} />
       </CardHeader>
       <CardContent>
         {loading && !fetchedData && (
-          <p className="text-sm text-muted-foreground py-8 text-center">Loading…</p>
+          <p className="text-sm text-muted-foreground py-8 text-center">{t('loading')}</p>
         )}
         {!loading && error && !fetchedData && (
-          <p className="text-sm text-destructive py-8 text-center">Failed to load data.</p>
+          <p className="text-sm text-destructive py-8 text-center">{t('error')}</p>
         )}
         {fetchedData && (
           <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
@@ -108,12 +119,12 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
                         strokeWidth={5}
                         stroke="var(--card)"
                       />
-                      <Tooltip formatter={(value) => [(value as number) ?? 0, 'Issues']} />
+                      <Tooltip formatter={(value) => [(value as number) ?? 0, t('center_label')]} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-4xl font-bold">{total}</span>
-                    <span className="text-sm text-muted-foreground">Issues</span>
+                    <span className="text-sm text-muted-foreground">{t('center_label')}</span>
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-2 w-full text-center">
@@ -133,8 +144,12 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-1.5 font-medium text-muted-foreground">Severity</th>
-                    <th className="text-right py-1.5 font-medium text-muted-foreground">Count</th>
+                    <th className="text-left py-1.5 font-medium text-muted-foreground">
+                      {t('col_severity')}
+                    </th>
+                    <th className="text-right py-1.5 font-medium text-muted-foreground">
+                      {t('col_count')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,7 +170,7 @@ export function IssueStatistics({ statuses, projectId }: IssueStatisticsProps) {
                     </tr>
                   ))}
                   <tr>
-                    <td className="py-2 font-medium">Total</td>
+                    <td className="py-2 font-medium">{t('row_total')}</td>
                     <td className="py-2 text-right font-bold">{total}</td>
                   </tr>
                 </tbody>

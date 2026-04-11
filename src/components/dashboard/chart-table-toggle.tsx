@@ -1,5 +1,6 @@
 'use client';
 import { ChartPie, Table } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ChartTableToggleProps {
   view: 'chart' | 'table';
@@ -7,10 +8,11 @@ interface ChartTableToggleProps {
 }
 
 export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
+  const t = useTranslations('dashboard.chart_table_toggle');
   return (
     <div
       role="group"
-      aria-label="View toggle"
+      aria-label={t('group_aria_label')}
       className="relative inline-flex items-center rounded-full border bg-card p-0.5"
     >
       {/* Sliding thumb */}
@@ -25,7 +27,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
         type="button"
         onClick={() => onChange('chart')}
         aria-pressed={view === 'chart'}
-        aria-label="Chart view"
+        aria-label={t('chart_aria_label')}
         className={`relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full ${view !== 'chart' ? 'hover:bg-accent dark:hover:bg-muted hover:border hover:border-border dark:hover:border-muted-foreground/40' : ''}`}
       >
         <ChartPie
@@ -38,7 +40,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
         type="button"
         onClick={() => onChange('table')}
         aria-pressed={view === 'table'}
-        aria-label="Table view"
+        aria-label={t('table_aria_label')}
         className={`relative z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full ${view !== 'table' ? 'hover:bg-accent dark:hover:bg-muted hover:border hover:border-border dark:hover:border-muted-foreground/40' : ''}`}
       >
         <Table

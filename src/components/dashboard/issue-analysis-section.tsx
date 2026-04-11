@@ -1,11 +1,13 @@
 'use client';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { IssueStatistics } from './issue-statistics';
 import { PourRadar } from './pour-radar';
 import { WcagCriteria } from './wcag-criteria';
 import { StatusFilter } from './status-filter';
 
 export function IssueAnalysisSection() {
+  const t = useTranslations('dashboard.issue_analysis');
   const [statuses, setStatuses] = useState<string[]>(['open']);
 
   return (
@@ -13,9 +15,9 @@ export function IssueAnalysisSection() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 id="analysis-heading" className="text-lg font-semibold">
-            Issue Analysis
+            {t('heading')}
           </h2>
-          <p className="text-sm text-muted-foreground">Issues across all projects</p>
+          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
         <StatusFilter statuses={statuses} onChange={setStatuses} />
       </div>

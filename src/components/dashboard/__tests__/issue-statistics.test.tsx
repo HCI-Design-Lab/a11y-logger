@@ -1,7 +1,42 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { NextIntlClientProvider } from 'next-intl';
 import { IssueStatistics } from '@/components/dashboard/issue-statistics';
+
+const messages = {
+  dashboard: {
+    issue_statistics: {
+      title: 'Issue Statistics',
+      loading: 'Loading…',
+      error: 'Failed to load data.',
+      center_label: 'Issues',
+      col_severity: 'Severity',
+      col_count: 'Count',
+      row_total: 'Total',
+      status_open: 'Open',
+      status_resolved: 'Resolved',
+      status_wont_fix: "Won't Fix",
+      severity_critical: 'Critical',
+      severity_high: 'High',
+      severity_medium: 'Medium',
+      severity_low: 'Low',
+    },
+    chart_table_toggle: {
+      group_aria_label: 'View toggle',
+      chart_aria_label: 'Chart view',
+      table_aria_label: 'Table view',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -29,7 +64,7 @@ describe('IssueStatistics subtitle', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     expect(screen.getByText('Issue Statistics')).toBeInTheDocument();
     expect(screen.getByText('Open')).toBeInTheDocument();
@@ -40,7 +75,7 @@ describe('IssueStatistics subtitle', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['resolved']} />);
+    renderWithIntl(<IssueStatistics statuses={['resolved']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     expect(screen.getByText('Resolved')).toBeInTheDocument();
   });
@@ -50,7 +85,7 @@ describe('IssueStatistics subtitle', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['wont_fix']} />);
+    renderWithIntl(<IssueStatistics statuses={['wont_fix']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     expect(screen.getByText("Won't Fix")).toBeInTheDocument();
   });
@@ -60,7 +95,7 @@ describe('IssueStatistics subtitle', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open', 'resolved']} />);
+    renderWithIntl(<IssueStatistics statuses={['open', 'resolved']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     expect(screen.getByText('Open · Resolved')).toBeInTheDocument();
   });
@@ -72,7 +107,7 @@ describe('IssueStatistics chart center label', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     expect(screen.getByText('Issues')).toBeInTheDocument();
   });
@@ -82,7 +117,7 @@ describe('IssueStatistics behavioral tests', () => {
   it('shows loading indicator while fetch is pending', async () => {
     // Never resolve so we stay in the loading state
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
@@ -91,7 +126,7 @@ describe('IssueStatistics behavioral tests', () => {
       ok: false,
       statusText: 'Internal Server Error',
     });
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.getByText('Failed to load data.')).toBeInTheDocument());
   });
 
@@ -100,7 +135,7 @@ describe('IssueStatistics behavioral tests', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
 
     const tableToggle = screen.getByRole('button', { name: /table view/i });
@@ -116,7 +151,7 @@ describe('IssueStatistics behavioral tests', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
 
     await userEvent.click(screen.getByRole('button', { name: /table view/i }));
@@ -143,7 +178,7 @@ describe('IssueStatistics behavioral tests', () => {
       ok: true,
       json: async () => ({ data: mockData }),
     });
-    render(<IssueStatistics statuses={['open']} projectId="proj-123" />);
+    renderWithIntl(<IssueStatistics statuses={['open']} projectId="proj-123" />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
 
     expect(fetch).toHaveBeenCalledWith(
@@ -155,7 +190,7 @@ describe('IssueStatistics behavioral tests', () => {
   it('does not show error message when fetch throws an AbortError', async () => {
     const abortError = new DOMException('Aborted', 'AbortError');
     (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(abortError);
-    render(<IssueStatistics statuses={['open']} />);
+    renderWithIntl(<IssueStatistics statuses={['open']} />);
     // Give the promise time to reject and the component to potentially update
     await act(async () => {
       await new Promise((r) => setTimeout(r, 50));
@@ -177,11 +212,15 @@ describe('IssueStatistics behavioral tests', () => {
       })
       .mockReturnValueOnce(secondFetchPromise);
 
-    const { rerender } = render(<IssueStatistics statuses={['open']} />);
+    const { rerender } = renderWithIntl(<IssueStatistics statuses={['open']} />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
 
     // Trigger a re-fetch by changing statuses prop — second fetch is still pending
-    rerender(<IssueStatistics statuses={['resolved']} />);
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <IssueStatistics statuses={['resolved']} />
+      </NextIntlClientProvider>
+    );
 
     // The stale data container should now have opacity-50 while the new fetch is in flight
     await waitFor(() => {

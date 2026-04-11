@@ -1,6 +1,45 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { ActivityChart } from '@/components/dashboard/activity-chart';
+
+const messages = {
+  dashboard: {
+    activity_chart: {
+      title: 'Projects, Assessments, and Issues',
+      loading: 'Loading…',
+      error: 'Failed to load chart data.',
+      empty: 'No activity in this period.',
+      range_6m: '6 months',
+      range_3m: '3 months',
+      range_1m: '1 month',
+      range_1w: '1 week',
+      table_showing_weeks: 'Showing most recent {count} weeks',
+      table_showing_days: 'Showing most recent {count} days',
+      col_date: 'Date',
+      col_projects: 'Projects',
+      col_assessments: 'Assessments',
+      col_issues: 'Issues',
+      caption: 'Projects, assessments, and issues created over time',
+      line_projects: 'Projects',
+      line_assessments: 'Assessments',
+      line_issues: 'Issues',
+    },
+    chart_table_toggle: {
+      group_aria_label: 'View toggle',
+      chart_aria_label: 'Chart view',
+      table_aria_label: 'Table view',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -29,7 +68,7 @@ afterEach(() => {
 describe('ActivityChart', () => {
   it('shows loading state on mount', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {})); // never resolves
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     expect(screen.getByText('Loading…')).toBeInTheDocument();
   });
 
@@ -37,7 +76,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: [] }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() =>
       expect(screen.getByText('No activity in this period.')).toBeInTheDocument()
     );
@@ -47,7 +86,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: false, error: 'DB error' }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.getByText('Failed to load chart data.')).toBeInTheDocument());
   });
 
@@ -55,7 +94,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: mockTimeSeriesData }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     // Should show the date range subtitle
     expect(screen.getByText(/Jan 1/)).toBeInTheDocument();
@@ -63,7 +102,7 @@ describe('ActivityChart', () => {
 
   it('has four time range buttons with aria-pressed', () => {
     (fetch as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     const labels = ['6 months', '3 months', '1 month', '1 week'];
     labels.forEach((label) => {
       expect(screen.getByRole('tab', { name: label })).toBeInTheDocument();
@@ -76,7 +115,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: [] }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => screen.getByText('No activity in this period.'));
     fireEvent.mouseDown(screen.getByRole('tab', { name: '1 week' }));
     await waitFor(() => {
@@ -92,7 +131,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: mockTimeSeriesData }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
     expect(screen.getByText('Date')).toBeInTheDocument();
@@ -105,7 +144,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: mockTimeSeriesData }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
     expect(screen.getByText(/weeks/i)).toBeInTheDocument();
@@ -115,7 +154,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: mockTimeSeriesData }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
     fireEvent.mouseDown(screen.getByRole('tab', { name: '1 week' }));
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
@@ -125,7 +164,7 @@ describe('ActivityChart', () => {
 
   it('shows error state when fetch throws', async () => {
     (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     await waitFor(() => expect(screen.getByText('Failed to load chart data.')).toBeInTheDocument());
   });
 
@@ -138,7 +177,7 @@ describe('ActivityChart', () => {
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       json: async () => ({ success: true, data: sameWeekData }),
     });
-    render(<ActivityChart />);
+    renderWithIntl(<ActivityChart />);
     // Switch to 3m so bucketing applies
     fireEvent.mouseDown(screen.getByRole('tab', { name: '3 months' }));
     await waitFor(() => expect(screen.queryByText('Loading…')).not.toBeInTheDocument());
