@@ -15,7 +15,27 @@
     "edit": "Edit",
     "create": "Create",
     "loading": "Loading…",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "saving": "Saving…",
+    "new": "New",
+    "view": "View",
+    "back": "Back",
+    "confirm": "Confirm",
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
+    "actions": "Actions",
+    "no_results": "No results found",
+    "required_field": "This field is required"
+  },
+  "ui": {
+    "theme_toggle": {
+      "light_aria_label": "Switch to light mode",
+      "dark_aria_label": "Switch to dark mode"
+    },
+    "language_select": {
+      "aria_label": "Language"
+    }
   },
   "vpats": {
     "conformance": {

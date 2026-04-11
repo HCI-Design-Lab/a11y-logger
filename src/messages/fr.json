@@ -1,21 +1,41 @@
 {
   "nav": {
-    "dashboard": "Dashboard",
-    "projects": "Projects",
-    "assessments": "Assessments",
-    "issues": "Issues",
-    "reports": "Reports",
+    "dashboard": "Tableau de bord",
+    "projects": "Projets",
+    "assessments": "Évaluations",
+    "issues": "Problèmes",
+    "reports": "Rapports",
     "vpats": "VPATs",
-    "settings": "Settings"
+    "settings": "Paramètres"
   },
   "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "create": "Create",
-    "loading": "Loading…",
-    "error": "An error occurred"
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "loading": "Chargement…",
+    "error": "Une erreur s'est produite",
+    "saving": "Enregistrement…",
+    "new": "Nouveau",
+    "view": "Voir",
+    "back": "Retour",
+    "confirm": "Confirmer",
+    "name": "Nom",
+    "description": "Description",
+    "status": "Statut",
+    "actions": "Actions",
+    "no_results": "Aucun résultat trouvé",
+    "required_field": "Ce champ est obligatoire"
+  },
+  "ui": {
+    "theme_toggle": {
+      "light_aria_label": "Passer au mode clair",
+      "dark_aria_label": "Passer au mode sombre"
+    },
+    "language_select": {
+      "aria_label": "Langue"
+    }
   },
   "vpats": {
     "conformance": {
