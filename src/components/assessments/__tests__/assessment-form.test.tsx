@@ -1,8 +1,41 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { AssessmentForm } from '../assessment-form';
 import type { Assessment } from '@/lib/db/assessments';
+
+const messages = {
+  assessments: {
+    form: {
+      name_label: 'Name',
+      name_placeholder: 'e.g. Mobile App Q1 Audit',
+      description_label: 'Description',
+      description_placeholder: 'Brief description of this assessment',
+      project_label: 'Project',
+      project_placeholder: 'Select a project',
+      start_date_label: 'Start Date',
+      end_date_label: 'End Date',
+      status_label: 'Status',
+      status_options: {
+        ready: 'Ready',
+        in_progress: 'In Progress',
+        completed: 'Completed',
+      },
+      save_button: 'Save Assessment',
+      save_button_loading: 'Saving…',
+      cancel_button: 'Cancel',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockAssessment: Assessment = {
   id: 'a1',
@@ -25,52 +58,52 @@ const projects = [
 
 // Field rendering
 test('renders name field', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
 });
 
 test('renders description textarea', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
 });
 
 test('renders start date field', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/start date/i)).toBeInTheDocument();
 });
 
 test('renders end date field', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/end date/i)).toBeInTheDocument();
 });
 
 test('renders status select', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByRole('combobox', { name: /status/i })).toBeInTheDocument();
 });
 
 test('renders save button', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
 });
 
 // Validation
 test('shows validation error when name is empty', async () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: /save assessment/i }));
   await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
 });
 
 test('does not call onSubmit when name is empty', async () => {
   const onSubmit = vi.fn();
-  render(<AssessmentForm onSubmit={onSubmit} />);
+  renderWithIntl(<AssessmentForm onSubmit={onSubmit} />);
   fireEvent.click(screen.getByRole('button', { name: /save assessment/i }));
   await waitFor(() => screen.getByRole('alert'));
   expect(onSubmit).not.toHaveBeenCalled();
 });
 
 test('shows validation error when end date is before start date', async () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   await userEvent.type(screen.getByLabelText(/name/i), 'Q2 Audit');
   // Set start date after end date
   fireEvent.change(screen.getByLabelText(/start date/i), { target: { value: '2026-06-01' } });
@@ -82,7 +115,7 @@ test('shows validation error when end date is before start date', async () => {
 // Submission
 test('calls onSubmit with correct values', async () => {
   const onSubmit = vi.fn();
-  render(<AssessmentForm onSubmit={onSubmit} />);
+  renderWithIntl(<AssessmentForm onSubmit={onSubmit} />);
   await userEvent.type(screen.getByLabelText(/name/i), 'Q2 Audit');
   fireEvent.click(screen.getByRole('button', { name: /save assessment/i }));
   await waitFor(() =>
@@ -95,7 +128,7 @@ test('calls onSubmit with correct values', async () => {
 
 // Pre-population
 test('pre-populates fields from assessment prop', () => {
-  render(<AssessmentForm assessment={mockAssessment} onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm assessment={mockAssessment} onSubmit={vi.fn()} />);
   expect(screen.getByLabelText(/name/i)).toHaveValue('Q1 Audit');
   expect(screen.getByLabelText(/description/i)).toHaveValue('Quarterly accessibility check');
   // Date inputs should show YYYY-MM-DD portion
@@ -105,23 +138,23 @@ test('pre-populates fields from assessment prop', () => {
 
 // Project dropdown
 test('does not show project dropdown when projects prop is not provided', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.queryByLabelText(/project/i)).not.toBeInTheDocument();
 });
 
 test('shows project dropdown when projects prop is provided', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} projects={projects} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} projects={projects} />);
   expect(screen.getByLabelText(/project/i)).toBeInTheDocument();
 });
 
 test('project dropdown lists all provided projects', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} projects={projects} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} projects={projects} />);
   expect(screen.getByText('Project Alpha')).toBeInTheDocument();
   expect(screen.getByText('Project Beta')).toBeInTheDocument();
 });
 
 test('pre-selects project when defaultProjectId is provided', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} projects={projects} defaultProjectId="p2" />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} projects={projects} defaultProjectId="p2" />);
   // The Select trigger should display the selected project name
   expect(screen.getByRole('combobox', { name: /project/i })).toHaveTextContent('Project Beta');
 });
@@ -132,7 +165,7 @@ test('submits updated project_id when project is changed', async () => {
   // The form should include project_id: 'p2' in the submitted data.
   // (Radix UI Select interactions via pointer events are not reliably testable in jsdom,
   //  so we verify the core contract: the submitted data reflects the selected project.)
-  render(<AssessmentForm onSubmit={onSubmit} projects={projects} defaultProjectId="p2" />);
+  renderWithIntl(<AssessmentForm onSubmit={onSubmit} projects={projects} defaultProjectId="p2" />);
   fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Test Audit' } });
   fireEvent.click(screen.getByRole('button', { name: /save assessment/i }));
   await waitFor(() =>
@@ -145,31 +178,60 @@ test('submits updated project_id when project is changed', async () => {
 
 // Cancel link
 test('renders cancel link when cancelHref is provided', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} cancelHref="/assessments" />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} cancelHref="/assessments" />);
   const link = screen.getByRole('link', { name: /cancel/i });
   expect(link).toBeInTheDocument();
   expect(link).toHaveAttribute('href', '/assessments');
 });
 
 test('does not render cancel link when cancelHref is omitted', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
   expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
 });
 
 // externalButtons prop
 test('hides save button when externalButtons prop is provided', () => {
-  render(<AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />);
+  renderWithIntl(<AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />);
   expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
 });
 
 test('hides cancel link when externalButtons prop is provided', () => {
-  render(
+  renderWithIntl(
     <AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" cancelHref="/assessments" />
   );
   expect(screen.queryByRole('link', { name: /cancel/i })).not.toBeInTheDocument();
 });
 
 test('sets the form id when externalButtons is provided', () => {
-  const { container } = render(<AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />);
+  const { container } = renderWithIntl(
+    <AssessmentForm onSubmit={vi.fn()} externalButtons="my-form-id" />
+  );
   expect(container.querySelector('form#my-form-id')).toBeInTheDocument();
+});
+
+describe('i18n integration — real NextIntlClientProvider', () => {
+  it('renders translated name label from catalog', () => {
+    renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
+    expect(screen.getByText(/^Name/)).toBeInTheDocument();
+  });
+
+  it('renders translated name placeholder from catalog', () => {
+    renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
+    expect(screen.getByPlaceholderText('e.g. Mobile App Q1 Audit')).toBeInTheDocument();
+  });
+
+  it('renders translated save button from catalog', () => {
+    renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Save Assessment' })).toBeInTheDocument();
+  });
+
+  it('renders translated description placeholder from catalog', () => {
+    renderWithIntl(<AssessmentForm onSubmit={vi.fn()} />);
+    expect(screen.getByPlaceholderText('Brief description of this assessment')).toBeInTheDocument();
+  });
+
+  it('renders translated project placeholder from catalog', () => {
+    renderWithIntl(<AssessmentForm onSubmit={vi.fn()} projects={projects} />);
+    expect(screen.getByText('Select a project')).toBeInTheDocument();
+  });
 });
