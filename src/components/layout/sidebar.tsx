@@ -10,20 +10,22 @@ import {
   Shield,
   Settings,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/projects', icon: FolderOpen, label: 'Projects' },
-  { href: '/assessments', icon: ClipboardList, label: 'Assessments' },
-  { href: '/issues', icon: Bug, label: 'Issues' },
-  { href: '/reports', icon: FileText, label: 'Reports' },
-  { href: '/vpats', icon: Shield, label: 'VPATs' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
-];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
+
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+    { href: '/projects', icon: FolderOpen, label: t('projects') },
+    { href: '/assessments', icon: ClipboardList, label: t('assessments') },
+    { href: '/issues', icon: Bug, label: t('issues') },
+    { href: '/reports', icon: FileText, label: t('reports') },
+    { href: '/vpats', icon: Shield, label: t('vpats') },
+    { href: '/settings', icon: Settings, label: t('settings') },
+  ];
   return (
     <nav
       className="group absolute left-0 top-0 z-10 flex h-full w-14 hover:w-48 flex-col overflow-hidden border-r bg-sidebar py-4 gap-1 transition-[width] duration-200 ease-in-out"
