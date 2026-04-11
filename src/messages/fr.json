@@ -482,6 +482,114 @@
       "unpublish_failed": "Échec de la dépublication du rapport"
     }
   },
+  "dashboard": {
+    "activity_chart": {
+      "title": "Projets, évaluations et problèmes",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données du graphique.",
+      "empty": "Aucune activité sur cette période.",
+      "range_6m": "6 mois",
+      "range_3m": "3 mois",
+      "range_1m": "1 mois",
+      "range_1w": "1 semaine",
+      "table_showing_weeks": "Affichage des {count} dernières semaines",
+      "table_showing_days": "Affichage des {count} derniers jours",
+      "col_date": "Date",
+      "col_projects": "Projets",
+      "col_assessments": "Évaluations",
+      "col_issues": "Problèmes",
+      "caption": "Projets, évaluations et problèmes créés au fil du temps",
+      "line_projects": "Projets",
+      "line_assessments": "Évaluations",
+      "line_issues": "Problèmes"
+    },
+    "chart_table_toggle": {
+      "group_aria_label": "Basculer la vue",
+      "chart_aria_label": "Vue graphique",
+      "table_aria_label": "Vue tableau"
+    },
+    "environment_heatmap": {
+      "title": "Problèmes par environnement",
+      "subtitle": "Appareil × Technologie d'assistance",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données.",
+      "empty": "Aucune donnée d'environnement pour l'instant.",
+      "col_device": "Appareil",
+      "caption_heatmap": "Carte de chaleur des problèmes ouverts par type d'appareil et technologie d'assistance. Les cellules plus sombres indiquent plus de problèmes.",
+      "caption_table": "Problèmes ouverts par type d'appareil et technologie d'assistance"
+    },
+    "issue_analysis": {
+      "heading": "Analyse des problèmes",
+      "subtitle": "Problèmes sur tous les projets"
+    },
+    "issue_statistics": {
+      "title": "Statistiques des problèmes",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données.",
+      "center_label": "Problèmes",
+      "col_severity": "Gravité",
+      "col_count": "Nombre",
+      "row_total": "Total",
+      "status_open": "Ouvert",
+      "status_resolved": "Résolu",
+      "status_wont_fix": "Ne sera pas corrigé",
+      "severity_critical": "Critique",
+      "severity_high": "Élevée",
+      "severity_medium": "Moyenne",
+      "severity_low": "Faible"
+    },
+    "pour_radar": {
+      "title": "Problèmes par principe POUR",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données.",
+      "empty": "Aucun problème ouvert trouvé.",
+      "col_principle": "Principe",
+      "col_issues": "Problèmes",
+      "col_percent": "% du total",
+      "row_total": "Total",
+      "caption": "Problèmes par principe POUR — problèmes ouverts uniquement",
+      "principle_perceivable": "Perceptible",
+      "principle_operable": "Utilisable",
+      "principle_understandable": "Compréhensible",
+      "principle_robust": "Robuste"
+    },
+    "repeat_offenders": {
+      "title": "Critères récurrents",
+      "subtitle": "Classés par projets affectés",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données.",
+      "empty": "Aucune donnée pour l'instant.",
+      "col_code": "Code",
+      "col_criterion": "Critère",
+      "col_projects": "Projets",
+      "col_issues": "Problèmes",
+      "tooltip_projects": "Projets"
+    },
+    "status_filter": {
+      "group_aria_label": "Filtrer par statut",
+      "open": "Ouvert",
+      "resolved": "Résolu",
+      "wont_fix": "Ne sera pas corrigé"
+    },
+    "tag_treemap": {
+      "title": "Étiquettes des problèmes",
+      "subtitle": "Problèmes ouverts par fréquence d'étiquette",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les données.",
+      "empty": "Aucune étiquette trouvée.",
+      "col_tag": "Étiquette",
+      "col_issues": "Problèmes",
+      "col_percent": "% du total"
+    },
+    "wcag_criteria": {
+      "title": "Critères WCAG",
+      "subtitle": "Filtré par principe",
+      "loading": "Chargement…",
+      "error": "Impossible de charger les critères WCAG.",
+      "empty": "Aucun problème enregistré pour les critères {principle} pour l'instant.",
+      "tooltip_issues": "Problèmes"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nom du projet",

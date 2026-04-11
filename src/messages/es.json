@@ -482,6 +482,114 @@
       "unpublish_failed": "Error al despublicar el informe"
     }
   },
+  "dashboard": {
+    "activity_chart": {
+      "title": "Proyectos, evaluaciones y problemas",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos del gráfico.",
+      "empty": "Sin actividad en este período.",
+      "range_6m": "6 meses",
+      "range_3m": "3 meses",
+      "range_1m": "1 mes",
+      "range_1w": "1 semana",
+      "table_showing_weeks": "Mostrando las {count} semanas más recientes",
+      "table_showing_days": "Mostrando los {count} días más recientes",
+      "col_date": "Fecha",
+      "col_projects": "Proyectos",
+      "col_assessments": "Evaluaciones",
+      "col_issues": "Problemas",
+      "caption": "Proyectos, evaluaciones y problemas creados a lo largo del tiempo",
+      "line_projects": "Proyectos",
+      "line_assessments": "Evaluaciones",
+      "line_issues": "Problemas"
+    },
+    "chart_table_toggle": {
+      "group_aria_label": "Alternar vista",
+      "chart_aria_label": "Vista de gráfico",
+      "table_aria_label": "Vista de tabla"
+    },
+    "environment_heatmap": {
+      "title": "Problemas por entorno",
+      "subtitle": "Dispositivo × Tecnología de asistencia",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos.",
+      "empty": "Sin datos de entorno todavía.",
+      "col_device": "Dispositivo",
+      "caption_heatmap": "Mapa de calor de problemas abiertos por tipo de dispositivo y tecnología de asistencia. Las celdas más oscuras indican más problemas.",
+      "caption_table": "Problemas abiertos por tipo de dispositivo y tecnología de asistencia"
+    },
+    "issue_analysis": {
+      "heading": "Análisis de problemas",
+      "subtitle": "Problemas en todos los proyectos"
+    },
+    "issue_statistics": {
+      "title": "Estadísticas de problemas",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos.",
+      "center_label": "Problemas",
+      "col_severity": "Gravedad",
+      "col_count": "Recuento",
+      "row_total": "Total",
+      "status_open": "Abierto",
+      "status_resolved": "Resuelto",
+      "status_wont_fix": "No se corregirá",
+      "severity_critical": "Crítico",
+      "severity_high": "Alto",
+      "severity_medium": "Medio",
+      "severity_low": "Bajo"
+    },
+    "pour_radar": {
+      "title": "Problemas por principio POUR",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos.",
+      "empty": "No se encontraron problemas abiertos.",
+      "col_principle": "Principio",
+      "col_issues": "Problemas",
+      "col_percent": "% del total",
+      "row_total": "Total",
+      "caption": "Problemas por principio POUR — solo problemas abiertos",
+      "principle_perceivable": "Perceptible",
+      "principle_operable": "Operable",
+      "principle_understandable": "Comprensible",
+      "principle_robust": "Robusto"
+    },
+    "repeat_offenders": {
+      "title": "Criterios reincidentes",
+      "subtitle": "Clasificados por proyectos afectados",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos.",
+      "empty": "Sin datos todavía.",
+      "col_code": "Código",
+      "col_criterion": "Criterio",
+      "col_projects": "Proyectos",
+      "col_issues": "Problemas",
+      "tooltip_projects": "Proyectos"
+    },
+    "status_filter": {
+      "group_aria_label": "Filtrar por estado",
+      "open": "Abierto",
+      "resolved": "Resuelto",
+      "wont_fix": "No se corregirá"
+    },
+    "tag_treemap": {
+      "title": "Etiquetas de problemas",
+      "subtitle": "Problemas abiertos por frecuencia de etiqueta",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los datos.",
+      "empty": "No se encontraron etiquetas.",
+      "col_tag": "Etiqueta",
+      "col_issues": "Problemas",
+      "col_percent": "% del total"
+    },
+    "wcag_criteria": {
+      "title": "Criterios WCAG",
+      "subtitle": "Filtrado por principio",
+      "loading": "Cargando…",
+      "error": "No se pudieron cargar los criterios WCAG.",
+      "empty": "No hay problemas registrados para los criterios {principle} todavía.",
+      "tooltip_issues": "Problemas"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nombre del proyecto",

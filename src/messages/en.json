@@ -482,6 +482,114 @@
       "unpublish_failed": "Failed to unpublish report"
     }
   },
+  "dashboard": {
+    "activity_chart": {
+      "title": "Projects, Assessments, and Issues",
+      "loading": "Loading…",
+      "error": "Failed to load chart data.",
+      "empty": "No activity in this period.",
+      "range_6m": "6 months",
+      "range_3m": "3 months",
+      "range_1m": "1 month",
+      "range_1w": "1 week",
+      "table_showing_weeks": "Showing most recent {count} weeks",
+      "table_showing_days": "Showing most recent {count} days",
+      "col_date": "Date",
+      "col_projects": "Projects",
+      "col_assessments": "Assessments",
+      "col_issues": "Issues",
+      "caption": "Projects, assessments, and issues created over time",
+      "line_projects": "Projects",
+      "line_assessments": "Assessments",
+      "line_issues": "Issues"
+    },
+    "chart_table_toggle": {
+      "group_aria_label": "View toggle",
+      "chart_aria_label": "Chart view",
+      "table_aria_label": "Table view"
+    },
+    "environment_heatmap": {
+      "title": "Issues by Environment",
+      "subtitle": "Device × Assistive Technology",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "empty": "No environment data yet.",
+      "col_device": "Device",
+      "caption_heatmap": "Heatmap of open issues by device type and assistive technology. Darker cells indicate more issues.",
+      "caption_table": "Open issues by device type and assistive technology"
+    },
+    "issue_analysis": {
+      "heading": "Issue Analysis",
+      "subtitle": "Issues across all projects"
+    },
+    "issue_statistics": {
+      "title": "Issue Statistics",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "center_label": "Issues",
+      "col_severity": "Severity",
+      "col_count": "Count",
+      "row_total": "Total",
+      "status_open": "Open",
+      "status_resolved": "Resolved",
+      "status_wont_fix": "Won't Fix",
+      "severity_critical": "Critical",
+      "severity_high": "High",
+      "severity_medium": "Medium",
+      "severity_low": "Low"
+    },
+    "pour_radar": {
+      "title": "Issues by POUR Principle",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "empty": "No open issues found.",
+      "col_principle": "Principle",
+      "col_issues": "Issues",
+      "col_percent": "% of Total",
+      "row_total": "Total",
+      "caption": "Issues by POUR Principle — open issues only",
+      "principle_perceivable": "Perceivable",
+      "principle_operable": "Operable",
+      "principle_understandable": "Understandable",
+      "principle_robust": "Robust"
+    },
+    "repeat_offenders": {
+      "title": "Repeat Offender Criteria",
+      "subtitle": "Ranked by projects affected",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "empty": "No data yet.",
+      "col_code": "Code",
+      "col_criterion": "Criterion",
+      "col_projects": "Projects",
+      "col_issues": "Issues",
+      "tooltip_projects": "Projects"
+    },
+    "status_filter": {
+      "group_aria_label": "Filter by status",
+      "open": "Open",
+      "resolved": "Resolved",
+      "wont_fix": "Won't Fix"
+    },
+    "tag_treemap": {
+      "title": "Issue Tags",
+      "subtitle": "Open issues by tag frequency",
+      "loading": "Loading…",
+      "error": "Failed to load data.",
+      "empty": "No tags found.",
+      "col_tag": "Tag",
+      "col_issues": "Issues",
+      "col_percent": "% of Total"
+    },
+    "wcag_criteria": {
+      "title": "WCAG Criteria",
+      "subtitle": "Filtered by principle",
+      "loading": "Loading…",
+      "error": "Failed to load WCAG criteria.",
+      "empty": "No issues logged for {principle} criteria yet.",
+      "tooltip_issues": "Issues"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Project Name",

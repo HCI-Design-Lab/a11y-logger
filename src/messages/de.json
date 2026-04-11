@@ -482,6 +482,114 @@
       "unpublish_failed": "Bericht konnte nicht zurückgezogen werden"
     }
   },
+  "dashboard": {
+    "activity_chart": {
+      "title": "Projekte, Bewertungen und Probleme",
+      "loading": "Laden…",
+      "error": "Diagrammdaten konnten nicht geladen werden.",
+      "empty": "Keine Aktivität in diesem Zeitraum.",
+      "range_6m": "6 Monate",
+      "range_3m": "3 Monate",
+      "range_1m": "1 Monat",
+      "range_1w": "1 Woche",
+      "table_showing_weeks": "Zeige die {count} letzten Wochen",
+      "table_showing_days": "Zeige die {count} letzten Tage",
+      "col_date": "Datum",
+      "col_projects": "Projekte",
+      "col_assessments": "Bewertungen",
+      "col_issues": "Probleme",
+      "caption": "Projekte, Bewertungen und Probleme, die im Laufe der Zeit erstellt wurden",
+      "line_projects": "Projekte",
+      "line_assessments": "Bewertungen",
+      "line_issues": "Probleme"
+    },
+    "chart_table_toggle": {
+      "group_aria_label": "Ansicht umschalten",
+      "chart_aria_label": "Diagrammansicht",
+      "table_aria_label": "Tabellenansicht"
+    },
+    "environment_heatmap": {
+      "title": "Probleme nach Umgebung",
+      "subtitle": "Gerät × Hilfstechnologie",
+      "loading": "Laden…",
+      "error": "Daten konnten nicht geladen werden.",
+      "empty": "Noch keine Umgebungsdaten.",
+      "col_device": "Gerät",
+      "caption_heatmap": "Heatmap offener Probleme nach Gerätetyp und Hilfstechnologie. Dunklere Zellen weisen auf mehr Probleme hin.",
+      "caption_table": "Offene Probleme nach Gerätetyp und Hilfstechnologie"
+    },
+    "issue_analysis": {
+      "heading": "Problemanalyse",
+      "subtitle": "Probleme in allen Projekten"
+    },
+    "issue_statistics": {
+      "title": "Problemstatistiken",
+      "loading": "Laden…",
+      "error": "Daten konnten nicht geladen werden.",
+      "center_label": "Probleme",
+      "col_severity": "Schweregrad",
+      "col_count": "Anzahl",
+      "row_total": "Gesamt",
+      "status_open": "Offen",
+      "status_resolved": "Gelöst",
+      "status_wont_fix": "Wird nicht behoben",
+      "severity_critical": "Kritisch",
+      "severity_high": "Hoch",
+      "severity_medium": "Mittel",
+      "severity_low": "Niedrig"
+    },
+    "pour_radar": {
+      "title": "Probleme nach POUR-Prinzip",
+      "loading": "Laden…",
+      "error": "Daten konnten nicht geladen werden.",
+      "empty": "Keine offenen Probleme gefunden.",
+      "col_principle": "Prinzip",
+      "col_issues": "Probleme",
+      "col_percent": "% des Gesamtwerts",
+      "row_total": "Gesamt",
+      "caption": "Probleme nach POUR-Prinzip — nur offene Probleme",
+      "principle_perceivable": "Wahrnehmbar",
+      "principle_operable": "Bedienbar",
+      "principle_understandable": "Verständlich",
+      "principle_robust": "Robust"
+    },
+    "repeat_offenders": {
+      "title": "Wiederkehrende Kriterien",
+      "subtitle": "Geordnet nach betroffenen Projekten",
+      "loading": "Laden…",
+      "error": "Daten konnten nicht geladen werden.",
+      "empty": "Noch keine Daten.",
+      "col_code": "Code",
+      "col_criterion": "Kriterium",
+      "col_projects": "Projekte",
+      "col_issues": "Probleme",
+      "tooltip_projects": "Projekte"
+    },
+    "status_filter": {
+      "group_aria_label": "Nach Status filtern",
+      "open": "Offen",
+      "resolved": "Gelöst",
+      "wont_fix": "Wird nicht behoben"
+    },
+    "tag_treemap": {
+      "title": "Problem-Tags",
+      "subtitle": "Offene Probleme nach Tag-Häufigkeit",
+      "loading": "Laden…",
+      "error": "Daten konnten nicht geladen werden.",
+      "empty": "Keine Tags gefunden.",
+      "col_tag": "Tag",
+      "col_issues": "Probleme",
+      "col_percent": "% des Gesamtwerts"
+    },
+    "wcag_criteria": {
+      "title": "WCAG-Kriterien",
+      "subtitle": "Nach Prinzip gefiltert",
+      "loading": "Laden…",
+      "error": "WCAG-Kriterien konnten nicht geladen werden.",
+      "empty": "Noch keine Probleme für {principle}-Kriterien erfasst.",
+      "tooltip_issues": "Probleme"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Projektname",
