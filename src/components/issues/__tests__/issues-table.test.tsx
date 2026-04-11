@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { vi } from 'vitest';
 import type { Issue } from '@/lib/db/issues';
 
@@ -7,6 +8,23 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { IssuesTable } from '@/components/issues/issues-table';
+
+const messages = {
+  issues: {
+    badge: {
+      severity: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      status: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const base = {
   description: null,
@@ -54,13 +72,13 @@ const issues: Issue[] = [
 ];
 
 test('renders all issue rows', () => {
-  render(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
+  renderWithIntl(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
   expect(screen.getByText('Missing alt text')).toBeInTheDocument();
   expect(screen.getByText('Low contrast')).toBeInTheDocument();
 });
 
 test('renders column headers: Title, Severity, Status, Created', () => {
-  render(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
+  renderWithIntl(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
   expect(screen.getByRole('columnheader', { name: /title/i })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: /severity/i })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: /status/i })).toBeInTheDocument();
@@ -68,7 +86,7 @@ test('renders column headers: Title, Severity, Status, Created', () => {
 });
 
 test('clicking Severity header sorts by severity ascending', () => {
-  render(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
+  renderWithIntl(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
   fireEvent.click(screen.getByRole('button', { name: /severity/i }));
   const rows = screen.getAllByRole('row').slice(1);
   expect(rows[0]).toHaveTextContent('Low contrast'); // critical < high
@@ -76,7 +94,7 @@ test('clicking Severity header sorts by severity ascending', () => {
 });
 
 test('clicking Title header sorts by title ascending', () => {
-  render(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
+  renderWithIntl(<IssuesTable issues={issues} projectId="p1" assessmentId="a1" />);
   fireEvent.click(screen.getByRole('button', { name: /title/i }));
   const rows = screen.getAllByRole('row').slice(1);
   expect(rows[0]).toHaveTextContent('Low contrast');
@@ -84,6 +102,6 @@ test('clicking Title header sorts by title ascending', () => {
 });
 
 test('shows empty message when no issues', () => {
-  render(<IssuesTable issues={[]} projectId="p1" assessmentId="a1" />);
+  renderWithIntl(<IssuesTable issues={[]} projectId="p1" assessmentId="a1" />);
   expect(screen.getByText('No issues yet.')).toBeInTheDocument();
 });

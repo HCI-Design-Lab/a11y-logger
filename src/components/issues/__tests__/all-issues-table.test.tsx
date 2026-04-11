@@ -1,7 +1,25 @@
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 
 import { AllIssuesTable } from '../all-issues-table';
 import type { IssueWithContext } from '@/lib/db/issues';
+
+const messages = {
+  issues: {
+    badge: {
+      severity: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      status: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const issue: IssueWithContext = {
   id: 'i1',
@@ -37,37 +55,37 @@ const issue: IssueWithContext = {
 };
 
 test('renders issue title as link', () => {
-  render(<AllIssuesTable issues={[issue]} />);
+  renderWithIntl(<AllIssuesTable issues={[issue]} />);
   const link = screen.getByRole('link', { name: 'Missing alt text' });
   expect(link).toBeInTheDocument();
   expect(link).toHaveAttribute('href', '/projects/p1/assessments/a1/issues/i1');
 });
 
 test('renders project name as link', () => {
-  render(<AllIssuesTable issues={[issue]} />);
+  renderWithIntl(<AllIssuesTable issues={[issue]} />);
   const link = screen.getByRole('link', { name: 'My Project' });
   expect(link).toBeInTheDocument();
   expect(link).toHaveAttribute('href', '/projects/p1');
 });
 
 test('renders assessment name as link', () => {
-  render(<AllIssuesTable issues={[issue]} />);
+  renderWithIntl(<AllIssuesTable issues={[issue]} />);
   const link = screen.getByRole('link', { name: 'Q1 Audit' });
   expect(link).toBeInTheDocument();
   expect(link).toHaveAttribute('href', '/projects/p1/assessments/a1');
 });
 
 test('renders severity badge', () => {
-  render(<AllIssuesTable issues={[issue]} />);
+  renderWithIntl(<AllIssuesTable issues={[issue]} />);
   expect(screen.getByText('High')).toBeInTheDocument();
 });
 
 test('renders status label', () => {
-  render(<AllIssuesTable issues={[issue]} />);
+  renderWithIntl(<AllIssuesTable issues={[issue]} />);
   expect(screen.getByText('Open')).toBeInTheDocument();
 });
 
 test('renders empty message when no issues', () => {
-  render(<AllIssuesTable issues={[]} />);
+  renderWithIntl(<AllIssuesTable issues={[]} />);
   expect(screen.getByText('No issues yet.')).toBeInTheDocument();
 });
