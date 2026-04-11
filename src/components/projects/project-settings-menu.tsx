@@ -5,6 +5,7 @@ import { Settings, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -29,8 +30,14 @@ interface ProjectSettingsMenuProps {
   projectName: string;
 }
 
-export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsMenuProps) {
+export function ProjectSettingsMenu({
+  projectId,
+  projectName: _projectName,
+}: ProjectSettingsMenuProps) {
   const router = useRouter();
+  const tMenu = useTranslations('projects.settings_menu');
+  const tDialog = useTranslations('projects.delete_dialog');
+  const tToast = useTranslations('projects.toast');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -40,14 +47,14 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
       const res = await fetch(`/api/projects/${projectId}`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? 'Failed to delete project');
+        toast.error(json.error ?? tToast('delete_failed'));
         return;
       }
-      toast.success('Project deleted');
+      toast.success(tToast('deleted'));
       router.push('/projects');
       router.refresh();
     } catch {
-      toast.error('Failed to delete project');
+      toast.error(tToast('delete_failed'));
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
@@ -58,7 +65,7 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="Project settings" className="bg-card">
+          <Button variant="ghost" size="icon" aria-label={tMenu('aria_label')}>
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -72,13 +79,13 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
           <DropdownMenuItem asChild>
             <Link href={`/projects/${projectId}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit Project
+              {tMenu('edit')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)} className="">
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete Project
+            {tMenu('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -86,20 +93,13 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {projectName}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the project and all its assessments, issues, reports, and
-              VPATs. This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{tDialog('title')}</AlertDialogTitle>
+            <AlertDialogDescription>{tDialog('description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              <X />
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel>{tDialog('cancel_button')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-              <Trash2 />
-              {isDeleting ? 'Deleting…' : 'Delete Project'}
+              {tDialog('confirm_button')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

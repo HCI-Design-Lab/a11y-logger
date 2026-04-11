@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 
 const mockProject = {
   id: 'proj-1',
@@ -76,16 +77,45 @@ vi.mock('@/components/assessments/project-assessments-card', () => ({
 
 import ProjectDetailPage from '../page';
 
+const messages = {
+  projects: {
+    settings_menu: {
+      aria_label: 'Project settings',
+      edit: 'Edit Project',
+      delete: 'Delete Project',
+    },
+    delete_dialog: {
+      title: 'Delete Project?',
+      description:
+        'This will permanently delete this project and all its assessments and issues. This cannot be undone.',
+      confirm_button: 'Delete Project',
+      cancel_button: 'Cancel',
+    },
+    toast: {
+      deleted: 'Project deleted',
+      delete_failed: 'Failed to delete project',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 test('renders assessments in a table when assessments exist', async () => {
   const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByRole('table')).toBeInTheDocument();
   expect(screen.getByText('My Assessment')).toBeInTheDocument();
 });
 
 test('assessment table has expected column headers', async () => {
   const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: /status/i })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: /issues/i })).toBeInTheDocument();
@@ -93,12 +123,12 @@ test('assessment table has expected column headers', async () => {
 
 test('does not show hardcoded placeholder when assessments exist', async () => {
   const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
-  render(page);
+  renderWithIntl(page);
   expect(screen.queryByText('Assessments will appear here once created.')).not.toBeInTheDocument();
 });
 
 test('renders IssueStatistics component in the sidebar', async () => {
   const page = await ProjectDetailPage({ params: Promise.resolve({ projectId: 'proj-1' }) });
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByTestId('issue-statistics')).toBeInTheDocument();
 });
