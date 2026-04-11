@@ -263,9 +263,15 @@
       "quick_wins_title": "Schnelle Erfolge",
       "quick_wins_add": "Schnelle Erfolge hinzufügen",
       "user_impact_title": "Auswirkung auf Nutzer",
-      "user_impact_add": "Auswirkung auf Nutzer hinzufügen"
+      "user_impact_add": "Auswirkung auf Nutzer hinzufügen",
+      "generate_button": "Generieren",
+      "generating_label": "Generieren…",
+      "generating_overlay": "Generierung mit KI...",
+      "delete_button": "Löschen"
     },
-    "panel": { "assessment_issues_heading": "Bewertungsprobleme" },
+    "panel": {
+      "assessment_issues_heading": "Bewertungsprobleme"
+    },
     "form": {
       "save_button": "Bericht speichern",
       "save_button_loading": "Speichern…",
@@ -295,7 +301,11 @@
       "empty_description": "Erstellen Sie Ihren ersten Bericht, um zu beginnen.",
       "new_button": "Neuer Bericht"
     },
-    "status": { "draft": "Entwurf", "published": "Veröffentlicht" },
+    "status": {
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "updated_at": "Aktualisiert {date}"
+    },
     "toast": {
       "created": "Bericht erstellt",
       "updated": "Bericht aktualisiert",
@@ -304,7 +314,9 @@
       "unpublished": "Bericht zurückgezogen",
       "create_failed": "Bericht konnte nicht erstellt werden",
       "update_failed": "Bericht konnte nicht aktualisiert werden",
-      "delete_failed": "Bericht konnte nicht gelöscht werden"
+      "delete_failed": "Bericht konnte nicht gelöscht werden",
+      "publish_failed": "Bericht konnte nicht veröffentlicht werden",
+      "unpublish_failed": "Bericht konnte nicht zurückgezogen werden"
     }
   },
   "projects": {

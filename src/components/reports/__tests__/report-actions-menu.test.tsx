@@ -51,6 +51,8 @@ const messages = {
       create_failed: 'Failed to create report',
       update_failed: 'Failed to update report',
       delete_failed: 'Failed to delete report',
+      publish_failed: 'Failed to publish report',
+      unpublish_failed: 'Failed to unpublish report',
     },
   },
 };

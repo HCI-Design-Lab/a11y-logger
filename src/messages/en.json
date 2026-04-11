@@ -263,7 +263,11 @@
       "quick_wins_title": "Quick Wins",
       "quick_wins_add": "Add Quick Wins",
       "user_impact_title": "User Impact",
-      "user_impact_add": "Add User Impact"
+      "user_impact_add": "Add User Impact",
+      "generate_button": "Generate",
+      "generating_label": "Generating…",
+      "generating_overlay": "Generating with AI...",
+      "delete_button": "Delete"
     },
     "panel": {
       "assessment_issues_heading": "Assessment Issues"
@@ -299,7 +303,8 @@
     },
     "status": {
       "draft": "Draft",
-      "published": "Published"
+      "published": "Published",
+      "updated_at": "Updated {date}"
     },
     "toast": {
       "created": "Report created",
@@ -309,7 +314,9 @@
       "unpublished": "Report unpublished",
       "create_failed": "Failed to create report",
       "update_failed": "Failed to update report",
-      "delete_failed": "Failed to delete report"
+      "delete_failed": "Failed to delete report",
+      "publish_failed": "Failed to publish report",
+      "unpublish_failed": "Failed to unpublish report"
     }
   },
   "projects": {

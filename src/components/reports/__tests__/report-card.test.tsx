@@ -7,6 +7,7 @@ const messages = {
     status: {
       draft: 'Draft',
       published: 'Published',
+      updated_at: 'Updated {date}',
     },
   },
 };

@@ -14,6 +14,10 @@ const messages = {
       quick_wins_add: 'Add Quick Wins',
       user_impact_title: 'User Impact',
       user_impact_add: 'Add User Impact',
+      generate_button: 'Generate',
+      generating_label: 'Generating…',
+      generating_overlay: 'Generating with AI...',
+      delete_button: 'Delete',
     },
   },
 };

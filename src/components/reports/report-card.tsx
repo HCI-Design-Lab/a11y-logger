@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Report } from '@/lib/db/reports';
@@ -11,10 +11,11 @@ interface ReportCardProps {
 
 export function ReportCard({ report }: ReportCardProps) {
   const t = useTranslations('reports.status');
+  const locale = useLocale();
   const dateObj = new Date(report.updated_at);
   const updatedDate = isNaN(dateObj.getTime())
     ? 'Unknown'
-    : dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    : dateObj.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
     <Link href={`/reports/${report.id}`}>
@@ -30,7 +31,7 @@ export function ReportCard({ report }: ReportCardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Updated {updatedDate}</p>
+          <p className="text-sm text-muted-foreground">{t('updated_at', { date: updatedDate })}</p>
         </CardContent>
       </Card>
     </Link>

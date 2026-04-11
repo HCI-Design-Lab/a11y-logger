@@ -36,13 +36,13 @@ export function PublishReportButton({ reportId, isPublished }: PublishReportButt
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'POST' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? tToast('update_failed'));
+        toast.error(json.error ?? tToast('publish_failed'));
         return;
       }
       toast.success(tToast('published'));
       router.refresh();
     } catch {
-      toast.error(tToast('update_failed'));
+      toast.error(tToast('publish_failed'));
     } finally {
       setIsLoading(false);
       setOpen(false);
@@ -55,13 +55,13 @@ export function PublishReportButton({ reportId, isPublished }: PublishReportButt
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? tToast('update_failed'));
+        toast.error(json.error ?? tToast('unpublish_failed'));
         return;
       }
       toast.success(tToast('unpublished'));
       router.refresh();
     } catch {
-      toast.error(tToast('update_failed'));
+      toast.error(tToast('unpublish_failed'));
     } finally {
       setIsLoading(false);
     }

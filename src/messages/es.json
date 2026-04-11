@@ -263,9 +263,15 @@
       "quick_wins_title": "Victorias rápidas",
       "quick_wins_add": "Añadir victorias rápidas",
       "user_impact_title": "Impacto en el usuario",
-      "user_impact_add": "Añadir impacto en el usuario"
+      "user_impact_add": "Añadir impacto en el usuario",
+      "generate_button": "Generar",
+      "generating_label": "Generando…",
+      "generating_overlay": "Generando con IA...",
+      "delete_button": "Eliminar"
     },
-    "panel": { "assessment_issues_heading": "Problemas de evaluación" },
+    "panel": {
+      "assessment_issues_heading": "Problemas de evaluación"
+    },
     "form": {
       "save_button": "Guardar informe",
       "save_button_loading": "Guardando…",
@@ -295,7 +301,11 @@
       "empty_description": "Crea tu primer informe para comenzar.",
       "new_button": "Nuevo informe"
     },
-    "status": { "draft": "Borrador", "published": "Publicado" },
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "updated_at": "Actualizado {date}"
+    },
     "toast": {
       "created": "Informe creado",
       "updated": "Informe actualizado",
@@ -304,7 +314,9 @@
       "unpublished": "Informe despublicado",
       "create_failed": "Error al crear el informe",
       "update_failed": "Error al actualizar el informe",
-      "delete_failed": "Error al eliminar el informe"
+      "delete_failed": "Error al eliminar el informe",
+      "publish_failed": "Error al publicar el informe",
+      "unpublish_failed": "Error al despublicar el informe"
     }
   },
   "projects": {
