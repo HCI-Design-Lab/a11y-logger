@@ -1,4 +1,40 @@
 import { render, screen } from '@testing-library/react';
+
+import { NextIntlClientProvider } from 'next-intl';
+
+const messages = {
+  issues: {
+    badge: {
+      severity: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      status: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+    },
+    delete_dialog: {
+      title: 'Delete {name}?',
+      description:
+        'This will permanently delete this issue and all its attachments. This cannot be undone.',
+      confirm_button: 'Delete Issue',
+      cancel_button: 'Cancel',
+    },
+    toast: {
+      created: 'Issue created',
+      updated: 'Issue updated',
+      deleted: 'Issue deleted',
+      imported: 'Issues imported',
+      create_failed: 'Failed to create issue',
+      update_failed: 'Failed to update issue',
+      delete_failed: 'Failed to delete issue',
+      import_failed: 'Failed to import issues',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 import { vi } from 'vitest';
 
 vi.mock('@/lib/db/projects', () => ({
@@ -66,13 +102,13 @@ const defaultProps = {
 
 test('renders issue title', async () => {
   const page = await IssueDetailPage(defaultProps);
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByRole('heading', { name: 'Missing alt text' })).toBeInTheDocument();
 });
 
 test('assessment name link appears below the issue title in the header', async () => {
   const page = await IssueDetailPage(defaultProps);
-  render(page);
+  renderWithIntl(page);
   // There should be an assessment link directly in the header area (not just breadcrumbs)
   // Find the header section by looking for the space-y-2 wrapper around title+subtitle
   const heading = screen.getByRole('heading', { name: 'Missing alt text' });
@@ -84,7 +120,7 @@ test('assessment name link appears below the issue title in the header', async (
 
 test('URL is shown inside the details card with a URL section heading', async () => {
   const page = await IssueDetailPage(defaultProps);
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByText('URL')).toBeInTheDocument();
   const urlLink = screen.getByRole('link', { name: 'https://example.com/page' });
   expect(urlLink).toBeInTheDocument();
@@ -93,7 +129,7 @@ test('URL is shown inside the details card with a URL section heading', async ()
 
 test('URL link does not appear in the header area', async () => {
   const page = await IssueDetailPage(defaultProps);
-  render(page);
+  renderWithIntl(page);
   const heading = screen.getByRole('heading', { name: 'Missing alt text' });
   const headerWrapper = heading.closest('[class*="space-y"]');
   expect(headerWrapper).not.toHaveTextContent('https://example.com/page');
@@ -101,6 +137,6 @@ test('URL link does not appear in the header area', async () => {
 
 test('renders IssueSettingsMenu in the hero card header', async () => {
   const page = await IssueDetailPage(defaultProps);
-  render(page);
+  renderWithIntl(page);
   expect(screen.getByRole('button', { name: /issue settings/i })).toBeInTheDocument();
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { Upload, X, ArrowRight, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export function ImportIssuesModal({
   open: controlledOpen,
   onOpenChange: onControlledOpenChange,
 }: ImportIssuesModalProps) {
+  const t = useTranslations('issues.import');
   const isControlled = controlledOpen !== undefined;
   const [internalOpen, setInternalOpen] = useState(false);
   const open = isControlled ? controlledOpen! : internalOpen;
@@ -127,7 +129,7 @@ export function ImportIssuesModal({
       {!isControlled && (
         <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
           <Upload className="mr-2 h-4 w-4" />
-          Import
+          {t('button_label')}
         </Button>
       )}
 
@@ -139,7 +141,7 @@ export function ImportIssuesModal({
       >
         <DialogContent className="sm:max-w-4xl" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>{step === 'upload' ? 'Upload CSV' : 'Map Columns'}</DialogTitle>
+            <DialogTitle>{step === 'upload' ? t('modal_title') : 'Map Columns'}</DialogTitle>
           </DialogHeader>
 
           {step === 'upload' && (
@@ -241,7 +243,7 @@ export function ImportIssuesModal({
           <DialogFooter>
             <Button variant="cancel" onClick={handleClose}>
               <X className="h-4 w-4" />
-              Cancel
+              {t('cancel_button')}
             </Button>
             {step === 'upload' && (
               <Button onClick={() => setStep('mapping')} disabled={csvRows.length === 0}>

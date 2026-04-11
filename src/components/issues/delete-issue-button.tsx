@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,8 @@ export function DeleteIssueButton({
   issueTitle,
 }: DeleteIssueButtonProps) {
   const router = useRouter();
+  const tDialog = useTranslations('issues.delete_dialog');
+  const tToast = useTranslations('issues.toast');
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -41,10 +44,10 @@ export function DeleteIssueButton({
       );
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
-      toast.success('Issue deleted');
+      toast.success(tToast('deleted'));
       router.push(`/projects/${projectId}/assessments/${assessmentId}`);
     } catch {
-      toast.error('Failed to delete issue');
+      toast.error(tToast('delete_failed'));
       setLoading(false);
     }
   };
@@ -59,23 +62,20 @@ export function DeleteIssueButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {issueTitle}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete the issue and all associated data. This action cannot be
-            undone.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{tDialog('title', { name: issueTitle })}</AlertDialogTitle>
+          <AlertDialogDescription>{tDialog('description')}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
             <X className="h-4 w-4" />
-            Cancel
+            {tDialog('cancel_button')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             <Trash2 className="h-4 w-4" />
-            Delete Issue
+            {tDialog('confirm_button')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

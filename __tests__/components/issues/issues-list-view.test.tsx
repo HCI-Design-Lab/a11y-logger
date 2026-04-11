@@ -1,4 +1,40 @@
 import { render, screen } from '@testing-library/react';
+
+import { NextIntlClientProvider } from 'next-intl';
+
+const messages = {
+  issues: {
+    badge: {
+      severity: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      status: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+    },
+    delete_dialog: {
+      title: 'Delete {name}?',
+      description:
+        'This will permanently delete this issue and all its attachments. This cannot be undone.',
+      confirm_button: 'Delete Issue',
+      cancel_button: 'Cancel',
+    },
+    toast: {
+      created: 'Issue created',
+      updated: 'Issue updated',
+      deleted: 'Issue deleted',
+      imported: 'Issues imported',
+      create_failed: 'Failed to create issue',
+      update_failed: 'Failed to update issue',
+      delete_failed: 'Failed to delete issue',
+      import_failed: 'Failed to import issues',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
@@ -47,12 +83,12 @@ const mockIssues: IssueWithContext[] = [
 
 describe('IssuesListView', () => {
   it('defaults to table view', () => {
-    render(<IssuesListView issues={mockIssues} />);
+    renderWithIntl(<IssuesListView issues={mockIssues} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('switches to grid view', async () => {
-    render(<IssuesListView issues={mockIssues} />);
+    renderWithIntl(<IssuesListView issues={mockIssues} />);
     await userEvent.click(screen.getByRole('button', { name: /grid view/i }));
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.getByText('Missing alt text')).toBeInTheDocument();

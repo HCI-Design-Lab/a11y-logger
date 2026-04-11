@@ -1,7 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { NextIntlClientProvider } from 'next-intl';
 import { ImportIssuesModal } from '../import-issues-modal';
+
+const messages = {
+  issues: {
+    import: {
+      button_label: 'Import Issues',
+      modal_title: 'Import Issues',
+      csv_tab: 'CSV',
+      openacr_tab: 'OpenACR',
+      upload_button: 'Upload File',
+      import_button: 'Import',
+      cancel_button: 'Cancel',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 // Mock papaparse
 vi.mock('papaparse', () => ({
@@ -36,18 +59,18 @@ describe('ImportIssuesModal', () => {
   });
 
   it('renders a trigger button', () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     expect(screen.getByRole('button', { name: /import/i })).toBeInTheDocument();
   });
 
   it('opens the modal when trigger is clicked', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
-    expect(screen.getByText(/upload csv/i)).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
   it('shows column mapping after file upload', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
 
     const file = new File(['title,description\nIssue 1,Desc 1'], 'issues.csv', {
@@ -68,7 +91,7 @@ describe('ImportIssuesModal', () => {
   });
 
   it('calls onImportComplete after successful import', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
 
     const file = new File(['title,description\nIssue 1,Desc 1'], 'issues.csv', {
@@ -85,7 +108,7 @@ describe('ImportIssuesModal', () => {
   });
 
   it('does not render trigger button when open prop is provided (controlled mode)', () => {
-    render(
+    renderWithIntl(
       <ImportIssuesModal
         projectId="p1"
         assessmentId="a1"
@@ -98,7 +121,7 @@ describe('ImportIssuesModal', () => {
   });
 
   it('dialog is open when controlled open=true', () => {
-    render(
+    renderWithIntl(
       <ImportIssuesModal
         projectId="p1"
         assessmentId="a1"
@@ -111,25 +134,27 @@ describe('ImportIssuesModal', () => {
   });
 
   it('renders trigger button in uncontrolled mode (no open prop)', () => {
-    render(<ImportIssuesModal projectId="p1" assessmentId="a1" onImportComplete={vi.fn()} />);
+    renderWithIntl(
+      <ImportIssuesModal projectId="p1" assessmentId="a1" onImportComplete={vi.fn()} />
+    );
     expect(screen.getByRole('button', { name: /import/i })).toBeInTheDocument();
   });
 
   it('does not show dialog close (X) button', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
     expect(screen.queryByRole('button', { name: /^close$/i })).not.toBeInTheDocument();
   });
 
   it('Cancel button in dialog has X icon', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
     const cancelBtn = screen.getByRole('button', { name: /cancel/i });
     expect(cancelBtn.querySelector('svg')).toBeInTheDocument();
   });
 
   it('Next button has an icon', async () => {
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
     const file = new File(['title\nIssue 1'], 'issues.csv', { type: 'text/csv' });
     await userEvent.upload(screen.getByLabelText(/csv file/i), file);
@@ -143,7 +168,7 @@ describe('ImportIssuesModal', () => {
       json: async () => ({ success: false, error: 'Import failed', code: 'INTERNAL_ERROR' }),
     } as Response);
 
-    render(<ImportIssuesModal {...defaultProps} />);
+    renderWithIntl(<ImportIssuesModal {...defaultProps} />);
     await userEvent.click(screen.getByRole('button', { name: /import/i }));
 
     const file = new File(['title\nIssue 1'], 'issues.csv', { type: 'text/csv' });

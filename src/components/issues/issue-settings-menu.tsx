@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Settings, Pencil, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +38,9 @@ export function IssueSettingsMenu({
   issueTitle,
 }: IssueSettingsMenuProps) {
   const router = useRouter();
+  const tMenu = useTranslations('issues.settings_menu');
+  const tDialog = useTranslations('issues.delete_dialog');
+  const tToast = useTranslations('issues.toast');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const baseUrl = `/projects/${projectId}/assessments/${assessmentId}/issues/${issueId}`;
@@ -50,10 +54,10 @@ export function IssueSettingsMenu({
       );
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
-      toast.success('Issue deleted');
+      toast.success(tToast('deleted'));
       router.push(`/projects/${projectId}/assessments/${assessmentId}`);
     } catch {
-      toast.error('Failed to delete issue');
+      toast.error(tToast('delete_failed'));
       setLoading(false);
     }
   }
@@ -62,7 +66,7 @@ export function IssueSettingsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="Issue settings" className="bg-card">
+          <Button variant="ghost" size="icon" aria-label={tMenu('aria_label')}>
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -70,12 +74,12 @@ export function IssueSettingsMenu({
           <DropdownMenuItem asChild>
             <Link href={`${baseUrl}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit Issue
+              {tMenu('edit')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete Issue
+            {tMenu('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -83,20 +87,17 @@ export function IssueSettingsMenu({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {issueTitle}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the issue and all associated data. This action cannot be
-              undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{tDialog('title', { name: issueTitle })}</AlertDialogTitle>
+            <AlertDialogDescription>{tDialog('description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
               <X className="h-4 w-4" />
-              Cancel
+              {tDialog('cancel_button')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={loading}>
               <Trash2 className="h-4 w-4" />
-              Delete Issue
+              {tDialog('confirm_button')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
