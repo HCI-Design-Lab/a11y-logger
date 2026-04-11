@@ -391,7 +391,9 @@ export default function NewVpatPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="import-project">Project *</Label>
+              <Label htmlFor="import-project">
+                Project <span className="text-destructive">*</span>
+              </Label>
               <select
                 id="import-project"
                 value={projectId}
@@ -436,7 +438,9 @@ export default function NewVpatPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
+                <Label htmlFor="title">
+                  Title <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="title"
                   value={title}
@@ -446,7 +450,9 @@ export default function NewVpatPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="project">Project *</Label>
+                <Label htmlFor="project">
+                  Project <span className="text-destructive">*</span>
+                </Label>
                 <select
                   id="project"
                   value={projectId}

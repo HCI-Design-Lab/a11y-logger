@@ -234,7 +234,9 @@ export function IssueForm({
 
             {/* Title */}
             <div className="space-y-1.5">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">
+                Title <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="title"
                 {...register('title')}

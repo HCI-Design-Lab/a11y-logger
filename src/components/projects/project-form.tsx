@@ -46,7 +46,9 @@ export function ProjectForm({
   return (
     <form id={externalButtons} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="name">Project Name *</Label>
+        <Label htmlFor="name">
+          Project Name <span className="text-destructive">*</span>
+        </Label>
         <Input id="name" {...register('name')} placeholder="e.g. Mobile App Redesign" />
         {errors.name && (
           <p role="alert" className="text-sm text-destructive">
