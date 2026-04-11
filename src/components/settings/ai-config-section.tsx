@@ -310,8 +310,8 @@ export function AIConfigSection({
                 disabled={!!envSource?.baseUrl}
                 placeholder={
                   selectedProvider === 'ollama'
-                    ? 'http://localhost:11434/v1'
-                    : 'https://api.example.com/v1'
+                    ? t('ollama_base_url_placeholder')
+                    : t('base_url_placeholder')
                 }
               />
             </div>

@@ -16,6 +16,9 @@ const messages = {
       enable_label: 'Enable authentication',
       enable_description: 'Require a password to access this instance',
       save_button: 'Save Auth Settings',
+      updating_label: 'Updating…',
+      enable_button: 'Enable Auth',
+      disable_button: 'Disable Auth',
     },
     toast: {
       auth_saved: 'Auth settings saved',

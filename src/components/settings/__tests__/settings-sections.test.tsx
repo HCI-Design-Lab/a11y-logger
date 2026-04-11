@@ -27,7 +27,8 @@ const messages = {
       api_key_placeholder: 'sk-...',
       model_label: 'Model',
       base_url_label: 'Base URL',
-      base_url_placeholder: 'https://api.openai.com/v1',
+      base_url_placeholder: 'https://api.example.com/v1',
+      ollama_base_url_placeholder: 'http://localhost:11434/v1',
       save_button: 'Save AI Settings',
       save_button_loading: 'Saving…',
     },
@@ -36,6 +37,9 @@ const messages = {
       enable_label: 'Enable authentication',
       enable_description: 'Require a password to access this instance',
       save_button: 'Save Auth Settings',
+      updating_label: 'Updating…',
+      enable_button: 'Enable Auth',
+      disable_button: 'Disable Auth',
     },
     users: {
       heading: 'User Management',
@@ -64,6 +68,8 @@ const messages = {
       auth_save_failed: 'Failed to save auth settings',
       language_saved: 'Language updated',
       language_save_failed: 'Failed to update language',
+      data_reset_success: 'Data reset successfully',
+      data_reset_failed: 'Failed to reset data',
     },
   },
 };
@@ -101,6 +107,11 @@ describe('AuthToggleSection — i18n integration', () => {
 });
 
 describe('UserManagementSection — i18n integration', () => {
+  it('renders the User Management card title from translations', () => {
+    renderWithIntl(<UserManagementSection users={[]} />);
+    expect(screen.getByText('User Management')).toBeInTheDocument();
+  });
+
   it('renders the Create Account heading from translations when no users exist', () => {
     renderWithIntl(<UserManagementSection users={[]} />);
     expect(screen.getByRole('heading', { name: 'Create Account' })).toBeInTheDocument();

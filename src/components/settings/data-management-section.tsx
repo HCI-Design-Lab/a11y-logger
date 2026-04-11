@@ -25,6 +25,7 @@ interface DataManagementSectionProps {
 
 export function DataManagementSection({ dbPath, mediaPath }: DataManagementSectionProps) {
   const t = useTranslations('settings.data');
+  const tToast = useTranslations('settings.toast');
   const [resetConfirm, setResetConfirm] = useState('');
   const [resetting, setResetting] = useState(false);
 
@@ -35,10 +36,10 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       setResetConfirm('');
-      toast.success('Database reset successfully');
+      toast.success(tToast('data_reset_success'));
       window.location.reload();
     } catch {
-      toast.error('Failed to reset database');
+      toast.error(tToast('data_reset_failed'));
     } finally {
       setResetting(false);
     }

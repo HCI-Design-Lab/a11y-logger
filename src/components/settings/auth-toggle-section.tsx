@@ -52,17 +52,8 @@ export function AuthToggleSection({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium">
-              Authentication is currently{' '}
-              <span className={enabled ? 'text-green-600' : 'text-muted-foreground'}>
-                {enabled ? 'enabled' : 'disabled'}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {enabled
-                ? 'Users must provide credentials to access the app.'
-                : 'App is open access — no login required.'}
-            </p>
+            <p className="text-sm font-medium">{t('enable_label')}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('enable_description')}</p>
           </div>
           <div className="flex flex-col items-end gap-1">
             <Button
@@ -71,7 +62,7 @@ export function AuthToggleSection({
               disabled={loading || !hasUsers}
               aria-pressed={enabled}
             >
-              {loading ? 'Updating…' : enabled ? 'Disable Auth' : 'Enable Auth'}
+              {loading ? t('updating_label') : enabled ? t('disable_button') : t('enable_button')}
             </Button>
             {!hasUsers && <p className="text-xs text-muted-foreground">Create an account first.</p>}
           </div>

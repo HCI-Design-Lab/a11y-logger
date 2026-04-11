@@ -96,7 +96,8 @@
       "api_key_placeholder": "sk-...",
       "model_label": "Modelo",
       "base_url_label": "URL base",
-      "base_url_placeholder": "https://api.openai.com/v1",
+      "base_url_placeholder": "https://api.example.com/v1",
+      "ollama_base_url_placeholder": "http://localhost:11434/v1",
       "save_button": "Guardar configuración de IA",
       "save_button_loading": "Guardando…"
     },
@@ -104,7 +105,10 @@
       "heading": "Autenticación",
       "enable_label": "Habilitar autenticación",
       "enable_description": "Requerir contraseña para acceder a esta instancia",
-      "save_button": "Guardar configuración de autenticación"
+      "save_button": "Guardar configuración de autenticación",
+      "updating_label": "Actualizando…",
+      "enable_button": "Habilitar autenticación",
+      "disable_button": "Deshabilitar autenticación"
     },
     "users": {
       "heading": "Gestión de usuarios",
@@ -131,7 +135,9 @@
       "auth_saved": "Configuración de autenticación guardada",
       "auth_save_failed": "Error al guardar la configuración de autenticación",
       "language_saved": "Idioma actualizado",
-      "language_save_failed": "Error al actualizar el idioma"
+      "language_save_failed": "Error al actualizar el idioma",
+      "data_reset_success": "Datos restablecidos",
+      "data_reset_failed": "Error al restablecer los datos"
     }
   },
   "assessments": {

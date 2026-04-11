@@ -183,6 +183,7 @@ function ChangePasswordForm({ user, onDone }: { user: User; onDone: () => void }
 }
 
 export function UserManagementSection({ users: initialUsers }: UserManagementSectionProps) {
+  const t = useTranslations('settings.users');
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -191,7 +192,7 @@ export function UserManagementSection({ users: initialUsers }: UserManagementSec
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User Account</CardTitle>
+        <CardTitle>{t('heading')}</CardTitle>
         <CardDescription>
           {currentUser
             ? 'Manage your local account credentials.'
