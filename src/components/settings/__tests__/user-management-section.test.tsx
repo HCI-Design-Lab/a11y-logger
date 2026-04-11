@@ -1,12 +1,34 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { NextIntlClientProvider } from 'next-intl';
 import { UserManagementSection } from '../user-management-section';
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 const user = userEvent.setup();
+
+const messages = {
+  settings: {
+    users: {
+      heading: 'User Management',
+      create_account_heading: 'Create Account',
+      username_label: 'Username',
+      password_label: 'Password',
+      new_password_label: 'New Password',
+      create_button: 'Create Account',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const mockUser = {
   id: 'user-1',
@@ -23,7 +45,7 @@ describe('UserManagementSection', () => {
 
   describe('no users (setup state)', () => {
     it('shows create account form', () => {
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       expect(screen.getByRole('heading', { name: /create account/i })).toBeInTheDocument();
       expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
@@ -32,7 +54,7 @@ describe('UserManagementSection', () => {
     });
 
     it('shows validation error when passwords do not match', async () => {
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       await user.type(screen.getByLabelText(/username/i), 'admin');
       await user.type(screen.getByLabelText(/^password$/i), 'password123');
       await user.type(screen.getByLabelText(/confirm password/i), 'different');
@@ -42,7 +64,7 @@ describe('UserManagementSection', () => {
     });
 
     it('shows validation error when password is too short', async () => {
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       await user.type(screen.getByLabelText(/username/i), 'admin');
       await user.type(screen.getByLabelText(/^password$/i), 'short');
       await user.type(screen.getByLabelText(/confirm password/i), 'short');
@@ -56,7 +78,7 @@ describe('UserManagementSection', () => {
         ok: true,
         json: async () => ({ success: true, data: mockUser }),
       });
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       await user.type(screen.getByLabelText(/username/i), 'lawrence');
       await user.type(screen.getByLabelText(/^password$/i), 'password123');
       await user.type(screen.getByLabelText(/confirm password/i), 'password123');
@@ -75,7 +97,7 @@ describe('UserManagementSection', () => {
         ok: true,
         json: async () => ({ success: true, data: mockUser }),
       });
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       await user.type(screen.getByLabelText(/username/i), 'lawrence');
       await user.type(screen.getByLabelText(/^password$/i), 'password123');
       await user.type(screen.getByLabelText(/confirm password/i), 'password123');
@@ -91,7 +113,7 @@ describe('UserManagementSection', () => {
         ok: false,
         json: async () => ({ success: false, error: 'Username already exists', code: 'CONFLICT' }),
       });
-      render(<UserManagementSection users={[]} />);
+      renderWithIntl(<UserManagementSection users={[]} />);
       await user.type(screen.getByLabelText(/username/i), 'admin');
       await user.type(screen.getByLabelText(/^password$/i), 'password123');
       await user.type(screen.getByLabelText(/confirm password/i), 'password123');
@@ -104,18 +126,18 @@ describe('UserManagementSection', () => {
 
   describe('has existing user', () => {
     it('shows username and role', () => {
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       expect(screen.getByText('admin')).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: /create account/i })).not.toBeInTheDocument();
     });
 
     it('shows change password button', () => {
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       expect(screen.getByRole('button', { name: /change password/i })).toBeInTheDocument();
     });
 
     it('shows change password form when button is clicked', async () => {
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       await user.click(screen.getByRole('button', { name: /change password/i }));
       expect(screen.getByLabelText(/new password/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
@@ -126,7 +148,7 @@ describe('UserManagementSection', () => {
         ok: true,
         json: async () => ({ success: true, data: mockUser }),
       });
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       await user.click(screen.getByRole('button', { name: /change password/i }));
       await user.type(screen.getByLabelText(/new password/i), 'newpassword123');
       await user.type(screen.getByLabelText(/confirm password/i), 'newpassword123');
@@ -145,7 +167,7 @@ describe('UserManagementSection', () => {
         ok: true,
         json: async () => ({ success: true, data: mockUser }),
       });
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       await user.click(screen.getByRole('button', { name: /change password/i }));
       await user.type(screen.getByLabelText(/new password/i), 'newpassword123');
       await user.type(screen.getByLabelText(/confirm password/i), 'newpassword123');
@@ -156,7 +178,7 @@ describe('UserManagementSection', () => {
     });
 
     it('shows validation error when new passwords do not match', async () => {
-      render(<UserManagementSection users={[mockUser]} />);
+      renderWithIntl(<UserManagementSection users={[mockUser]} />);
       await user.click(screen.getByRole('button', { name: /change password/i }));
       await user.type(screen.getByLabelText(/new password/i), 'newpassword123');
       await user.type(screen.getByLabelText(/confirm password/i), 'different');

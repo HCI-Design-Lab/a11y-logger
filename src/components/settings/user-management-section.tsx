@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ interface UserManagementSectionProps {
 }
 
 function CreateAccountForm({ onCreated }: { onCreated: (user: User) => void }) {
+  const t = useTranslations('settings.users');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -61,9 +63,9 @@ function CreateAccountForm({ onCreated }: { onCreated: (user: User) => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="font-medium">Create Account</h2>
+      <h2 className="font-medium">{t('create_account_heading')}</h2>
       <div className="space-y-1.5">
-        <Label htmlFor="new-username">Username</Label>
+        <Label htmlFor="new-username">{t('username_label')}</Label>
         <Input
           id="new-username"
           value={username}
@@ -73,7 +75,7 @@ function CreateAccountForm({ onCreated }: { onCreated: (user: User) => void }) {
         />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="new-password">Password</Label>
+        <Label htmlFor="new-password">{t('password_label')}</Label>
         <Input
           id="new-password"
           type="password"
@@ -96,13 +98,14 @@ function CreateAccountForm({ onCreated }: { onCreated: (user: User) => void }) {
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button type="submit" disabled={saving}>
-        {saving ? 'Creating…' : 'Create Account'}
+        {saving ? 'Creating…' : t('create_button')}
       </Button>
     </form>
   );
 }
 
 function ChangePasswordForm({ user, onDone }: { user: User; onDone: () => void }) {
+  const t = useTranslations('settings.users');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -145,7 +148,7 @@ function ChangePasswordForm({ user, onDone }: { user: User; onDone: () => void }
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-2">
       <div className="space-y-1.5">
-        <Label htmlFor="change-password">New Password</Label>
+        <Label htmlFor="change-password">{t('new_password_label')}</Label>
         <Input
           id="change-password"
           type="password"
