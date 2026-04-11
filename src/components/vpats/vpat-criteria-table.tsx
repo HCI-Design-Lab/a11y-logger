@@ -118,7 +118,7 @@ const CriterionSection = memo(function CriterionSection({
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-primary">
                 <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
                 <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
                 <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
@@ -127,12 +127,11 @@ const CriterionSection = memo(function CriterionSection({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sectionRows.map((row, i) => (
+              {sectionRows.map((row) => (
                 <VpatCriteriaRow
                   key={row.id}
                   row={row}
                   locale={locale}
-                  isEven={i % 2 === 0}
                   readOnly={readOnly}
                   aiEnabled={aiEnabled}
                   isGenerating={generatingRowId === row.id}

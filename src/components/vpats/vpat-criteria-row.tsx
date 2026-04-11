@@ -28,7 +28,6 @@ type RemarksFormValues = Record<string, string>;
 export interface VpatCriteriaRowProps {
   row: VpatCriterionRow;
   locale?: string;
-  isEven: boolean;
   readOnly: boolean;
   aiEnabled: boolean;
   isGenerating: boolean;
@@ -44,7 +43,6 @@ export interface VpatCriteriaRowProps {
 export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   row,
   locale = 'en',
-  isEven,
   readOnly,
   aiEnabled,
   isGenerating,
@@ -139,7 +137,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
       <>
         <TableRow
           data-testid={`row-${row.id}`}
-          className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
+          className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'}`}
         >
           <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
           {criterionNameCell}
@@ -254,7 +252,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
     <>
       <TableRow
         data-testid={`row-${row.id}`}
-        className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'} ${isEven ? 'bg-muted' : ''}`}
+        className={`border-l-4 ${!readOnly && isUnresolved ? 'border-amber-400' : 'border-primary border-l-0'}`}
       >
         <TableCell className="font-mono text-sm align-top pt-3">{row.criterion_code}</TableCell>
         {criterionNameCell}
