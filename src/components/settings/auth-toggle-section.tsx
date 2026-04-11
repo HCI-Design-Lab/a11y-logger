@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ export function AuthToggleSection({
   authEnabled: initialEnabled,
   hasUsers,
 }: AuthToggleSectionProps) {
+  const t = useTranslations('settings.auth');
+  const tToast = useTranslations('settings.toast');
   const [enabled, setEnabled] = useState(initialEnabled);
   const [loading, setLoading] = useState(false);
 
@@ -27,16 +30,12 @@ export function AuthToggleSection({
       const data = await res.json();
       if (data.success) {
         setEnabled(data.data.enabled);
-        toast.success(
-          data.data.enabled
-            ? 'Authentication enabled. Users must log in.'
-            : 'Authentication disabled. App is open access.'
-        );
+        toast.success(tToast('auth_saved'));
       } else {
-        toast.error('Failed to update authentication setting');
+        toast.error(tToast('auth_save_failed'));
       }
     } catch {
-      toast.error('Failed to update authentication setting');
+      toast.error(tToast('auth_save_failed'));
     } finally {
       setLoading(false);
     }
@@ -45,7 +44,7 @@ export function AuthToggleSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Authentication</CardTitle>
+        <CardTitle>{t('heading')}</CardTitle>
         <CardDescription>
           When enabled, users must log in to access the app. Requires at least one user account.
         </CardDescription>

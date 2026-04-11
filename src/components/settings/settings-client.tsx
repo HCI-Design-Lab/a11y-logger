@@ -1,4 +1,5 @@
 'use client';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,6 +54,7 @@ export function SettingsClient({
   authEnabled,
   users,
 }: SettingsClientProps) {
+  const tToast = useTranslations('settings.toast');
   const handleSaveAI = async (data: {
     provider: string;
     apiKey: string;
@@ -118,9 +120,9 @@ export function SettingsClient({
       const failed = jsons.find((j: { success: boolean; error?: string }) => !j.success);
       if (failed) throw new Error((failed as { error?: string }).error);
 
-      toast.success('AI configuration saved');
+      toast.success(tToast('ai_saved'));
     } catch {
-      toast.error('Failed to save AI configuration');
+      toast.error(tToast('ai_save_failed'));
     }
   };
 

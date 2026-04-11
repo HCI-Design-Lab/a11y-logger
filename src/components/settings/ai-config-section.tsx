@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -160,6 +161,7 @@ export function AIConfigSection({
   envSource,
   onSave,
 }: AIConfigSectionProps) {
+  const t = useTranslations('settings.ai');
   const [selectedProvider, setSelectedProvider] = useState(envSource?.provider ?? provider);
   const [key, setKey] = useState(apiKey);
   const [selectedBaseUrl, setSelectedBaseUrl] = useState(envSource?.baseUrl ?? baseUrl);
@@ -207,7 +209,7 @@ export function AIConfigSection({
       {/* Provider Setup */}
       <Card>
         <CardHeader>
-          <CardTitle>Provider Setup</CardTitle>
+          <CardTitle>{t('heading')}</CardTitle>
           <CardDescription>
             Configure your AI provider to enable AI-assisted features. Supports cloud providers
             (OpenAI, Anthropic, Google Gemini) and local offline models via Ollama. Your API key is
@@ -230,7 +232,7 @@ export function AIConfigSection({
 
           <div className="space-y-1.5">
             <Label htmlFor="ai-provider">
-              AI Provider
+              {t('provider_label')}
               {providerFromEnv && <EnvBadge />}
             </Label>
             <Select
@@ -262,7 +264,7 @@ export function AIConfigSection({
           {needsApiKey(selectedProvider) && (
             <div className="space-y-1.5">
               <Label htmlFor="api-key">
-                API Key{' '}
+                {t('api_key_label')}{' '}
                 {selectedProvider === 'openai-compatible' && (
                   <span className="text-muted-foreground">(optional)</span>
                 )}
@@ -277,7 +279,7 @@ export function AIConfigSection({
                     type={showKey ? 'text' : 'password'}
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
-                    placeholder="sk-..."
+                    placeholder={t('api_key_placeholder')}
                     className="flex-1"
                   />
                   <Button
@@ -297,7 +299,7 @@ export function AIConfigSection({
           {needsBaseUrl(selectedProvider) && (
             <div className="space-y-1.5">
               <Label htmlFor="base-url">
-                Base URL
+                {t('base_url_label')}
                 {envSource?.baseUrl && <EnvBadge />}
               </Label>
               <Input
@@ -329,7 +331,7 @@ export function AIConfigSection({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {AI_TASKS.filter((t) => t.key !== 'vpat_review').map((task) => (
+              {AI_TASKS.filter((task) => task.key !== 'vpat_review').map((task) => (
                 <TaskModelSelector
                   key={task.key}
                   id={`ai-model-${task.key}`}
@@ -380,7 +382,7 @@ export function AIConfigSection({
         </Card>
       )}
 
-      <Button onClick={handleSave}>{loading ? 'Saving…' : 'Save Configuration'}</Button>
+      <Button onClick={handleSave}>{loading ? t('save_button_loading') : t('save_button')}</Button>
     </div>
   );
 }
