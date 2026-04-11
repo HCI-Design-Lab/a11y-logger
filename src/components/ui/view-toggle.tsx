@@ -12,7 +12,7 @@ export function ViewToggle({ view, onViewChange }: ViewToggleProps) {
     <div
       role="group"
       aria-label="View options"
-      className="relative inline-flex items-center rounded-full border bg-muted p-0.5"
+      className="relative inline-flex items-center rounded-full border bg-card p-0.5"
     >
       {/* Sliding thumb */}
       <span

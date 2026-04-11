@@ -4,6 +4,13 @@ import { useState } from 'react';
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -144,22 +151,24 @@ export function SortableTable<T extends object>({
           <label htmlFor="page-size" className="select-none">
             Rows per page:
           </label>
-          <select
-            id="page-size"
-            aria-label="Rows per page"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => {
+              setPageSize(Number(v));
               setPage(1);
             }}
-            className="rounded border border-input bg-background px-2 py-1 text-sm"
           >
-            {PAGE_SIZE_OPTIONS.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="page-size" aria-label="Rows per page" className="w-auto text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex items-center gap-1">
