@@ -141,6 +141,110 @@
       "delete_failed": "Error al eliminar la evaluación"
     }
   },
+  "issues": {
+    "form": {
+      "title_label": "Título",
+      "title_placeholder": "ej. Imagen sin texto alternativo",
+      "description_label": "Descripción",
+      "description_placeholder": "Describe el problema de accesibilidad",
+      "severity_label": "Gravedad",
+      "severity_options": {
+        "critical": "Crítico",
+        "high": "Alto",
+        "medium": "Medio",
+        "low": "Bajo"
+      },
+      "user_impact_label": "Impacto en el usuario",
+      "user_impact_placeholder": "Describe cómo este problema afecta a los usuarios",
+      "url_label": "URL",
+      "url_placeholder": "https://ejemplo.com/pagina",
+      "selector_label": "Selector",
+      "selector_placeholder": "ej. #boton-buscar",
+      "code_snippet_label": "Fragmento de código",
+      "suggested_fix_label": "Corrección sugerida",
+      "environment_heading": "Entorno",
+      "device_type_label": "Tipo de dispositivo",
+      "device_type_options": {
+        "none": "Ninguno",
+        "desktop": "Escritorio",
+        "mobile": "Móvil",
+        "tablet": "Tableta"
+      },
+      "browser_label": "Navegador",
+      "browser_placeholder": "ej. Chrome 121",
+      "os_label": "Sistema operativo",
+      "os_placeholder": "ej. macOS 14",
+      "at_label": "Tecnología de asistencia",
+      "at_placeholder": "ej. VoiceOver, NVDA",
+      "assessment_label": "Evaluación",
+      "assessment_placeholder": "Seleccionar una evaluación…",
+      "tags_label": "Etiquetas",
+      "status_label": "Estado",
+      "status_options": {
+        "open": "Abierto",
+        "resolved": "Resuelto",
+        "wont_fix": "No se corregirá"
+      },
+      "save_button": "Guardar problema",
+      "save_button_loading": "Guardando…",
+      "cancel_button": "Cancelar"
+    },
+    "attachments": {
+      "heading": "Capturas de pantalla y vídeos",
+      "ai_status_message": "Generando problema con IA. Por favor, espera."
+    },
+    "settings_menu": {
+      "aria_label": "Configuración del problema",
+      "edit": "Editar problema",
+      "delete": "Eliminar problema",
+      "mark_in_progress": "Marcar en progreso",
+      "mark_complete": "Marcar como completado",
+      "mark_open": "Marcar como abierto"
+    },
+    "delete_dialog": {
+      "title": "¿Eliminar {name}?",
+      "description": "Esto eliminará permanentemente este problema y todos sus archivos adjuntos.",
+      "confirm_button": "Eliminar problema",
+      "cancel_button": "Cancelar"
+    },
+    "import": {
+      "button_label": "Importar problemas",
+      "modal_title": "Importar problemas",
+      "csv_tab": "CSV",
+      "openacr_tab": "OpenACR",
+      "upload_button": "Subir archivo",
+      "import_button": "Importar",
+      "cancel_button": "Cancelar"
+    },
+    "list": {
+      "empty_heading": "Sin problemas todavía",
+      "empty_description": "Añade tu primer problema para comenzar.",
+      "new_button": "Añadir problema"
+    },
+    "badge": {
+      "severity": {
+        "critical": "Crítico",
+        "high": "Alto",
+        "medium": "Medio",
+        "low": "Bajo"
+      },
+      "status": {
+        "open": "Abierto",
+        "resolved": "Resuelto",
+        "wont_fix": "No se corregirá"
+      }
+    },
+    "toast": {
+      "created": "Problema creado",
+      "updated": "Problema actualizado",
+      "deleted": "Problema eliminado",
+      "imported": "Problemas importados",
+      "create_failed": "Error al crear el problema",
+      "update_failed": "Error al actualizar el problema",
+      "delete_failed": "Error al eliminar el problema",
+      "import_failed": "Error al importar los problemas"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nombre del proyecto",

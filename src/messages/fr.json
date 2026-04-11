@@ -141,6 +141,110 @@
       "delete_failed": "Échec de la suppression de l'évaluation"
     }
   },
+  "issues": {
+    "form": {
+      "title_label": "Titre",
+      "title_placeholder": "ex. Image sans texte alternatif",
+      "description_label": "Description",
+      "description_placeholder": "Décrivez le problème d'accessibilité",
+      "severity_label": "Gravité",
+      "severity_options": {
+        "critical": "Critique",
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible"
+      },
+      "user_impact_label": "Impact utilisateur",
+      "user_impact_placeholder": "Décrivez comment ce problème affecte les utilisateurs",
+      "url_label": "URL",
+      "url_placeholder": "https://exemple.com/page",
+      "selector_label": "Sélecteur",
+      "selector_placeholder": "ex. #bouton-recherche",
+      "code_snippet_label": "Extrait de code",
+      "suggested_fix_label": "Correction suggérée",
+      "environment_heading": "Environnement",
+      "device_type_label": "Type d'appareil",
+      "device_type_options": {
+        "none": "Aucun",
+        "desktop": "Bureau",
+        "mobile": "Mobile",
+        "tablet": "Tablette"
+      },
+      "browser_label": "Navigateur",
+      "browser_placeholder": "ex. Chrome 121",
+      "os_label": "Système d'exploitation",
+      "os_placeholder": "ex. macOS 14",
+      "at_label": "Technologie d'assistance",
+      "at_placeholder": "ex. VoiceOver, NVDA",
+      "assessment_label": "Évaluation",
+      "assessment_placeholder": "Sélectionner une évaluation…",
+      "tags_label": "Étiquettes",
+      "status_label": "Statut",
+      "status_options": {
+        "open": "Ouvert",
+        "resolved": "Résolu",
+        "wont_fix": "Ne sera pas corrigé"
+      },
+      "save_button": "Enregistrer le problème",
+      "save_button_loading": "Enregistrement…",
+      "cancel_button": "Annuler"
+    },
+    "attachments": {
+      "heading": "Captures d'écran et vidéos",
+      "ai_status_message": "Génération du problème avec l'IA. Veuillez patienter."
+    },
+    "settings_menu": {
+      "aria_label": "Paramètres du problème",
+      "edit": "Modifier le problème",
+      "delete": "Supprimer le problème",
+      "mark_in_progress": "Marquer en cours",
+      "mark_complete": "Marquer comme terminé",
+      "mark_open": "Marquer comme ouvert"
+    },
+    "delete_dialog": {
+      "title": "Supprimer {name} ?",
+      "description": "Cela supprimera définitivement ce problème et toutes ses pièces jointes.",
+      "confirm_button": "Supprimer le problème",
+      "cancel_button": "Annuler"
+    },
+    "import": {
+      "button_label": "Importer des problèmes",
+      "modal_title": "Importer des problèmes",
+      "csv_tab": "CSV",
+      "openacr_tab": "OpenACR",
+      "upload_button": "Téléverser un fichier",
+      "import_button": "Importer",
+      "cancel_button": "Annuler"
+    },
+    "list": {
+      "empty_heading": "Aucun problème pour l'instant",
+      "empty_description": "Ajoutez votre premier problème pour commencer.",
+      "new_button": "Ajouter un problème"
+    },
+    "badge": {
+      "severity": {
+        "critical": "Critique",
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible"
+      },
+      "status": {
+        "open": "Ouvert",
+        "resolved": "Résolu",
+        "wont_fix": "Ne sera pas corrigé"
+      }
+    },
+    "toast": {
+      "created": "Problème créé",
+      "updated": "Problème mis à jour",
+      "deleted": "Problème supprimé",
+      "imported": "Problèmes importés",
+      "create_failed": "Échec de la création du problème",
+      "update_failed": "Échec de la mise à jour du problème",
+      "delete_failed": "Échec de la suppression du problème",
+      "import_failed": "Échec de l'importation des problèmes"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nom du projet",
