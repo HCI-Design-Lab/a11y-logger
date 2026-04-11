@@ -20,6 +20,7 @@ const messages = {
   projects: {
     settings_menu: {
       aria_label: 'Project settings',
+      add_assessment: 'Add Assessment',
       edit: 'Edit Project',
       delete: 'Delete Project',
     },

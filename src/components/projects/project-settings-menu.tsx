@@ -73,7 +73,7 @@ export function ProjectSettingsMenu({
           <DropdownMenuItem asChild>
             <Link href={`/projects/${projectId}/assessments/new`}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Assessment
+              {tMenu('add_assessment')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

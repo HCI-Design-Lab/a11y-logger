@@ -101,6 +101,7 @@
     },
     "settings_menu": {
       "aria_label": "Configuración del proyecto",
+      "add_assessment": "Añadir evaluación",
       "edit": "Editar proyecto",
       "delete": "Eliminar proyecto"
     },
