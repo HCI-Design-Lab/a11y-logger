@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Papa from 'papaparse';
-import { Upload, X, ArrowRight } from 'lucide-react';
+import { Upload, X, ArrowRight, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -53,6 +53,7 @@ export function ImportIssuesModal({
   const [mapping, setMapping] = useState<Partial<Record<ImportableFieldKey, string>>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function reset() {
@@ -62,6 +63,7 @@ export function ImportIssuesModal({
     setPreviewRows([]);
     setMapping({});
     setError(null);
+    setFileName(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
@@ -73,6 +75,7 @@ export function ImportIssuesModal({
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setFileName(file.name);
 
     Papa.parse<Record<string, string>>(file, {
       header: true,
@@ -142,22 +145,33 @@ export function ImportIssuesModal({
           {step === 'upload' && (
             <div className="space-y-4">
               <div>
-                <label htmlFor="csv-file-input" className="block text-sm font-medium mb-1">
+                <label htmlFor="csv-file-input" className="block text-sm font-medium mb-1 sr-only">
                   CSV File
                 </label>
+                <div className="flex items-center gap-3">
+                  <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <FolderOpen />
+                    Browse
+                  </Button>
+                  <span className="text-sm text-muted-foreground truncate">
+                    {fileName ?? 'No file selected'}
+                  </span>
+                </div>
                 <input
                   id="csv-file-input"
                   ref={fileInputRef}
                   type="file"
                   accept=".csv"
                   onChange={handleFileChange}
-                  className="block w-full text-sm"
+                  className="sr-only"
                 />
               </div>
 
               {previewRows.length > 0 && (
                 <div className="text-sm text-muted-foreground">
-                  <p className="font-medium mb-1">Preview ({csvRows.length} rows)</p>
+                  <p className="font-medium mb-1">
+                    Showing {previewRows.length} of {csvRows.length} rows
+                  </p>
                   <div className="overflow-auto rounded border text-xs">
                     <table className="w-full">
                       <thead>
