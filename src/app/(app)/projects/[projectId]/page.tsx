@@ -32,7 +32,7 @@ export default async function ProjectDetailPage({
       <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name }]} />
       <div
         className={
-          'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm'
+          'bg-card text-card-foreground flex flex-col gap-6 rounded-[4px] border py-6 px-6'
         }
       >
         <div className="flex items-start justify-between">

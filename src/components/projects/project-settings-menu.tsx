@@ -58,7 +58,7 @@ export function ProjectSettingsMenu({ projectId, projectName }: ProjectSettingsM
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Project settings">
+          <Button variant="outline" size="icon" aria-label="Project settings" className="bg-card">
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

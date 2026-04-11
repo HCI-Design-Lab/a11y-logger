@@ -53,7 +53,7 @@ export default async function AssessmentDetailPage({
       />
 
       {/* Hero card */}
-      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-[4px] border py-6 px-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{assessment.name}</h1>

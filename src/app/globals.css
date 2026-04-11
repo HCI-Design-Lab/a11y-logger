@@ -171,6 +171,15 @@ button:focus-visible {
   outline-color: white;
 }
 
+/* Suppress outline for Radix UI interactive items — hover/focus is
+   communicated via background change and text underline instead. */
+[role='menuitem']:focus-visible,
+[role='menuitem'] *:focus-visible,
+[role='option']:focus-visible,
+[role='option'] *:focus-visible {
+  outline: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
