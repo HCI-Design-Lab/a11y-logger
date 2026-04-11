@@ -50,7 +50,7 @@ vi.mock('recharts', () => ({
   YAxis: () => null,
   CartesianGrid: () => null,
   // Invoke the custom content components so ActivityTooltip / ActivityLegend branches are exercised
-  Tooltip: ({ content }: { content: React.ReactElement }) =>
+  Tooltip: ({ content }: { content: React.ReactElement<Record<string, unknown>> }) =>
     content
       ? React.cloneElement(content, {
           active: true,
@@ -58,7 +58,7 @@ vi.mock('recharts', () => ({
           label: '2026-01-01',
         })
       : null,
-  Legend: ({ content }: { content: React.ReactElement }) =>
+  Legend: ({ content }: { content: React.ReactElement<Record<string, unknown>> }) =>
     content
       ? React.cloneElement(content, {
           payload: [{ value: 'Projects', color: 'red' }],

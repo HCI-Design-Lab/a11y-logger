@@ -40,7 +40,7 @@ vi.mock('recharts', () => ({
     content,
     data,
   }: {
-    content: React.ReactElement;
+    content: React.ReactElement<Record<string, unknown>>;
     data: { name: string; size: number }[];
   }) => {
     const cells = (data ?? []).map((entry: { name: string; size: number }, i: number) =>

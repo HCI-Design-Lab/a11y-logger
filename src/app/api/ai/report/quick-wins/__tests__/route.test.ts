@@ -151,7 +151,7 @@ describe('POST /api/ai/report/quick-wins', () => {
     const json = await res.json();
     expect(json.success).toBe(true);
     // WCAG codes should appear in the prompt context
-    const callArg = generateReportSection.mock.calls[0][0] as string;
+    const callArg = generateReportSection.mock.calls[0]![0] as string;
     expect(callArg).toContain('WCAG: 1.1.1');
     expect(callArg).toContain('Low contrast');
   });
