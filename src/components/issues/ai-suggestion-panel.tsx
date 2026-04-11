@@ -40,7 +40,7 @@ export function AiSuggestionPanel({
           <strong>Expected Behavior (Optional):</strong> What is the expected behavior?
         </li>
       </ol>
-      <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
+      <div className="flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
         <span>
           AI assistance will only fill in fields you&rsquo;ve left empty; it will not overwrite

@@ -1,17 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {
-  Settings,
-  Plus,
-  Upload,
-  Pencil,
-  CirclePlay,
-  CircleCheck,
-  Ban,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { Settings, Plus, Upload, Pencil, CirclePlay, CircleCheck, Ban, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';

@@ -43,4 +43,23 @@ describe('ReportsListView layout', () => {
     // should not be inside a Card (which uses rounded-lg border)
     expect(dashed.closest('[data-slot="card"]')).toBeNull();
   });
+
+  it('renders "Published" badge in table view for a published report', () => {
+    const report = {
+      id: 'r1',
+      assessment_ids: [],
+      title: 'Q1 Report',
+      type: 'executive' as const,
+      content: '{}',
+      template_id: null,
+      ai_generated: 0,
+      created_by: null,
+      published_at: null,
+      status: 'published' as const,
+      created_at: '2026-01-01T00:00:00',
+      updated_at: '2026-01-15T00:00:00',
+    };
+    render(<ReportsListView reports={[report]} />);
+    expect(screen.getByText('Published')).toBeInTheDocument();
+  });
 });

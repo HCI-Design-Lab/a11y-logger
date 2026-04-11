@@ -64,3 +64,8 @@ test('renders "Unknown" for invalid updated_at date', () => {
   renderWithIntl(<ReportCard report={{ ...mockReport, updated_at: 'not-a-date' }} />);
   expect(screen.getByText('Updated Unknown')).toBeInTheDocument();
 });
+
+test('renders "Published" badge when status is published', () => {
+  renderWithIntl(<ReportCard report={{ ...mockReport, status: 'published' }} />);
+  expect(screen.getByText('Published')).toBeInTheDocument();
+});

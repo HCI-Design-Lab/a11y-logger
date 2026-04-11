@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import type { AssessmentWithCounts } from '@/lib/db/assessments';
+import { AssessmentStatusBadge } from '../assessment-status-badge';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -77,4 +78,10 @@ test('clicking Status header sorts rows by status', () => {
   // 'completed' < 'ready' alphabetically
   expect(rows[0]).toHaveTextContent('Alpha Assessment');
   expect(rows[1]).toHaveTextContent('Zebra Assessment');
+});
+
+test('AssessmentStatusBadge falls back to raw status label for unknown status', () => {
+  // Cast to bypass TypeScript's union type check — exercises the ?? fallback branch
+  render(<AssessmentStatusBadge status={'unknown_status' as 'ready'} />);
+  expect(screen.getByText('unknown_status')).toBeInTheDocument();
 });

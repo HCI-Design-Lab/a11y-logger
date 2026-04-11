@@ -48,13 +48,13 @@ test.describe('CSV Import', () => {
       await page.getByRole('button', { name: /assessment settings/i }).click();
       await page.getByRole('menuitem', { name: /import issues/i }).click();
 
-      // Step 1: Upload file — dialog should show "Upload CSV"
-      await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
+      // Step 1: Upload file — dialog should show "Import Issues"
+      await expect(page.getByRole('heading', { name: /import issues/i })).toBeVisible();
       const dialog = page.getByRole('dialog');
       await page.getByLabel(/csv file/i).setInputFiles(csvPath);
 
       // Preview table should appear after parsing
-      await expect(page.getByText(/showing \d+ of \d+ rows/i)).toBeVisible();
+      await expect(page.getByText(/preview \(\d+ rows\)/i)).toBeVisible();
 
       // Advance to column mapping step
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
@@ -85,11 +85,11 @@ test.describe('CSV Import', () => {
 
       await page.getByRole('button', { name: /assessment settings/i }).click();
       await page.getByRole('menuitem', { name: /import issues/i }).click();
-      await expect(page.getByRole('heading', { name: /upload csv/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /import issues/i })).toBeVisible();
 
       const dialog = page.getByRole('dialog');
       await page.getByLabel(/csv file/i).setInputFiles(csvPath);
-      await expect(page.getByText(/showing \d+ of \d+ rows/i)).toBeVisible();
+      await expect(page.getByText(/preview \(\d+ rows\)/i)).toBeVisible();
 
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(page.getByRole('heading', { name: /map columns/i })).toBeVisible();

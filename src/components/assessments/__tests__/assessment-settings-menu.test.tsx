@@ -170,6 +170,42 @@ test('shows error toast and does not redirect when API returns failure', async (
   });
 });
 
+test('shows error toast when status update API returns failure', async () => {
+  const { toast } = await import('sonner');
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    json: async () => ({ success: false }),
+  });
+  renderWithIntl(<AssessmentSettingsMenu {...baseProps} currentStatus="in_progress" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /mark as complete/i }));
+  await waitFor(() => {
+    expect(toast.error).toHaveBeenCalled();
+  });
+});
+
+test('shows error toast when status update fetch throws', async () => {
+  const { toast } = await import('sonner');
+  (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+  renderWithIntl(<AssessmentSettingsMenu {...baseProps} currentStatus="in_progress" />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /mark as complete/i }));
+  await waitFor(() => {
+    expect(toast.error).toHaveBeenCalled();
+  });
+});
+
+test('shows error toast when delete fetch throws', async () => {
+  const { toast } = await import('sonner');
+  (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+  renderWithIntl(<AssessmentSettingsMenu {...baseProps} />);
+  await userEvent.click(screen.getByRole('button', { name: /assessment settings/i }));
+  await userEvent.click(await screen.findByRole('menuitem', { name: /delete assessment/i }));
+  await userEvent.click(screen.getByRole('button', { name: /delete assessment/i }));
+  await waitFor(() => {
+    expect(toast.error).toHaveBeenCalled();
+  });
+});
+
 describe('i18n integration — real NextIntlClientProvider', () => {
   it('renders aria-label from translation catalog', () => {
     renderWithIntl(<AssessmentSettingsMenu {...baseProps} />);

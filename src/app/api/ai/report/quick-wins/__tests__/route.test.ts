@@ -10,19 +10,23 @@ import { initDb, closeDb, getDb } from '@/lib/db/index';
 import { createProject } from '@/lib/db/projects';
 import { createAssessment } from '@/lib/db/assessments';
 import { createReport } from '@/lib/db/reports';
+import { createIssue } from '@/lib/db/issues';
 import { getAIProvider } from '@/lib/ai';
 
 let reportId: string;
+let assessmentId: string;
 
 beforeAll(() => initDb(':memory:'));
 afterAll(() => closeDb());
 beforeEach(async () => {
   getDb().prepare('DELETE FROM report_assessments').run();
+  getDb().prepare('DELETE FROM issues').run();
   getDb().prepare('DELETE FROM reports').run();
   getDb().prepare('DELETE FROM assessments').run();
   getDb().prepare('DELETE FROM projects').run();
   const project = await createProject({ name: 'P' });
   const assessment = await createAssessment(project.id, { name: 'A' });
+  assessmentId = assessment.id;
   const report = await createReport({ title: 'R', assessment_ids: [assessment.id] });
   reportId = report.id;
 });
@@ -121,5 +125,34 @@ describe('POST /api/ai/report/quick-wins', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(500);
+  });
+
+  it('includes issues with and without WCAG codes in AI prompt context', async () => {
+    // Issue with WCAG codes — exercises the wcag_codes branch in _shared.ts
+    await createIssue(assessmentId, {
+      title: 'Missing alt text',
+      severity: 'critical',
+      wcag_codes: ['1.1.1'],
+    });
+    // Issue without WCAG codes — exercises the empty wcag_codes branch
+    await createIssue(assessmentId, {
+      title: 'Low contrast',
+      severity: 'high',
+      wcag_codes: [],
+    });
+    const generateReportSection = vi.fn().mockResolvedValue('Fix A');
+    vi.mocked(getAIProvider).mockReturnValue({ generateReportSection } as never);
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId }),
+    });
+    const res = await POST(req);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    // WCAG codes should appear in the prompt context
+    const callArg = generateReportSection.mock.calls[0][0] as string;
+    expect(callArg).toContain('WCAG: 1.1.1');
+    expect(callArg).toContain('Low contrast');
   });
 });

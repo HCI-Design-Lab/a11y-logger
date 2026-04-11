@@ -90,7 +90,7 @@ export function VpatAiPanel({ row, onClose }: VpatAiPanelProps) {
               {row.ai_confidence}
             </Badge>
             {row.ai_confidence === 'low' && (
-              <span className="text-xs text-amber-600">
+              <span className="text-xs text-amber-700">
                 Limited evidence — consider additional testing.
               </span>
             )}

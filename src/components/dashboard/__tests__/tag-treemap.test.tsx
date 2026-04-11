@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { TagTreemap } from '@/components/dashboard/tag-treemap';
 
@@ -31,10 +32,31 @@ function renderWithIntl(ui: React.ReactElement) {
   );
 }
 
-// Mock Recharts — it uses browser APIs not available in jsdom
+// Mock Recharts — it uses browser APIs not available in jsdom.
+// The Treemap mock calls the `content` prop so CustomContent branches get exercised.
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  Treemap: () => <div data-testid="treemap-chart" />,
+  Treemap: ({
+    content,
+    data,
+  }: {
+    content: React.ReactElement;
+    data: { name: string; size: number }[];
+  }) => {
+    const cells = (data ?? []).map((entry: { name: string; size: number }, i: number) =>
+      React.cloneElement(content, {
+        key: i,
+        x: 10,
+        y: 10,
+        width: 100,
+        height: 60,
+        name: entry.name,
+        size: entry.size,
+        index: i,
+      })
+    );
+    return <div data-testid="treemap-chart">{cells}</div>;
+  },
   Tooltip: () => null,
 }));
 

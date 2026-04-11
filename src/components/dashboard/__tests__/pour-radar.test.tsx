@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { PourRadar } from '@/components/dashboard/pour-radar';
 
@@ -107,5 +107,38 @@ describe('PourRadar', () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('statuses=open,resolved'));
     });
+  });
+
+  it('renders table view with principle rows and percentages when switched', async () => {
+    mockFetch({ success: true, data: nonZeroData });
+    renderWithIntl(<PourRadar statuses={['open']} />);
+    await waitFor(() => expect(screen.getByTestId('radar-chart')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Table view' }));
+
+    expect(screen.getByText('Perceivable')).toBeInTheDocument();
+    expect(screen.getByText('Operable')).toBeInTheDocument();
+    expect(screen.getByText('Understandable')).toBeInTheDocument();
+    expect(screen.getByText('Robust')).toBeInTheDocument();
+    // total = 5+3+2+1 = 11, Perceivable = 5 → 45%
+    expect(screen.getByText('45%')).toBeInTheDocument();
+    expect(screen.getByText('Total')).toBeInTheDocument();
+  });
+
+  it('re-fetches data when statuses prop changes', async () => {
+    mockFetch({ success: true, data: nonZeroData });
+    const { rerender } = renderWithIntl(<PourRadar statuses={['open']} />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+
+    mockFetch({
+      success: true,
+      data: { perceivable: 1, operable: 0, understandable: 0, robust: 0 },
+    });
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <PourRadar statuses={['open', 'resolved']} />
+      </NextIntlClientProvider>
+    );
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
   });
 });
