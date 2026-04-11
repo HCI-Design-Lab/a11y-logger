@@ -212,24 +212,26 @@ export default function VpatDetailPage() {
         const sectionKeys = EDITION_SECTION_KEYS[vpat.standard_edition] ?? ['A', 'AA', 'AAA'];
         return (
           <Tabs defaultValue="cover-sheet">
-            <TabsList variant="line" className="mb-4 flex-wrap h-auto">
-              <TabsTrigger value="cover-sheet">
-                <FileText className="h-4 w-4" />
-                Cover Sheet
-              </TabsTrigger>
-              {sectionKeys.map((key) => (
-                <TabsTrigger key={key} value={key}>
-                  {SECTION_TAB_LABELS[key] ?? key}
+            <div className="overflow-x-auto overflow-y-hidden mb-4">
+              <TabsList variant="segmented" className="flex-nowrap w-max">
+                <TabsTrigger value="cover-sheet">
+                  <FileText className="h-4 w-4" />
+                  Cover Sheet
                 </TabsTrigger>
-              ))}
-              <TabsTrigger value="history">
-                <History className="h-4 w-4" />
-                Version History
-                {snapshots.length > 0 && (
-                  <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
-                )}
-              </TabsTrigger>
-            </TabsList>
+                {sectionKeys.map((key) => (
+                  <TabsTrigger key={key} value={key}>
+                    {SECTION_TAB_LABELS[key] ?? key}
+                  </TabsTrigger>
+                ))}
+                <TabsTrigger value="history">
+                  <History className="h-4 w-4" />
+                  Version History
+                  {snapshots.length > 0 && (
+                    <span className="ml-1 text-xs opacity-70">({snapshots.length})</span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+            </div>
             <TabsContent value="cover-sheet">
               <VpatCoverSheetView vpatId={vpatId} />
             </TabsContent>

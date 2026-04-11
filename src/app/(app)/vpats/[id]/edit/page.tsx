@@ -369,17 +369,19 @@ export default function VpatEditPage() {
               </div>
             )}
             <Tabs defaultValue="cover-sheet">
-              <TabsList variant="line" className="mb-4 flex-wrap h-auto">
-                <TabsTrigger value="cover-sheet">
-                  <FileText className="h-4 w-4" />
-                  Cover Sheet
-                </TabsTrigger>
-                {sectionKeys.map((key) => (
-                  <TabsTrigger key={key} value={key}>
-                    {SECTION_TAB_LABELS[key] ?? key}
+              <div className="overflow-x-auto overflow-y-hidden mb-4">
+                <TabsList variant="segmented" className="flex-nowrap w-max">
+                  <TabsTrigger value="cover-sheet">
+                    <FileText className="h-4 w-4" />
+                    Cover Sheet
                   </TabsTrigger>
-                ))}
-              </TabsList>
+                  {sectionKeys.map((key) => (
+                    <TabsTrigger key={key} value={key}>
+                      {SECTION_TAB_LABELS[key] ?? key}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
               <TabsContent value="cover-sheet">
                 <VpatCoverSheetForm ref={coverSheetRef} vpatId={vpatId} readOnly={isPublished} />
               </TabsContent>
