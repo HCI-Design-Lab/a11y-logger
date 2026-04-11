@@ -85,6 +85,53 @@
       "fr": "French",
       "es": "Spanish",
       "de": "German"
+    },
+    "ai": {
+      "heading": "KI-Konfiguration",
+      "provider_label": "KI-Anbieter",
+      "provider_none": "Keiner (KI-Funktionen deaktivieren)",
+      "provider_openai": "OpenAI",
+      "provider_anthropic": "Anthropic",
+      "api_key_label": "API-Schlüssel",
+      "api_key_placeholder": "sk-...",
+      "model_label": "Modell",
+      "base_url_label": "Basis-URL",
+      "base_url_placeholder": "https://api.openai.com/v1",
+      "save_button": "KI-Einstellungen speichern",
+      "save_button_loading": "Speichern…"
+    },
+    "auth": {
+      "heading": "Authentifizierung",
+      "enable_label": "Authentifizierung aktivieren",
+      "enable_description": "Passwort für den Zugriff auf diese Instanz erforderlich",
+      "save_button": "Auth-Einstellungen speichern"
+    },
+    "users": {
+      "heading": "Benutzerverwaltung",
+      "create_account_heading": "Konto erstellen",
+      "username_label": "Benutzername",
+      "password_label": "Passwort",
+      "new_password_label": "Neues Passwort",
+      "create_button": "Konto erstellen"
+    },
+    "data": {
+      "heading": "Datenverwaltung",
+      "danger_zone_heading": "Gefahrenzone",
+      "export_button": "Daten exportieren",
+      "import_button": "Daten importieren",
+      "clear_button": "Alle Daten löschen",
+      "clear_dialog_title": "Alle Daten löschen?",
+      "clear_dialog_description": "Dadurch werden alle Projekte, Bewertungen, Probleme, Berichte und VPATs dauerhaft gelöscht.",
+      "clear_dialog_confirm": "Alle Daten löschen",
+      "clear_dialog_cancel": "Abbrechen"
+    },
+    "toast": {
+      "ai_saved": "KI-Einstellungen gespeichert",
+      "ai_save_failed": "KI-Einstellungen konnten nicht gespeichert werden",
+      "auth_saved": "Auth-Einstellungen gespeichert",
+      "auth_save_failed": "Auth-Einstellungen konnten nicht gespeichert werden",
+      "language_saved": "Sprache aktualisiert",
+      "language_save_failed": "Sprache konnte nicht aktualisiert werden"
     }
   },
   "assessments": {

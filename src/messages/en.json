@@ -85,6 +85,53 @@
       "fr": "French",
       "es": "Spanish",
       "de": "German"
+    },
+    "ai": {
+      "heading": "AI Configuration",
+      "provider_label": "AI Provider",
+      "provider_none": "None (disable AI features)",
+      "provider_openai": "OpenAI",
+      "provider_anthropic": "Anthropic",
+      "api_key_label": "API Key",
+      "api_key_placeholder": "sk-...",
+      "model_label": "Model",
+      "base_url_label": "Base URL",
+      "base_url_placeholder": "https://api.openai.com/v1",
+      "save_button": "Save AI Settings",
+      "save_button_loading": "Saving…"
+    },
+    "auth": {
+      "heading": "Authentication",
+      "enable_label": "Enable authentication",
+      "enable_description": "Require a password to access this instance",
+      "save_button": "Save Auth Settings"
+    },
+    "users": {
+      "heading": "User Management",
+      "create_account_heading": "Create Account",
+      "username_label": "Username",
+      "password_label": "Password",
+      "new_password_label": "New Password",
+      "create_button": "Create Account"
+    },
+    "data": {
+      "heading": "Data Management",
+      "danger_zone_heading": "Danger Zone",
+      "export_button": "Export Data",
+      "import_button": "Import Data",
+      "clear_button": "Clear All Data",
+      "clear_dialog_title": "Clear All Data?",
+      "clear_dialog_description": "This will permanently delete all projects, assessments, issues, reports, and VPATs. This cannot be undone.",
+      "clear_dialog_confirm": "Clear All Data",
+      "clear_dialog_cancel": "Cancel"
+    },
+    "toast": {
+      "ai_saved": "AI settings saved",
+      "ai_save_failed": "Failed to save AI settings",
+      "auth_saved": "Auth settings saved",
+      "auth_save_failed": "Failed to save auth settings",
+      "language_saved": "Language updated",
+      "language_save_failed": "Failed to update language"
     }
   },
   "assessments": {

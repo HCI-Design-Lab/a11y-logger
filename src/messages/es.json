@@ -85,6 +85,53 @@
       "fr": "French",
       "es": "Spanish",
       "de": "German"
+    },
+    "ai": {
+      "heading": "Configuración de IA",
+      "provider_label": "Proveedor de IA",
+      "provider_none": "Ninguno (deshabilitar funciones de IA)",
+      "provider_openai": "OpenAI",
+      "provider_anthropic": "Anthropic",
+      "api_key_label": "Clave API",
+      "api_key_placeholder": "sk-...",
+      "model_label": "Modelo",
+      "base_url_label": "URL base",
+      "base_url_placeholder": "https://api.openai.com/v1",
+      "save_button": "Guardar configuración de IA",
+      "save_button_loading": "Guardando…"
+    },
+    "auth": {
+      "heading": "Autenticación",
+      "enable_label": "Habilitar autenticación",
+      "enable_description": "Requerir contraseña para acceder a esta instancia",
+      "save_button": "Guardar configuración de autenticación"
+    },
+    "users": {
+      "heading": "Gestión de usuarios",
+      "create_account_heading": "Crear cuenta",
+      "username_label": "Nombre de usuario",
+      "password_label": "Contraseña",
+      "new_password_label": "Nueva contraseña",
+      "create_button": "Crear cuenta"
+    },
+    "data": {
+      "heading": "Gestión de datos",
+      "danger_zone_heading": "Zona de peligro",
+      "export_button": "Exportar datos",
+      "import_button": "Importar datos",
+      "clear_button": "Borrar todos los datos",
+      "clear_dialog_title": "¿Borrar todos los datos?",
+      "clear_dialog_description": "Esto eliminará permanentemente todos los proyectos, evaluaciones, problemas, informes y VPATs.",
+      "clear_dialog_confirm": "Borrar todos los datos",
+      "clear_dialog_cancel": "Cancelar"
+    },
+    "toast": {
+      "ai_saved": "Configuración de IA guardada",
+      "ai_save_failed": "Error al guardar la configuración de IA",
+      "auth_saved": "Configuración de autenticación guardada",
+      "auth_save_failed": "Error al guardar la configuración de autenticación",
+      "language_saved": "Idioma actualizado",
+      "language_save_failed": "Error al actualizar el idioma"
     }
   },
   "assessments": {

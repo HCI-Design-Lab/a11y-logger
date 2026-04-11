@@ -85,6 +85,53 @@
       "fr": "French",
       "es": "Spanish",
       "de": "German"
+    },
+    "ai": {
+      "heading": "Configuration de l'IA",
+      "provider_label": "Fournisseur d'IA",
+      "provider_none": "Aucun (désactiver les fonctionnalités IA)",
+      "provider_openai": "OpenAI",
+      "provider_anthropic": "Anthropic",
+      "api_key_label": "Clé API",
+      "api_key_placeholder": "sk-...",
+      "model_label": "Modèle",
+      "base_url_label": "URL de base",
+      "base_url_placeholder": "https://api.openai.com/v1",
+      "save_button": "Enregistrer les paramètres IA",
+      "save_button_loading": "Enregistrement…"
+    },
+    "auth": {
+      "heading": "Authentification",
+      "enable_label": "Activer l'authentification",
+      "enable_description": "Exiger un mot de passe pour accéder à cette instance",
+      "save_button": "Enregistrer les paramètres d'authentification"
+    },
+    "users": {
+      "heading": "Gestion des utilisateurs",
+      "create_account_heading": "Créer un compte",
+      "username_label": "Nom d'utilisateur",
+      "password_label": "Mot de passe",
+      "new_password_label": "Nouveau mot de passe",
+      "create_button": "Créer un compte"
+    },
+    "data": {
+      "heading": "Gestion des données",
+      "danger_zone_heading": "Zone dangereuse",
+      "export_button": "Exporter les données",
+      "import_button": "Importer les données",
+      "clear_button": "Effacer toutes les données",
+      "clear_dialog_title": "Effacer toutes les données ?",
+      "clear_dialog_description": "Cela supprimera définitivement tous les projets, évaluations, problèmes, rapports et VPATs.",
+      "clear_dialog_confirm": "Effacer toutes les données",
+      "clear_dialog_cancel": "Annuler"
+    },
+    "toast": {
+      "ai_saved": "Paramètres IA enregistrés",
+      "ai_save_failed": "Échec de l'enregistrement des paramètres IA",
+      "auth_saved": "Paramètres d'authentification enregistrés",
+      "auth_save_failed": "Échec de l'enregistrement des paramètres d'authentification",
+      "language_saved": "Langue mise à jour",
+      "language_save_failed": "Échec de la mise à jour de la langue"
     }
   },
   "assessments": {
