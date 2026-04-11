@@ -254,6 +254,59 @@
       "import_failed": "Échec de l'importation des problèmes"
     }
   },
+  "reports": {
+    "sections": {
+      "executive_summary_title": "Résumé exécutif",
+      "executive_summary_add": "Ajouter un résumé exécutif",
+      "top_risks_title": "Principaux risques",
+      "top_risks_add": "Ajouter les principaux risques",
+      "quick_wins_title": "Gains rapides",
+      "quick_wins_add": "Ajouter des gains rapides",
+      "user_impact_title": "Impact utilisateur",
+      "user_impact_add": "Ajouter l'impact utilisateur"
+    },
+    "panel": { "assessment_issues_heading": "Problèmes d'évaluation" },
+    "form": {
+      "save_button": "Enregistrer le rapport",
+      "save_button_loading": "Enregistrement…",
+      "cancel_button": "Annuler"
+    },
+    "settings_menu": {
+      "aria_label": "Paramètres du rapport",
+      "edit": "Modifier le rapport",
+      "publish": "Publier le rapport",
+      "unpublish": "Dépublier le rapport",
+      "delete": "Supprimer le rapport"
+    },
+    "delete_dialog": {
+      "title": "Supprimer {name} ?",
+      "description": "Cela supprimera définitivement ce rapport.",
+      "confirm_button": "Supprimer le rapport",
+      "cancel_button": "Annuler"
+    },
+    "publish_dialog": {
+      "title": "Publier le rapport ?",
+      "description": "Cela rendra le rapport visible aux parties prenantes.",
+      "confirm_button": "Publier",
+      "cancel_button": "Annuler"
+    },
+    "list": {
+      "empty_heading": "Aucun rapport pour l'instant",
+      "empty_description": "Créez votre premier rapport pour commencer.",
+      "new_button": "Nouveau rapport"
+    },
+    "status": { "draft": "Brouillon", "published": "Publié" },
+    "toast": {
+      "created": "Rapport créé",
+      "updated": "Rapport mis à jour",
+      "deleted": "Rapport supprimé",
+      "published": "Rapport publié",
+      "unpublished": "Rapport dépublié",
+      "create_failed": "Échec de la création du rapport",
+      "update_failed": "Échec de la mise à jour du rapport",
+      "delete_failed": "Échec de la suppression du rapport"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nom du projet",

@@ -254,6 +254,64 @@
       "import_failed": "Failed to import issues"
     }
   },
+  "reports": {
+    "sections": {
+      "executive_summary_title": "Executive Summary",
+      "executive_summary_add": "Add Executive Summary",
+      "top_risks_title": "Top Risks",
+      "top_risks_add": "Add Top Risks",
+      "quick_wins_title": "Quick Wins",
+      "quick_wins_add": "Add Quick Wins",
+      "user_impact_title": "User Impact",
+      "user_impact_add": "Add User Impact"
+    },
+    "panel": {
+      "assessment_issues_heading": "Assessment Issues"
+    },
+    "form": {
+      "save_button": "Save Report",
+      "save_button_loading": "Saving…",
+      "cancel_button": "Cancel"
+    },
+    "settings_menu": {
+      "aria_label": "Report settings",
+      "edit": "Edit Report",
+      "publish": "Publish Report",
+      "unpublish": "Unpublish Report",
+      "delete": "Delete Report"
+    },
+    "delete_dialog": {
+      "title": "Delete {name}?",
+      "description": "This will permanently delete this report. This cannot be undone.",
+      "confirm_button": "Delete Report",
+      "cancel_button": "Cancel"
+    },
+    "publish_dialog": {
+      "title": "Publish Report?",
+      "description": "This will make the report visible to stakeholders.",
+      "confirm_button": "Publish",
+      "cancel_button": "Cancel"
+    },
+    "list": {
+      "empty_heading": "No reports yet",
+      "empty_description": "Create your first report to get started.",
+      "new_button": "New Report"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "toast": {
+      "created": "Report created",
+      "updated": "Report updated",
+      "deleted": "Report deleted",
+      "published": "Report published",
+      "unpublished": "Report unpublished",
+      "create_failed": "Failed to create report",
+      "update_failed": "Failed to update report",
+      "delete_failed": "Failed to delete report"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Project Name",

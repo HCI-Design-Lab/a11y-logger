@@ -254,6 +254,59 @@
       "import_failed": "Probleme konnten nicht importiert werden"
     }
   },
+  "reports": {
+    "sections": {
+      "executive_summary_title": "Zusammenfassung",
+      "executive_summary_add": "Zusammenfassung hinzufügen",
+      "top_risks_title": "Wichtigste Risiken",
+      "top_risks_add": "Wichtigste Risiken hinzufügen",
+      "quick_wins_title": "Schnelle Erfolge",
+      "quick_wins_add": "Schnelle Erfolge hinzufügen",
+      "user_impact_title": "Auswirkung auf Nutzer",
+      "user_impact_add": "Auswirkung auf Nutzer hinzufügen"
+    },
+    "panel": { "assessment_issues_heading": "Bewertungsprobleme" },
+    "form": {
+      "save_button": "Bericht speichern",
+      "save_button_loading": "Speichern…",
+      "cancel_button": "Abbrechen"
+    },
+    "settings_menu": {
+      "aria_label": "Berichtseinstellungen",
+      "edit": "Bericht bearbeiten",
+      "publish": "Bericht veröffentlichen",
+      "unpublish": "Bericht zurückziehen",
+      "delete": "Bericht löschen"
+    },
+    "delete_dialog": {
+      "title": "{name} löschen?",
+      "description": "Dadurch wird dieser Bericht dauerhaft gelöscht.",
+      "confirm_button": "Bericht löschen",
+      "cancel_button": "Abbrechen"
+    },
+    "publish_dialog": {
+      "title": "Bericht veröffentlichen?",
+      "description": "Dadurch wird der Bericht für Stakeholder sichtbar.",
+      "confirm_button": "Veröffentlichen",
+      "cancel_button": "Abbrechen"
+    },
+    "list": {
+      "empty_heading": "Noch keine Berichte",
+      "empty_description": "Erstellen Sie Ihren ersten Bericht, um zu beginnen.",
+      "new_button": "Neuer Bericht"
+    },
+    "status": { "draft": "Entwurf", "published": "Veröffentlicht" },
+    "toast": {
+      "created": "Bericht erstellt",
+      "updated": "Bericht aktualisiert",
+      "deleted": "Bericht gelöscht",
+      "published": "Bericht veröffentlicht",
+      "unpublished": "Bericht zurückgezogen",
+      "create_failed": "Bericht konnte nicht erstellt werden",
+      "update_failed": "Bericht konnte nicht aktualisiert werden",
+      "delete_failed": "Bericht konnte nicht gelöscht werden"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Projektname",

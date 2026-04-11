@@ -254,6 +254,59 @@
       "import_failed": "Error al importar los problemas"
     }
   },
+  "reports": {
+    "sections": {
+      "executive_summary_title": "Resumen ejecutivo",
+      "executive_summary_add": "Añadir resumen ejecutivo",
+      "top_risks_title": "Principales riesgos",
+      "top_risks_add": "Añadir principales riesgos",
+      "quick_wins_title": "Victorias rápidas",
+      "quick_wins_add": "Añadir victorias rápidas",
+      "user_impact_title": "Impacto en el usuario",
+      "user_impact_add": "Añadir impacto en el usuario"
+    },
+    "panel": { "assessment_issues_heading": "Problemas de evaluación" },
+    "form": {
+      "save_button": "Guardar informe",
+      "save_button_loading": "Guardando…",
+      "cancel_button": "Cancelar"
+    },
+    "settings_menu": {
+      "aria_label": "Configuración del informe",
+      "edit": "Editar informe",
+      "publish": "Publicar informe",
+      "unpublish": "Despublicar informe",
+      "delete": "Eliminar informe"
+    },
+    "delete_dialog": {
+      "title": "¿Eliminar {name}?",
+      "description": "Esto eliminará permanentemente este informe.",
+      "confirm_button": "Eliminar informe",
+      "cancel_button": "Cancelar"
+    },
+    "publish_dialog": {
+      "title": "¿Publicar informe?",
+      "description": "Esto hará el informe visible para las partes interesadas.",
+      "confirm_button": "Publicar",
+      "cancel_button": "Cancelar"
+    },
+    "list": {
+      "empty_heading": "Sin informes todavía",
+      "empty_description": "Crea tu primer informe para comenzar.",
+      "new_button": "Nuevo informe"
+    },
+    "status": { "draft": "Borrador", "published": "Publicado" },
+    "toast": {
+      "created": "Informe creado",
+      "updated": "Informe actualizado",
+      "deleted": "Informe eliminado",
+      "published": "Informe publicado",
+      "unpublished": "Informe despublicado",
+      "create_failed": "Error al crear el informe",
+      "update_failed": "Error al actualizar el informe",
+      "delete_failed": "Error al eliminar el informe"
+    }
+  },
   "projects": {
     "form": {
       "name_label": "Nombre del proyecto",
