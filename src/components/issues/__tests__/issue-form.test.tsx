@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 
 vi.mock('@/components/issues/wcag-selector', () => ({
   WcagSelector: ({ disabled }: { disabled?: boolean }) => (
@@ -30,6 +31,57 @@ vi.mock('@/components/issues/media-uploader', () => ({
 import { IssueForm } from '../issue-form';
 import type { AssessmentOption } from '../issue-form';
 
+const messages = {
+  issues: {
+    form: {
+      title_label: 'Title',
+      title_placeholder: 'e.g. Image missing alt text',
+      description_label: 'Description',
+      description_placeholder: 'Describe the accessibility issue',
+      severity_label: 'Severity',
+      severity_options: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      user_impact_label: 'User Impact',
+      user_impact_placeholder:
+        'Describe how this issue affects users, particularly those with disabilities',
+      url_label: 'URL',
+      url_placeholder: 'https://example.com/page',
+      selector_label: 'Selector',
+      selector_placeholder: 'e.g. #search-button',
+      code_snippet_label: 'Code Snippet',
+      suggested_fix_label: 'Suggested Fix',
+      environment_heading: 'Environment',
+      device_type_label: 'Device Type',
+      device_type_options: { none: 'None', desktop: 'Desktop', mobile: 'Mobile', tablet: 'Tablet' },
+      browser_label: 'Browser',
+      browser_placeholder: 'e.g. Chrome 121',
+      os_label: 'Operating System',
+      os_placeholder: 'e.g. macOS 14',
+      at_label: 'Assistive Technology',
+      at_placeholder: 'e.g. VoiceOver, NVDA',
+      assessment_label: 'Assessment',
+      assessment_placeholder: 'Select an assessment…',
+      tags_label: 'Tags',
+      status_label: 'Status',
+      status_options: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+      save_button: 'Save Issue',
+      save_button_loading: 'Saving…',
+      cancel_button: 'Cancel',
+    },
+    attachments: {
+      heading: 'Screenshots & Videos',
+      ai_status_message: 'Generating issue with AI. Please wait.',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 const assessmentOptions: AssessmentOption[] = [
   { id: 'a1', name: 'Q1 Audit', projectId: 'p1', projectName: 'My Project' },
   { id: 'a2', name: 'Q2 Audit', projectId: 'p2', projectName: 'Beta App' },
@@ -37,13 +89,13 @@ const assessmentOptions: AssessmentOption[] = [
 
 describe('IssueForm externalButtons prop', () => {
   it('renders internal Save and Cancel buttons when externalButtons is not set', () => {
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
     expect(screen.getByRole('button', { name: /save issue/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /cancel/i })).toBeInTheDocument();
   });
 
   it('hides internal buttons when externalButtons prop is provided', () => {
-    render(
+    renderWithIntl(
       <IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" externalButtons="my-form" />
     );
     expect(screen.queryByRole('button', { name: /save issue/i })).not.toBeInTheDocument();
@@ -51,7 +103,7 @@ describe('IssueForm externalButtons prop', () => {
   });
 
   it('sets the form id when externalButtons prop is provided', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <IssueForm projectId="p1" onSubmit={vi.fn()} externalButtons="my-form" />
     );
     const form = container.querySelector('form');
@@ -59,13 +111,13 @@ describe('IssueForm externalButtons prop', () => {
   });
 
   it('Save Issue button has an icon', () => {
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     const btn = screen.getByRole('button', { name: /save issue/i });
     expect(btn.querySelector('svg')).toBeInTheDocument();
   });
 
   it('Cancel button has an icon', () => {
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} cancelHref="/back" />);
     const btn = screen.getByRole('link', { name: /cancel/i });
     expect(btn.querySelector('svg')).toBeInTheDocument();
   });
@@ -74,7 +126,7 @@ describe('IssueForm externalButtons prop', () => {
 describe('IssueForm AI generation screen reader announcements', () => {
   it('announces generating status to screen readers when AI starts', () => {
     vi.stubGlobal('fetch', () => new Promise(() => {}));
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'test description' },
     });
@@ -90,7 +142,7 @@ describe('IssueForm AI generation screen reader announcements', () => {
         json: () => Promise.resolve({ success: true, data: { title: 'AI Title' } }),
       })
     );
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'test description' },
     });
@@ -104,7 +156,7 @@ describe('IssueForm AI generation screen reader announcements', () => {
 describe('IssueForm AI generation disables fields', () => {
   it('disables title input while AI is generating', async () => {
     vi.stubGlobal('fetch', () => new Promise(() => {})); // never resolves
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'test description' },
     });
@@ -115,7 +167,7 @@ describe('IssueForm AI generation disables fields', () => {
 
   it('disables AI description textarea while generating', async () => {
     vi.stubGlobal('fetch', () => new Promise(() => {}));
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     const aiTextarea = screen.getByLabelText(/ai assistance description/i);
     fireEvent.change(aiTextarea, { target: { value: 'test description' } });
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
@@ -125,7 +177,7 @@ describe('IssueForm AI generation disables fields', () => {
 
   it('passes disabled to custom selectors while generating', async () => {
     vi.stubGlobal('fetch', () => new Promise(() => {}));
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'test description' },
     });
@@ -141,17 +193,21 @@ describe('IssueForm AI generation disables fields', () => {
 
 describe('IssueForm assessment selector', () => {
   it('does not render an assessment selector when assessmentOptions is not provided', () => {
-    render(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
+    renderWithIntl(<IssueForm projectId="p1" onSubmit={vi.fn()} />);
     expect(screen.queryByRole('combobox', { name: /assessment/i })).not.toBeInTheDocument();
   });
 
   it('renders an assessment selector when assessmentOptions is provided', () => {
-    render(<IssueForm projectId="" onSubmit={vi.fn()} assessmentOptions={assessmentOptions} />);
+    renderWithIntl(
+      <IssueForm projectId="" onSubmit={vi.fn()} assessmentOptions={assessmentOptions} />
+    );
     expect(screen.getByRole('combobox', { name: /assessment/i })).toBeInTheDocument();
   });
 
   it('shows all assessment options in the selector', () => {
-    render(<IssueForm projectId="" onSubmit={vi.fn()} assessmentOptions={assessmentOptions} />);
+    renderWithIntl(
+      <IssueForm projectId="" onSubmit={vi.fn()} assessmentOptions={assessmentOptions} />
+    );
     fireEvent.click(screen.getByRole('combobox', { name: /assessment/i }));
     expect(screen.getAllByText('My Project / Q1 Audit').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Beta App / Q2 Audit').length).toBeGreaterThan(0);
@@ -159,7 +215,7 @@ describe('IssueForm assessment selector', () => {
 
   it('calls onAssessmentChange with correct ids when an option is selected', () => {
     const onAssessmentChange = vi.fn();
-    render(
+    renderWithIntl(
       <IssueForm
         projectId=""
         onSubmit={vi.fn()}

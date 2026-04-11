@@ -1,6 +1,58 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { IssueForm } from '@/components/issues/issue-form';
+
+const messages = {
+  issues: {
+    form: {
+      title_label: 'Title',
+      title_placeholder: 'e.g. Image missing alt text',
+      description_label: 'Description',
+      description_placeholder: 'Describe the accessibility issue',
+      severity_label: 'Severity',
+      severity_options: { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' },
+      user_impact_label: 'User Impact',
+      user_impact_placeholder:
+        'Describe how this issue affects users, particularly those with disabilities',
+      url_label: 'URL',
+      url_placeholder: 'https://example.com/page',
+      selector_label: 'Selector',
+      selector_placeholder: 'e.g. #search-button',
+      code_snippet_label: 'Code Snippet',
+      suggested_fix_label: 'Suggested Fix',
+      environment_heading: 'Environment',
+      device_type_label: 'Device Type',
+      device_type_options: { none: 'None', desktop: 'Desktop', mobile: 'Mobile', tablet: 'Tablet' },
+      browser_label: 'Browser',
+      browser_placeholder: 'e.g. Chrome 121',
+      os_label: 'Operating System',
+      os_placeholder: 'e.g. macOS 14',
+      at_label: 'Assistive Technology',
+      at_placeholder: 'e.g. VoiceOver, NVDA',
+      assessment_label: 'Assessment',
+      assessment_placeholder: 'Select an assessment…',
+      tags_label: 'Tags',
+      status_label: 'Status',
+      status_options: { open: 'Open', resolved: 'Resolved', wont_fix: "Won't Fix" },
+      save_button: 'Save Issue',
+      save_button_loading: 'Saving…',
+      cancel_button: 'Cancel',
+    },
+    attachments: {
+      heading: 'Screenshots & Videos',
+      ai_status_message: 'Generating issue with AI. Please wait.',
+    },
+  },
+};
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 // Lightweight mocks: render only badges for selected codes (no 80+ checkbox lists).
 // Tests that verify AI-populated values can still find badge text in the DOM.
@@ -44,12 +96,12 @@ describe('IssueForm AI Generate', () => {
   });
 
   it('renders the Generate with AI button', () => {
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     expect(screen.getByRole('button', { name: /generate with ai/i })).toBeInTheDocument();
   });
 
   it('Generate with AI button is disabled when ai description is empty', () => {
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     expect(screen.getByRole('button', { name: /generate with ai/i })).toBeDisabled();
   });
 
@@ -60,7 +112,7 @@ describe('IssueForm AI Generate', () => {
     });
     vi.spyOn(global, 'fetch').mockReturnValueOnce(fetchPromise as Promise<Response>);
 
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'The search button is not keyboard accessible' },
     });
@@ -107,7 +159,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={onSubmit} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={onSubmit} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'The search button is not keyboard accessible on the homepage' },
     });
@@ -151,7 +203,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'Some issue description' },
     });
@@ -165,7 +217,7 @@ describe('IssueForm AI Generate', () => {
 
   it('does not call fetch when ai description is empty', () => {
     const fetchSpy = vi.spyOn(global, 'fetch');
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
 
     // AI description is empty — click Generate with AI
     fireEvent.click(screen.getByRole('button', { name: /generate with ai/i }));
@@ -190,7 +242,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'Button is not accessible' },
     });
@@ -220,7 +272,7 @@ describe('IssueForm AI Generate', () => {
       }),
     } as Response);
 
-    render(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
+    renderWithIntl(<IssueForm onSubmit={vi.fn()} projectId="p1" />);
     fireEvent.change(screen.getByLabelText(/ai assistance description/i), {
       target: { value: 'Button is not accessible' },
     });

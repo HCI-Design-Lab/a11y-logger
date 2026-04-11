@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, X } from 'lucide-react';
@@ -79,6 +80,9 @@ export function IssueForm({
   cancelHref,
   externalButtons,
 }: IssueFormProps) {
+  const t = useTranslations('issues.form');
+  const tAttachments = useTranslations('issues.attachments');
+
   // AI assistance state — not part of the submitted form
   const [aiDescription, setAiDescription] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -193,7 +197,7 @@ export function IssueForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} id={externalButtons}>
       <p role="status" aria-live="polite" className="sr-only">
-        {aiLoading ? 'Generating issue with AI. Please wait.' : ''}
+        {aiLoading ? tAttachments('ai_status_message') : ''}
       </p>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left column: all form fields */}
@@ -202,15 +206,15 @@ export function IssueForm({
             {/* Assessment selector — shown only on the global new issue route */}
             {assessmentOptions && (
               <div className="space-y-1.5">
-                <Label htmlFor="assessment-select">Assessment</Label>
+                <Label htmlFor="assessment-select">{t('assessment_label')}</Label>
                 <Select
                   onValueChange={(value) => {
                     const option = assessmentOptions.find((a) => a.id === value);
                     if (option) onAssessmentChange?.(option.id, option.projectId);
                   }}
                 >
-                  <SelectTrigger id="assessment-select" aria-label="Assessment">
-                    <SelectValue placeholder="Select an assessment…" />
+                  <SelectTrigger id="assessment-select" aria-label={t('assessment_label')}>
+                    <SelectValue placeholder={t('assessment_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {assessmentOptions.map((a) => (
@@ -235,14 +239,14 @@ export function IssueForm({
             {/* Title */}
             <div className="space-y-1.5">
               <Label htmlFor="title">
-                Title <span className="text-destructive">*</span>
+                {t('title_label')} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
                 {...register('title')}
                 disabled={aiLoading}
                 aria-required="true"
-                placeholder="e.g. Image missing alt text"
+                placeholder={t('title_placeholder')}
               />
               {errors.title && (
                 <p role="alert" className="text-sm text-destructive">
@@ -253,19 +257,19 @@ export function IssueForm({
 
             {/* Description */}
             <div className="space-y-1.5">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('description_label')}</Label>
               <Textarea
                 id="description"
                 {...register('description')}
                 rows={4}
                 disabled={aiLoading}
-                placeholder="Describe the accessibility issue"
+                placeholder={t('description_placeholder')}
               />
             </div>
 
             {/* Severity */}
             <div className="space-y-1.5">
-              <Label htmlFor="severity">Severity</Label>
+              <Label htmlFor="severity">{t('severity_label')}</Label>
               <Controller
                 name="severity"
                 control={control}
@@ -275,10 +279,10 @@ export function IssueForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="critical">Critical</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="critical">{t('severity_options.critical')}</SelectItem>
+                      <SelectItem value="high">{t('severity_options.high')}</SelectItem>
+                      <SelectItem value="medium">{t('severity_options.medium')}</SelectItem>
+                      <SelectItem value="low">{t('severity_options.low')}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -287,25 +291,25 @@ export function IssueForm({
 
             {/* User Impact */}
             <div className="space-y-1.5">
-              <Label htmlFor="user_impact">User Impact</Label>
+              <Label htmlFor="user_impact">{t('user_impact_label')}</Label>
               <Textarea
                 id="user_impact"
                 {...register('user_impact')}
                 rows={3}
                 disabled={aiLoading}
-                placeholder="Describe how this issue affects users, particularly those with disabilities"
+                placeholder={t('user_impact_placeholder')}
               />
             </div>
 
             {/* URL */}
             <div className="space-y-1.5">
-              <Label htmlFor="url">URL</Label>
+              <Label htmlFor="url">{t('url_label')}</Label>
               <Input
                 id="url"
                 type="url"
                 {...register('url')}
                 disabled={aiLoading}
-                placeholder="https://example.com/page"
+                placeholder={t('url_placeholder')}
               />
               {errors.url && (
                 <p role="alert" className="text-sm text-destructive">
@@ -316,19 +320,19 @@ export function IssueForm({
 
             {/* Selector */}
             <div className="space-y-1.5">
-              <Label htmlFor="selector">Selector</Label>
+              <Label htmlFor="selector">{t('selector_label')}</Label>
               <Input
                 id="selector"
                 {...register('selector')}
                 disabled={aiLoading}
-                placeholder="e.g. #search-button or header nav .menu > li:nth-child(3) a"
+                placeholder={t('selector_placeholder')}
                 className="font-mono text-sm"
               />
             </div>
 
             {/* Code Snippet */}
             <div className="space-y-1.5">
-              <Label htmlFor="code_snippet">Code Snippet</Label>
+              <Label htmlFor="code_snippet">{t('code_snippet_label')}</Label>
               <Textarea
                 id="code_snippet"
                 {...register('code_snippet')}
@@ -341,23 +345,23 @@ export function IssueForm({
 
             {/* Suggested Fix */}
             <div className="space-y-1.5">
-              <Label htmlFor="suggested_fix">Suggested Fix</Label>
+              <Label htmlFor="suggested_fix">{t('suggested_fix_label')}</Label>
               <Textarea
                 id="suggested_fix"
                 {...register('suggested_fix')}
                 rows={4}
                 disabled={aiLoading}
-                placeholder="Describe how to fix this issue"
+                placeholder={t('suggested_fix_label')}
               />
             </div>
 
             {/* Environment */}
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide pt-2">
-              Environment
+              {t('environment_heading')}
             </p>
 
             <div className="space-y-1.5">
-              <Label htmlFor="device_type">Device Type</Label>
+              <Label htmlFor="device_type">{t('device_type_label')}</Label>
               <Controller
                 name="device_type"
                 control={control}
@@ -368,13 +372,13 @@ export function IssueForm({
                     disabled={aiLoading}
                   >
                     <SelectTrigger id="device_type">
-                      <SelectValue placeholder="Select device type" />
+                      <SelectValue placeholder={t('device_type_label')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="desktop">Desktop</SelectItem>
-                      <SelectItem value="mobile">Mobile</SelectItem>
-                      <SelectItem value="tablet">Tablet</SelectItem>
+                      <SelectItem value="none">{t('device_type_options.none')}</SelectItem>
+                      <SelectItem value="desktop">{t('device_type_options.desktop')}</SelectItem>
+                      <SelectItem value="mobile">{t('device_type_options.mobile')}</SelectItem>
+                      <SelectItem value="tablet">{t('device_type_options.tablet')}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -382,32 +386,32 @@ export function IssueForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="browser">Browser</Label>
+              <Label htmlFor="browser">{t('browser_label')}</Label>
               <Input
                 id="browser"
                 {...register('browser')}
                 disabled={aiLoading}
-                placeholder="e.g. Chrome 121"
+                placeholder={t('browser_placeholder')}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="operating_system">Operating System</Label>
+              <Label htmlFor="operating_system">{t('os_label')}</Label>
               <Input
                 id="operating_system"
                 {...register('operating_system')}
                 disabled={aiLoading}
-                placeholder="e.g. macOS 14"
+                placeholder={t('os_placeholder')}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="assistive_technology">Assistive Technology</Label>
+              <Label htmlFor="assistive_technology">{t('at_label')}</Label>
               <Input
                 id="assistive_technology"
                 {...register('assistive_technology')}
                 disabled={aiLoading}
-                placeholder="e.g. VoiceOver, NVDA"
+                placeholder={t('at_placeholder')}
               />
             </div>
 
@@ -416,7 +420,7 @@ export function IssueForm({
 
             {/* Tags */}
             <div className="space-y-1.5">
-              <Label>Tags</Label>
+              <Label>{t('tags_label')}</Label>
               <Controller
                 name="tags"
                 control={control}
@@ -432,7 +436,7 @@ export function IssueForm({
 
             {/* Status */}
             <div className="space-y-1.5">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">{t('status_label')}</Label>
               <Controller
                 name="status"
                 control={control}
@@ -442,9 +446,9 @@ export function IssueForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                      <SelectItem value="wont_fix">Won&apos;t Fix</SelectItem>
+                      <SelectItem value="open">{t('status_options.open')}</SelectItem>
+                      <SelectItem value="resolved">{t('status_options.resolved')}</SelectItem>
+                      <SelectItem value="wont_fix">{t('status_options.wont_fix')}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -457,13 +461,13 @@ export function IssueForm({
               <div className="flex gap-2">
                 <Button type="submit" disabled={loading || aiLoading}>
                   <Save className="h-4 w-4" />
-                  {loading ? 'Saving…' : 'Save Issue'}
+                  {loading ? t('save_button_loading') : t('save_button')}
                 </Button>
                 {cancelHref && (
                   <Button asChild variant="cancel">
                     <Link href={cancelHref}>
                       <X className="h-4 w-4" />
-                      Cancel
+                      {t('cancel_button')}
                     </Link>
                   </Button>
                 )}
@@ -480,7 +484,7 @@ export function IssueForm({
             </CardHeader>
             <CardContent>
               <p className="mb-3 text-sm font-medium text-muted-foreground">
-                Screenshots &amp; Videos
+                {tAttachments('heading')}
               </p>
               <Controller
                 name="evidence_media"
