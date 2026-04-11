@@ -11,7 +11,7 @@ export function ChartTableToggle({ view, onChange }: ChartTableToggleProps) {
     <div
       role="group"
       aria-label="View toggle"
-      className="relative inline-flex items-center rounded-full border bg-muted p-0.5"
+      className="relative inline-flex items-center rounded-full border bg-card p-0.5"
     >
       {/* Sliding thumb */}
       <span
