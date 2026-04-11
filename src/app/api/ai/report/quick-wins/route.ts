@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const items = raw
       .split('\n')
       .map((line) => line.trim())
-      .filter(Boolean)
+      .filter((line) => Boolean(line) && line.toLowerCase() !== 'quick wins')
       .slice(0, 5);
     return NextResponse.json({ success: true, data: { items } });
   } catch (err) {

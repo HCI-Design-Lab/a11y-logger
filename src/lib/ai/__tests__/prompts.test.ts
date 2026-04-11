@@ -43,8 +43,9 @@ describe('section title constants', () => {
     expect(QUICK_WINS_SECTION).toContain('Quick Wins');
   });
 
-  it('TOP_RISKS_SECTION contains section name', () => {
+  it('TOP_RISKS_SECTION contains section name and one-sentence constraint', () => {
     expect(TOP_RISKS_SECTION).toContain('Top Risks');
+    expect(TOP_RISKS_SECTION).toContain('one sentence');
   });
 });
 

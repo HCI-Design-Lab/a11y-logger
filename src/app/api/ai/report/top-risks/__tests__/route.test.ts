@@ -54,6 +54,20 @@ describe('POST /api/ai/report/top-risks', () => {
     expect(json.data.items).toEqual(['Risk A', 'Risk B', 'Risk C']);
   });
 
+  it('strips section title if returned as first item', async () => {
+    vi.mocked(getAIProvider).mockReturnValue({
+      generateReportSection: vi.fn().mockResolvedValue('Top Risks\nRisk A\nRisk B'),
+    } as never);
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId }),
+    });
+    const res = await POST(req);
+    const json = await res.json();
+    expect(json.data.items).toEqual(['Risk A', 'Risk B']);
+  });
+
   it('limits items to 5', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
       generateReportSection: vi.fn().mockResolvedValue('R1\nR2\nR3\nR4\nR5\nR6\nR7'),

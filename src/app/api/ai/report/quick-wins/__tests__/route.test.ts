@@ -54,6 +54,20 @@ describe('POST /api/ai/report/quick-wins', () => {
     expect(json.data.items).toEqual(['Win A', 'Win B', 'Win C']);
   });
 
+  it('strips section title if returned as first item', async () => {
+    vi.mocked(getAIProvider).mockReturnValue({
+      generateReportSection: vi.fn().mockResolvedValue('Quick Wins\nWin A\nWin B'),
+    } as never);
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId }),
+    });
+    const res = await POST(req);
+    const json = await res.json();
+    expect(json.data.items).toEqual(['Win A', 'Win B']);
+  });
+
   it('limits items to 5', async () => {
     vi.mocked(getAIProvider).mockReturnValue({
       generateReportSection: vi.fn().mockResolvedValue('W1\nW2\nW3\nW4\nW5\nW6\nW7'),

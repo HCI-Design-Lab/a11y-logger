@@ -17,10 +17,10 @@ export const VPAT_REMARKS_SYSTEM =
 // ─── Section title constants ──────────────────────────────────────────────────
 
 export const QUICK_WINS_SECTION =
-  'Quick Wins (respond with up to 5 items, one per line, no bullets or numbering)';
+  'Quick Wins (respond with up to 5 items, one per line, no bullets or numbering, each item must be exactly one sentence, do not repeat the section title as an item)';
 
 export const TOP_RISKS_SECTION =
-  'Top Risks (respond with up to 5 items, one per line, no bullets or numbering)';
+  'Top Risks (respond with up to 5 items, one per line, no bullets or numbering, each item must be exactly one sentence, do not repeat the section title as an item)';
 
 // ─── User message builders ────────────────────────────────────────────────────
 
