@@ -141,14 +141,16 @@ export function ImportIssuesModal({
       >
         <DialogContent className="sm:max-w-4xl" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>{step === 'upload' ? t('modal_title') : 'Map Columns'}</DialogTitle>
+            <DialogTitle>
+              {step === 'upload' ? t('modal_title') : t('map_columns_title')}
+            </DialogTitle>
           </DialogHeader>
 
           {step === 'upload' && (
             <div className="space-y-4">
               <div>
-                <label htmlFor="csv-file-input" className="block text-sm font-medium mb-1 sr-only">
-                  CSV File
+                <label htmlFor="csv-file-input" className="block text-sm font-medium mb-1">
+                  {t('csv_file_label')}
                 </label>
                 <div className="flex items-center gap-3">
                   <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
@@ -172,7 +174,7 @@ export function ImportIssuesModal({
               {previewRows.length > 0 && (
                 <div className="text-sm text-muted-foreground">
                   <p className="font-medium mb-1">
-                    Showing {previewRows.length} of {csvRows.length} rows
+                    {t('preview_label', { count: csvRows.length })}
                   </p>
                   <div className="overflow-auto rounded border text-xs">
                     <table className="w-full">
@@ -206,8 +208,8 @@ export function ImportIssuesModal({
           {step === 'mapping' && (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
               <div className="grid grid-cols-2 gap-2 text-sm font-medium text-muted-foreground pb-1 border-b">
-                <span>Issue Field</span>
-                <span>CSV Column</span>
+                <span>{t('field_column_header')}</span>
+                <span>{t('csv_column_header')}</span>
               </div>
               {IMPORTABLE_ISSUE_FIELDS.map((field) => (
                 <div key={field.key} className="grid grid-cols-2 gap-2 items-center">
@@ -222,10 +224,10 @@ export function ImportIssuesModal({
                     }
                   >
                     <SelectTrigger className="h-8 text-sm">
-                      <SelectValue placeholder="— skip —" />
+                      <SelectValue placeholder={t('skip_option')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={SKIP}>— skip —</SelectItem>
+                      <SelectItem value={SKIP}>{t('skip_option')}</SelectItem>
                       {csvHeaders.map((h) => (
                         <SelectItem key={h} value={h}>
                           {h}
@@ -248,13 +250,15 @@ export function ImportIssuesModal({
             {step === 'upload' && (
               <Button onClick={() => setStep('mapping')} disabled={csvRows.length === 0}>
                 <ArrowRight className="h-4 w-4" />
-                Next
+                {t('next_button')}
               </Button>
             )}
             {step === 'mapping' && (
               <Button onClick={handleImport} disabled={loading}>
                 <Upload className="h-4 w-4" />
-                {loading ? 'Importing…' : `Import ${csvRows.length} rows`}
+                {loading
+                  ? t('importing_label')
+                  : t('import_rows_button', { count: csvRows.length })}
               </Button>
             )}
           </DialogFooter>

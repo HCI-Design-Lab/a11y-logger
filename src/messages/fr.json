@@ -214,7 +214,16 @@
       "openacr_tab": "OpenACR",
       "upload_button": "Téléverser un fichier",
       "import_button": "Importer",
-      "cancel_button": "Annuler"
+      "cancel_button": "Annuler",
+      "map_columns_title": "Mapper les colonnes",
+      "csv_file_label": "Fichier CSV",
+      "preview_label": "Aperçu ({count} lignes)",
+      "field_column_header": "Champ du problème",
+      "csv_column_header": "Colonne CSV",
+      "skip_option": "— ignorer —",
+      "next_button": "Suivant",
+      "importing_label": "Importation…",
+      "import_rows_button": "Importer {count} lignes"
     },
     "list": {
       "empty_heading": "Aucun problème pour l'instant",

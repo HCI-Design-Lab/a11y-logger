@@ -33,6 +33,7 @@ export function DeleteIssueButton({
   const router = useRouter();
   const tDialog = useTranslations('issues.delete_dialog');
   const tToast = useTranslations('issues.toast');
+  const tCommon = useTranslations('common');
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -57,7 +58,7 @@ export function DeleteIssueButton({
       <AlertDialogTrigger asChild>
         <Button variant="destructive" disabled={loading}>
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete
+          {tCommon('delete')}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

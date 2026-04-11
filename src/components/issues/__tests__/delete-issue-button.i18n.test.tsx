@@ -21,6 +21,9 @@ global.fetch = vi.fn();
 import { DeleteIssueButton } from '../delete-issue-button';
 
 const messages = {
+  common: {
+    delete: 'Delete',
+  },
   issues: {
     delete_dialog: {
       title: 'Delete {name}?',

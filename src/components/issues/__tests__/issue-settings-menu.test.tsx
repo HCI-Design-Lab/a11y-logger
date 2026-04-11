@@ -10,7 +10,7 @@ const { mockPush, mockToastSuccess, mockToastError } = vi.hoisted(() => ({
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
 }));
 vi.mock('sonner', () => ({
   toast: { success: mockToastSuccess, error: mockToastError },

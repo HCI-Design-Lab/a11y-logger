@@ -480,12 +480,9 @@ export function IssueForm({
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Attachments</CardTitle>
+              <CardTitle>{tAttachments('heading')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-3 text-sm font-medium text-muted-foreground">
-                {tAttachments('heading')}
-              </p>
               <Controller
                 name="evidence_media"
                 control={control}

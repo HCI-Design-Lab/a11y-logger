@@ -214,7 +214,16 @@
       "openacr_tab": "OpenACR",
       "upload_button": "Datei hochladen",
       "import_button": "Importieren",
-      "cancel_button": "Abbrechen"
+      "cancel_button": "Abbrechen",
+      "map_columns_title": "Spalten zuordnen",
+      "csv_file_label": "CSV-Datei",
+      "preview_label": "Vorschau ({count} Zeilen)",
+      "field_column_header": "Problemfeld",
+      "csv_column_header": "CSV-Spalte",
+      "skip_option": "— überspringen —",
+      "next_button": "Weiter",
+      "importing_label": "Importieren…",
+      "import_rows_button": "{count} Zeilen importieren"
     },
     "list": {
       "empty_heading": "Noch keine Probleme",
