@@ -90,40 +90,38 @@ const CriterionSection = memo(function CriterionSection({
       <CardHeader className="py-3">
         <CardTitle className="text-base">{label}</CardTitle>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-primary">
-                <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
-                <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
-                <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
-                <TableHead>Remarks</TableHead>
-                {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sectionRows.map((row) => (
-                <VpatCriteriaRow
-                  key={row.id}
-                  row={row}
-                  locale={locale}
-                  readOnly={readOnly}
-                  aiEnabled={aiEnabled}
-                  isGenerating={generatingRowId === row.id}
-                  isGeneratingAll={isGeneratingAll}
-                  onRowChange={onRowChange}
-                  scheduleRemarksSave={scheduleRemarksSave}
-                  onGenerateRow={onGenerateRow}
-                  onCriterionClick={onCriterionClick}
-                  onAiInfoClick={onAiInfoClick}
-                  register={register}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      )}
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-primary">
+              <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
+              <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
+              <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
+              <TableHead>Remarks</TableHead>
+              {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sectionRows.map((row) => (
+              <VpatCriteriaRow
+                key={row.id}
+                row={row}
+                locale={locale}
+                readOnly={readOnly}
+                aiEnabled={aiEnabled}
+                isGenerating={generatingRowId === row.id}
+                isGeneratingAll={isGeneratingAll}
+                onRowChange={onRowChange}
+                scheduleRemarksSave={scheduleRemarksSave}
+                onGenerateRow={onGenerateRow}
+                onCriterionClick={onCriterionClick}
+                onAiInfoClick={onAiInfoClick}
+                register={register}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 });
