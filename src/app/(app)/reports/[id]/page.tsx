@@ -41,7 +41,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
       <Breadcrumbs items={[{ label: 'Reports', href: '/reports' }, { label: report.title }]} />
 
       {/* Header card */}
-      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 px-6 shadow-sm">
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-sm py-6 px-6 shadow-sm">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{report.title}</h1>

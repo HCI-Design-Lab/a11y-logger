@@ -26,7 +26,7 @@ export function Sidebar() {
   const pathname = usePathname();
   return (
     <nav
-      className="group absolute left-0 top-0 z-10 flex h-full w-14 hover:w-48 flex-col overflow-hidden bg-sidebar py-4 gap-1 transition-[width] duration-200 ease-in-out"
+      className="group absolute left-0 top-0 z-10 flex h-full w-14 hover:w-48 flex-col overflow-hidden border-r bg-sidebar py-4 gap-1 transition-[width] duration-200 ease-in-out"
       aria-label="Main navigation"
     >
       {navItems.map(({ href, icon: Icon, label }) => (

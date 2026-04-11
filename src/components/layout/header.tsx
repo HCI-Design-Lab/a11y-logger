@@ -35,7 +35,7 @@ export function Header({ currentLocale = 'en' }: HeaderProps) {
   }
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between bg-card px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-6">
       <div className="flex items-center gap-2">
         {/*<Accessibility className="h-6 w-6 text-primary" aria-hidden="true" />*/}
         <span className="font-semibold text-sm tracking-tight">A11y Logger</span>
