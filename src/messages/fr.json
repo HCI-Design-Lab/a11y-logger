@@ -78,6 +78,21 @@
       "download_docx": "Télécharger DOCX à la place"
     }
   },
+  "auth": {
+    "login": {
+      "heading": "Se connecter",
+      "username_label": "Nom d'utilisateur",
+      "username_placeholder": "Entrez votre nom d'utilisateur",
+      "password_label": "Mot de passe",
+      "password_placeholder": "Entrez votre mot de passe",
+      "submit_button": "Se connecter",
+      "submit_button_loading": "Connexion…"
+    },
+    "toast": {
+      "login_failed": "Nom d'utilisateur ou mot de passe invalide",
+      "login_error": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
   "settings": {
     "language": {
       "label": "Language",

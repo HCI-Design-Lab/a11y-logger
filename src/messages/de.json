@@ -78,6 +78,21 @@
       "download_docx": "Stattdessen DOCX herunterladen"
     }
   },
+  "auth": {
+    "login": {
+      "heading": "Anmelden",
+      "username_label": "Benutzername",
+      "username_placeholder": "Benutzernamen eingeben",
+      "password_label": "Passwort",
+      "password_placeholder": "Passwort eingeben",
+      "submit_button": "Anmelden",
+      "submit_button_loading": "Anmeldung…"
+    },
+    "toast": {
+      "login_failed": "Ungültiger Benutzername oder Passwort",
+      "login_error": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    }
+  },
   "settings": {
     "language": {
       "label": "Language",
