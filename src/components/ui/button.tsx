@@ -9,17 +9,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-foreground',
+        default:
+          'bg-primary text-primary-foreground border border-transparent hover:bg-transparent hover:border-dashed hover:border-primary hover:text-primary hover:underline',
         destructive:
-          'bg-destructive text-white hover:opacity-90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          'bg-destructive text-white border border-transparent focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 hover:bg-transparent hover:border-dashed hover:border-destructive hover:text-destructive hover:underline',
         outline:
-          'border border-border bg-background text-foreground hover:border-foreground dark:border-border dark:hover:border-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-muted',
-        ghost: 'text-muted-foreground hover:text-foreground hover:bg-accent',
+          'border border-border bg-background text-foreground dark:border-border hover:bg-transparent hover:border-dashed hover:text-foreground hover:underline',
+        secondary:
+          'bg-secondary text-secondary-foreground border border-transparent hover:bg-transparent hover:border-dashed hover:border-secondary hover:text-secondary-foreground hover:underline',
+        ghost:
+          'text-muted-foreground border border-transparent hover:bg-transparent hover:border-dashed hover:border-border hover:text-foreground hover:underline',
         success:
-          'bg-success text-success-foreground hover:opacity-90 focus-visible:ring-success/20',
-        ai: 'bg-ai text-white hover:opacity-90 focus-visible:ring-ai/20 dark:bg-ai/80',
-        cancel: 'border border-border text-foreground hover:border-foreground',
+          'bg-success text-success-foreground border border-transparent focus-visible:ring-success/20 hover:bg-transparent hover:border-dashed hover:border-success hover:text-success hover:underline',
+        ai: 'bg-ai text-white border border-transparent focus-visible:ring-ai/20 dark:bg-ai/80 hover:bg-transparent hover:border-dashed hover:border-ai hover:text-ai hover:underline',
+        cancel:
+          'border border-border text-foreground hover:bg-transparent hover:border-dashed hover:text-foreground hover:underline',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
