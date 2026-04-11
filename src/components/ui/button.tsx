@@ -21,7 +21,7 @@ const buttonVariants = cva(
           'text-muted-foreground border border-transparent hover:bg-transparent hover:border-dashed hover:border-border hover:text-foreground hover:underline',
         success:
           'bg-success text-success-foreground border border-transparent focus-visible:ring-success/20 hover:bg-transparent hover:border-dashed hover:border-success hover:text-success hover:underline',
-        ai: 'bg-ai text-white border border-transparent focus-visible:ring-ai/20 dark:bg-ai/80 hover:bg-transparent hover:border-dashed hover:border-ai hover:text-ai hover:underline',
+        ai: 'bg-ai text-white border border-transparent focus-visible:ring-ai/20 dark:focus-visible:ring-ai/40 hover:bg-transparent hover:border-dashed hover:border-ai hover:text-ai hover:underline',
         cancel:
           'border border-border text-foreground hover:bg-transparent hover:border-dashed hover:text-foreground hover:underline',
         link: 'text-primary underline-offset-4 hover:underline',
