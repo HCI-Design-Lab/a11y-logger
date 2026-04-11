@@ -45,7 +45,7 @@ test('active route gets highlighted class', () => {
   renderSidebar();
   // /dashboard is the active path (mocked)
   const dashLink = screen.getByRole('link', { name: /dashboard/i });
-  expect(dashLink.className).toContain('before:bg-foreground');
+  expect(dashLink).toHaveClass('text-foreground');
 });
 
 test('active link has aria-current="page"', () => {
