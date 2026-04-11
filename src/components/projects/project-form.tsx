@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { Save, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,6 +31,7 @@ export function ProjectForm({
   deleteButton,
   externalButtons,
 }: ProjectFormProps) {
+  const t = useTranslations('projects.form');
   const {
     register,
     handleSubmit,
@@ -47,9 +49,9 @@ export function ProjectForm({
     <form id={externalButtons} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="name">
-          Project Name <span className="text-destructive">*</span>
+          {t('name_label')} <span className="text-destructive">*</span>
         </Label>
-        <Input id="name" {...register('name')} placeholder="e.g. Mobile App Redesign" />
+        <Input id="name" {...register('name')} placeholder={t('name_placeholder')} />
         {errors.name && (
           <p role="alert" className="text-sm text-destructive">
             {errors.name.message}
@@ -57,12 +59,12 @@ export function ProjectForm({
         )}
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t('description_label')}</Label>
         <Textarea
           id="description"
           {...register('description')}
           rows={5}
-          placeholder="Brief description of the project"
+          placeholder={t('description_placeholder')}
         />
         {errors.description && (
           <p role="alert" className="text-sm text-destructive">
@@ -71,12 +73,12 @@ export function ProjectForm({
         )}
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="product_url">Product URL</Label>
+        <Label htmlFor="product_url">{t('product_url_label')}</Label>
         <Input
           id="product_url"
           type="url"
           {...register('product_url')}
-          placeholder="https://example.com"
+          placeholder={t('product_url_placeholder')}
         />
         {errors.product_url && (
           <p role="alert" className="text-sm text-destructive">
@@ -88,13 +90,13 @@ export function ProjectForm({
         <div className="flex items-center gap-2">
           <Button type="submit" disabled={loading}>
             <Save className="h-4 w-4" />
-            {loading ? 'Saving…' : 'Save Project'}
+            {loading ? t('save_button_loading') : t('save_button')}
           </Button>
           {cancelHref && (
             <Button asChild variant="cancel">
               <Link href={cancelHref}>
                 <X className="h-4 w-4" />
-                Cancel
+                {t('cancel_button')}
               </Link>
             </Button>
           )}
