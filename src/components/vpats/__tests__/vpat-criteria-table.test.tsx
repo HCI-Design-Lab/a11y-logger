@@ -1,7 +1,18 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render as _render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { VpatCriteriaTable } from '@/components/vpats/vpat-criteria-table';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import messages from '@/messages/en.json';
+
+// Always wrap with NextIntlClientProvider
+function render(ui: React.ReactElement) {
+  return _render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow => ({
   id: '1',
@@ -383,11 +394,13 @@ describe('VpatCriteriaTable', () => {
 
     act(() => {
       rerender(
-        <VpatCriteriaTable
-          rows={[{ ...row, remarks: 'updated externally' }]}
-          onRowChange={vi.fn()}
-          onSaveRemarks={vi.fn()}
-        />
+        <NextIntlClientProvider locale="en" messages={messages}>
+          <VpatCriteriaTable
+            rows={[{ ...row, remarks: 'updated externally' }]}
+            onRowChange={vi.fn()}
+            onSaveRemarks={vi.fn()}
+          />
+        </NextIntlClientProvider>
       );
     });
     expect(textarea).toHaveValue('updated externally');

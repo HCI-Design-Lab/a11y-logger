@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +33,8 @@ interface VpatCoverSheetFormProps {
 
 export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCoverSheetFormProps>(
   function VpatCoverSheetForm({ vpatId, readOnly = false }, ref) {
+    const t = useTranslations('vpats.cover_sheet');
+    const tToast = useTranslations('vpats.cover_sheet_toast');
     const [fields, setFields] = useState<CoverSheetFields>({});
     const [isLoading, setIsLoading] = useState(true);
 
@@ -62,10 +65,10 @@ export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCover
           });
           const json = await res.json();
           if (!json.success) {
-            toast.error(json.error ?? 'Failed to save cover sheet');
+            toast.error(json.error ?? tToast('save_failed'));
           }
         } catch {
-          toast.error('Failed to save cover sheet');
+          toast.error(tToast('save_failed'));
         }
       },
     }));
@@ -75,45 +78,45 @@ export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCover
     }
 
     if (isLoading) {
-      return <p className="text-sm text-muted-foreground py-4">Loading…</p>;
+      return <p className="text-sm text-muted-foreground py-4">{t('loading')}</p>;
     }
 
     return (
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Product Information</CardTitle>
+            <CardTitle className="text-base">{t('product_info_title')}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="product_name">Product Name</Label>
+              <Label htmlFor="product_name">{t('product_name_label')}</Label>
               <Input
                 id="product_name"
                 value={fields.product_name ?? ''}
                 onChange={(e) => handleChange('product_name', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. My App 2.0"
+                placeholder={t('product_name_placeholder')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="product_version">Version</Label>
+              <Label htmlFor="product_version">{t('product_version_label')}</Label>
               <Input
                 id="product_version"
                 value={fields.product_version ?? ''}
                 onChange={(e) => handleChange('product_version', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. 2.4.1"
+                placeholder={t('product_version_placeholder')}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="product_description">Product Description</Label>
+              <Label htmlFor="product_description">{t('product_description_label')}</Label>
               <Textarea
                 id="product_description"
                 value={fields.product_description ?? ''}
                 onChange={(e) => handleChange('product_description', e.target.value)}
                 readOnly={readOnly}
                 rows={3}
-                placeholder="Brief description of the product"
+                placeholder={t('product_description_placeholder')}
               />
             </div>
           </CardContent>
@@ -121,60 +124,60 @@ export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCover
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Vendor / Contact Information</CardTitle>
+            <CardTitle className="text-base">{t('vendor_info_title')}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="vendor_company">Company</Label>
+              <Label htmlFor="vendor_company">{t('vendor_company_label')}</Label>
               <Input
                 id="vendor_company"
                 value={fields.vendor_company ?? ''}
                 onChange={(e) => handleChange('vendor_company', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. Acme Corp"
+                placeholder={t('vendor_company_placeholder')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor_contact_name">Contact Name</Label>
+              <Label htmlFor="vendor_contact_name">{t('vendor_contact_name_label')}</Label>
               <Input
                 id="vendor_contact_name"
                 value={fields.vendor_contact_name ?? ''}
                 onChange={(e) => handleChange('vendor_contact_name', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. Jane Smith"
+                placeholder={t('vendor_contact_name_placeholder')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor_contact_email">Contact Email</Label>
+              <Label htmlFor="vendor_contact_email">{t('vendor_contact_email_label')}</Label>
               <Input
                 id="vendor_contact_email"
                 type="email"
                 value={fields.vendor_contact_email ?? ''}
                 onChange={(e) => handleChange('vendor_contact_email', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. jane@acme.com"
+                placeholder={t('vendor_contact_email_placeholder')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor_contact_phone">Contact Phone</Label>
+              <Label htmlFor="vendor_contact_phone">{t('vendor_contact_phone_label')}</Label>
               <Input
                 id="vendor_contact_phone"
                 type="tel"
                 value={fields.vendor_contact_phone ?? ''}
                 onChange={(e) => handleChange('vendor_contact_phone', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. +1 555 000 0000"
+                placeholder={t('vendor_contact_phone_placeholder')}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="vendor_website">Website</Label>
+              <Label htmlFor="vendor_website">{t('vendor_website_label')}</Label>
               <Input
                 id="vendor_website"
                 type="url"
                 value={fields.vendor_website ?? ''}
                 onChange={(e) => handleChange('vendor_website', e.target.value)}
                 readOnly={readOnly}
-                placeholder="e.g. https://acme.com"
+                placeholder={t('vendor_website_placeholder')}
               />
             </div>
           </CardContent>
@@ -182,11 +185,11 @@ export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCover
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Report Details</CardTitle>
+            <CardTitle className="text-base">{t('report_details_title')}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="report_date">Report Date</Label>
+              <Label htmlFor="report_date">{t('report_date_label')}</Label>
               <Input
                 id="report_date"
                 type="date"
@@ -196,25 +199,25 @@ export const VpatCoverSheetForm = forwardRef<VpatCoverSheetFormHandle, VpatCover
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="evaluation_methods">Evaluation Methods</Label>
+              <Label htmlFor="evaluation_methods">{t('evaluation_methods_label')}</Label>
               <Textarea
                 id="evaluation_methods"
                 value={fields.evaluation_methods ?? ''}
                 onChange={(e) => handleChange('evaluation_methods', e.target.value)}
                 readOnly={readOnly}
                 rows={3}
-                placeholder="Describe the testing methods used"
+                placeholder={t('evaluation_methods_placeholder')}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">{t('notes_label')}</Label>
               <Textarea
                 id="notes"
                 value={fields.notes ?? ''}
                 onChange={(e) => handleChange('notes', e.target.value)}
                 readOnly={readOnly}
                 rows={3}
-                placeholder="Additional notes"
+                placeholder={t('notes_placeholder')}
               />
             </div>
           </CardContent>

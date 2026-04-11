@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Settings, Send, Download, Trash2, Pencil, CheckCircle } from 'lucide-react';
 import { PdfExportModal } from './pdf-export-modal';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -90,12 +91,14 @@ export function VpatSettingsMenu({
   variant,
 }: VpatSettingsMenuProps) {
   const router = useRouter();
+  const t = useTranslations('vpats.settings_menu');
+  const tToast = useTranslations('vpats.toast');
   const notEvaluated = totalCount - resolvedCount;
   const isPublished = status === 'published';
   const countText =
     notEvaluated === 0
-      ? `All ${totalCount} criteria have been evaluated.`
-      : `${notEvaluated} of ${totalCount} criteria are not yet evaluated.`;
+      ? t('all_criteria_evaluated', { total: totalCount })
+      : t('criteria_not_evaluated', { notEvaluated, total: totalCount });
 
   const [publishOpen, setPublishOpen] = useState(false);
   const [notReadyOpen, setNotReadyOpen] = useState(false);
@@ -115,14 +118,14 @@ export function VpatSettingsMenu({
       const res = await fetch(`/api/vpats/${vpatId}`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? 'Failed to delete VPAT');
+        toast.error(json.error ?? tToast('delete_failed'));
         return;
       }
-      toast.success('VPAT deleted');
+      toast.success(tToast('deleted'));
       router.push('/vpats');
       router.refresh();
     } catch {
-      toast.error('Failed to delete VPAT');
+      toast.error(tToast('delete_failed'));
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
@@ -133,7 +136,7 @@ export function VpatSettingsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="VPAT settings" className="bg-card">
+          <Button variant="ghost" size="icon" aria-label={t('aria_label')}>
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -149,12 +152,12 @@ export function VpatSettingsMenu({
                 {isPublished ? (
                   <>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit VPAT
+                    {t('edit_vpat')}
                   </>
                 ) : (
                   <Link href={`/vpats/${vpatId}/edit`}>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit VPAT
+                    {t('edit_vpat')}
                   </Link>
                 )}
               </DropdownMenuItem>
@@ -173,7 +176,7 @@ export function VpatSettingsMenu({
             disabled={isReviewing}
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            {status === 'draft' ? 'Mark as Reviewed' : 'Update Review'}
+            {status === 'draft' ? t('mark_as_reviewed') : t('update_review')}
           </DropdownMenuItem>
           {/* Publish guard: must be reviewed AND fully evaluated. If already
               published, route to the unpublish confirmation instead. */}
@@ -190,7 +193,7 @@ export function VpatSettingsMenu({
             disabled={isPublishing}
           >
             <Send className="mr-2 h-4 w-4" />
-            {isPublished ? 'Unpublish' : 'Publish'}
+            {isPublished ? t('unpublish') : t('publish')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -200,29 +203,29 @@ export function VpatSettingsMenu({
               rel="noopener noreferrer"
             >
               <Download className="mr-2 h-4 w-4" />
-              HTML
+              {t('export_html')}
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={`/api/vpats/${vpatId}/export?format=docx`}>
               <Download className="mr-2 h-4 w-4" />
-              Word (.docx)
+              {t('export_docx')}
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <a href={`/api/vpats/${vpatId}/export?format=openacr`}>
               <Download className="mr-2 h-4 w-4" />
-              OpenACR (YAML)
+              {t('export_openacr')}
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setPdfOpen(true)}>
             <Download className="mr-2 h-4 w-4" />
-            Print to PDF…
+            {t('print_to_pdf')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            {t('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -231,24 +234,20 @@ export function VpatSettingsMenu({
       <AlertDialog open={notReadyOpen} onOpenChange={setNotReadyOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Not Ready to Publish</AlertDialogTitle>
+            <AlertDialogTitle>{t('not_ready_to_publish_title')}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-1">
                 <p>{countText}</p>
-                {notEvaluated > 0 && (
-                  <p>All criteria must be evaluated before this VPAT can be published.</p>
-                )}
-                {status !== 'reviewed' && notEvaluated === 0 && (
-                  <p>The VPAT must be reviewed before it can be published.</p>
-                )}
+                {notEvaluated > 0 && <p>{t('criteria_must_be_evaluated')}</p>}
+                {status !== 'reviewed' && notEvaluated === 0 && <p>{t('vpat_must_be_reviewed')}</p>}
                 {status !== 'reviewed' && notEvaluated > 0 && (
-                  <p>The VPAT must also be reviewed before it can be published.</p>
+                  <p>{t('vpat_must_also_be_reviewed')}</p>
                 )}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>OK</AlertDialogCancel>
+            <AlertDialogCancel>{t('ok')}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -257,16 +256,16 @@ export function VpatSettingsMenu({
       <AlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Publish VPAT</AlertDialogTitle>
+            <AlertDialogTitle>{t('publish_vpat_title')}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-1">
                 <p>{countText}</p>
-                <p>Publishing creates a snapshot of the current state. Are you sure?</p>
+                <p>{t('publish_snapshot_note')}</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'success' })}
               onClick={() => {
@@ -275,7 +274,7 @@ export function VpatSettingsMenu({
               }}
               disabled={isPublishing}
             >
-              {isPublishing ? 'Publishing…' : 'Publish'}
+              {isPublishing ? t('publishing') : t('publish')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -285,21 +284,18 @@ export function VpatSettingsMenu({
       <AlertDialog open={unpublishOpen} onOpenChange={setUnpublishOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unpublish VPAT?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Unpublishing will reset this VPAT to Draft status. The current published version will
-              be preserved and can be found in Version History.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('unpublish_vpat_title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('unpublish_description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setUnpublishOpen(false);
                 onUnpublish();
               }}
             >
-              Unpublish
+              {t('unpublish')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -309,16 +305,16 @@ export function VpatSettingsMenu({
       <AlertDialog open={reviewNotReadyOpen} onOpenChange={setReviewNotReadyOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Not Ready to Review</AlertDialogTitle>
+            <AlertDialogTitle>{t('not_ready_to_review_title')}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-1">
                 <p>{countText}</p>
-                <p>All criteria must be evaluated before this VPAT can be reviewed.</p>
+                <p>{t('criteria_must_be_evaluated_review')}</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>OK</AlertDialogCancel>
+            <AlertDialogCancel>{t('ok')}</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -342,29 +338,25 @@ export function VpatSettingsMenu({
           }}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>Submit Review</AlertDialogTitle>
+            <AlertDialogTitle>{t('submit_review_title')}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-1">
                 <p>{countText}</p>
-                <p>
-                  By submitting your name, you confirm that you have personally reviewed this VPAT
-                  and that the results accurately reflect the product&apos;s accessibility
-                  conformance.
-                </p>
+                <p>{t('submit_review_confirmation')}</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="px-6 pb-2">
             <Input
-              placeholder="Full name"
+              placeholder={t('reviewer_name_placeholder')}
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
-              aria-label="Reviewer full name"
+              aria-label={t('reviewer_name_aria_label')}
               ref={reviewerInputRef}
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'success' })}
               onClick={() => {
@@ -375,7 +367,7 @@ export function VpatSettingsMenu({
               }}
               disabled={!reviewerName.trim() || isReviewing}
             >
-              {isReviewing ? 'Submitting…' : 'Submit Review'}
+              {isReviewing ? t('submitting') : t('submit_review_button')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -385,21 +377,18 @@ export function VpatSettingsMenu({
       <AlertDialog open={editOpen} onOpenChange={setEditOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Edit Published VPAT?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Editing will reset this VPAT to Draft. The current published version will be preserved
-              and can be found in Version History.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t('edit_published_title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('edit_published_description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setEditOpen(false);
                 onEdit?.();
               }}
             >
-              Edit Anyway
+              {t('edit_anyway')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -409,16 +398,15 @@ export function VpatSettingsMenu({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete VPAT</AlertDialogTitle>
+            <AlertDialogTitle>{t('delete_vpat_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{vpatTitle}&rdquo;? This action cannot be
-              undone.
+              {t('delete_vpat_description', { title: vpatTitle })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? 'Deleting…' : 'Delete'}
+              {isDeleting ? t('deleting') : t('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

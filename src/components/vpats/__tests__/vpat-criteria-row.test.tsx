@@ -1,9 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import type { UseFormRegister } from 'react-hook-form';
+import { NextIntlClientProvider } from 'next-intl';
 import { Table, TableBody } from '@/components/ui/table';
 import { VpatCriteriaRow } from '@/components/vpats/vpat-criteria-row';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import messages from '@/messages/en.json';
 
 // react-hook-form register mock — returns ref + name so the Textarea spread works.
 type RemarksFormValues = Record<string, string>;
@@ -37,11 +39,14 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
 });
 
 // Wrap in a Table/TableBody so the TableRow renders without HTML warnings.
+// Also wraps with NextIntlClientProvider for i18n support.
 const wrap = (ui: React.ReactElement) =>
   render(
-    <Table>
-      <TableBody>{ui}</TableBody>
-    </Table>
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <Table>
+        <TableBody>{ui}</TableBody>
+      </Table>
+    </NextIntlClientProvider>
   );
 
 describe('VpatCriteriaRow', () => {

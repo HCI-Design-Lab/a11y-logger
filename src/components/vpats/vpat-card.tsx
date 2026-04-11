@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { VpatWithProgress } from '@/lib/db/vpats';
@@ -15,6 +16,8 @@ interface VpatCardProps {
 }
 
 export function VpatCard({ vpat }: VpatCardProps) {
+  const t = useTranslations('vpats');
+  const tStatus = useTranslations('vpats.status');
   const editionLabel = getEditionLabel(vpat);
   const isPublished = vpat.status === 'published';
 
@@ -23,15 +26,17 @@ export function VpatCard({ vpat }: VpatCardProps) {
       <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">{vpat.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">{vpat.project_name ?? 'No project'}</p>
+          <p className="text-sm text-muted-foreground">
+            {vpat.project_name ?? t('card.no_project')}
+          </p>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2 text-sm">
           <Badge variant="outline">{editionLabel}</Badge>
           <Badge variant={isPublished ? 'default' : 'secondary'}>
-            {isPublished ? 'Published' : 'Draft'}
+            {isPublished ? tStatus('published') : tStatus('draft')}
           </Badge>
           <span className="text-muted-foreground">
-            {vpat.resolved} of {vpat.total} criteria resolved
+            {t('card.criteria_resolved', { resolved: vpat.resolved, total: vpat.total })}
           </span>
         </CardContent>
       </Card>

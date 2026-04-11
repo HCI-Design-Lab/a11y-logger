@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { VpatCard } from '@/components/vpats/vpat-card';
 import type { VpatWithProgress } from '@/lib/db/vpats';
+import messages from '@/messages/en.json';
 
 const makeVpat = (overrides: Partial<VpatWithProgress> = {}): VpatWithProgress => ({
   id: 'v1',
@@ -25,44 +27,52 @@ const makeVpat = (overrides: Partial<VpatWithProgress> = {}): VpatWithProgress =
   ...overrides,
 });
 
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 describe('VpatCard', () => {
   it('shows title', () => {
-    render(<VpatCard vpat={makeVpat()} />);
+    renderWithIntl(<VpatCard vpat={makeVpat()} />);
     expect(screen.getByText('My VPAT')).toBeInTheDocument();
   });
 
   it('shows project name', () => {
-    render(<VpatCard vpat={makeVpat()} />);
+    renderWithIntl(<VpatCard vpat={makeVpat()} />);
     expect(screen.getByText('Acme App')).toBeInTheDocument();
   });
 
   it('shows edition label for WCAG', () => {
-    render(<VpatCard vpat={makeVpat()} />);
+    renderWithIntl(<VpatCard vpat={makeVpat()} />);
     expect(screen.getByText('WCAG 2.1 · AA')).toBeInTheDocument();
   });
 
   it('shows edition label for 508', () => {
-    render(<VpatCard vpat={makeVpat({ standard_edition: '508' })} />);
+    renderWithIntl(<VpatCard vpat={makeVpat({ standard_edition: '508' })} />);
     expect(screen.getByText('Section 508')).toBeInTheDocument();
   });
 
-  it('shows progress count', () => {
-    render(<VpatCard vpat={makeVpat()} />);
+  it('shows progress count via i18n', () => {
+    renderWithIntl(<VpatCard vpat={makeVpat()} />);
     expect(screen.getByText('3 of 12 criteria resolved')).toBeInTheDocument();
   });
 
   it('shows Draft badge when status is draft', () => {
-    render(<VpatCard vpat={makeVpat()} />);
+    renderWithIntl(<VpatCard vpat={makeVpat()} />);
     expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
   it('shows Published badge when status is published', () => {
-    render(<VpatCard vpat={makeVpat({ status: 'published' })} />);
+    renderWithIntl(<VpatCard vpat={makeVpat({ status: 'published' })} />);
     expect(screen.getByText('Published')).toBeInTheDocument();
   });
 
-  it('shows fallback when project_name is null', () => {
-    render(<VpatCard vpat={makeVpat({ project_name: null })} />);
+  it('shows fallback when project_name is null via i18n', () => {
+    renderWithIntl(<VpatCard vpat={makeVpat({ project_name: null })} />);
     expect(screen.getByText('No project')).toBeInTheDocument();
   });
 });

@@ -1,11 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en.json';
 import { GenerateAllConfirmDialog } from '@/components/vpats/generate-all-confirm-dialog';
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 describe('GenerateAllConfirmDialog', () => {
   it('shows the criteria count in the description', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -17,7 +27,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('warns that generation may take a few minutes', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -30,7 +40,7 @@ describe('GenerateAllConfirmDialog', () => {
 
   it('calls onConfirm when the Generate button is clicked', async () => {
     const onConfirm = vi.fn();
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -44,7 +54,7 @@ describe('GenerateAllConfirmDialog', () => {
 
   it('calls onOpenChange(false) when Cancel is clicked', async () => {
     const onOpenChange = vi.fn();
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={onOpenChange}
@@ -57,7 +67,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('Generate button uses the ai variant', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -69,7 +79,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('Generate button has a Sparkles icon', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -82,7 +92,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('Cancel button has an X icon', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={true}
         onOpenChange={vi.fn()}
@@ -95,7 +105,7 @@ describe('GenerateAllConfirmDialog', () => {
   });
 
   it('does not render content when closed', () => {
-    render(
+    renderWithIntl(
       <GenerateAllConfirmDialog
         open={false}
         onOpenChange={vi.fn()}
@@ -104,5 +114,17 @@ describe('GenerateAllConfirmDialog', () => {
       />
     );
     expect(screen.queryByText(/criteria/)).not.toBeInTheDocument();
+  });
+
+  it('shows title via i18n', () => {
+    renderWithIntl(
+      <GenerateAllConfirmDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        criteriaCount={5}
+        onConfirm={vi.fn()}
+      />
+    );
+    expect(screen.getByText(/generate all criteria/i)).toBeInTheDocument();
   });
 });

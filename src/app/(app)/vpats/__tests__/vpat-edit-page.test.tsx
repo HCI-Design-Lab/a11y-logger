@@ -2,10 +2,28 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import VpatEditPage from '../[id]/edit/page';
+import messages from '@/messages/en.json';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
   useParams: () => ({ id: 'vpat-1' }),
+}));
+
+// Mock next-intl to return actual English translations by namespace
+vi.mock('next-intl', () => ({
+  useTranslations: (namespace: string) => {
+    const parts = namespace ? namespace.split('.') : [];
+    let section: Record<string, unknown> = messages as Record<string, unknown>;
+    for (const part of parts) {
+      section = (section[part] ?? {}) as Record<string, unknown>;
+    }
+    return (key: string, params?: Record<string, unknown>) => {
+      const val = section[key] as string | undefined;
+      if (!val) return key;
+      if (!params) return val;
+      return val.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? `{${k}}`));
+    };
+  },
 }));
 
 const mockVpatReviewed = {

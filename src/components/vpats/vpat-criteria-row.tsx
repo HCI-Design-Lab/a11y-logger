@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, memo } from 'react';
 import type { UseFormRegister } from 'react-hook-form';
+import { useTranslations } from 'next-intl';
 import { Info, Sparkles } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import {
@@ -15,13 +16,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
 
-const CONFORMANCE_OPTIONS = [
-  { value: 'not_evaluated', label: 'Not Evaluated' },
-  { value: 'supports', label: 'Supports' },
-  { value: 'partially_supports', label: 'Partial Support' },
-  { value: 'does_not_support', label: 'Does Not Support' },
-  { value: 'not_applicable', label: 'Not Applicable' },
+const CONFORMANCE_VALUES = [
+  'not_evaluated',
+  'supports',
+  'partially_supports',
+  'does_not_support',
+  'not_applicable',
 ] as const;
+
+type ConformanceValue = (typeof CONFORMANCE_VALUES)[number];
 
 type RemarksFormValues = Record<string, string>;
 
@@ -54,6 +57,9 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   onAiInfoClick,
   register,
 }: VpatCriteriaRowProps) {
+  const tConformance = useTranslations('vpats.conformance');
+  const tCriteria = useTranslations('vpats.criteria');
+
   const isDisabled = isGenerating || isGeneratingAll;
   const displayName = row.criterion_name_translated ?? row.criterion_name;
   const showEnBadge = locale !== 'en' && row.criterion_name_translated === null;
@@ -95,8 +101,9 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
   }, [row.components, autoResize]);
 
   const isUnresolved = row.conformance === 'not_evaluated';
-  const conformanceLabel =
-    CONFORMANCE_OPTIONS.find((o) => o.value === row.conformance)?.label ?? row.conformance;
+  const conformanceLabel = CONFORMANCE_VALUES.includes(row.conformance as ConformanceValue)
+    ? tConformance(row.conformance as ConformanceValue)
+    : row.conformance;
 
   const isMultiComponent = (row.components?.length ?? 0) > 1;
 
@@ -108,7 +115,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
           variant="link"
           className="h-auto p-0 font-medium text-sm text-left"
           onClick={() => onCriterionClick(row.criterion_code)}
-          aria-label={`View issues for ${row.criterion_code}`}
+          aria-label={tCriteria('view_issues_aria_label', { code: row.criterion_code })}
         >
           {displayName}
           {showEnBadge && <span className="ml-1 text-xs text-muted-foreground">EN</span>}
@@ -145,9 +152,11 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
             <table data-testid="component-sub-table" className="w-full">
               <tbody>
                 {(row.components ?? []).map((comp) => {
-                  const compConformanceLabel =
-                    CONFORMANCE_OPTIONS.find((o) => o.value === comp.conformance)?.label ??
-                    comp.conformance;
+                  const compConformanceLabel = CONFORMANCE_VALUES.includes(
+                    comp.conformance as ConformanceValue
+                  )
+                    ? tConformance(comp.conformance as ConformanceValue)
+                    : comp.conformance;
                   return (
                     <tr key={comp.component_name}>
                       <td className="px-3 py-2 text-sm w-32 font-medium">{comp.component_name}</td>
@@ -167,14 +176,16 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                           >
                             <SelectTrigger
                               className="h-8 text-sm"
-                              aria-label={`Conformance for ${row.criterion_code} — ${comp.component_name}`}
+                              aria-label={tCriteria('conformance_aria_label', {
+                                code: `${row.criterion_code} — ${comp.component_name}`,
+                              })}
                             >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {CONFORMANCE_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
+                              {CONFORMANCE_VALUES.map((val) => (
+                                <SelectItem key={val} value={val}>
+                                  {tConformance(val)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -194,13 +205,15 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                             }}
                             className="text-sm min-h-10 overflow-hidden"
                             style={{ resize: 'vertical' }}
-                            placeholder="Add remarks…"
+                            placeholder={tCriteria('remarks_placeholder')}
                             disabled={isDisabled}
                             defaultValue={comp.remarks ?? ''}
                             onChange={(e) =>
                               scheduleRemarksSave(row.id, e.target.value, comp.component_name)
                             }
-                            aria-label={`Remarks for ${row.criterion_code} — ${comp.component_name}`}
+                            aria-label={tCriteria('remarks_aria_label', {
+                              code: `${row.criterion_code} — ${comp.component_name}`,
+                            })}
                           />
                         )}
                       </td>
@@ -221,12 +234,12 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                   disabled={isDisabled}
                   aria-label={
                     isGenerating
-                      ? `Generating for ${row.criterion_code}`
-                      : `Generate for ${row.criterion_code}`
+                      ? tCriteria('generating_aria_label', { code: row.criterion_code })
+                      : tCriteria('generate_aria_label', { code: row.criterion_code })
                   }
                 >
                   <Sparkles />
-                  {isGenerating ? 'Generating…' : 'Generate'}
+                  {isGenerating ? tCriteria('generating') : tCriteria('generate')}
                 </Button>
                 {hasAiInfo && (
                   <Button
@@ -235,7 +248,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                     size="sm"
                     className="h-8 w-8 p-0"
                     onClick={() => onAiInfoClick?.(row)}
-                    aria-label={`AI info for ${row.criterion_code}`}
+                    aria-label={tCriteria('ai_info_aria_label', { code: row.criterion_code })}
                   >
                     <Info className="h-4 w-4" />
                   </Button>
@@ -267,14 +280,14 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
             >
               <SelectTrigger
                 className="h-8 text-sm"
-                aria-label={`Conformance for ${row.criterion_code}`}
+                aria-label={tCriteria('conformance_aria_label', { code: row.criterion_code })}
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CONFORMANCE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                {CONFORMANCE_VALUES.map((val) => (
+                  <SelectItem key={val} value={val}>
+                    {tConformance(val)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -302,10 +315,10 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
               })()}
               className="text-sm min-h-10 overflow-hidden"
               style={{ resize: 'vertical' }}
-              placeholder="Add remarks…"
+              placeholder={tCriteria('remarks_placeholder')}
               disabled={isDisabled}
               onInput={(e) => autoResize(e.currentTarget)}
-              aria-label={`Remarks for ${row.criterion_code}`}
+              aria-label={tCriteria('remarks_aria_label', { code: row.criterion_code })}
             />
           )}
         </TableCell>
@@ -320,12 +333,12 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                 disabled={isDisabled}
                 aria-label={
                   isGenerating
-                    ? `Generating for ${row.criterion_code}`
-                    : `Generate for ${row.criterion_code}`
+                    ? tCriteria('generating_aria_label', { code: row.criterion_code })
+                    : tCriteria('generate_aria_label', { code: row.criterion_code })
                 }
               >
                 <Sparkles />
-                {isGenerating ? 'Generating…' : 'Generate'}
+                {isGenerating ? tCriteria('generating') : tCriteria('generate')}
               </Button>
               {hasAiInfo && (
                 <Button
@@ -334,7 +347,7 @@ export const VpatCriteriaRow = memo(function VpatCriteriaRow({
                   size="sm"
                   className="h-8 w-8 p-0"
                   onClick={() => onAiInfoClick?.(row)}
-                  aria-label={`AI info for ${row.criterion_code}`}
+                  aria-label={tCriteria('ai_info_aria_label', { code: row.criterion_code })}
                 >
                   <Info className="h-4 w-4" />
                 </Button>

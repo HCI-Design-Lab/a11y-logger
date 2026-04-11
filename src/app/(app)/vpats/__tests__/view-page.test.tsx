@@ -8,8 +8,24 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({ push: vi.fn(), refresh: vi.fn() })),
   useParams: () => ({ id: 'vpat-1' }),
 }));
+import messages from '@/messages/en.json';
+
+// Mock next-intl to return actual English translations by namespace
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (namespace: string) => {
+    // Navigate into the messages object using the namespace path
+    const parts = namespace ? namespace.split('.') : [];
+    let section: Record<string, unknown> = messages as Record<string, unknown>;
+    for (const part of parts) {
+      section = (section[part] ?? {}) as Record<string, unknown>;
+    }
+    return (key: string, params?: Record<string, unknown>) => {
+      const val = section[key] as string | undefined;
+      if (!val) return key;
+      if (!params) return val;
+      return val.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? `{${k}}`));
+    };
+  },
 }));
 
 const mockVpat = {

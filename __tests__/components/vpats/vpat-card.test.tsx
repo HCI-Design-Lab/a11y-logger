@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { VpatCard } from '@/components/vpats/vpat-card';
 import type { VpatWithProgress } from '@/lib/db/vpats';
+import messages from '@/messages/en.json';
 
 const mockVpat: VpatWithProgress = {
   id: 'v1',
@@ -23,30 +25,38 @@ const mockVpat: VpatWithProgress = {
   total: 5,
 };
 
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
 describe('VpatCard', () => {
   it('renders title as a link', () => {
-    render(<VpatCard vpat={mockVpat} />);
+    renderWithIntl(<VpatCard vpat={mockVpat} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/vpats/v1');
     expect(screen.getByText('Product VPAT')).toBeInTheDocument();
   });
 
   it('renders status badge', () => {
-    render(<VpatCard vpat={mockVpat} />);
+    renderWithIntl(<VpatCard vpat={mockVpat} />);
     expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
   it('renders edition label', () => {
-    render(<VpatCard vpat={mockVpat} />);
+    renderWithIntl(<VpatCard vpat={mockVpat} />);
     expect(screen.getByText('WCAG 2.1 · AA')).toBeInTheDocument();
   });
 
   it('renders progress count', () => {
-    render(<VpatCard vpat={mockVpat} />);
+    renderWithIntl(<VpatCard vpat={mockVpat} />);
     expect(screen.getByText('2 of 5 criteria resolved')).toBeInTheDocument();
   });
 
   it('renders project name', () => {
-    render(<VpatCard vpat={mockVpat} />);
+    renderWithIntl(<VpatCard vpat={mockVpat} />);
     expect(screen.getByText('Acme App')).toBeInTheDocument();
   });
 });

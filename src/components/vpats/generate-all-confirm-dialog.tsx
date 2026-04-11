@@ -1,6 +1,7 @@
 'use client';
 
 import { Sparkles, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,23 +26,23 @@ export function GenerateAllConfirmDialog({
   criteriaCount,
   onConfirm,
 }: GenerateAllConfirmDialogProps) {
+  const t = useTranslations('vpats.generate_all');
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Generate All Criteria?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will generate remarks for {criteriaCount} criteria. This may take a few minutes.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t('title')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('description', { criteriaCount })}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
             <X className="h-4 w-4" />
-            Cancel
+            {t('cancel')}
           </AlertDialogCancel>
           <AlertDialogAction variant="ai" onClick={onConfirm}>
             <Sparkles className="h-4 w-4" />
-            Generate
+            {t('generate')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

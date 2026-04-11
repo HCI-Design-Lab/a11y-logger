@@ -2,9 +2,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import type { UseFormRegister } from 'react-hook-form';
+import { NextIntlClientProvider } from 'next-intl';
 import { Table, TableBody } from '@/components/ui/table';
 import { VpatCriteriaRow } from '@/components/vpats/vpat-criteria-row';
 import type { VpatCriterionRow } from '@/lib/db/vpat-criterion-rows';
+import messages from '@/messages/en.json';
 
 type RemarksFormValues = Record<string, string>;
 const mockRegister = ((name: string) => ({
@@ -41,9 +43,11 @@ function makeRow(overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow {
 
 const wrap = (ui: React.ReactElement) =>
   render(
-    <Table>
-      <TableBody>{ui}</TableBody>
-    </Table>
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <Table>
+        <TableBody>{ui}</TableBody>
+      </Table>
+    </NextIntlClientProvider>
   );
 
 describe('VpatCriteriaRow — single component', () => {
@@ -182,23 +186,30 @@ describe('VpatCriteriaRow — multi-component', () => {
     };
     const onGenerateRow = vi.fn();
     render(
-      <table>
-        <tbody>
-          <VpatCriteriaRow
-            row={row as never}
-            readOnly={false}
-            aiEnabled={true}
-            isGenerating={false}
-            isGeneratingAll={false}
-            onRowChange={vi.fn()}
-            scheduleRemarksSave={vi.fn()}
-            onGenerateRow={onGenerateRow}
-            register={vi
-              .fn()
-              .mockReturnValue({ ref: vi.fn(), name: 'row1', onChange: vi.fn(), onBlur: vi.fn() })}
-          />
-        </tbody>
-      </table>
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <table>
+          <tbody>
+            <VpatCriteriaRow
+              row={row as never}
+              readOnly={false}
+              aiEnabled={true}
+              isGenerating={false}
+              isGeneratingAll={false}
+              onRowChange={vi.fn()}
+              scheduleRemarksSave={vi.fn()}
+              onGenerateRow={onGenerateRow}
+              register={vi
+                .fn()
+                .mockReturnValue({
+                  ref: vi.fn(),
+                  name: 'row1',
+                  onChange: vi.fn(),
+                  onBlur: vi.fn(),
+                })}
+            />
+          </tbody>
+        </table>
+      </NextIntlClientProvider>
     );
     expect(screen.getByRole('button', { name: /generate for 1\.1\.1/i })).toBeInTheDocument();
   });
