@@ -40,13 +40,31 @@ describe('Header language selector', () => {
 
   it('shows English as the selected option when locale is en', () => {
     render(<Header currentLocale="en" />);
-    expect(screen.getByDisplayValue('English')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /language/i })).toHaveTextContent('English');
+  });
+
+  it('shows Français as the selected option when locale is fr', () => {
+    render(<Header currentLocale="fr" />);
+    expect(screen.getByRole('combobox', { name: /language/i })).toHaveTextContent('Français');
+  });
+
+  it('shows Español as the selected option when locale is es', () => {
+    render(<Header currentLocale="es" />);
+    expect(screen.getByRole('combobox', { name: /language/i })).toHaveTextContent('Español');
+  });
+
+  it('shows Deutsch as the selected option when locale is de', () => {
+    render(<Header currentLocale="de" />);
+    expect(screen.getByRole('combobox', { name: /language/i })).toHaveTextContent('Deutsch');
   });
 
   it('calls settings API and router.refresh when language changes', async () => {
     render(<Header currentLocale="en" />);
-    const select = screen.getByRole('combobox', { name: /language/i });
-    fireEvent.change(select, { target: { value: 'fr' } });
+    const trigger = screen.getByRole('combobox', { name: /language/i });
+    fireEvent.click(trigger);
+
+    const frOption = await screen.findByRole('option', { name: 'Français' });
+    fireEvent.click(frOption);
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
