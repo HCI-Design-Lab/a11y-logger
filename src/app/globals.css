@@ -101,30 +101,30 @@
 
 /* Dark mode — default via next-themes */
 .dark {
-  --background: oklch(0.067 0 0);
-  --foreground: oklch(0.961 0 0);
-  --card: oklch(0.133 0 0);
-  --card-foreground: oklch(0.961 0 0);
-  --popover: oklch(0.133 0 0);
-  --popover-foreground: oklch(0.961 0 0);
-  --primary: oklch(0.961 0 0);
-  --primary-foreground: oklch(0.067 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.961 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.533 0 0);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.961 0 0);
-  --destructive: oklch(0.637 0.2078 25.3);
-  --border: oklch(0.267 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.961 0 0);
-  --success: oklch(0.527 0.129 151);
-  --ai: oklch(0.546 0.141 283.103);
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.93 0 0);
+  --card: oklch(0.13 0 0);
+  --card-foreground: oklch(0.93 0 0);
+  --popover: oklch(0.13 0 0);
+  --popover-foreground: oklch(0.93 0 0);
+  --primary: oklch(0.93 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.16 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --muted: oklch(0.16 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.16 0 0);
+  --accent-foreground: oklch(0.93 0 0);
+  --destructive: oklch(0.6 0.2 25);
+  --border: oklch(0.26 0 0);
+  --input: oklch(0.16 0 0);
+  --ring: oklch(0.93 0 0);
+  --success: oklch(0.72 0.17 151);
+  --ai: oklch(0.55 0.16 277);
   --ai-background: oklch(0.943 0.025 268.845);
-  --form-background: oklch(0.133 0 0);
+  --form-background: oklch(0.13 0 0);
   --tags: oklch(0.4 0 0);
-  --button-background: oklch(0.961 0 0);
+  --button-background: oklch(0.93 0 0);
   --chart-1: oklch(0.529 0.1931 262.1);
   --chart-2: oklch(0.698 0.1337 165.5);
   --chart-3: oklch(0.723 0.15 60.6);
@@ -134,14 +134,14 @@
   --severity-chart-2: oklch(0.723 0.15 60.6);
   --severity-chart-3: oklch(0.933 0.1487 100.6);
   --severity-chart-4: oklch(0.778 0.0222 225.3);
-  --sidebar: oklch(0.133 0 0);
-  --sidebar-foreground: oklch(0.961 0 0);
-  --sidebar-primary: oklch(0.961 0 0);
-  --sidebar-primary-foreground: oklch(0.067 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.961 0 0);
-  --sidebar-border: oklch(0.267 0 0);
-  --sidebar-ring: oklch(0.961 0 0);
+  --sidebar: oklch(0.13 0 0);
+  --sidebar-foreground: oklch(0.93 0 0);
+  --sidebar-primary: oklch(0.93 0 0);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(0.16 0 0);
+  --sidebar-accent-foreground: oklch(0.93 0 0);
+  --sidebar-border: oklch(0.26 0 0);
+  --sidebar-ring: oklch(0.93 0 0);
 }
 
 .a11y-focus:hover {
