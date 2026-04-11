@@ -29,7 +29,7 @@ const tabsListVariants = cva(
       variant: {
         default: 'bg-card',
         line: 'gap-1 bg-transparent',
-        segmented: 'bg-card p-0 gap-0 rounded-[4px] border border-border',
+        segmented: 'bg-muted p-0 gap-0 rounded-[4px] border border-border',
       },
     },
     defaultVariants: {
