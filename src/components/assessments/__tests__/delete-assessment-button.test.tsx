@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 const messages = {
   assessments: {
     delete_dialog: {
-      title: 'Delete Assessment?',
+      title: 'Delete {name}?',
       description:
         'This will permanently delete this assessment and all its issues. This cannot be undone.',
       confirm_button: 'Delete Assessment',
@@ -53,7 +53,7 @@ test('shows the assessment name in the confirmation dialog', async () => {
     <DeleteAssessmentButton projectId="p1" assessmentId="a1" assessmentName="Mobile Audit Q1" />
   );
   fireEvent.click(screen.getByRole('button', { name: /delete/i }));
-  expect(await screen.findByText(/mobile audit q1/i)).toBeInTheDocument();
+  expect(await screen.findByText('Delete Mobile Audit Q1?')).toBeInTheDocument();
 });
 
 test('calls the correct DELETE API endpoint on confirm', async () => {

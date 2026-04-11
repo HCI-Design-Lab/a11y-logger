@@ -110,10 +110,15 @@
     "settings_menu": {
       "aria_label": "Assessment settings",
       "edit": "Edit Assessment",
-      "delete": "Delete Assessment"
+      "delete": "Delete Assessment",
+      "add_issue": "Add Issue",
+      "import_issues": "Import Issues",
+      "mark_in_progress": "Mark as In Progress",
+      "mark_complete": "Mark as Complete",
+      "mark_incomplete": "Mark as Incomplete"
     },
     "delete_dialog": {
-      "title": "Delete Assessment?",
+      "title": "Delete {name}?",
       "description": "This will permanently delete this assessment and all its issues. This cannot be undone.",
       "confirm_button": "Delete Assessment",
       "cancel_button": "Cancel"

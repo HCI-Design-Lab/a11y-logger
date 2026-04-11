@@ -27,9 +27,14 @@ const messages = {
       aria_label: 'Assessment settings',
       edit: 'Edit Assessment',
       delete: 'Delete Assessment',
+      add_issue: 'Add Issue',
+      import_issues: 'Import Issues',
+      mark_in_progress: 'Mark as In Progress',
+      mark_complete: 'Mark as Complete',
+      mark_incomplete: 'Mark as Incomplete',
     },
     delete_dialog: {
-      title: 'Delete Assessment?',
+      title: 'Delete {name}?',
       description:
         'This will permanently delete this assessment and all its issues. This cannot be undone.',
       confirm_button: 'Delete Assessment',
@@ -54,7 +59,7 @@ function renderWithIntl(ui: React.ReactElement) {
   );
 }
 
-const baseProps = { projectId: 'p1', assessmentId: 'a1' };
+const baseProps = { projectId: 'p1', assessmentId: 'a1', assessmentName: 'Mobile App Q1 Audit' };
 
 test('renders a settings trigger button', () => {
   renderWithIntl(<AssessmentSettingsMenu {...baseProps} />);
@@ -183,11 +188,11 @@ describe('i18n integration — real NextIntlClientProvider', () => {
     expect(screen.getByRole('menuitem', { name: 'Delete Assessment' })).toBeInTheDocument();
   });
 
-  it('renders Delete Assessment? title in confirmation dialog from catalog', async () => {
+  it('renders delete dialog title with assessment name from catalog', async () => {
     renderWithIntl(<AssessmentSettingsMenu {...baseProps} />);
     await userEvent.click(screen.getByRole('button', { name: 'Assessment settings' }));
     await userEvent.click(screen.getByRole('menuitem', { name: 'Delete Assessment' }));
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-    expect(screen.getByText('Delete Assessment?')).toBeInTheDocument();
+    expect(screen.getByText('Delete Mobile App Q1 Audit?')).toBeInTheDocument();
   });
 });

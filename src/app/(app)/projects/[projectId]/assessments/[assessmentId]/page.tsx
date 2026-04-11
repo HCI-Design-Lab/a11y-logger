@@ -63,6 +63,7 @@ export default async function AssessmentDetailPage({
             <AssessmentSettingsMenu
               projectId={projectId}
               assessmentId={assessmentId}
+              assessmentName={assessment.name}
               currentStatus={assessment.status}
             />
           </div>

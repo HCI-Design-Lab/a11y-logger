@@ -59,7 +59,7 @@ export function DeleteAssessmentButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {assessmentName}?</AlertDialogTitle>
+          <AlertDialogTitle>{tDialog('title', { name: assessmentName })}</AlertDialogTitle>
           <AlertDialogDescription>{tDialog('description')}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

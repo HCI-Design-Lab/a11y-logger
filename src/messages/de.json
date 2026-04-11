@@ -110,10 +110,15 @@
     "settings_menu": {
       "aria_label": "Bewertungseinstellungen",
       "edit": "Bewertung bearbeiten",
-      "delete": "Bewertung löschen"
+      "delete": "Bewertung löschen",
+      "add_issue": "Problem hinzufügen",
+      "import_issues": "Probleme importieren",
+      "mark_in_progress": "Als in Bearbeitung markieren",
+      "mark_complete": "Als abgeschlossen markieren",
+      "mark_incomplete": "Als unvollständig markieren"
     },
     "delete_dialog": {
-      "title": "Bewertung löschen?",
+      "title": "{name} löschen?",
       "description": "Dadurch wird diese Bewertung sowie alle zugehörigen Probleme dauerhaft gelöscht.",
       "confirm_button": "Bewertung löschen",
       "cancel_button": "Abbrechen"

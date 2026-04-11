@@ -110,10 +110,15 @@
     "settings_menu": {
       "aria_label": "Paramètres de l'évaluation",
       "edit": "Modifier l'évaluation",
-      "delete": "Supprimer l'évaluation"
+      "delete": "Supprimer l'évaluation",
+      "add_issue": "Ajouter un problème",
+      "import_issues": "Importer des problèmes",
+      "mark_in_progress": "Marquer en cours",
+      "mark_complete": "Marquer comme terminé",
+      "mark_incomplete": "Marquer comme incomplet"
     },
     "delete_dialog": {
-      "title": "Supprimer l'évaluation ?",
+      "title": "Supprimer {name} ?",
       "description": "Cela supprimera définitivement cette évaluation et tous ses problèmes.",
       "confirm_button": "Supprimer l'évaluation",
       "cancel_button": "Annuler"

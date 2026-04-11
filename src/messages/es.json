@@ -110,10 +110,15 @@
     "settings_menu": {
       "aria_label": "Configuración de la evaluación",
       "edit": "Editar evaluación",
-      "delete": "Eliminar evaluación"
+      "delete": "Eliminar evaluación",
+      "add_issue": "Añadir problema",
+      "import_issues": "Importar problemas",
+      "mark_in_progress": "Marcar en progreso",
+      "mark_complete": "Marcar como completado",
+      "mark_incomplete": "Marcar como incompleto"
     },
     "delete_dialog": {
-      "title": "¿Eliminar evaluación?",
+      "title": "¿Eliminar {name}?",
       "description": "Esto eliminará permanentemente esta evaluación y todos sus problemas.",
       "confirm_button": "Eliminar evaluación",
       "cancel_button": "Cancelar"
