@@ -133,7 +133,7 @@ export function VpatSettingsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="VPAT settings">
+          <Button variant="outline" size="icon" aria-label="VPAT settings" className="bg-card">
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

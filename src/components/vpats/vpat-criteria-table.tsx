@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { UseFormRegister } from 'react-hook-form';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +68,6 @@ interface CriterionSectionProps {
   register: UseFormRegister<RemarksFormValues>;
 }
 
-// Collapsible section card — owns isExpanded state so toggling only re-renders this section.
 const CriterionSection = memo(function CriterionSection({
   section,
   sectionRows,
@@ -84,70 +83,45 @@ const CriterionSection = memo(function CriterionSection({
   onAiInfoClick,
   register,
 }: CriterionSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const label = SECTION_LABELS[section] ?? section;
-  const resolved = sectionRows.filter((r) => r.conformance !== 'not_evaluated').length;
-  const total = sectionRows.length;
 
   return (
     <Card>
       <CardHeader className="py-3">
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-base">{label}</CardTitle>
-          <div className="flex items-center gap-3 shrink-0">
-            {!isExpanded && (
-              <span className="text-sm text-muted-foreground">
-                {resolved} of {total} resolved
-              </span>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => setIsExpanded((v) => !v)}
-              aria-label={isExpanded ? `Collapse ${label}` : `Expand ${label}`}
-              aria-expanded={isExpanded}
-            >
-              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
+        <CardTitle className="text-base">{label}</CardTitle>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-primary">
-                <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
-                <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
-                <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
-                <TableHead>Remarks</TableHead>
-                {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sectionRows.map((row) => (
-                <VpatCriteriaRow
-                  key={row.id}
-                  row={row}
-                  locale={locale}
-                  readOnly={readOnly}
-                  aiEnabled={aiEnabled}
-                  isGenerating={generatingRowId === row.id}
-                  isGeneratingAll={isGeneratingAll}
-                  onRowChange={onRowChange}
-                  scheduleRemarksSave={scheduleRemarksSave}
-                  onGenerateRow={onGenerateRow}
-                  onCriterionClick={onCriterionClick}
-                  onAiInfoClick={onAiInfoClick}
-                  register={register}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      )}
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-primary">
+              <TableHead className={readOnly ? 'w-16' : 'w-20'}>Criterion</TableHead>
+              <TableHead className={readOnly ? 'w-[20%]' : 'w-[30%]'}>Name</TableHead>
+              <TableHead className={readOnly ? 'w-28' : 'w-40'}>Conformance</TableHead>
+              <TableHead>Remarks</TableHead>
+              {aiEnabled && !readOnly && <TableHead className="w-36 text-center">AI</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sectionRows.map((row) => (
+              <VpatCriteriaRow
+                key={row.id}
+                row={row}
+                locale={locale}
+                readOnly={readOnly}
+                aiEnabled={aiEnabled}
+                isGenerating={generatingRowId === row.id}
+                isGeneratingAll={isGeneratingAll}
+                onRowChange={onRowChange}
+                scheduleRemarksSave={scheduleRemarksSave}
+                onGenerateRow={onGenerateRow}
+                onCriterionClick={onCriterionClick}
+                onAiInfoClick={onAiInfoClick}
+                register={register}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 });
