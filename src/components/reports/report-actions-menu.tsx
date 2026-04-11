@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -32,6 +33,10 @@ interface ReportActionsMenuProps {
 
 export function ReportActionsMenu({ reportId, reportTitle, isPublished }: ReportActionsMenuProps) {
   const router = useRouter();
+  const tMenu = useTranslations('reports.settings_menu');
+  const tDelete = useTranslations('reports.delete_dialog');
+  const tPublish = useTranslations('reports.publish_dialog');
+  const tToast = useTranslations('reports.toast');
   const [publishOpen, setPublishOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -44,13 +49,13 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'POST' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? 'Failed to publish report');
+        toast.error(json.error ?? tToast('update_failed'));
         return;
       }
-      toast.success('Report published');
+      toast.success(tToast('published'));
       router.refresh();
     } catch {
-      toast.error('Failed to publish report');
+      toast.error(tToast('update_failed'));
     } finally {
       setIsPublishing(false);
       setPublishOpen(false);
@@ -63,13 +68,13 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       const res = await fetch(`/api/reports/${reportId}/publish`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? 'Failed to unpublish report');
+        toast.error(json.error ?? tToast('update_failed'));
         return;
       }
-      toast.success('Report unpublished');
+      toast.success(tToast('unpublished'));
       router.refresh();
     } catch {
-      toast.error('Failed to unpublish report');
+      toast.error(tToast('update_failed'));
     } finally {
       setIsUnpublishing(false);
     }
@@ -81,14 +86,14 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       const res = await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
       const json = await res.json();
       if (!json.success) {
-        toast.error(json.error ?? 'Failed to delete report');
+        toast.error(json.error ?? tToast('delete_failed'));
         return;
       }
-      toast.success('Report deleted');
+      toast.success(tToast('deleted'));
       router.push('/reports');
       router.refresh();
     } catch {
-      toast.error('Failed to delete report');
+      toast.error(tToast('delete_failed'));
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
@@ -99,7 +104,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" aria-label="Report actions" className="bg-card">
+          <Button variant="ghost" size="icon" aria-label={tMenu('aria_label')}>
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -108,19 +113,19 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
             <DropdownMenuItem asChild>
               <Link href={`/reports/${reportId}/edit`}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit
+                {tMenu('edit')}
               </Link>
             </DropdownMenuItem>
           )}
           {!isPublished ? (
             <DropdownMenuItem onSelect={() => setPublishOpen(true)}>
               <Send className="mr-2 h-4 w-4" />
-              Publish
+              {tMenu('publish')}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onSelect={handleUnpublish} disabled={isUnpublishing}>
               <SendHorizonal className="mr-2 h-4 w-4" />
-              {isUnpublishing ? 'Unpublishing…' : 'Unpublish'}
+              {tMenu('unpublish')}
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
@@ -183,7 +188,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setDeleteOpen(true)} className="">
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            {tMenu('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -192,19 +197,17 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       <AlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Publish Report</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once published, this report cannot be edited. Are you sure you want to publish?
-            </AlertDialogDescription>
+            <AlertDialogTitle>{tPublish('title')}</AlertDialogTitle>
+            <AlertDialogDescription>{tPublish('description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
               <X />
-              Cancel
+              {tPublish('cancel_button')}
             </AlertDialogCancel>
             <AlertDialogAction variant="success" onClick={handlePublish} disabled={isPublishing}>
               <Send />
-              {isPublishing ? 'Publishing…' : 'Publish'}
+              {tPublish('confirm_button')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -214,16 +217,13 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Report</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{reportTitle}&rdquo;? This action cannot be
-              undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{tDelete('title', { name: reportTitle })}</AlertDialogTitle>
+            <AlertDialogDescription>{tDelete('description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tDelete('cancel_button')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? 'Deleting…' : 'Delete'}
+              {tDelete('confirm_button')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
