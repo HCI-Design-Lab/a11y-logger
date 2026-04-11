@@ -27,7 +27,7 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <main className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       <section aria-labelledby="reports-heading">
         <div className="flex items-center justify-between">
           <h1 id="reports-heading" className="text-lg font-semibold">
@@ -94,6 +94,6 @@ export function ReportsListView({ reports }: ReportsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </main>
+    </div>
   );
 }

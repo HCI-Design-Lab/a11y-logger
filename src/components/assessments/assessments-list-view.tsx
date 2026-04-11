@@ -18,7 +18,7 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <main className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       <section aria-labelledby="assessments-heading">
         <div className="flex items-center justify-between">
           <h1 id="assessments-heading" className="text-lg font-semibold">
@@ -56,6 +56,6 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </main>
+    </div>
   );
 }

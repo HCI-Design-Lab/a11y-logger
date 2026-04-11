@@ -61,7 +61,7 @@ function CreateAccountForm({ onCreated }: { onCreated: (user: User) => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="font-medium">Create Account</h3>
+      <h2 className="font-medium">Create Account</h2>
       <div className="space-y-1.5">
         <Label htmlFor="new-username">Username</Label>
         <Input

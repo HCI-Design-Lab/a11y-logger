@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const actionableStats = await getActionableStats();
 
   return (
-    <main className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       {/* Section 1: Activity */}
       <section aria-labelledby="activity-heading">
         <h1 id="activity-heading" className="sr-only">
@@ -41,6 +41,6 @@ export default async function DashboardPage() {
       </section>
 
       <IssueAnalysisSection />
-    </main>
+    </div>
   );
 }

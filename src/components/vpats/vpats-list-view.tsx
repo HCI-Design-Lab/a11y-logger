@@ -32,7 +32,7 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
   const [view, setView] = useState<'grid' | 'table'>('table');
 
   return (
-    <main className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       <section aria-labelledby="vpats-heading">
         <div className="flex items-center justify-between">
           <h1 id="vpats-heading" className="text-lg font-semibold">
@@ -113,6 +113,6 @@ export function VpatsListView({ vpats }: VpatsListViewProps) {
           </CardContent>
         </Card>
       )}
-    </main>
+    </div>
   );
 }

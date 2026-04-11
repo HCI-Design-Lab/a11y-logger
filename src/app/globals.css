@@ -39,6 +39,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-ai: var(--ai);
   --color-ai-background: var(--ai-background);
   --color-form-background: var(--form-background);
@@ -73,6 +74,7 @@
   --input: oklch(0.829 0 0);
   --ring: oklch(0.067 0 0);
   --success: oklch(0.527 0.129 151);
+  --success-foreground: oklch(1 0 0);
   --ai: oklch(0.546 0.141 283.103);
   --ai-background: oklch(0.943 0.025 268.845 / 0.45);
   --form-background: oklch(1 0 0);
@@ -110,7 +112,7 @@
   --secondary: oklch(0.16 0 0);
   --secondary-foreground: oklch(0.93 0 0);
   --muted: oklch(0.16 0 0);
-  --muted-foreground: oklch(0.55 0 0);
+  --muted-foreground: oklch(0.6 0 0);
   --accent: oklch(0.16 0 0);
   --accent-foreground: oklch(0.93 0 0);
   --destructive: oklch(0.6 0.2 25);
@@ -118,6 +120,7 @@
   --input: oklch(0.16 0 0);
   --ring: oklch(0.93 0 0);
   --success: oklch(0.72 0.17 151);
+  --success-foreground: oklch(0 0 0);
   --ai: oklch(0.55 0.16 277);
   --ai-background: oklch(0.943 0.025 268.845);
   --form-background: oklch(0.13 0 0);

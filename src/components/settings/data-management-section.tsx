@@ -80,7 +80,7 @@ export function DataManagementSection({ dbPath, mediaPath }: DataManagementSecti
         </div>
 
         <div className="rounded-lg border border-destructive/50 p-4 space-y-3">
-          <h3 className="font-medium text-destructive">Danger Zone</h3>
+          <h2 className="font-medium text-destructive">Danger Zone</h2>
           <p className="text-sm text-muted-foreground">
             Reset the database. This will permanently delete all projects, assessments, issues,
             reports, and VPATs.
