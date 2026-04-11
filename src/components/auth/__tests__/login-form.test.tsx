@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
 import { LoginForm } from '@/components/auth/login-form';
+import messages from '@/messages/en.json';
 
 const mockPush = vi.fn();
 
@@ -10,10 +12,28 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
+
+test('renders heading Sign In', () => {
+  renderWithIntl(<LoginForm />);
+  expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument();
+});
+
 test('renders username and password fields', () => {
-  render(<LoginForm />);
+  renderWithIntl(<LoginForm />);
   expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+});
+
+test('renders submit button with Sign In text', () => {
+  renderWithIntl(<LoginForm />);
+  expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
 });
 
 test('shows error on failed login', async () => {
@@ -21,7 +41,7 @@ test('shows error on failed login', async () => {
     ok: false,
     json: () => Promise.resolve({ success: false, error: 'Invalid credentials' }),
   } as Response);
-  render(<LoginForm />);
+  renderWithIntl(<LoginForm />);
   fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'baduser' } });
   fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'wrong' } });
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -34,7 +54,7 @@ test('redirects to dashboard on successful login', async () => {
     json: () =>
       Promise.resolve({ success: true, data: { id: '1', username: 'testuser', role: 'admin' } }),
   } as Response);
-  render(<LoginForm />);
+  renderWithIntl(<LoginForm />);
   fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
   fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'correct123' } });
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -42,7 +62,7 @@ test('redirects to dashboard on successful login', async () => {
 });
 
 test('shows error when username is empty on submit', async () => {
-  render(<LoginForm />);
+  renderWithIntl(<LoginForm />);
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
   await waitFor(() =>
     expect(
@@ -52,7 +72,7 @@ test('shows error when username is empty on submit', async () => {
 });
 
 test('shows error when password is empty on submit', async () => {
-  render(<LoginForm />);
+  renderWithIntl(<LoginForm />);
   await userEvent.type(screen.getByLabelText(/username/i), 'admin');
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
   await waitFor(() =>

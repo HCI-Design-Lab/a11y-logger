@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import { LoginSchema, type LoginInput } from '@/lib/validators/users';
 
 export function LoginForm() {
   const router = useRouter();
+  const tLogin = useTranslations('auth.login');
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -46,14 +48,21 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <h2 className="text-2xl font-semibold">{tLogin('heading')}</h2>
       {serverError && (
         <p role="alert" className="text-sm text-destructive">
           {serverError}
         </p>
       )}
       <div className="space-y-1">
-        <Label htmlFor="username">Username</Label>
-        <Input id="username" type="text" {...register('username')} autoComplete="username" />
+        <Label htmlFor="username">{tLogin('username_label')}</Label>
+        <Input
+          id="username"
+          type="text"
+          {...register('username')}
+          autoComplete="username"
+          placeholder={tLogin('username_placeholder')}
+        />
         {errors.username && (
           <p role="alert" className="text-sm text-destructive">
             {errors.username.message}
@@ -61,12 +70,13 @@ export function LoginForm() {
         )}
       </div>
       <div className="space-y-1">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{tLogin('password_label')}</Label>
         <Input
           id="password"
           type="password"
           {...register('password')}
           autoComplete="current-password"
+          placeholder={tLogin('password_placeholder')}
         />
         {errors.password && (
           <p role="alert" className="text-sm text-destructive">
@@ -75,7 +85,7 @@ export function LoginForm() {
         )}
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Signing in…' : 'Sign In'}
+        {loading ? tLogin('submit_button_loading') : tLogin('submit_button')}
       </Button>
     </form>
   );
