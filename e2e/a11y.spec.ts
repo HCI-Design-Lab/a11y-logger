@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-async function checkA11y(page: Parameters<typeof AxeBuilder>[0]['page']) {
+async function checkA11y(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'best-practice'])
     // Radix UI 1.x generates aria-controls IDs using React 18 SSR format (_R_ prefix)

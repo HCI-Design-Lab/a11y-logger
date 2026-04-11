@@ -5,6 +5,7 @@ import type { IssueWithContext } from '@/lib/db/issues';
 let mockSeverity: string | null = null;
 vi.mock('next/navigation', () => ({
   useSearchParams: () => ({ get: (key: string) => (key === 'severity' ? mockSeverity : null) }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 import { IssuesListView } from '../issues-list-view';
@@ -233,43 +234,29 @@ describe('IssuesListView severity filter', () => {
     mockSeverity = null;
   });
 
-  it('renders All, Critical, High, Medium, Low filter links', () => {
+  it('renders All, Critical, High, Medium, Low filter tabs', () => {
     render(<IssuesListView issues={issues} />);
-    expect(screen.getByRole('link', { name: 'All' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Critical' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'High' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Medium' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Low' })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab', { name: 'All' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('tab', { name: 'Critical' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('tab', { name: 'High' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('tab', { name: 'Medium' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('tab', { name: 'Low' })[0]).toBeInTheDocument();
   });
 
-  it('All link points to /issues', () => {
-    render(<IssuesListView issues={issues} />);
-    expect(screen.getByRole('link', { name: 'All' })).toHaveAttribute('href', '/issues');
-  });
-
-  it('severity links point to /issues?severity=X', () => {
-    render(<IssuesListView issues={issues} />);
-    expect(screen.getByRole('link', { name: 'Critical' })).toHaveAttribute(
-      'href',
-      '/issues?severity=critical'
-    );
-    expect(screen.getByRole('link', { name: 'High' })).toHaveAttribute(
-      'href',
-      '/issues?severity=high'
-    );
-  });
-
-  it('All link has active style when no severity filter is active', () => {
+  it('All tab is selected when no severity filter is active', () => {
     mockSeverity = null;
     render(<IssuesListView issues={issues} />);
-    expect(screen.getByRole('link', { name: 'All' })).toHaveClass('bg-primary');
+    expect(screen.getAllByRole('tab', { name: 'All' })[0]).toHaveAttribute('data-state', 'active');
   });
 
-  it('active severity link has active style', () => {
+  it('active severity tab is selected', () => {
     mockSeverity = 'high';
     render(<IssuesListView issues={issues} />);
-    expect(screen.getByRole('link', { name: 'High' })).toHaveClass('bg-primary');
-    expect(screen.getByRole('link', { name: 'All' })).not.toHaveClass('bg-primary');
+    expect(screen.getAllByRole('tab', { name: 'High' })[0]).toHaveAttribute('data-state', 'active');
+    expect(screen.getAllByRole('tab', { name: 'All' })[0]).toHaveAttribute(
+      'data-state',
+      'inactive'
+    );
   });
 
   it('shows only issues matching active severity filter', () => {

@@ -49,7 +49,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -67,7 +66,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ conformance: 'not_evaluated' })}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -84,7 +82,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ conformance: 'supports' })}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -101,7 +98,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -118,7 +114,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ conformance: 'supports' })}
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}
@@ -137,7 +132,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -157,7 +151,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -174,7 +167,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ remarks: 'Some remarks' })}
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}
@@ -192,7 +184,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={true}
         isGenerating={false}
@@ -210,7 +201,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={true}
         aiEnabled={true}
         isGenerating={false}
@@ -229,7 +219,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={true}
         isGenerating={false}
@@ -248,7 +237,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={true}
         isGenerating={true}
@@ -267,7 +255,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ issue_count: 3 })}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -284,7 +271,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ issue_count: 0 })}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -302,7 +288,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow()}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -322,7 +307,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={makeRow({ ai_confidence: 'high', remarks: 'text' })}
-        isEven={false}
         readOnly={false}
         aiEnabled={true}
         isGenerating={false}
@@ -343,7 +327,6 @@ describe('VpatCriteriaRow', () => {
     wrap(
       <VpatCriteriaRow
         row={row}
-        isEven={false}
         readOnly={false}
         aiEnabled={true}
         isGenerating={false}
@@ -366,7 +349,6 @@ describe('EN badge for untranslated criteria', () => {
       <VpatCriteriaRow
         row={makeRow({ criterion_name_translated: null })}
         locale="fr"
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}
@@ -384,7 +366,6 @@ describe('EN badge for untranslated criteria', () => {
       <VpatCriteriaRow
         row={makeRow({ criterion_name_translated: null })}
         locale="en"
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}
@@ -402,7 +383,6 @@ describe('EN badge for untranslated criteria', () => {
       <VpatCriteriaRow
         row={makeRow({ criterion_name_translated: 'Contenu non textuel' })}
         locale="fr"
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}
@@ -420,7 +400,6 @@ describe('EN badge for untranslated criteria', () => {
       <VpatCriteriaRow
         row={makeRow({ criterion_name_translated: 'Contenu non textuel' })}
         locale="fr"
-        isEven={false}
         readOnly={true}
         aiEnabled={false}
         isGenerating={false}

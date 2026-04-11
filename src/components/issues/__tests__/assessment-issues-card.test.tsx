@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { AssessmentIssuesCard } from '../assessment-issues-card';
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 import type { Issue } from '@/lib/db/issues';
 
@@ -54,25 +54,13 @@ test('does not render Import button (moved to settings menu)', () => {
   expect(screen.queryByRole('button', { name: /import/i })).not.toBeInTheDocument();
 });
 
-test('renders all severity filter links', () => {
+test('renders all severity filter tabs', () => {
   render(<AssessmentIssuesCard {...baseProps} issues={[issue]} />);
-  expect(screen.getByRole('link', { name: /^all$/i })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /critical/i })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /high/i })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /medium/i })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /low/i })).toBeInTheDocument();
-});
-
-test('severity filter links point to assessment page with search param', () => {
-  render(<AssessmentIssuesCard {...baseProps} issues={[issue]} />);
-  expect(screen.getByRole('link', { name: /critical/i })).toHaveAttribute(
-    'href',
-    '/projects/p1/assessments/a1?severity=critical'
-  );
-  expect(screen.getByRole('link', { name: /^all$/i })).toHaveAttribute(
-    'href',
-    '/projects/p1/assessments/a1'
-  );
+  expect(screen.getByRole('tab', { name: /^all$/i })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: /critical/i })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: /high/i })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: /medium/i })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: /low/i })).toBeInTheDocument();
 });
 
 test('shows issue title when issues exist', () => {

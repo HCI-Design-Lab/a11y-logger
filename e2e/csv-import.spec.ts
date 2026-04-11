@@ -53,8 +53,8 @@ test.describe('CSV Import', () => {
       const dialog = page.getByRole('dialog');
       await page.getByLabel(/csv file/i).setInputFiles(csvPath);
 
-      // Preview should appear after parsing
-      await expect(page.getByText(/preview/i)).toBeVisible();
+      // Preview table should appear after parsing
+      await expect(page.getByText(/showing \d+ of \d+ rows/i)).toBeVisible();
 
       // Advance to column mapping step
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
@@ -89,7 +89,7 @@ test.describe('CSV Import', () => {
 
       const dialog = page.getByRole('dialog');
       await page.getByLabel(/csv file/i).setInputFiles(csvPath);
-      await expect(page.getByText(/preview/i)).toBeVisible();
+      await expect(page.getByText(/showing \d+ of \d+ rows/i)).toBeVisible();
 
       await dialog.getByRole('button', { name: 'Next', exact: true }).click();
       await expect(page.getByRole('heading', { name: /map columns/i })).toBeVisible();

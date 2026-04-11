@@ -64,7 +64,6 @@ describe('VpatCriteriaRow — single component', () => {
     wrap(
       <VpatCriteriaRow
         row={row}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -106,7 +105,6 @@ describe('VpatCriteriaRow — multi-component', () => {
     wrap(
       <VpatCriteriaRow
         row={row}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -147,7 +145,6 @@ describe('VpatCriteriaRow — multi-component', () => {
     wrap(
       <VpatCriteriaRow
         row={row}
-        isEven={false}
         readOnly={false}
         aiEnabled={false}
         isGenerating={false}
@@ -189,7 +186,6 @@ describe('VpatCriteriaRow — multi-component', () => {
         <tbody>
           <VpatCriteriaRow
             row={row as never}
-            isEven={false}
             readOnly={false}
             aiEnabled={true}
             isGenerating={false}
@@ -234,7 +230,6 @@ describe('VpatCriteriaRow — multi-component', () => {
       wrap(
         <VpatCriteriaRow
           row={row}
-          isEven={false}
           readOnly={true}
           aiEnabled={false}
           isGenerating={false}

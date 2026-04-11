@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => ({ get: () => null }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 import { IssuesListView } from '@/components/issues/issues-list-view';

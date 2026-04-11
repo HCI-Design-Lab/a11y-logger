@@ -20,11 +20,11 @@ test('sidebar has navigation landmark', () => {
   expect(screen.getByRole('navigation')).toBeInTheDocument();
 });
 
-test('active route gets highlighted class', () => {
+test('active route gets highlighted indicator', () => {
   render(<Sidebar />);
-  // /dashboard is the active path (mocked)
+  // /dashboard is the active path (mocked) — active links use a left-border pseudo-element
   const dashLink = screen.getByRole('link', { name: /dashboard/i });
-  expect(dashLink).toHaveClass('bg-sidebar-accent');
+  expect(dashLink.className).toContain('before:bg-foreground');
 });
 
 test('active link has aria-current="page"', () => {

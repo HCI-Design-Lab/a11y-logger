@@ -25,10 +25,6 @@ const makeRow = (overrides: Partial<VpatCriterionRow> = {}): VpatCriterionRow =>
   ...overrides,
 });
 
-// Sections start expanded — call this to collapse a section in tests that need it.
-const collapseSection = (label = /collapse Table 1/i) =>
-  fireEvent.click(screen.getByRole('button', { name: label }));
-
 describe('VpatCriteriaTable', () => {
   it('renders criterion code and name', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
@@ -306,31 +302,8 @@ describe('VpatCriteriaTable', () => {
     expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
   });
 
-  it('sections are expanded by default', () => {
+  it('sections are always expanded', () => {
     render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    expect(screen.getByTestId('row-1')).toBeInTheDocument();
-  });
-
-  it('shows resolved/total count when section is collapsed', () => {
-    const rows = [
-      makeRow({ id: '1', conformance: 'supports' }),
-      makeRow({ id: '2', criterion_code: '1.2.1', conformance: 'not_evaluated' }),
-    ];
-    render(<VpatCriteriaTable rows={rows} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    collapseSection();
-    expect(screen.getByText(/1 of 2 resolved/i)).toBeInTheDocument();
-  });
-
-  it('collapses a section when the toggle button is clicked', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
-    expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
-  });
-
-  it('re-expands a collapsed section when toggle is clicked again', () => {
-    render(<VpatCriteriaTable rows={[makeRow()]} onRowChange={vi.fn()} onSaveRemarks={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /collapse Table 1/i }));
-    fireEvent.click(screen.getByRole('button', { name: /expand Table 1/i }));
     expect(screen.getByTestId('row-1')).toBeInTheDocument();
   });
 

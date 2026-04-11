@@ -203,10 +203,9 @@ test('changing page size resets to page 1', () => {
   fireEvent.click(screen.getByRole('button', { name: /next page/i }));
   expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
 
-  // Change page size to 25 — all 12 rows fit on one page
-  fireEvent.change(screen.getByRole('combobox', { name: /rows per page/i }), {
-    target: { value: '25' },
-  });
+  // Change page size to 25 — all 12 rows fit on one page (Radix Select: click trigger then option)
+  fireEvent.click(screen.getByRole('combobox', { name: /rows per page/i }));
+  fireEvent.click(screen.getByRole('option', { name: '25' }));
   expect(screen.getByText('Page 1 of 1')).toBeInTheDocument();
 });
 

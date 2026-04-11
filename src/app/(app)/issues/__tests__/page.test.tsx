@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => ({ get: () => null }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 vi.mock('@/lib/db/issues', () => ({

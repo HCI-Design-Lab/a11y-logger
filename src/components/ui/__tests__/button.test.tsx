@@ -22,25 +22,24 @@ describe('Button hover inverse colors', () => {
     expect(classes).toContain('hover:text-destructive');
   });
 
-  test('outline variant has inverse hover classes', () => {
+  test('outline variant has transparent background on hover', () => {
     const { getByRole } = render(<Button variant="outline">Outline</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('hover:bg-foreground');
-    expect(classes).toContain('hover:text-background');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).toContain('hover:text-foreground');
   });
 
-  test('secondary variant has inverse hover classes', () => {
+  test('secondary variant has transparent background on hover', () => {
     const { getByRole } = render(<Button variant="secondary">Secondary</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('hover:bg-secondary-foreground');
-    expect(classes).toContain('hover:text-secondary');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).toContain('hover:text-secondary-foreground');
   });
 
-  test('default variant border color does not change on hover', () => {
+  test('default variant uses primary border color on hover', () => {
     const { getByRole } = render(<Button>Click me</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    // Border style may change but color should not be overridden
-    expect(classes).not.toContain('hover:border-primary');
+    expect(classes).toContain('hover:border-primary');
     expect(classes).not.toContain('hover:border-foreground');
   });
 
@@ -53,11 +52,11 @@ describe('Button hover inverse colors', () => {
 });
 
 describe('Success button variant', () => {
-  test('success variant renders with success background and white text', () => {
+  test('success variant renders with success background and success-foreground text', () => {
     const { getByRole } = render(<Button variant="success">New Project</Button>);
     const classes = getButtonClasses(getByRole('button'));
     expect(classes).toContain('bg-success');
-    expect(classes).toContain('text-white');
+    expect(classes).toContain('text-success-foreground');
   });
 
   test('success variant has transparent background and success text on hover', () => {
@@ -73,11 +72,11 @@ describe('Success button variant', () => {
     expect(classes).toContain('hover:border-dashed');
   });
 
-  test('success variant gets transparent background on hover in dark mode', () => {
+  test('success variant gets transparent background on hover', () => {
     const { getByRole } = render(<Button variant="success">New Project</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:bg-transparent');
-    expect(classes).not.toContain('dark:hover:bg-white');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).not.toContain('hover:bg-white');
   });
 });
 
@@ -110,10 +109,10 @@ describe('Button hover dashed border', () => {
     expect(classes).toContain('hover:border-dashed');
   });
 
-  test('outline variant does NOT get dashed border on hover in light mode', () => {
+  test('outline variant gets dashed border on hover', () => {
     const { getByRole } = render(<Button variant="outline">Outline</Button>);
-    const classList = getButtonClasses(getByRole('button')).split(' ');
-    expect(classList).not.toContain('hover:border-dashed');
+    const classes = getButtonClasses(getByRole('button'));
+    expect(classes).toContain('hover:border-dashed');
   });
 });
 
@@ -137,11 +136,10 @@ describe('Cancel button variant', () => {
     expect(classes).toContain('hover:border-dashed');
   });
 
-  test('cancel variant gets dashed white border on hover in dark mode', () => {
+  test('cancel variant gets dashed border on hover', () => {
     const { getByRole } = render(<Button variant="cancel">Cancel</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:border-dashed');
-    expect(classes).toContain('dark:hover:border-white');
+    expect(classes).toContain('hover:border-dashed');
   });
 
   test('cancel variant has no background change on hover in dark mode', () => {
@@ -152,30 +150,30 @@ describe('Cancel button variant', () => {
 });
 
 describe('Button dark mode hover', () => {
-  test('destructive variant gets transparent background on hover in dark mode', () => {
+  test('destructive variant gets transparent background on hover', () => {
     const { getByRole } = render(<Button variant="destructive">Delete</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:bg-transparent');
-    expect(classes).not.toContain('dark:hover:bg-white');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).not.toContain('hover:bg-white');
   });
 
-  test('outline variant gets transparent background on hover in dark mode', () => {
+  test('outline variant gets transparent background on hover', () => {
     const { getByRole } = render(<Button variant="outline">Outline</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:bg-transparent');
-    expect(classes).not.toContain('dark:hover:bg-white');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).not.toContain('hover:bg-white');
   });
 
-  test('outline variant gets dashed border on hover in dark mode', () => {
+  test('outline variant gets dashed border on hover', () => {
     const { getByRole } = render(<Button variant="outline">Outline</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:border-dashed');
+    expect(classes).toContain('hover:border-dashed');
   });
 
-  test('success variant gets transparent background on hover in dark mode', () => {
+  test('success variant gets transparent background on hover', () => {
     const { getByRole } = render(<Button variant="success">New</Button>);
     const classes = getButtonClasses(getByRole('button'));
-    expect(classes).toContain('dark:hover:bg-transparent');
-    expect(classes).not.toContain('dark:hover:bg-white');
+    expect(classes).toContain('hover:bg-transparent');
+    expect(classes).not.toContain('hover:bg-white');
   });
 });
