@@ -39,17 +39,17 @@
   },
   "vpats": {
     "conformance": {
-      "not_evaluated": "Not Evaluated",
-      "supports": "Supports",
-      "partially_supports": "Partial Support",
-      "does_not_support": "Does Not Support",
-      "not_applicable": "Not Applicable"
+      "not_evaluated": "Nicht bewertet",
+      "supports": "Erfüllt",
+      "partially_supports": "Teilweise erfüllt",
+      "does_not_support": "Nicht erfüllt",
+      "not_applicable": "Nicht anwendbar"
     },
     "status": {
-      "draft": "Draft",
-      "published": "Published",
-      "archived": "Archived",
-      "reviewed": "Reviewed"
+      "draft": "Entwurf",
+      "published": "Veröffentlicht",
+      "archived": "Archiviert",
+      "reviewed": "Überprüft"
     },
     "sections": {
       "tableA": "Table 1: Success Criteria, Level A",
@@ -69,6 +69,101 @@
       "generate": "Generate PDF",
       "download": "Download PDF",
       "generating": "Generating…"
+    },
+    "card": {
+      "no_project": "Kein Projekt",
+      "criteria_resolved": "{resolved} von {total} Kriterien gelöst"
+    },
+    "settings_menu": {
+      "aria_label": "VPAT-Einstellungen",
+      "edit_vpat": "VPAT bearbeiten",
+      "mark_as_reviewed": "Als überprüft markieren",
+      "update_review": "Überprüfung aktualisieren",
+      "publish": "Veröffentlichen",
+      "unpublish": "Zurückziehen",
+      "export_html": "HTML",
+      "export_docx": "Word (.docx)",
+      "export_openacr": "OpenACR (YAML)",
+      "print_to_pdf": "Als PDF drucken…",
+      "delete": "Löschen",
+      "not_ready_to_publish_title": "Nicht bereit zur Veröffentlichung",
+      "criteria_must_be_evaluated": "Alle Kriterien müssen bewertet werden, bevor dieser VPAT veröffentlicht werden kann.",
+      "vpat_must_be_reviewed": "Der VPAT muss überprüft werden, bevor er veröffentlicht werden kann.",
+      "vpat_must_also_be_reviewed": "Der VPAT muss außerdem überprüft werden, bevor er veröffentlicht werden kann.",
+      "publish_vpat_title": "VPAT veröffentlichen",
+      "publish_snapshot_note": "Durch die Veröffentlichung wird ein Snapshot des aktuellen Zustands erstellt. Sind Sie sicher?",
+      "publishing": "Veröffentlichung…",
+      "unpublish_vpat_title": "VPAT zurückziehen?",
+      "unpublish_description": "Das Zurückziehen setzt diesen VPAT auf den Status Entwurf zurück. Die aktuell veröffentlichte Version wird im Versionsverlauf gespeichert.",
+      "not_ready_to_review_title": "Nicht bereit zur Überprüfung",
+      "criteria_must_be_evaluated_review": "Alle Kriterien müssen bewertet werden, bevor dieser VPAT überprüft werden kann.",
+      "submit_review_title": "Überprüfung einreichen",
+      "submit_review_confirmation": "Mit der Einreichung Ihres Namens bestätigen Sie, dass Sie diesen VPAT persönlich überprüft haben und die Ergebnisse die Barrierefreiheitskonformität des Produkts korrekt widerspiegeln.",
+      "reviewer_name_placeholder": "Vollständiger Name",
+      "reviewer_name_aria_label": "Vollständiger Name des Prüfers",
+      "submitting": "Einreichen…",
+      "submit_review_button": "Überprüfung einreichen",
+      "edit_published_title": "Veröffentlichten VPAT bearbeiten?",
+      "edit_published_description": "Durch die Bearbeitung wird dieser VPAT auf den Status Entwurf zurückgesetzt. Die aktuell veröffentlichte Version wird im Versionsverlauf gespeichert.",
+      "edit_anyway": "Trotzdem bearbeiten",
+      "delete_vpat_title": "VPAT löschen",
+      "delete_vpat_description": "Sind Sie sicher, dass Sie \"{title}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleting": "Löschen…",
+      "ok": "OK",
+      "cancel": "Abbrechen",
+      "all_criteria_evaluated": "Alle {total} Kriterien wurden bewertet.",
+      "criteria_not_evaluated": "{notEvaluated} von {total} Kriterien wurden noch nicht bewertet."
+    },
+    "cover_sheet": {
+      "loading": "Laden…",
+      "product_info_title": "Produktinformationen",
+      "product_name_label": "Produktname",
+      "product_name_placeholder": "z.B. Meine App 2.0",
+      "product_version_label": "Version",
+      "product_version_placeholder": "z.B. 2.4.1",
+      "product_description_label": "Produktbeschreibung",
+      "product_description_placeholder": "Kurze Beschreibung des Produkts",
+      "vendor_info_title": "Anbieter- / Kontaktinformationen",
+      "vendor_company_label": "Unternehmen",
+      "vendor_company_placeholder": "z.B. Acme GmbH",
+      "vendor_contact_name_label": "Kontaktname",
+      "vendor_contact_name_placeholder": "z.B. Jane Smith",
+      "vendor_contact_email_label": "Kontakt-E-Mail",
+      "vendor_contact_email_placeholder": "z.B. jane@acme.com",
+      "vendor_contact_phone_label": "Kontakttelefon",
+      "vendor_contact_phone_placeholder": "z.B. +49 555 000 0000",
+      "vendor_website_label": "Webseite",
+      "vendor_website_placeholder": "z.B. https://acme.com",
+      "report_details_title": "Berichtsdetails",
+      "report_date_label": "Berichtsdatum",
+      "evaluation_methods_label": "Evaluierungsmethoden",
+      "evaluation_methods_placeholder": "Beschreiben Sie die verwendeten Testmethoden",
+      "notes_label": "Notizen",
+      "notes_placeholder": "Zusätzliche Notizen"
+    },
+    "cover_sheet_toast": {
+      "save_failed": "Deckblatt konnte nicht gespeichert werden"
+    },
+    "generate_all": {
+      "title": "Alle Kriterien generieren?",
+      "description": "Dabei werden Bemerkungen für {criteriaCount} Kriterien generiert. Dies kann einige Minuten dauern.",
+      "cancel": "Abbrechen",
+      "generate": "Generieren"
+    },
+    "criteria": {
+      "remarks_placeholder": "Bemerkungen hinzufügen…",
+      "generating": "Generieren…",
+      "generate": "Generieren",
+      "view_issues_aria_label": "Probleme für {code} anzeigen",
+      "generate_aria_label": "Für {code} generieren",
+      "generating_aria_label": "Generierung für {code}",
+      "ai_info_aria_label": "KI-Info für {code}",
+      "conformance_aria_label": "Konformität für {code}",
+      "remarks_aria_label": "Bemerkungen für {code}"
+    },
+    "toast": {
+      "deleted": "VPAT gelöscht",
+      "delete_failed": "VPAT konnte nicht gelöscht werden"
     },
     "pdf_modal": {
       "title": "Als PDF drucken",

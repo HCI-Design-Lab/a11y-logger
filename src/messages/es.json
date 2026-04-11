@@ -39,17 +39,17 @@
   },
   "vpats": {
     "conformance": {
-      "not_evaluated": "Not Evaluated",
-      "supports": "Supports",
-      "partially_supports": "Partial Support",
-      "does_not_support": "Does Not Support",
-      "not_applicable": "Not Applicable"
+      "not_evaluated": "No evaluado",
+      "supports": "Cumple",
+      "partially_supports": "Cumple parcialmente",
+      "does_not_support": "No cumple",
+      "not_applicable": "No aplica"
     },
     "status": {
-      "draft": "Draft",
-      "published": "Published",
-      "archived": "Archived",
-      "reviewed": "Reviewed"
+      "draft": "Borrador",
+      "published": "Publicado",
+      "archived": "Archivado",
+      "reviewed": "Revisado"
     },
     "sections": {
       "tableA": "Table 1: Success Criteria, Level A",
@@ -69,6 +69,101 @@
       "generate": "Generate PDF",
       "download": "Download PDF",
       "generating": "Generating…"
+    },
+    "card": {
+      "no_project": "Sin proyecto",
+      "criteria_resolved": "{resolved} de {total} criterios resueltos"
+    },
+    "settings_menu": {
+      "aria_label": "Configuración VPAT",
+      "edit_vpat": "Editar VPAT",
+      "mark_as_reviewed": "Marcar como revisado",
+      "update_review": "Actualizar revisión",
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "export_html": "HTML",
+      "export_docx": "Word (.docx)",
+      "export_openacr": "OpenACR (YAML)",
+      "print_to_pdf": "Imprimir a PDF…",
+      "delete": "Eliminar",
+      "not_ready_to_publish_title": "No está listo para publicar",
+      "criteria_must_be_evaluated": "Todos los criterios deben ser evaluados antes de poder publicar este VPAT.",
+      "vpat_must_be_reviewed": "El VPAT debe ser revisado antes de poder publicarse.",
+      "vpat_must_also_be_reviewed": "El VPAT también debe ser revisado antes de poder publicarse.",
+      "publish_vpat_title": "Publicar VPAT",
+      "publish_snapshot_note": "La publicación crea una instantánea del estado actual. ¿Estás seguro?",
+      "publishing": "Publicando…",
+      "unpublish_vpat_title": "¿Despublicar VPAT?",
+      "unpublish_description": "Despublicar restablecerá este VPAT al estado Borrador. La versión publicada actual se conservará en el historial de versiones.",
+      "not_ready_to_review_title": "No está listo para revisar",
+      "criteria_must_be_evaluated_review": "Todos los criterios deben ser evaluados antes de poder revisar este VPAT.",
+      "submit_review_title": "Enviar revisión",
+      "submit_review_confirmation": "Al enviar tu nombre, confirmas que has revisado personalmente este VPAT y que los resultados reflejan con precisión la conformidad de accesibilidad del producto.",
+      "reviewer_name_placeholder": "Nombre completo",
+      "reviewer_name_aria_label": "Nombre completo del revisor",
+      "submitting": "Enviando…",
+      "submit_review_button": "Enviar revisión",
+      "edit_published_title": "¿Editar VPAT publicado?",
+      "edit_published_description": "Editar restablecerá este VPAT al estado Borrador. La versión publicada actual se conservará en el historial de versiones.",
+      "edit_anyway": "Editar de todos modos",
+      "delete_vpat_title": "Eliminar VPAT",
+      "delete_vpat_description": "¿Estás seguro de que quieres eliminar «{title}»? Esta acción no se puede deshacer.",
+      "deleting": "Eliminando…",
+      "ok": "Aceptar",
+      "cancel": "Cancelar",
+      "all_criteria_evaluated": "Todos los {total} criterios han sido evaluados.",
+      "criteria_not_evaluated": "{notEvaluated} de {total} criterios no han sido evaluados todavía."
+    },
+    "cover_sheet": {
+      "loading": "Cargando…",
+      "product_info_title": "Información del producto",
+      "product_name_label": "Nombre del producto",
+      "product_name_placeholder": "ej. Mi aplicación 2.0",
+      "product_version_label": "Versión",
+      "product_version_placeholder": "ej. 2.4.1",
+      "product_description_label": "Descripción del producto",
+      "product_description_placeholder": "Breve descripción del producto",
+      "vendor_info_title": "Información del proveedor / contacto",
+      "vendor_company_label": "Empresa",
+      "vendor_company_placeholder": "ej. Acme Corp",
+      "vendor_contact_name_label": "Nombre del contacto",
+      "vendor_contact_name_placeholder": "ej. Jane Smith",
+      "vendor_contact_email_label": "Correo del contacto",
+      "vendor_contact_email_placeholder": "ej. jane@acme.com",
+      "vendor_contact_phone_label": "Teléfono del contacto",
+      "vendor_contact_phone_placeholder": "ej. +1 555 000 0000",
+      "vendor_website_label": "Sitio web",
+      "vendor_website_placeholder": "ej. https://acme.com",
+      "report_details_title": "Detalles del informe",
+      "report_date_label": "Fecha del informe",
+      "evaluation_methods_label": "Métodos de evaluación",
+      "evaluation_methods_placeholder": "Describe los métodos de prueba utilizados",
+      "notes_label": "Notas",
+      "notes_placeholder": "Notas adicionales"
+    },
+    "cover_sheet_toast": {
+      "save_failed": "Error al guardar la hoja de portada"
+    },
+    "generate_all": {
+      "title": "¿Generar todos los criterios?",
+      "description": "Esto generará observaciones para {criteriaCount} criterios. Esto puede tardar unos minutos.",
+      "cancel": "Cancelar",
+      "generate": "Generar"
+    },
+    "criteria": {
+      "remarks_placeholder": "Añadir observaciones…",
+      "generating": "Generando…",
+      "generate": "Generar",
+      "view_issues_aria_label": "Ver problemas para {code}",
+      "generate_aria_label": "Generar para {code}",
+      "generating_aria_label": "Generando para {code}",
+      "ai_info_aria_label": "Información IA para {code}",
+      "conformance_aria_label": "Conformidad para {code}",
+      "remarks_aria_label": "Observaciones para {code}"
+    },
+    "toast": {
+      "deleted": "VPAT eliminado",
+      "delete_failed": "Error al eliminar el VPAT"
     },
     "pdf_modal": {
       "title": "Imprimir a PDF",
