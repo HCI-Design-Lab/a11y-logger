@@ -99,7 +99,7 @@ export function ReportActionsMenu({ reportId, reportTitle, isPublished }: Report
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Report actions">
+          <Button variant="outline" size="icon" aria-label="Report actions" className="bg-card">
             <Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
