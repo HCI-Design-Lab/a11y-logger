@@ -86,5 +86,46 @@
       "es": "Spanish",
       "de": "German"
     }
+  },
+  "projects": {
+    "form": {
+      "name_label": "Nom du projet",
+      "name_placeholder": "ex. Refonte de l'application mobile",
+      "description_label": "Description",
+      "description_placeholder": "Brève description du projet",
+      "product_url_label": "URL du produit",
+      "product_url_placeholder": "https://exemple.com",
+      "save_button": "Enregistrer le projet",
+      "save_button_loading": "Enregistrement…",
+      "cancel_button": "Annuler"
+    },
+    "settings_menu": {
+      "aria_label": "Paramètres du projet",
+      "edit": "Modifier le projet",
+      "delete": "Supprimer le projet"
+    },
+    "delete_dialog": {
+      "title": "Supprimer le projet ?",
+      "description": "Cela supprimera définitivement ce projet ainsi que toutes ses évaluations et problèmes.",
+      "confirm_button": "Supprimer le projet",
+      "cancel_button": "Annuler"
+    },
+    "card": {
+      "updated_label": "Mis à jour",
+      "no_assessments": "Aucune évaluation pour l'instant"
+    },
+    "list": {
+      "empty_heading": "Aucun projet pour l'instant",
+      "empty_description": "Créez votre premier projet pour commencer.",
+      "new_button": "Nouveau projet"
+    },
+    "toast": {
+      "created": "Projet créé",
+      "updated": "Projet mis à jour",
+      "deleted": "Projet supprimé",
+      "create_failed": "Échec de la création du projet",
+      "update_failed": "Échec de la mise à jour du projet",
+      "delete_failed": "Échec de la suppression du projet"
+    }
   }
 }

@@ -86,5 +86,46 @@
       "es": "Spanish",
       "de": "German"
     }
+  },
+  "projects": {
+    "form": {
+      "name_label": "Nombre del proyecto",
+      "name_placeholder": "ej. Rediseño de la aplicación móvil",
+      "description_label": "Descripción",
+      "description_placeholder": "Breve descripción del proyecto",
+      "product_url_label": "URL del producto",
+      "product_url_placeholder": "https://ejemplo.com",
+      "save_button": "Guardar proyecto",
+      "save_button_loading": "Guardando…",
+      "cancel_button": "Cancelar"
+    },
+    "settings_menu": {
+      "aria_label": "Configuración del proyecto",
+      "edit": "Editar proyecto",
+      "delete": "Eliminar proyecto"
+    },
+    "delete_dialog": {
+      "title": "¿Eliminar proyecto?",
+      "description": "Esto eliminará permanentemente este proyecto y todas sus evaluaciones y problemas.",
+      "confirm_button": "Eliminar proyecto",
+      "cancel_button": "Cancelar"
+    },
+    "card": {
+      "updated_label": "Actualizado",
+      "no_assessments": "Sin evaluaciones todavía"
+    },
+    "list": {
+      "empty_heading": "Sin proyectos todavía",
+      "empty_description": "Crea tu primer proyecto para comenzar.",
+      "new_button": "Nuevo proyecto"
+    },
+    "toast": {
+      "created": "Proyecto creado",
+      "updated": "Proyecto actualizado",
+      "deleted": "Proyecto eliminado",
+      "create_failed": "Error al crear el proyecto",
+      "update_failed": "Error al actualizar el proyecto",
+      "delete_failed": "Error al eliminar el proyecto"
+    }
   }
 }

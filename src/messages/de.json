@@ -86,5 +86,46 @@
       "es": "Spanish",
       "de": "German"
     }
+  },
+  "projects": {
+    "form": {
+      "name_label": "Projektname",
+      "name_placeholder": "z.B. Neugestaltung der mobilen App",
+      "description_label": "Beschreibung",
+      "description_placeholder": "Kurze Beschreibung des Projekts",
+      "product_url_label": "Produkt-URL",
+      "product_url_placeholder": "https://beispiel.com",
+      "save_button": "Projekt speichern",
+      "save_button_loading": "Speichern…",
+      "cancel_button": "Abbrechen"
+    },
+    "settings_menu": {
+      "aria_label": "Projekteinstellungen",
+      "edit": "Projekt bearbeiten",
+      "delete": "Projekt löschen"
+    },
+    "delete_dialog": {
+      "title": "Projekt löschen?",
+      "description": "Dadurch wird dieses Projekt sowie alle zugehörigen Bewertungen und Probleme dauerhaft gelöscht.",
+      "confirm_button": "Projekt löschen",
+      "cancel_button": "Abbrechen"
+    },
+    "card": {
+      "updated_label": "Aktualisiert",
+      "no_assessments": "Noch keine Bewertungen"
+    },
+    "list": {
+      "empty_heading": "Noch keine Projekte",
+      "empty_description": "Erstellen Sie Ihr erstes Projekt, um zu beginnen.",
+      "new_button": "Neues Projekt"
+    },
+    "toast": {
+      "created": "Projekt erstellt",
+      "updated": "Projekt aktualisiert",
+      "deleted": "Projekt gelöscht",
+      "create_failed": "Projekt konnte nicht erstellt werden",
+      "update_failed": "Projekt konnte nicht aktualisiert werden",
+      "delete_failed": "Projekt konnte nicht gelöscht werden"
+    }
   }
 }

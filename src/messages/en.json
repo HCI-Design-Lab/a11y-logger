@@ -86,5 +86,46 @@
       "es": "Spanish",
       "de": "German"
     }
+  },
+  "projects": {
+    "form": {
+      "name_label": "Project Name",
+      "name_placeholder": "e.g. Mobile App Redesign",
+      "description_label": "Description",
+      "description_placeholder": "Brief description of the project",
+      "product_url_label": "Product URL",
+      "product_url_placeholder": "https://example.com",
+      "save_button": "Save Project",
+      "save_button_loading": "Saving…",
+      "cancel_button": "Cancel"
+    },
+    "settings_menu": {
+      "aria_label": "Project settings",
+      "edit": "Edit Project",
+      "delete": "Delete Project"
+    },
+    "delete_dialog": {
+      "title": "Delete Project?",
+      "description": "This will permanently delete this project and all its assessments and issues. This cannot be undone.",
+      "confirm_button": "Delete Project",
+      "cancel_button": "Cancel"
+    },
+    "card": {
+      "updated_label": "Updated",
+      "no_assessments": "No assessments yet"
+    },
+    "list": {
+      "empty_heading": "No projects yet",
+      "empty_description": "Create your first project to get started.",
+      "new_button": "New Project"
+    },
+    "toast": {
+      "created": "Project created",
+      "updated": "Project updated",
+      "deleted": "Project deleted",
+      "create_failed": "Failed to create project",
+      "update_failed": "Failed to update project",
+      "delete_failed": "Failed to delete project"
+    }
   }
 }
