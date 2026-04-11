@@ -112,7 +112,7 @@
   --secondary: oklch(0.16 0 0);
   --secondary-foreground: oklch(0.93 0 0);
   --muted: oklch(0.16 0 0);
-  --muted-foreground: oklch(0.55 0 0);
+  --muted-foreground: oklch(0.6 0 0);
   --accent: oklch(0.16 0 0);
   --accent-foreground: oklch(0.93 0 0);
   --destructive: oklch(0.6 0.2 25);
@@ -120,6 +120,7 @@
   --input: oklch(0.16 0 0);
   --ring: oklch(0.93 0 0);
   --success: oklch(0.72 0.17 151);
+  --success-foreground: oklch(0 0 0);
   --ai: oklch(0.55 0.16 277);
   --ai-background: oklch(0.943 0.025 268.845);
   --form-background: oklch(0.13 0 0);

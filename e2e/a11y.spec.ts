@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-async function checkA11y(page: Page) {
+async function checkA11y(page: Parameters<typeof AxeBuilder>[0]['page']) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'best-practice'])
     // Radix UI 1.x generates aria-controls IDs using React 18 SSR format (_R_ prefix)
@@ -101,13 +101,6 @@ test.describe('dynamic routes', () => {
     });
     const vpat = await vpatRes.json();
     vpatId = vpat.data.id;
-  });
-
-  test.afterAll(async ({ request }) => {
-    // Deleting the project cascades to assessments and issues
-    if (vpatId) await request.delete(`/api/vpats/${vpatId}`);
-    if (reportId) await request.delete(`/api/reports/${reportId}`);
-    if (projectId) await request.delete(`/api/projects/${projectId}`);
   });
 
   test('project detail has no accessibility violations', async ({ page }) => {
