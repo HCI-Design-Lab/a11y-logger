@@ -1,9 +1,62 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
+import React from 'react';
 
 const mockSetTheme = vi.fn();
 vi.mock('next-themes', () => ({
   useTheme: () => ({ theme: 'dark', setTheme: mockSetTheme }),
+}));
+
+const MockSelectCtx = React.createContext<{
+  ariaLabel?: string;
+  id?: string;
+  setMeta: (m: { ariaLabel?: string; id?: string }) => void;
+}>({ setMeta: () => {} });
+
+vi.mock('@/components/ui/select', () => ({
+  Select: ({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value: string;
+    onValueChange: (v: string) => void;
+    children: React.ReactNode;
+  }) => {
+    const [meta, setMeta] = React.useState<{ ariaLabel?: string; id?: string }>({});
+    return (
+      <MockSelectCtx.Provider value={{ ...meta, setMeta }}>
+        <select
+          role="combobox"
+          aria-label={meta.ariaLabel}
+          id={meta.id}
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+        >
+          {children}
+        </select>
+      </MockSelectCtx.Provider>
+    );
+  },
+  SelectTrigger: ({
+    'aria-label': ariaLabel,
+    id,
+  }: {
+    children?: React.ReactNode;
+    'aria-label'?: string;
+    id?: string;
+  }) => {
+    const { setMeta } = React.useContext(MockSelectCtx);
+    React.useEffect(() => {
+      setMeta({ ariaLabel, id });
+    }, [ariaLabel, id, setMeta]);
+    return null;
+  },
+  SelectValue: () => null,
+  SelectContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ value, children }: { value: string; children: React.ReactNode }) => (
+    <option value={value}>{children}</option>
+  ),
 }));
 
 vi.mock('next/navigation', () => ({
