@@ -5,6 +5,13 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const LANGUAGE_OPTION_KEYS = ['en', 'fr', 'es', 'de'] as const;
 
@@ -39,22 +46,22 @@ export function Header({ currentLocale = 'en' }: HeaderProps) {
         <span className="font-semibold text-sm tracking-tight">A11y Logger</span>
       </div>
       <div className="flex items-center gap-2">
-        <label className="sr-only" htmlFor="language-selector">
-          {tUi('language_select.aria_label')}
-        </label>
-        <select
-          id="language-selector"
-          aria-label={tUi('language_select.aria_label')}
-          value={currentLocale}
-          onChange={(e) => handleLanguageChange(e.target.value)}
-          className="text-sm bg-transparent border border-border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          {LANGUAGE_OPTION_KEYS.map((key) => (
-            <option key={key} value={key}>
-              {tLang(key)}
-            </option>
-          ))}
-        </select>
+        <Select value={currentLocale} onValueChange={handleLanguageChange}>
+          <SelectTrigger
+            id="language-selector"
+            aria-label={tUi('language_select.aria_label')}
+            className="w-auto text-sm"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LANGUAGE_OPTION_KEYS.map((key) => (
+              <SelectItem key={key} value={key}>
+                {tLang(key)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button
           variant="ghost"
           size="icon"

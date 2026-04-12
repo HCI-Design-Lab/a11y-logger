@@ -3,11 +3,67 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
 import { Header } from '../header';
 
 // Mock next-themes
 vi.mock('next-themes', () => ({
   useTheme: () => ({ theme: 'light', setTheme: vi.fn() }),
+}));
+
+// Mock Radix Select as a native <select> so fireEvent.change and getByDisplayValue work.
+// SelectTrigger owns the aria-label/id in real usage, so we use context to pass them
+// down to the <select> that Select renders.
+const MockSelectCtx = React.createContext<{
+  ariaLabel?: string;
+  id?: string;
+  setMeta: (m: { ariaLabel?: string; id?: string }) => void;
+}>({ setMeta: () => {} });
+
+vi.mock('@/components/ui/select', () => ({
+  Select: ({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value: string;
+    onValueChange: (v: string) => void;
+    children: React.ReactNode;
+  }) => {
+    const [meta, setMeta] = React.useState<{ ariaLabel?: string; id?: string }>({});
+    return (
+      <MockSelectCtx.Provider value={{ ...meta, setMeta }}>
+        <select
+          role="combobox"
+          aria-label={meta.ariaLabel}
+          id={meta.id}
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+        >
+          {children}
+        </select>
+      </MockSelectCtx.Provider>
+    );
+  },
+  SelectTrigger: ({
+    'aria-label': ariaLabel,
+    id,
+  }: {
+    children: React.ReactNode;
+    'aria-label'?: string;
+    id?: string;
+  }) => {
+    const { setMeta } = React.useContext(MockSelectCtx);
+    React.useEffect(() => {
+      setMeta({ ariaLabel, id });
+    }, [ariaLabel, id, setMeta]);
+    return null;
+  },
+  SelectValue: () => null,
+  SelectContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ value, children }: { value: string; children: React.ReactNode }) => (
+    <option value={value}>{children}</option>
+  ),
 }));
 
 // Mock next-intl
