@@ -42,7 +42,7 @@ const STATIC_ROUTES = [
 ];
 
 for (const route of STATIC_ROUTES) {
-  test(`${route.name} has no accessibility violations`, async ({ page }) => {
+  test(`${route.name} has no accessibility violations @a11y`, async ({ page }) => {
     await page.goto(route.path);
     await page.waitForLoadState('networkidle');
     await checkA11y(page);
@@ -51,7 +51,7 @@ for (const route of STATIC_ROUTES) {
 
 // ─── Dynamic routes (require seeded data) ────────────────────────────────────
 
-test.describe('dynamic routes', () => {
+test.describe('dynamic routes @a11y', () => {
   let projectId: string;
   let assessmentId: string;
   let issueId: string;
