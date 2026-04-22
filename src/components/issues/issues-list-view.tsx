@@ -28,9 +28,16 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const severity = searchParams.get('severity');
+  const status = searchParams.get('status') as 'open' | 'resolved' | 'wont_fix' | null;
 
   function handleSeverityChange(value: string) {
-    router.push(value ? `/issues?severity=${value}` : '/issues');
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set('severity', value);
+    } else {
+      params.delete('severity');
+    }
+    router.push(params.size > 0 ? `/issues?${params.toString()}` : '/issues');
   }
 
   const afterSeverity =
@@ -38,8 +45,13 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
       ? issues.filter((i) => i.severity === severity)
       : issues;
 
+  const afterStatus =
+    status && (['open', 'resolved', 'wont_fix'] as const).includes(status)
+      ? afterSeverity.filter((i) => i.status === status)
+      : afterSeverity;
+
   const filtered = query.trim()
-    ? afterSeverity.filter((i) => {
+    ? afterStatus.filter((i) => {
         const q = query.toLowerCase();
         return (
           i.title.toLowerCase().includes(q) ||
@@ -48,7 +60,7 @@ export function IssuesListView({ issues }: IssuesListViewProps) {
           i.project_name.toLowerCase().includes(q)
         );
       })
-    : afterSeverity;
+    : afterStatus;
 
   return (
     <section aria-labelledby="issues-heading" className="p-6 space-y-6">

@@ -4,6 +4,10 @@ import { vi, describe, it, expect } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/messages/en.json';
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({ get: () => null }),
+}));
+
 vi.mock('@/components/assessments/all-assessments-table', () => ({
   AllAssessmentsTable: () => <div data-testid="assessments-table" />,
 }));

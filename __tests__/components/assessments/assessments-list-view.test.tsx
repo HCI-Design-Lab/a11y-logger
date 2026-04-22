@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/messages/en.json';
+
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({ get: () => null }),
+}));
 import { AssessmentsListView } from '@/components/assessments/assessments-list-view';
 import type { AssessmentWithProject } from '@/lib/db/assessments';
 

@@ -3,6 +3,10 @@ import { vi } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
 import en from '@/messages/en.json';
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({ get: () => null }),
+}));
+
 vi.mock('@/lib/db/assessments', () => ({
   getAllAssessments: () =>
     Promise.resolve([

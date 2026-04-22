@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +19,13 @@ interface AssessmentsListViewProps {
 export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
   const t = useTranslations('assessments.list');
   const [view, setView] = useState<'grid' | 'table'>('table');
+  const searchParams = useSearchParams();
+  const status = searchParams.get('status') as 'ready' | 'in_progress' | 'completed' | null;
+
+  const filtered =
+    status && (['ready', 'in_progress', 'completed'] as const).includes(status)
+      ? assessments.filter((a) => a.status === status)
+      : assessments;
 
   return (
     <div className="p-6 space-y-6">
@@ -38,7 +46,7 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
         </div>
       </section>
 
-      {assessments.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-muted-foreground">{t('empty_heading')}</p>
           <Button asChild variant="outline" className="mt-4">
@@ -47,14 +55,14 @@ export function AssessmentsListView({ assessments }: AssessmentsListViewProps) {
         </div>
       ) : view === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {assessments.map((a) => (
+          {filtered.map((a) => (
             <AssessmentCard key={a.id} assessment={a} />
           ))}
         </div>
       ) : (
         <Card>
           <CardContent>
-            <AllAssessmentsTable assessments={assessments} />
+            <AllAssessmentsTable assessments={filtered} />
           </CardContent>
         </Card>
       )}
